@@ -80,7 +80,10 @@ nav:
       - "World Seeding & Anchors": rules/03_player_first_worldbuilding.md
       - "Ancestries Catalog": rules/04_ancestries.md
       - "Core Classes": rules/05_classes_core.md
-      - "Specialist Classes": rules/06_classes_specialist.md
+      - "Martial & Frontier Classes": rules/06_classes_martial.md
+      - "Divine & Sacred Champions": rules/06_classes_divine.md
+      - "Arcane & Occult Classes": rules/06_classes_arcane.md
+      - "Specialists & Infiltrators": rules/06_classes_specialist.md
       - "Equipment & Services": rules/07_equipment_and_services.md
       - "Exploration & Crawling": rules/08_exploration_and_crawling.md
       - "Combat & Hazards": rules/09_combat_and_hazards.md
