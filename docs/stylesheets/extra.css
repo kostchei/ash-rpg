@@ -1,0 +1,79 @@
+/* Custom styling for ASH RPG Wiki */
+
+:root {
+  --md-primary-fg-color: #8c2d19;
+  --md-primary-fg-color--light: #a93b22;
+  --md-primary-fg-color--dark: #631d0e;
+  --md-accent-fg-color: #d97706;
+}
+
+[data-md-color-scheme="slate"] {
+  --md-primary-fg-color: #d97706;
+  --md-primary-fg-color--light: #f59e0b;
+  --md-primary-fg-color--dark: #b45309;
+  --md-accent-fg-color: #ef4444;
+  --md-default-bg-color: #121316;
+  --md-default-fg-color: #e5e7eb;
+}
+
+/* Enhancing Tables for Stat Blocks & Game Data */
+.md-typeset table:not([class]) {
+  font-size: 0.88rem;
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.md-typeset table:not([class]) th {
+  background-color: var(--md-primary-fg-color);
+  color: #ffffff;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+[data-md-color-scheme="slate"] .md-typeset table:not([class]) th {
+  background-color: #1f242d;
+  color: #f59e0b;
+  border-bottom: 2px solid #374151;
+}
+
+/* Stat Block Styling */
+.stat-block {
+  border: 2px solid #8c2d19;
+  background-color: rgba(140, 45, 25, 0.04);
+  padding: 1rem 1.25rem;
+  border-radius: 8px;
+  margin: 1.5rem 0;
+}
+
+[data-md-color-scheme="slate"] .stat-block {
+  border: 2px solid #d97706;
+  background-color: rgba(217, 119, 6, 0.08);
+}
+
+/* Custom RPG Badges */
+.badge {
+  display: inline-block;
+  padding: 0.15rem 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  vertical-align: middle;
+}
+
+.badge-core { background: #3b82f6; color: white; }
+.badge-specialist { background: #8b5cf6; color: white; }
+.badge-underdark { background: #4b5563; color: #f3f4f6; }
+.badge-planar { background: #ec4899; color: white; }
+.badge-lethal { background: #dc2626; color: white; }
+
+/* Enhanced Blockquotes for Flavor */
+.md-typeset blockquote {
+  font-style: italic;
+  border-left: 4px solid var(--md-primary-fg-color);
+  color: var(--md-default-fg-color--light);
+  background: rgba(0, 0, 0, 0.02);
+  padding: 0.5rem 1rem;
+}

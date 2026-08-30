@@ -1,0 +1,104 @@
+site_name: Automata for Swords and Hexes (ASH RPG)
+site_description: "Player's Handbook, Campaign Record & GM-less Tabletop Ruleset"
+site_author: "kostchei"
+site_url: "https://kostchei.github.io/ash-rpg/"
+repo_url: "https://github.com/kostchei/ash-rpg"
+repo_name: "kostchei/ash-rpg"
+
+theme:
+  name: material
+  palette:
+    # Light Mode (Parchment)
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: amber
+      accent: red
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to dark mode
+    # Dark Mode (Obsidian / Slate)
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: amber
+      accent: red
+      toggle:
+        icon: material/weather-night
+        name: Switch to light mode
+  font:
+    text: Crimson Pro
+    code: JetBrains Mono
+  features:
+    - navigation.instant
+    - navigation.tracking
+    - navigation.tabs
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - search.share
+    - content.code.copy
+    - content.tabs.link
+
+extra_css:
+  - stylesheets/extra.css
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.keys
+  - pymdownx.mark
+  - pymdownx.tilde
+  - pymdownx.caret
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - tables
+  - attr_list
+  - def_list
+  - toc:
+      permalink: true
+      toc_depth: 3
+
+nav:
+  - "Home": index.md
+  - "Player's Handbook":
+      - "Overview & Core Mechanics": rules/01_system_overview.md
+      - "Character Creation": rules/02_character_creation.md
+      - "World Seeding & Anchors": rules/03_player_first_worldbuilding.md
+      - "Ancestries Catalog": rules/04_ancestries.md
+      - "Core Classes": rules/05_classes_core.md
+      - "Specialist Classes": rules/06_classes_specialist.md
+      - "Equipment & Services": rules/07_equipment_and_services.md
+      - "Exploration & Crawling": rules/08_exploration_and_crawling.md
+      - "Combat & Hazards": rules/09_combat_and_hazards.md
+      - "Spells & Magic": rules/10_spells_and_magic.md
+  - "Campaign Record":
+      - "Campaign Record Overview": campaign_record/index.md
+      - "Party Roster & Graveyard": campaign_record/party_roster.md
+      - "19-Hex Frontier Atlas": campaign_record/hex_atlas_19.md
+      - "Factions & Enclaves": campaign_record/factions_and_enclaves.md
+      - "Threat Vectors & Doom Clock": campaign_record/threat_vectors.md
+      - "Expedition Session Logs": campaign_record/session_logs.md
+      - "Harvesting & Crafting Ledger": campaign_record/harvesting_ledger.md
+  - "Procedural Oracles":
+      - "The Core Oracle": oracles/01_core_oracle.md
+      - "Settlement & City Generator": oracles/02_settlement_generator.md
+      - "Wilderness & Hex Generator": oracles/03_wilderness_and_hex_engine.md
+      - "Dungeon & Ruin Architect": oracles/04_dungeon_architect.md
+      - "3-Act Campaign Architect": oracles/05_emergent_campaign_engine.md
+  - "Monsternomicon":
+      - "Lore DCs & Harvesting Rules": bestiary/index.md
+      - "Creature Compendium": bestiary/creatures.md
