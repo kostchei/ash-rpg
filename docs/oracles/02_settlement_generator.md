@@ -46,3 +46,13 @@ Roll **1d10** for the Prefix and **1d10** for the Suffix:
 | **6** | *"A fallen star struck the Obsidian Crags; glowing glass crystals were brought back by a shepherd."* | **True:** Planar anomaly in Hex 17. |
 | **7** | *"A phantom stag was spotted in the Elderwood with silver antlers that cure all mortal diseases."* | **Myth / Half-True:** Primal nature guardian encounter. |
 | **8** | *"The graveyard priest has not opened the chapel doors in 3 days; chanting heard beneath the floorboards."* | **Immediate Danger:** Necrotic cult ritual underway! |
+
+---
+
+## 👥 Step 4: Settlement NPCs & Hirelings
+
+To generate tavern patrons, visiting merchants, temple priests, and available retainers in this settlement, use the [NPC & Demographics Engine](06_npc_generator.md). 
+
+* **Party Skewing:** Classes reflect the makeup of the active adventuring party.
+* **Regional Flavor:** Classes mutate according to the surrounding biome (e.g. *Duelists* and *Sages* in urban cities, *Pitfighters* in desert badlands).
+* **Foreign Visitors:** 10% chance to encounter exotic travelers and rare classes from distant lands.

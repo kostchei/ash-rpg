@@ -26,9 +26,11 @@ Every player selects their character's **Ancestry** and **Class**. The combinati
 
 The referee engine establishes the demographic makeup of the starting region based on the party's makeup:
 
-1. **Dominant Regional Heritage:**
-   * The ancestries chosen by the players represent the **Dominant and Active Peoples** of the starting frontier.
-   * Unchosen ancestries become **Rare, Ancient, or Foreign visitors**.
+1. **Dominant Regional Heritage & Ancestry Weighting:**
+   * **Humans are always present** across the mortal frontiers (Base Weight of 2).
+   * **Dwarves, High Elves, and Halflings** form the common regional foundation (Base Weight of 1 each).
+   * **Player Choices Skew the World:** For each character in the active party, their ancestry gains **+1 weight**. Playing non-common ancestries (e.g. *Tieflings*, *Wood Elves*, *Forest Gnomes*, *Kuo-Toa*) unlocks them into the regional demographic pool with +1 weight per player character.
+   * Unchosen non-common ancestries appear only as 10% "Fish Out of Water" foreign wanderers or ancient hermits. See the [NPC & Demographics Engine](../oracles/06_npc_generator.md) for generation tables.
 
 2. **Automated Enclave Placement (2-Hex Rule):**
    * For **every unique ancestry** represented in the party, place **1 Enclave / Cultural Outpost** within **2 hexes** of the starting home base (The Sanctuary).
@@ -39,7 +41,13 @@ The referee engine establishes the demographic makeup of the starting region bas
      * **Kindred Encounters:** If an encounter matches a party member's ancestry, apply a **+2 bonus to the 2d6 Reaction Roll** (representing cultural kinship, shared language, or mutual respect).
      * **Cultural Rivals:** If an encounter is with a historical rival ancestry (e.g., Drow vs. Deep Gnome, or Surface Elf vs. Orc), roll with **Disadvantage on initial reaction**, but award **Inspiration/Luck** if resolved through diplomacy or clever play.
 
-4. **Biome & Environmental Seeding:**
+4. **Class Demographics & NPC Skewing:**
+   * The active party's class makeup directly influences the population of hirelings, rival adventurers, and guild acolytes encountered in the realm.
+   * Every core class (**Fighter**, **Magic-User**, **Cleric**, **Thief**) maintains a **baseline weight of 1**, ensuring foundational representation.
+   * Classes chosen by the players gain **+1 weight per player**, magnifying their presence, while biomes mutate these archetypes into regional subclasses (e.g. *Warlocks* in The Gloaming, *Pitfighters* in Red Sands, *Delvers* Underground).
+   * For the complete procedural generation rules and 10% "Fish Out of Water" tables, see the [NPC & Demographics Engine](../oracles/06_npc_generator.md).
+
+5. **Biome & Environmental Seeding:**
    * **Subterranean Heritage (Drow, Deep Gnome, Kuo-Toa, Derro, Quaggoth, Myconid):** Seeds at least **one great subterranean descent / sinkhole hex** within 3 hexes of the Sanctuary.
    * **Primal & Marsh Heritage (Wood Elf, Forest Gnome, Lizardman):** Seeds dense primeval forest hexes, swamp waterways, and sacred megaliths.
    * **Planar Heritage (Tiefling, Deva):** Seeds a **Planar Bleed / Leyline Rift hex** where supernatural phenomena occur.

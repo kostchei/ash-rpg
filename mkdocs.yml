@@ -99,6 +99,7 @@ nav:
       - "Wilderness & Hex Generator": oracles/03_wilderness_and_hex_engine.md
       - "Dungeon & Ruin Architect": oracles/04_dungeon_architect.md
       - "3-Act Campaign Architect": oracles/05_emergent_campaign_engine.md
+      - "NPC & Demographics Engine": oracles/06_npc_generator.md
   - "Monsternomicon":
       - "Lore DCs & Harvesting Rules": bestiary/index.md
       - "Creature Compendium": bestiary/creatures.md

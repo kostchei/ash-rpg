@@ -1,6 +1,8 @@
 # Ancestries of the Known & Unknown Realms
 
 > **In ASH, your Ancestry provides both mechanical advantages and directly influences the world's demographic, economic, and geographic landscape.**
+> 
+> *For procedural generation of NPC ancestries skewed by the player party, see the [NPC & Demographics Engine](../oracles/06_npc_generator.md).*
 
 ---
 
@@ -9,7 +11,7 @@
 | Ancestry | Category | Primary Trait / Focus | Senses / Vision | Enclave Type |
 | :--- | :--- | :--- | :--- | :--- |
 | **Human** | Common | Adaptable, Extra Talent & Luck | Normal | Fortified Outpost / Trade Hub |
-| **Dwarf** | Common | Stonecunning, Poison Resilience, Stout | Infravision (60') | Mountain Hold / Smelter Clan |
+| **Dwarf** | Common | Stout (+1 HP, HP Adv), Armor Heritage, Passive Stone Sense (DC 12) | Normal | Mountain Hold / Smelter Clan |
 | **Elf (High)** | Common | Arcane Affinity, Spell Resistance, Trance | Low-Light (60') | Spire of High Magic / Archive |
 | **Halfling** | Common | Nimble, Bushcraft, Courage (+Saves) | Normal | River Hamlet / Burrow Mills |
 | **Wood Elf** | Wild & Primal | Fleet-Footed, Canopy Camouflage, Stalker | Low-Light (60') | Tree-Top Enclave / Sacred Grove |
@@ -43,11 +45,15 @@
     ---
 
     ### 2. Dwarf
-    * **Description:** Forged from deep granite and ancient grudges. Dwarves are sturdy artisans, miners, and heavy vanguard fighters.
+    * **Description:** Forged from deep granite and ancient grudges. Dwarves are sturdy artisans, subterranean miners, and heavily armored vanguard fighters.
     * **Traits:**
-        * **Stonecunning:** Advantage on checks to detect structural traps, secret stone passages, sliding walls, and geological hazards.
-        * **Stout Constitution:** Advantage on saving throws against poison, paralysis, and petrification.
-        * **Senses:** Infravision (60 feet in total darkness).
+        * **Stout Vitality:** You start with **+1 bonus Hit Point at 1st level**. When gaining levels, you roll your Hit Die for maximum HP increases with **Advantage** (roll twice and take the higher result).
+        * **Armor Heritage:** You choose to add proficiency in either **Chainmail** or **Plate Mail** at character creation regardless of class (you can wear and fight in this armor type without penalty; note that starting equipment is still basic/leather).
+        * **Passive Stone & Trap Sense (No Enunciation Needed):** In procedural / GM-less play, you do not need to declare that you are searching. Whenever you enter an area with hidden stonework, sliding walls, sloping tunnels, deadfalls, or pit traps, make an automatic check against **DC 12**. On a success, you spot the hazard or architectural feature before triggering it.
+    * **Restrictions:**
+        * **Stature Limit:** Due to your compact ~4-foot frame, you cannot wield **Greatswords**, **Longbows**, or **Lances/Pikes** *(Battleaxes, Warhammers, Mauls, and Heavy Crossbows remain fully usable)*.
+        * **Arcane Void:** Dwarves cannot cast arcane spells or take the **Wizard** or **Illusionist** class *(Priest/Cleric, Fighter, Thief/Delver, Sage, and Alchemist/Runesmith remain open)*.
+    * **Senses:** Normal Vision (relies on torches and lanterns).
     * **Cultural Seed Question:** *Which ancestral hall of your clan was lost to the deeps, and what oath must you fulfill to reclaim it?*
     * **World Impact:** Seeds a **Dwarven Smithy Hold** producing Masterwork weapons, heavy plate armor, and mining explosives.
 
