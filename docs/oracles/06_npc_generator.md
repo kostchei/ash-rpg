@@ -383,7 +383,7 @@ To bring the generated NPC to life instantly, roll on the following auxiliary ta
 | **9** | **Wounded Survivor:** Sole survivor of a wiped-out adventuring party. | Warns of deadly dungeon trap. |
 | **10** | **Challenging Champions:** Seeking honorable single combat to prove their prowess. | Duel for renown / wager. |
 | **11** | **Seeking Strange Reagents:** Needs 2 fresh monster venom glands or rare herbs. | Harvesting bounty offer. |
-| **12** | **Carrying Dire Warning:** An invading warband or cataclysm is 2 days away. | Advances the Doom Clock! |
+| **12** | **Carrying Dire Warning:** An invading warband or cataclysm is 2 days away. | Create or advance a relevant pursuit, countdown, or spreading-crisis pressure. |
 
 ---
 

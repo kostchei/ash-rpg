@@ -57,16 +57,27 @@ describe("campaign persistence and fog", () => {
     expect(monster.traits).toBeUndefined();
   });
 
-  it("locks the first threat vector to three shards", () => {
+  it("starts without pressure and tracks a chosen escalation shape", () => {
     db = new AshDatabase(":memory:");
     const campaign = db.createCampaign("Oakhaven", "Western Reaches", "1234");
-    for (let i = 0; i < 3; i++) db.addThreatShard(campaign.campaignId, "lich");
-    db.addThreatShard(campaign.campaignId, "demon");
-    const threats = db.getState(campaign.campaignId, "host", null, "").threats;
-    expect(threats.find((item) => item.key === "lich")).toMatchObject({
-      shards: 3,
-      confirmed: true,
+    expect(
+      db.getState(campaign.campaignId, "host", null, "").pressures,
+    ).toEqual([]);
+    db.addPressure(campaign.campaignId, {
+      name: "The Ash Riders close in",
+      shape: "pursuit",
+      threshold: 4,
+      consequence: "They reach the sanctuary before dawn",
     });
-    expect(threats.find((item) => item.key === "demon")?.shards).toBe(0);
+    db.advancePressure(campaign.campaignId, 1, 1);
+    expect(
+      db.getState(campaign.campaignId, "host", null, "").pressures[0],
+    ).toMatchObject({
+      name: "The Ash Riders close in",
+      shape: "pursuit",
+      current: 1,
+      threshold: 4,
+      status: "active",
+    });
   });
 });

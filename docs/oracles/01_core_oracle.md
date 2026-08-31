@@ -47,7 +47,7 @@ When an unexpected twist, omen, or random event triggers, roll **1d10** to estab
 | **1** | **Remote Event** | Something happens out in the wild or back at Sanctuary that impacts the party. |
 | **2** | **NPC Action** | A known NPC acts independently to advance their agenda or call for help. |
 | **3** | **Introduce New NPC** | A stranger, bounty hunter, travelling peddler, or wandering pilgrim arrives. |
-| **4** | **Advance Threat Vector** | A clue, minion, or omen related to the 3-Act Arch-Nemesis manifests. |
+| **4** | **Move Campaign Pressure** | Advance, reveal, redirect, or introduce a pursuit, rivalry, faction move, spreading danger, mystery clue, or closing opportunity. If no pressure is active, generate an omen or faction action without forcing a new global clock. |
 | **5** | **Resource Peril** | Water, rations, torches, or weapons suffer damage or depletion. |
 | **6** | **Environmental Shift** | Sudden fog, torrential downpour, cave tremor, or toxic gas seep. |
 | **7** | **Faction Incursion** | A patrol or raiding party from a regional faction crosses paths with the party. |

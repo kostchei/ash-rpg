@@ -21,7 +21,7 @@ flowchart TD
         B[Procedural Oracle & Generator]
         C[World Recorder & Campaign Wiki]
         D[Thematic Zone Framework]
-        E[3-Act Campaign Architect]
+        E[Emergent Campaign Pressure]
     end
     
     A --> P[1-6 Players / Solo & Co-Op Tabletop Play]
@@ -33,7 +33,7 @@ flowchart TD
 
 ### 1. Unified Ruleset & Tabletop Engine
 * **Modernized 1e DNA:** Retains the gritty, lethal, and wondrous atmosphere of 1st Edition AD&D while eliminating cumbersome charts in favor of streamlined, intuitive OSR mechanics.
-* **Streamlined Resolution:** D20 roll-under or target-based checks, slot-based inventory systems, light/torch management timers, and high-stakes combat.
+* **Streamlined Resolution:** D20 roll-under or target-based checks, slot-based inventory, situational light and supply pressure, and high-stakes combat.
 * **Danger & Resource Economy:** Exhaustion, ration depletion, ammunition tracking, spell mishaps, and real-time tension crawlers.
 * **Morale & Reaction:** Automated 2d6 monster reaction checks, dynamic morale triggers, and distinct monster instincts rather than mindless combat-to-the-death.
 
@@ -44,7 +44,7 @@ flowchart TD
 
 ### 3. Living World Recorder & Campaign Wiki
 * **West Marches Style Log:** Automatic hex mapping, point-of-interest (POI) logging, faction standing, NPC relationship trees, and expedition debriefs.
-* **Dynamic Chronicle:** Tracks calendar time, astronomical events, planar conjunctions, seasonal weather patterns, and regional doom clocks.
+* **Dynamic Chronicle:** Tracks calendar time, seasonal weather, discoveries, faction movement, and whichever campaign pressures actually emerge in play.
 * **Codex & Bestiary:** Integrated rules reference, spell compendium, item glossary, and lore unlock engine.
 
 ### 4. Monsternomicon Ecology & Lore Engine
@@ -52,12 +52,11 @@ flowchart TD
 * **Harvesting & Anatomical Salvage:** Detailed harvesting tables for crafting potions, reagents, relics, and alchemical gear from fallen foes.
 * **Adventure Hooks:** Every beast and entity comes pre-loaded with organic hooks, lair rumors, and regional ecosystem impacts.
 
-### 5. Thematic Zone Framework & 3-Act Campaign Structure
+### 5. Thematic Zone Framework & Emergent Campaign Structure
 * **Cursed Scroll / MMO-Themed Zones:** Self-contained, highly flavored regional zones (reminiscent of Shadowdark's *Cursed Scroll* zines and iconic thematic lands like Northrend, The Crossroads, or Un'Goro Crater). Each zone features bespoke weather matrices, wandering tables, unique flora/fauna, environmental hazards, and faction tensions.
-* **Epic 3-Act Campaign Progression:** Structured campaign arcs scaling from level 1 to 10 across three distinct narrative tiers (inspired by classics like *Night Below* and *Out of the Abyss*):
-  * **Act I (Levels 1–3) — The Frontier & Local Mystery:** Surface wilderness exploration, local banditry/cult investigations, outpost survival, and establishing a home base.
-  * **Act II (Levels 4–7) — The Descent & Regional Expedition:** Deep wilderness treks, Underdark incursions, faction diplomacy, discovery of ancient ruins, and mega-dungeon delves.
-  * **Act III (Levels 8–10) — The Cataclysm & Abyssal Climax:** Planar rifts, eldritch entities, regional cataclysms, domain-level warfare, and planar-scale confrontation.
+* **Fiction-Shaped Campaign Motion:** Campaigns can remain open frontiers or develop into pursuits, rival races, faction struggles, spreading crises, mysteries, closing opportunities, escalation ladders, known deadlines, or multi-act epics.
+* **Optional Pressure Tracks:** Add a track only when something can change without waiting for the party. A campaign can use none, one, or several, and reaching the final step changes the situation rather than ending play.
+* **Optional Act Structure:** Three-act progression remains available for epic campaigns, but acts change when the fiction enters a new phase rather than at mandatory level thresholds.
 
 ---
 
@@ -66,7 +65,7 @@ flowchart TD
 | Source | Core Concept Borrowed / Adapted |
 | :--- | :--- |
 | **AD&D 1st Edition / OSRIC** | Gritty tone, spell variety, high lethality, classic class archetypes, and deep treasure tables. |
-| **Shadowdark RPG** | Real-time torch mechanics, clean d20 resolution, slot-based inventory, minimalist stat blocks, and quick-rolling tables. |
+| **Shadowdark RPG** | Dangerous darkness, clean d20 resolution, slot-based inventory, minimalist stat blocks, and quick-rolling tables. |
 | **Dungeon Crawl Classics (DCC)** | Mighty deeds of arms, volatile spell casting, critical hit & fumble tables, and weird fantasy flavor. |
 | **Forgotten Realms Adventures (1e/2e)** | Comprehensive city generation templates, guild structures, local magistrates, and urban adventuring tables. |
 | **Monsternomicon (Privateer Press)** | Monster lore DCs, harvesting rules, behavioral tactics, and adventure hooks per creature. |
@@ -127,7 +126,7 @@ ash-rpg/
 ├── zones/                    # Thematic zone modules (Cursed Scroll style mini-settings)
 │   ├── ashplains_of_mor/     # Example: High-volatility volcanic wilderness
 │   └── drowned_fens/         # Example: Submerged crypts and sunken ruins
-├── campaigns/                # 3-Act campaign modules (Levels 1-10)
+├── campaigns/                # Campaign modules and optional arc structures
 │   └── deep_abyss/           # 3-Act overarching campaign framework
 ├── wiki/                     # Lore codex, faction rosters, and dynamic campaign recorder
 └── src/                      # Digital companion & assistant codebase (Engine, CLI/UI)

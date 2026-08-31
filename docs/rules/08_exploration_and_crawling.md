@@ -1,6 +1,6 @@
 # Exploration & Dungeon Crawling Procedures
 
-> **"In the subterranean depths, time is not measured in hours—it is measured in the flickering life of your torch and the mounting echoes of the dark."**
+> **"Track time when time can bite back. Let it pass quietly when nothing is pressing."**
 
 ---
 
@@ -27,19 +27,23 @@ Each turn, the party performs one major synchronized action:
 
 ---
 
-## 🕯️ Real-Time Light: The 1-Hour Torch Rule
+## 🕯️ Situational Light Procedure
 
-ASH incorporates the high-tension **1-Hour Real-Time Light Rule**:
+Do **not** keep a universal torch timer. Track light only when all of the following are true:
 
-!!! danger "The Light Economy"
-    * A **Torch** burns for **exactly 1 hour of real-world game time**.
-    * Keep a visible countdown timer at the table or on your digital tracker.
-    * When the timer hits 0:00, the light dies immediately.
-    * In **Total Darkness**:
-      * Characters without Infravision cannot see, navigate, or cast targeted spells.
-      * Attack rolls are made with **Disadvantage**.
-      * Enemies gain **Advantage** on all attacks against the party.
-      * Wandering encounter checks are rolled **every single Crawling Turn**.
+1. The party has moved away from stable light such as a campfire, settlement, or daylight.
+2. The party does not have a fueled lantern, magical light, or another durable source.
+3. Darkness matters to the current scene: underground exploration, night travel, a lightless ruin, or supernatural gloom.
+
+When those conditions apply, a torch lasts **6 Crawling Turns** (about 1 in-game hour). Mark a turn when the party performs a crawling action. Extinguish the torch after the sixth marked turn. Stop tracking as soon as the party returns to stable light or produces a durable source.
+
+!!! danger "Total Darkness"
+    * Characters without Infravision cannot see, navigate, or cast targeted spells.
+    * Attack rolls are made with **Disadvantage**.
+    * Enemies gain **Advantage** on attacks against the party.
+    * Wandering encounter checks occur every Crawling Turn until light returns.
+
+A lantern avoids the short torch track. Refill or test its oil only after a long expedition, when the Oracle produces **Resource Peril**, or when the fiction specifically threatens it.
 
 ---
 

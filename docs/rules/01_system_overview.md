@@ -72,7 +72,12 @@ ASH uses **2d6 rolls** for two crucial systems:
 
 ---
 
-## 🕯️ The Real-Time Tension Economy
+## 🕯️ Situational Light & Crawl Time
 
-* **Real-Time Light (1 Hour per Torch):** Darkness in ASH is deadly. Torches burn for **1 hour of actual real-world game time**. When the timer runs out, the torch goes out—no exceptions.
-* **Dungeon Crawling Turns (10 Minutes in-game):** In dungeons, every search, pick-lock, or room investigation consumes 1 Crawling Turn. Every 2 turns, an encounter/hazard check is rolled.
+Light becomes a tracked resource only when it creates a meaningful problem. Ignore light bookkeeping in daylight, within a settlement, beside a campfire, or while the party has a fueled lantern.
+
+* **Active Darkness:** Start tracking light when the party moves away from stable light into night, underground passages, or supernatural darkness without a lantern or equivalent durable source.
+* **Torches:** In active darkness, one torch lasts **6 Crawling Turns** (about 1 in-game hour). There is no real-world countdown.
+* **Dungeon Crawling Turns (10 Minutes in-game):** In a dangerous dungeon, every search, lock attempt, or room investigation consumes 1 Crawling Turn. Every 2 turns, make an encounter/hazard check.
+
+If darkness is not currently changing the party's choices, do not run a light timer.

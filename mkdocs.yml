@@ -94,7 +94,7 @@ nav:
       - "Party Roster & Graveyard": campaign_record/party_roster.md
       - "19-Hex Frontier Atlas": campaign_record/hex_atlas_19.md
       - "Factions & Enclaves": campaign_record/factions_and_enclaves.md
-      - "Threat Vectors & Doom Clock": campaign_record/threat_vectors.md
+      - "Campaign Pressure & Escalation": campaign_record/threat_vectors.md
       - "Expedition Session Logs": campaign_record/session_logs.md
       - "Harvesting & Crafting Ledger": campaign_record/harvesting_ledger.md
   - "Procedural Oracles":
@@ -102,7 +102,7 @@ nav:
       - "Settlement & City Generator": oracles/02_settlement_generator.md
       - "Wilderness & Hex Generator": oracles/03_wilderness_and_hex_engine.md
       - "Dungeon & Ruin Architect": oracles/04_dungeon_architect.md
-      - "3-Act Campaign Architect": oracles/05_emergent_campaign_engine.md
+      - "Emergent Campaign & Escalation": oracles/05_emergent_campaign_engine.md
       - "NPC & Demographics Engine": oracles/06_npc_generator.md
   - "Monsternomicon":
       - "Lore DCs & Harvesting Rules": bestiary/index.md

@@ -1048,39 +1048,6 @@ function EncounterView({ state, act }: { state: CampaignState; act: Act }) {
           </section>
         ))}
       </div>
-      <section className="panel threat-board">
-        <div>
-          <div className="eyebrow">Quantum arch-nemesis</div>
-          <h2>Threat vectors</h2>
-          <p>
-            The first vector to collect three Lore Shards becomes the confirmed
-            master threat.
-          </p>
-          <button
-            onClick={() => act("threat:manifest", {}, "A threat manifested")}
-          >
-            <Sparkles size={17} /> Manifest a clue
-          </button>
-        </div>
-        <div className="threat-list">
-          {state.threats.map((threat) => (
-            <article
-              key={threat.id}
-              className={threat.confirmed ? "confirmed" : ""}
-            >
-              <span>
-                {threat.confirmed ? "CONFIRMED" : threat.key.toUpperCase()}
-              </span>
-              <h3>{threat.name}</h3>
-              <div>
-                {[0, 1, 2].map((i) => (
-                  <i key={i} className={i < threat.shards ? "filled" : ""} />
-                ))}
-              </div>
-            </article>
-          ))}
-        </div>
-      </section>
     </div>
   );
 }
@@ -1199,6 +1166,7 @@ function ChronicleView({ state, act }: { state: CampaignState; act: Act }) {
     <div className="surface-grid chronicle-layout">
       <section>
         <Title eyebrow="Persistent table memory" title="Campaign chronicle" />
+        <PressureBoard state={state} act={act} />
         <form className="panel note-form" onSubmit={submit}>
           <div className="creator-grid">
             <label>
@@ -1245,6 +1213,183 @@ function ChronicleView({ state, act }: { state: CampaignState; act: Act }) {
         <RollFeed rolls={state.rolls} expanded />
       </aside>
     </div>
+  );
+}
+
+const pressureShapes = [
+  ["countdown", "Countdown", "A known deadline approaches"],
+  ["pursuit", "Pursuit", "Hunters close the distance"],
+  ["race", "Rival race", "Another group advances toward the same prize"],
+  ["heat", "Faction heat", "Attention and reprisals accumulate"],
+  ["spread", "Spreading crisis", "Danger expands across people or places"],
+  ["mystery", "Revelation", "Evidence changes what the party understands"],
+  ["opportunity", "Opportunity", "A favorable window is closing"],
+  ["ladder", "Escalation ladder", "Consequences intensify in distinct steps"],
+] as const;
+
+function PressureBoard({ state, act }: { state: CampaignState; act: Act }) {
+  const [form, setForm] = useState({
+    name: "",
+    shape: "pursuit",
+    threshold: 6,
+    consequence: "",
+  });
+  const submit = async (event: FormEvent) => {
+    event.preventDefault();
+    await act("pressure:add", form, "Campaign pressure added");
+    setForm({ ...form, name: "", consequence: "" });
+  };
+  return (
+    <section className="panel pressure-board">
+      <div className="pressure-heading">
+        <div>
+          <div className="eyebrow">Optional campaign momentum</div>
+          <h2>Active pressures</h2>
+          <p>
+            Track only forces that are actually moving. A campaign needs no
+            global clock unless its fiction creates one.
+          </p>
+        </div>
+        {state.me.role === "host" && (
+          <details className="pressure-create">
+            <summary>
+              <Plus size={15} /> Add pressure
+            </summary>
+            <form onSubmit={submit}>
+              <Field
+                label="What is moving?"
+                value={form.name}
+                onChange={(name) => setForm({ ...form, name })}
+                placeholder="The Ash Riders close in"
+              />
+              <label>
+                Shape
+                <select
+                  value={form.shape}
+                  onChange={(event) =>
+                    setForm({ ...form, shape: event.target.value })
+                  }
+                >
+                  {pressureShapes.map(([value, label, description]) => (
+                    <option value={value} key={value}>
+                      {label} — {description}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label>
+                Steps to consequence
+                <input
+                  type="number"
+                  min="2"
+                  max="12"
+                  value={form.threshold}
+                  onChange={(event) =>
+                    setForm({
+                      ...form,
+                      threshold: Number(event.target.value),
+                    })
+                  }
+                />
+              </label>
+              <Field
+                label="What happens at the final step?"
+                value={form.consequence}
+                onChange={(consequence) => setForm({ ...form, consequence })}
+                placeholder="They reach the sanctuary before dawn"
+              />
+              <button
+                className="primary wide"
+                disabled={!form.name || !form.consequence}
+              >
+                Create pressure
+              </button>
+            </form>
+          </details>
+        )}
+      </div>
+      {state.pressures.length === 0 ? (
+        <div className="pressure-empty">
+          <Compass size={22} />
+          <div>
+            <strong>No campaign-wide pressure is active.</strong>
+            <p>
+              Explore freely. Add one only when pursuit, rivalry, spreading
+              danger, or another consequence begins moving in the fiction.
+            </p>
+          </div>
+        </div>
+      ) : (
+        <div className="pressure-list">
+          {state.pressures.map((pressure) => {
+            const shape = pressureShapes.find(
+              ([value]) => value === pressure.shape,
+            );
+            return (
+              <article
+                key={pressure.id}
+                className={`${pressure.status}${pressure.current === pressure.threshold ? " reached" : ""}`}
+              >
+                <div className="pressure-title">
+                  <span>
+                    {pressure.status === "resolved"
+                      ? "RESOLVED"
+                      : pressure.current === pressure.threshold
+                        ? "CONSEQUENCE REACHED"
+                        : shape?.[1].toUpperCase()}
+                  </span>
+                  <h3>{pressure.name}</h3>
+                </div>
+                <div
+                  className="pressure-track"
+                  aria-label={`${pressure.current} of ${pressure.threshold} steps`}
+                >
+                  {Array.from({ length: pressure.threshold }, (_, index) => (
+                    <i
+                      key={index}
+                      className={index < pressure.current ? "filled" : ""}
+                    />
+                  ))}
+                </div>
+                <p>{pressure.consequence}</p>
+                {state.me.role === "host" && pressure.status === "active" && (
+                  <div className="pressure-actions">
+                    <button
+                      onClick={() =>
+                        act("pressure:advance", {
+                          pressureId: pressure.id,
+                          delta: -1,
+                        })
+                      }
+                    >
+                      − Step
+                    </button>
+                    <button
+                      className="primary"
+                      onClick={() =>
+                        act("pressure:advance", {
+                          pressureId: pressure.id,
+                          delta: 1,
+                        })
+                      }
+                    >
+                      + Step
+                    </button>
+                    <button
+                      onClick={() =>
+                        act("pressure:resolve", { pressureId: pressure.id })
+                      }
+                    >
+                      Resolve
+                    </button>
+                  </div>
+                )}
+              </article>
+            );
+          })}
+        </div>
+      )}
+    </section>
   );
 }
 

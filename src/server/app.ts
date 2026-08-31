@@ -8,12 +8,7 @@ import { resolve } from "node:path";
 import QRCode from "qrcode";
 import { Server as SocketServer, type Socket } from "socket.io";
 import { z } from "zod";
-import {
-  ANCESTRIES,
-  CLASSES,
-  MONSTERS,
-  THREAT_VECTORS,
-} from "../shared/content.js";
+import { ANCESTRIES, CLASSES, MONSTERS } from "../shared/content.js";
 import type { Role } from "../shared/types.js";
 import { AshDatabase } from "./database.js";
 import {
@@ -139,24 +134,20 @@ export async function createAshServer(options: AshServerOptions = {}) {
   app.post("/api/campaigns", (request, response) => {
     const parsed = createCampaignSchema.safeParse(request.body);
     if (!parsed.success)
-      return response
-        .status(400)
-        .json({
-          error: "Campaign name, region, and a 4–8 digit PIN are required.",
-        });
+      return response.status(400).json({
+        error: "Campaign name, region, and a 4–8 digit PIN are required.",
+      });
     const created = db.createCampaign(
       parsed.data.name,
       parsed.data.regionName,
       parsed.data.pin,
     );
-    return response
-      .status(201)
-      .json({
-        code: created.code,
-        token: created.hostToken,
-        role: "host",
-        joinUrl: `${baseUrl}/play?code=${created.code}`,
-      });
+    return response.status(201).json({
+      code: created.code,
+      token: created.hostToken,
+      role: "host",
+      joinUrl: `${baseUrl}/play?code=${created.code}`,
+    });
   });
 
   app.post("/api/campaigns/join", (request, response) => {
@@ -639,21 +630,62 @@ export async function createAshServer(options: AshServerOptions = {}) {
     );
 
     socket.on(
-      "threat:manifest",
-      action((_raw: unknown) => {
-        const roll = rollDie(6);
-        const index = Math.floor((roll - 1) / 2);
-        const [key, name] = THREAT_VECTORS[index];
-        db.addThreatShard(identity.campaignId, key);
+      "pressure:add",
+      action((raw: unknown) => {
+        hostOnly();
+        const payload = z
+          .object({
+            name: cleanText.max(100),
+            shape: z.enum([
+              "countdown",
+              "pursuit",
+              "race",
+              "heat",
+              "spread",
+              "mystery",
+              "opportunity",
+              "ladder",
+            ]),
+            threshold: z.number().int().min(2).max(12),
+            consequence: cleanText.max(500),
+          })
+          .parse(raw);
+        db.addPressure(identity.campaignId, payload);
         db.addRoll(identity.campaignId, {
-          actor: actor(),
-          kind: "threat",
-          label: "Threat manifestation",
-          dice: "1d6",
-          total: roll,
-          detail: `${name} gains a Lore Shard`,
+          actor: "Table",
+          kind: "pressure",
+          label: `Campaign pressure: ${payload.name}`,
+          dice: "—",
+          total: 0,
+          detail: `${payload.shape} · ${payload.consequence}`,
         });
-        return { roll, key };
+      }),
+    );
+
+    socket.on(
+      "pressure:advance",
+      action((raw: unknown) => {
+        hostOnly();
+        const payload = z
+          .object({
+            pressureId: z.number().int(),
+            delta: z.number().int().min(-1).max(1),
+          })
+          .parse(raw);
+        db.advancePressure(
+          identity.campaignId,
+          payload.pressureId,
+          payload.delta,
+        );
+      }),
+    );
+
+    socket.on(
+      "pressure:resolve",
+      action((raw: unknown) => {
+        hostOnly();
+        const payload = z.object({ pressureId: z.number().int() }).parse(raw);
+        db.resolvePressure(identity.campaignId, payload.pressureId);
       }),
     );
 

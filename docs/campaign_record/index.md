@@ -13,7 +13,7 @@ flowchart TD
     CR[Campaign Record] --> Roster[Party Roster & Graveyard]
     CR --> Atlas[19-Hex Frontier Atlas]
     CR --> Factions[Factions & Enclaves]
-    CR --> Vectors[Threat Vectors & Doom Clock]
+    CR --> Pressure[Optional Campaign Pressures]
     CR --> Logs[Expedition Session Logs]
     CR --> Harvest[Harvesting & Relic Ledger]
 ```
@@ -28,8 +28,8 @@ flowchart TD
    * The concentric 19-hex regional sandbox (Hex 00 Sanctuary through Outer Ring Hex 18), landmarks, hazard levels, and discovered routes.
 3. **[Factions & Cultural Enclaves](factions_and_enclaves.md):**
    * Cultural outpost inventories, faction reputation standings ($-3$ Hostile to $+3$ Allied), and player character debt logs.
-4. **[Threat Vectors & Doom Clocks](threat_vectors.md):**
-   * The Quantum Nemesis tracker, clue milestones, omen counters, and 3-Act campaign escalation flags.
+4. **[Campaign Pressure & Escalation](threat_vectors.md):**
+   * Optional pursuit, rivalry, heat, spread, revelation, opportunity, ladder, or countdown tracks. Use none, one, or several according to the fiction.
 5. **[Expedition Session Logs](session_logs.md):**
    * Structured debrief templates capturing expedition turns, wandering encounters, loot secured, and downtime activities.
 6. **[Harvesting & Crafting Ledger](harvesting_ledger.md):**

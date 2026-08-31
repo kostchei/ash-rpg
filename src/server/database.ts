@@ -7,12 +7,9 @@ import {
   timingSafeEqual,
 } from "node:crypto";
 import Database from "better-sqlite3";
-import {
-  HEX_DEFINITIONS,
-  MONSTERS,
-  THREAT_VECTORS,
-} from "../shared/content.js";
+import { HEX_DEFINITIONS, MONSTERS } from "../shared/content.js";
 import type {
+  CampaignPressure,
   CampaignState,
   Character,
   DungeonRoom,
@@ -20,7 +17,6 @@ import type {
   PublicHex,
   Role,
   RollRecord,
-  ThreatVector,
   WikiNote,
 } from "../shared/types.js";
 
@@ -99,10 +95,16 @@ export class AshDatabase {
         id INTEGER PRIMARY KEY, encounter_id INTEGER NOT NULL REFERENCES encounters(id) ON DELETE CASCADE,
         monster_key TEXT NOT NULL, current_hp INTEGER NOT NULL, max_hp INTEGER NOT NULL, lore_tier INTEGER NOT NULL DEFAULT 0
       );
+      -- Retained only so databases created by the first companion prototype remain readable.
       CREATE TABLE IF NOT EXISTS threat_vectors (
         id INTEGER PRIMARY KEY, campaign_id INTEGER NOT NULL REFERENCES campaigns(id) ON DELETE CASCADE,
         vector_key TEXT NOT NULL, name TEXT NOT NULL, shards INTEGER NOT NULL DEFAULT 0, confirmed INTEGER NOT NULL DEFAULT 0,
         UNIQUE(campaign_id, vector_key)
+      );
+      CREATE TABLE IF NOT EXISTS campaign_pressures (
+        id INTEGER PRIMARY KEY, campaign_id INTEGER NOT NULL REFERENCES campaigns(id) ON DELETE CASCADE,
+        name TEXT NOT NULL, shape TEXT NOT NULL, current INTEGER NOT NULL DEFAULT 0,
+        threshold INTEGER NOT NULL, consequence TEXT NOT NULL, status TEXT NOT NULL DEFAULT 'active', created_at TEXT NOT NULL
       );
       CREATE TABLE IF NOT EXISTS rolls (
         id INTEGER PRIMARY KEY, campaign_id INTEGER NOT NULL REFERENCES campaigns(id) ON DELETE CASCADE,
@@ -117,6 +119,7 @@ export class AshDatabase {
       CREATE INDEX IF NOT EXISTS idx_rolls_campaign_created ON rolls(campaign_id, created_at DESC);
       CREATE INDEX IF NOT EXISTS idx_rooms_campaign_sequence ON dungeon_rooms(campaign_id, sequence);
       CREATE INDEX IF NOT EXISTS idx_encounters_campaign_status ON encounters(campaign_id, status);
+      CREATE INDEX IF NOT EXISTS idx_pressures_campaign_status ON campaign_pressures(campaign_id, status);
       PRAGMA optimize;
     `);
   }
@@ -158,11 +161,6 @@ export class AshDatabase {
         id === "00" ? "fully_mapped" : "unexplored",
       );
     }
-    const insertThreat = this.db.prepare(
-      "INSERT INTO threat_vectors (campaign_id,vector_key,name) VALUES (?,?,?)",
-    );
-    for (const [key, threatName] of THREAT_VECTORS)
-      insertThreat.run(campaignId, key, threatName);
     return { code, hostToken, campaignId };
   }
 
@@ -362,23 +360,41 @@ export class AshDatabase {
       .run(encounterId, campaignId);
   }
 
-  addThreatShard(campaignId: number, vectorKey: string) {
+  addPressure(
+    campaignId: number,
+    pressure: Pick<
+      CampaignPressure,
+      "name" | "shape" | "threshold" | "consequence"
+    >,
+  ) {
     this.db
       .prepare(
-        "UPDATE threat_vectors SET shards = shards + 1 WHERE campaign_id = ? AND vector_key = ? AND NOT EXISTS (SELECT 1 FROM threat_vectors WHERE campaign_id = ? AND confirmed = 1)",
+        "INSERT INTO campaign_pressures (campaign_id,name,shape,threshold,consequence,created_at) VALUES (?,?,?,?,?,?)",
       )
-      .run(campaignId, vectorKey, campaignId);
-    const vector = this.db
+      .run(
+        campaignId,
+        pressure.name,
+        pressure.shape,
+        pressure.threshold,
+        pressure.consequence,
+        now(),
+      );
+  }
+
+  advancePressure(campaignId: number, pressureId: number, delta: number) {
+    this.db
       .prepare(
-        "SELECT shards FROM threat_vectors WHERE campaign_id = ? AND vector_key = ?",
+        "UPDATE campaign_pressures SET current = MAX(0, MIN(threshold, current + ?)) WHERE id = ? AND campaign_id = ? AND status = 'active'",
       )
-      .get(campaignId, vectorKey) as Row;
-    if (Number(vector.shards) >= 3)
-      this.db
-        .prepare(
-          "UPDATE threat_vectors SET confirmed = CASE WHEN vector_key = ? THEN 1 ELSE 0 END WHERE campaign_id = ?",
-        )
-        .run(vectorKey, campaignId);
+      .run(delta, pressureId, campaignId);
+  }
+
+  resolvePressure(campaignId: number, pressureId: number) {
+    this.db
+      .prepare(
+        "UPDATE campaign_pressures SET status = 'resolved' WHERE id = ? AND campaign_id = ?",
+      )
+      .run(pressureId, campaignId);
   }
 
   addRoll(campaignId: number, roll: Omit<RollRecord, "id" | "createdAt">) {
@@ -471,19 +487,21 @@ export class AshDatabase {
         };
       }),
     }));
-    const threats = (
+    const pressures = (
       this.db
         .prepare(
-          "SELECT * FROM threat_vectors WHERE campaign_id = ? ORDER BY id",
+          "SELECT * FROM campaign_pressures WHERE campaign_id = ? ORDER BY CASE status WHEN 'active' THEN 0 ELSE 1 END, id",
         )
         .all(campaignId) as Row[]
     ).map(
-      (row): ThreatVector => ({
+      (row): CampaignPressure => ({
         id: Number(row.id),
-        key: String(row.vector_key),
         name: String(row.name),
-        shards: Number(row.shards),
-        confirmed: Boolean(row.confirmed),
+        shape: String(row.shape) as CampaignPressure["shape"],
+        current: Number(row.current),
+        threshold: Number(row.threshold),
+        consequence: String(row.consequence),
+        status: String(row.status) as CampaignPressure["status"],
       }),
     );
     const rolls = (
@@ -522,7 +540,7 @@ export class AshDatabase {
       hexes,
       rooms,
       encounters,
-      threats,
+      pressures,
       rolls,
       notes,
     };

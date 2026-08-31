@@ -76,12 +76,24 @@ export interface Encounter {
   createdAt: string;
 }
 
-export interface ThreatVector {
+export type PressureShape =
+  | "countdown"
+  | "pursuit"
+  | "race"
+  | "heat"
+  | "spread"
+  | "mystery"
+  | "opportunity"
+  | "ladder";
+
+export interface CampaignPressure {
   id: number;
-  key: string;
   name: string;
-  shards: number;
-  confirmed: boolean;
+  shape: PressureShape;
+  current: number;
+  threshold: number;
+  consequence: string;
+  status: "active" | "resolved";
 }
 
 export interface RollRecord {
@@ -110,7 +122,7 @@ export interface CampaignState {
   hexes: PublicHex[];
   rooms: DungeonRoom[];
   encounters: Encounter[];
-  threats: ThreatVector[];
+  pressures: CampaignPressure[];
   rolls: RollRecord[];
   notes: WikiNote[];
 }

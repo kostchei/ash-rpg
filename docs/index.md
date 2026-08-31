@@ -37,7 +37,7 @@ flowchart TD
 
     ---
 
-    Character creation, 17 ancestries, 8 core & specialist classes, equipment slots, dungeon crawl turns, 1-hour real-time light mechanics, and spell tiers.
+    Character creation, 17 ancestries, 8 core & specialist classes, equipment slots, dungeon crawl turns, situational light procedures, and spell tiers.
 
     [:octicons-arrow-right-24: Open Player's Handbook](rules/01_system_overview.md)
 
@@ -45,7 +45,7 @@ flowchart TD
 
     ---
 
-    West Marches style chronicler: 19-hex regional atlas, party roster, faction standing, cultural enclaves, 3-act doom clocks, and session debriefs.
+    West Marches style chronicler: 19-hex regional atlas, party roster, faction standing, cultural enclaves, optional campaign pressures, and session debriefs.
 
     [:octicons-arrow-right-24: Open Campaign Record](campaign_record/index.md)
 
@@ -71,11 +71,11 @@ flowchart TD
 
 ## 🌟 The Five Pillars of ASH
 
-1. **Unified Ruleset & Tabletop Engine:** Roll-under ability checks, d20 target rolls, slot-based encumbrance, real-time light management, and high-lethality combat.
+1. **Unified Ruleset & Tabletop Engine:** Roll-under ability checks, d20 target rolls, slot-based encumbrance, situational light and resource pressure, and high-lethality combat.
 2. **Procedural Oracle & Generator:** Full GM-less resolution with context-aware oracle prompts, settlement generators, and dungeon dressings.
 3. **Living World Recorder & Campaign Wiki:** Automatic hex mapping, POI logging, faction reputation, and dynamic campaign chronicles.
 4. **Monsternomicon Ecology & Lore Engine:** Progressive lore unlock DCs and detailed harvesting tables for alchemical crafting from fallen beasts.
-5. **Thematic Zone Framework & 3-Act Campaign Structure:** Self-contained regional modules and emergent multi-tiered campaign progression from level 1 to 10.
+5. **Thematic Zone Framework & Emergent Campaign Structure:** Self-contained regional modules with optional pursuit, rivalry, faction, crisis, mystery, deadline, or multi-act progression.
 
 ---
 

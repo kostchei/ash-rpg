@@ -72,7 +72,7 @@ During character creation, each player answers **three anchor prompts** for thei
 2. Place **The Sanctuary** (the starting town/haven) in Hex 00 (the Center).
 3. In turn order, each player places their **Local Landmark** in an uncharted hex 1 to 3 hexes away from the Sanctuary.
 4. The party collaboratively names the region (e.g., *The Ashen Vale*, *The Sunken Reaches*, *The Broken Marches*).
-5. Roll **1 Regional Threat / Overarching Doom Clock** from the [3-Act Campaign Architect](../oracles/05_emergent_campaign_engine.md).
+5. Decide whether anything is already moving against the party. If the premise includes a pursuit, rival expedition, spreading crisis, closing opportunity, or other active force, create an appropriate [Campaign Pressure](../oracles/05_emergent_campaign_engine.md). Otherwise, begin with **no global escalation track** and add one only when the fiction creates it.
 
 ---
 

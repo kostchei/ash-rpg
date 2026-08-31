@@ -54,7 +54,7 @@ ASH eliminates tedious pound-by-pound weight math with a clean, tactical **Gear 
 
 | Item | Cost | Slots | Tactical Function |
 | :--- | :---: | :---: | :--- |
-| **Torch (Bundle of 3)** | 1 gp | 1 | Sheds light in Near radius for 1 hour real-time each |
+| **Torch (Bundle of 3)** | 1 gp | 1 | Sheds light in Near radius for 6 Crawling Turns while light tracking is active |
 | **Lantern & Oil Flask** | 10 gp | 1 | Sheds light in Far radius; burns 3 hours per flask |
 | **Iron Rations (3 Days)** | 3 gp | 1 | Preserved dried meat and hardtack; prevents starvation |
 | **Hemp Rope (50 ft) & Hook** | 2 gp | 1 | Advantage on climbing checks |

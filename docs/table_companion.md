@@ -12,7 +12,7 @@ The Table Companion is the local-first campaign application for running ASH with
 - The 19-hex frontier with shared party fog. Unrevealed names, biomes, threat tiers, and landmarks are omitted from client payloads.
 - Procedural room generation with contents, exits, and traps.
 - Encounter HP tracking with Monsternomicon information unlocked progressively by lore checks.
-- Quantum Arch-Nemesis threat vectors and automatic three-shard lock-in.
+- Optional campaign pressures shaped as pursuits, rival races, faction heat, spreading crises, revelations, opportunities, escalation ladders, or countdowns.
 - Campaign notes and an append-only live resolution feed.
 - A LAN join URL and QR code for phone access.
 

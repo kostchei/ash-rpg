@@ -1,6 +1,6 @@
 # Expedition Session Logs
 
-> **"Log the date, the turns, the torches burned, the gold looted, and the scars earned."**
+> **"Log the date, the discoveries made, the resources that mattered, the gold looted, and the scars earned."**
 
 ---
 
@@ -11,7 +11,7 @@
     * **In-Game Date:** 14th of Highsun, Year 1042
     * **Expedition Route:** Hex 00 (Oakhaven) $\rightarrow$ Hex 01 (North Pass) $\rightarrow$ Hex 04 (The Mist Fen)
     * **Roster Present:** Thokk (Fighter 1), Vesper (Thief 1), Sister Morwen (Priest 1), Elowen (Magic-User 1)
-    * **Torches Burned:** 3 Torches (3 hours real-time)
+    * **Light Resources Spent:** 1 torch while exploring the lightless barrow
 
     ### Expedition Narrative & Turns
     1. **Turn 1–2 (Wilderness Travel):** Journeyed North through pine foothills. Alik the guide helped bypass a goblin ambush on a DC 14 navigation roll.
@@ -34,7 +34,7 @@
 * **In-Game Date:** [Date / Season]
 * **Expedition Route:** Hex [Start] -> Hex [Target] -> Hex [Destination]
 * **Roster Present:** [List characters & retainers]
-* **Torches Burned:** [Count]
+* **Light Resources Spent (if tracked):** [Count / none]
 * **Crawling Turns Elapsed:** [Count]
 
 #### Key Encounters & Discoveries

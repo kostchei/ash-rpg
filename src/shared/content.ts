@@ -283,9 +283,3 @@ export const MONSTERS = {
     ],
   },
 } as const;
-
-export const THREAT_VECTORS = [
-  ["aboleth", "The Sunken Aboleth Sovereign"],
-  ["demon", "The Demon Prince Incursion"],
-  ["lich", "The Undying Lich-King"],
-] as const;
