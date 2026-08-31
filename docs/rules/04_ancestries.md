@@ -15,13 +15,11 @@
 | **Elf** | Common / Ancient | **Farsight:** +1 ranged attack rolls OR +1 spellcasting checks | Low-Light (60') | 10% | Spire of High Magic / Archive |
 | **Halfling** | Common / Pastoral | **Stealthy:** 1/day become invisible for 3 rounds | Normal | 10% | River Hamlet / Burrow Mills |
 | **Goblin** | Western Reaches | **Keen Senses:** Cannot be surprised (rolls in surprise rounds) | Infravision (60') | 5% | Cave Warren / Scrap Foundry |
-| **Half-Elf** | Western Reaches | **Adaptable:** Roll talent rolls twice and choose which to keep | Low-Light (60') | 5% | Steppe Outpost / Trade Caravan |
-| **Half-Orc** | Western Reaches | **Mighty:** +1 attack and damage rolls with melee weapons | Infravision (60') | 5% | War-Camp / Iron Foundry |
-| **Kobold** | Western Reaches | **Knack:** +1 to spellcasting checks OR start sessions with Luck Token | Infravision (60') | <1% | Volcano Warren / Trap Workshop |
+| **Orc** | Western Reaches / Clans | **Mighty:** +1 attack and damage rolls with melee weapons | Infravision (60') | 5% | War-Camp / Iron Foundry |
+| **Tiefling** | Western Reaches / Planar | **Knack:** +1 to spellcasting checks OR start sessions with Luck Token | Infravision (60') | <1% | Ashen Sanctorum / Smuggler Cellar |
 | **Wood Elf** | Wild & Primal | **Mask of the Wild:** Advantage on stealth in foliage, Canopy Stride | Low-Light (60') | Rare | Tree-Top Enclave / Sacred Grove |
 | **Forest Gnome** | Wild & Primal | **Beast Tongue & Phantasm:** Animal speech, innate optical illusions | Low-Light (60') | Rare | Burrow Market / Illusion Workshop |
 | **Lizardman** | Wild & Primal | **Scaly Hide & Amphibious:** Natural AC 12+DEX, 15m breath hold, Bite | Normal | Rare | Swamp Stilt-Village / Fisher Cay |
-| **Orc** | Wild & Primal | **Blood Surge:** DC 12 CON check at 0 HP to drop to 1 HP instead | Infravision (60') | Rare | Tribal Stronghold / Clan Bastion |
 | **Half-Ogre** | Wild & Primal | **Colossal Brawn:** +4 gear slots, wield two-handed weapons in 1 hand | Infravision (30') | Rare | Crag Stronghold / Brute Guild |
 | **Deep Gnome** | Underdark | **Stone Camouflage & Earth Magic:** Innate Blindness/Blur, Underdark stealth | Infravision (90') | Rare | Subterranean Gem-Mine |
 | **Drow** | Underdark | **Shadow Weaving & Venom:** Innate Darkness/Faerie Fire, poison resistance | Infravision (120') | Rare | Shadow Spire / Under-Fortress |
@@ -29,7 +27,6 @@
 | **Derro** | Underdark | **Madness Insight:** Immune to mental control, +1d6 to INT/WIS checks | Infravision (120') | Rare | Deep Warren / Soul-Forge |
 | **Quaggoth** | Underdark | **Savage Frenzy & Climber:** +2 melee damage under 50% HP, climb walls | Infravision (60') | Rare | Cavern Roost / Beast Den |
 | **Myconid** | Underdark | **Rapport Spores & Pacifying Dust:** 30' telepathy, incapacitating dust | Infravision (90') | Rare | Fungal Grove / Spore Hollow |
-| **Tiefling** | Planar | **Hellfire Spark:** +1d6 fire weapon strike 1/rest, Fire Resistance | Infravision (60') | Rare | Ashen Sanctorum / Smuggler Cellar |
 | **Deva** | Planar | **Halo of Radiance & Healing Touch:** Shed holy light, restore 1d8+LV HP | Low-Light (60') | Rare | Solar Observatory / Pilgrim Abbey |
 
 ---
@@ -210,49 +207,19 @@
     | **21–35** | Ring of bent iron nails & lockpick scrap | **71–85** | Severed troll ear preserved in vinegar |
     | **36–50** | Squeaking pet toad in a pocket | **86–00** | Shiny gold tooth taken from a sleeping ogre |
 
-=== "Half-Elf"
+=== "Orc"
 
-    ### 🌿 Half-Elf
-    *Lithe, long-lived humans with subtle elven features. Their boldness is tempered by ancient insight.*
-
-    * **Languages:** You know Common, Elvish, and one additional common language.
-    * **Adaptable:** Roll your talent rolls **twice and choose which result to keep**.
-    * **Vision:** Low-Light Vision (60 feet).
-    * **Population:** Half-elves make up **5%** of the Western Reaches population.
-    * **Origins:** Kyzian Steppes and Djurum Desert where nomadic tribes and human caravans trade and ally.
-    * **Cultural Seed Question:** *What keepsake did your elven parent leave you before venturing into the timeless realms?*
-
-    #### Half-Elf Names (d10 Part 1 + Part 2)
-    | d10 | Part 1 | Part 2 | d10 | Part 1 | Part 2 |
-    | :---: | :--- | :--- | :---: | :--- | :--- |
-    | **1** | Kel- | -an | **6** | Fal- | -on |
-    | **2** | Aer- | -on | **7** | Tan- | -is |
-    | **3** | Ren- | -iel | **8** | Mor- | -wen |
-    | **4** | Luc- | -an | **9** | Sel- | -dor |
-    | **5** | El- | -idyr | **10** | Var- | -is |
-
-    #### Starting Half-Elf Trinket (d100)
-    | d100 | Trinket | d100 | Trinket |
-    | :---: | :--- | :---: | :--- |
-    | **01–04** | Braided horsehair lock & book of plant sketches | **51–54** | Silver leaf pendant & fine brass spyglass lens |
-    | **05–08** | Silk scarf embroidered with bilingual verses | **55–58** | Pouch of rare desert tea leaves |
-    | **09–12** | Ivory-inlaid composite bow stringer | **59–62** | Carved bone dice that always land on even numbers |
-    | **13–25** | Signet ring showing two entwined trees | **63–75** | Traveler's journal filled with maps of lost oasis ruins |
-    | **26–50** | Silver horse bit & compass with cracked glass | **76–00** | Star-sapphire pendant that glows near ancient ruins |
-
-=== "Half-Orc"
-
-    ### 🪓 Half-Orc
-    *Towering, tusked warriors who are as daring as humans and as relentless as orcs.*
+    ### 🪓 Orc
+    *Towering, tusked warriors bound by warrior codes who are relentless on the battlefield.*
 
     * **Languages:** You know Common and Orcish.
     * **Mighty:** You have a **+1 bonus to attack and damage rolls with melee weapons**.
     * **Vision:** Infravision (60 feet).
-    * **Population:** Half-orcs make up about **5%** of the population.
-    * **Origins:** Barbarian clan territories north of the Gilzai Mountains and Kyzian Steppes.
+    * **Population:** Orcs make up about **5%** of the Western Reaches population.
+    * **Origins:** Barbarian clan territories north of the Gilzai Mountains and across the Kyzian Steppes.
     * **Cultural Seed Question:** *What great war banner or clan totem do you carry, and what oath of vengeance is stitched upon it?*
 
-    #### Half-Orc Names (d10 Part 1 + Part 2)
+    #### Orc Names (d10 Part 1 + Part 2)
     | d10 | Part 1 | Part 2 | d10 | Part 1 | Part 2 |
     | :---: | :--- | :--- | :---: | :--- | :--- |
     | **1** | Gor- | -kash | **6** | Tral- | -esh |
@@ -261,7 +228,7 @@
     | **4** | Krog- | -mar | **9** | Iv- | -uun |
     | **5** | Zard- | -aash | **10** | Klar- | -asha |
 
-    #### Starting Half-Orc Trinket (d100)
+    #### Starting Orc Trinket (d100)
     | d100 | Trinket | d100 | Trinket |
     | :---: | :--- | :---: | :--- |
     | **01–04** | Ram horn flagon & bog-walking stilts | **51–54** | Jar of glossy beetle wings & ancient arrowhead |
@@ -270,35 +237,35 @@
     | **13–25** | Copper tusk rings & red ceremonial sash | **63–75** | Necklace of lion teeth & father's war banner |
     | **26–50** | Curved brass war horn & baby alligator skull | **76–00** | Demonic Ramlaat battle mask & skull wine cup |
 
-=== "Kobold"
+=== "Tiefling"
 
-    ### 🦎 Kobold
-    *Tiny, dog-lizard humanoids with a penchant for tinkering, trap craft, and innate sorcery.*
+    ### 😈 Tiefling
+    *Mortals touched by ancient infernal bloodlines, marked by horns, sulfurous scents, and an innate knack for magic and fate.*
 
-    * **Languages:** You know Common and Draconic.
+    * **Languages:** You know Common and Diabolic.
     * **Knack:** You get **+1 to spellcasting checks** OR you begin each session with a **Luck Token** (choose at character creation).
     * **Vision:** Infravision (60 feet).
-    * **Population:** Extremely rare beings (<1% of population).
-    * **Origins:** Remote deserts, sulphur caves, and volcanic crags surrounding ancient dragon lairs.
-    * **Cultural Seed Question:** *What dragon ancestor does your clan sing of in secret, and what trap blueprint was your pride?*
+    * **Population:** Extremely rare beings (**<1%** of population).
+    * **Origins:** Ashen sanctuaries, hidden planar rifts, and occult smuggler dens.
+    * **Cultural Seed Question:** *What devil or demon holds the original binding parchment signed by your great ancestor?*
 
-    #### Kobold Names (d10 Part 1 + Part 2)
+    #### Tiefling Names (d10 Part 1 + Part 2)
     | d10 | Part 1 | Part 2 | d10 | Part 1 | Part 2 |
     | :---: | :--- | :--- | :---: | :--- | :--- |
-    | **1** | Sk- | -ix | **6** | Bir- | -ig |
-    | **2** | Tal- | -az | **7** | Min- | -oz |
-    | **3** | Ir- | -og | **8** | Tim- | -ev |
-    | **4** | Dr- | -ax | **9** | Gor- | -ak |
-    | **5** | Gr- | -ulg | **10** | Yal- | -ov |
+    | **1** | Mal- | -phas | **6** | Rav- | -os |
+    | **2** | Az- | -modeus | **7** | Zari- | -el |
+    | **3** | Bel- | -ial | **8** | Baph- | -omet |
+    | **4** | Mor- | -gath | **9** | Kali- | -dra |
+    | **5** | Lil- | -ith | **10** | Val- | -afar |
 
-    #### Starting Kobold Trinket (d100)
+    #### Starting Tiefling Trinket (d100)
     | d100 | Trinket | d100 | Trinket |
     | :---: | :--- | :---: | :--- |
-    | **01–04** | Ball of red wax & bag of bent iron nails | **51–54** | High-pitched dog whistle & stone chiseling set |
-    | **05–08** | Large iridescent red dragon scale | **55–58** | Rusty miniature bear trap & tarantula in box |
-    | **09–12** | Copper tooth caps & jar of blue war paint | **59–62** | Oversized boots & ring of carved dragon bone |
-    | **13–25** | Snake fang necklace & divining bones | **63–75** | Butterfly collection & stone dragon statuette |
-    | **26–50** | Clay pot full of fire pepper & reed hat | **76–00** | Family's obsidian ceremonial dagger & dragon egg shard |
+    | **01–04** | Sulfurous brimstone shard & scrap of infernal contract | **51–54** | Tarnished diabolic signet ring & charred bone flute |
+    | **05–08** | Black iron horn ring & vial of brimstone ash | **55–58** | Bottle of smoking ash wine & carved fiend skull dice |
+    | **09–12** | Obsidian shaving mirror & brass pentagram coin | **59–62** | Hellfire-singed feather & hourglass of black sand |
+    | **13–25** | Demon-eye pendant that blinks & hell-wasp in amber | **63–75** | Red silk blindfold with infernal script & goat skull cup |
+    | **26–50** | Black velvet horn polish wrap & smoldering coals | **76–00** | Obsidian ritual blade & glowing ember that never fades |
 
 ---
 
@@ -333,16 +300,6 @@
         * **Amphibious Hunter:** Can hold breath underwater for up to 15 minutes; gains a swimming speed equal to land speed.
         * **Bite Attack:** Natural weapon attack (1d6 piercing damage).
     * **World Impact:** Seeds a **Lizardfolk Stilt Settlement** offering venom extractions, swamp skiffs, and waterborne tracking.
-
-=== "Orc"
-
-    ### ⚔️ Orc (Clan Champion)
-    * **Description:** Disciplined, battle-tested warriors bound by blood pacts and fierce warrior codes.
-    * **Traits:**
-        * **Blood Surge:** When reduced to 0 HP, make a DC 12 Constitution check. On a success, drop to 1 HP instead (usable once per expedition).
-        * **Relentless Ferocity:** Deal +1d4 extra damage on critical hits in melee combat.
-        * **Senses:** Infravision (60 feet).
-    * **World Impact:** Seeds an **Orcish Iron Foundry** specializing in heavy siege gear, spiked armor, and hardened iron weapons.
 
 === "Half-Ogre"
 
@@ -418,15 +375,6 @@
 ---
 
 ## 🔮 Planar & Otherworldly
-
-=== "Tiefling"
-
-    ### 😈 Tiefling (Infernal-Kin)
-    * **Traits:**
-        * **Hellfire Spark:** Once per rest, wreath a weapon in hellfire (+1d6 fire damage on hit) or ignite objects with a touch.
-        * **Infernal Resistance:** Resistance to fire damage (take half damage from non-magical and magical flames).
-        * **Senses:** Infravision (60 feet).
-    * **World Impact:** Seeds an **Ashen Sanctorum** providing soul-contract services, demonology texts, and fire-resistant cloaks.
 
 === "Deva"
 
