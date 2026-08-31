@@ -74,6 +74,7 @@ markdown_extensions:
 
 nav:
   - "Home": index.md
+  - "Table Companion": table_companion.md
   - "Player's Handbook":
       - "Overview & Core Mechanics": rules/01_system_overview.md
       - "Character Creation": rules/02_character_creation.md

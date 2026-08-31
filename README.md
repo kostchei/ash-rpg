@@ -137,6 +137,17 @@ ash-rpg/
 
 ## 🚀 Getting Started
 
+### 🎲 Run the Table Companion
+
+The repository now includes a local multiplayer campaign app for a shared screen and player phones. It stores each campaign in SQLite, synchronizes play live, and automates the ASH oracle, wilderness, dungeon, encounter, lore, and threat procedures.
+
+```bash
+npm install
+npm run dev
+```
+
+Open `http://localhost:3000`, create a campaign, and let players scan the join QR code from the Frontier screen. See the [Table Companion guide](docs/table_companion.md) for the implemented scope, architecture, backup location, and production run commands.
+
 ### 📖 Accessing the Player's Handbook & Campaign Wiki
 The full **Player's Handbook**, **Campaign Record**, **Procedural Oracles**, and **Monsternomicon** are available as an interactive searchable wiki:
 
