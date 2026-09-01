@@ -104,6 +104,8 @@ nav:
       - "Dungeon & Ruin Architect": oracles/04_dungeon_architect.md
       - "Emergent Campaign & Escalation": oracles/05_emergent_campaign_engine.md
       - "NPC & Demographics Engine": oracles/06_npc_generator.md
+  - "Adventure Paths":
+      - "Adventure Path 1: Domains of Dread": adventure_paths/01_domains_of_dread.md
   - "Monsternomicon":
       - "Lore DCs & Harvesting Rules": bestiary/index.md
       - "Creature Compendium": bestiary/creatures.md
