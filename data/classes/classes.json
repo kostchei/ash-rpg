@@ -1,0 +1,969 @@
+[
+  {
+    "name": "Fighter",
+    "hitDie": 8,
+    "weapons": [
+      "All weapons"
+    ],
+    "armor": [
+      "All armor",
+      "Shields"
+    ],
+    "level1Features": [
+      {
+        "name": "Hauler",
+        "description": "Add Constitution modifier (if positive) to total gear slots."
+      },
+      {
+        "name": "Weapon Mastery",
+        "description": "Choose one weapon group. Gain +1 to attack and damage rolls with that weapon group, plus +1/3 level to damage."
+      },
+      {
+        "name": "Grit",
+        "description": "Unrivaled physical resilience and extra attacks as level progresses (2 attacks at lvl 6, 3 at lvl 13, 4 at lvl 20)."
+      }
+    ],
+    "talentTable": [
+      {
+        "roll": "2",
+        "min": 2,
+        "max": 2,
+        "effect": "Gain Weapon Mastery with an additional weapon type."
+      },
+      {
+        "roll": "3-6",
+        "min": 3,
+        "max": 6,
+        "effect": "+1 to melee and ranged attack rolls."
+      },
+      {
+        "roll": "7-9",
+        "min": 7,
+        "max": 9,
+        "effect": "+2 to Strength, Dexterity, or Constitution stat."
+      },
+      {
+        "roll": "10-11",
+        "min": 10,
+        "max": 11,
+        "effect": "+1 to melee and ranged damage rolls."
+      },
+      {
+        "roll": "12",
+        "min": 12,
+        "max": 12,
+        "effect": "Choose any talent or gain +2 points to distribute among stats."
+      }
+    ]
+  },
+  {
+    "name": "Thief",
+    "hitDie": 6,
+    "weapons": [
+      "Club",
+      "Crossbow",
+      "Dagger",
+      "Shortbow",
+      "Shortsword"
+    ],
+    "armor": [
+      "Leather armor",
+      "Mithral chainmail"
+    ],
+    "level1Features": [
+      {
+        "name": "Backstab",
+        "description": "Deal extra weapon damage dice equal to half level rounded up (+1d6 at lv 1-2, up to +5d6) when striking unaware or flanked foes."
+      },
+      {
+        "name": "Thievery",
+        "description": "Advantage on checks to pick locks, disarm traps, pick pockets, climb walls, and move silently."
+      },
+      {
+        "name": "Passive Trap Sense",
+        "description": "Automatically roll DEX check (DC 12 or hazard DC) to spot hidden traps before triggering."
+      }
+    ],
+    "talentTable": [
+      {
+        "roll": "2",
+        "min": 2,
+        "max": 2,
+        "effect": "Roll Backstab damage with Advantage (roll dice pool twice, take higher total)."
+      },
+      {
+        "roll": "3-5",
+        "min": 3,
+        "max": 5,
+        "effect": "+1 to attack rolls with ranged or finesse weapons."
+      },
+      {
+        "roll": "6-8",
+        "min": 6,
+        "max": 8,
+        "effect": "+2 to Dexterity or Charisma stat."
+      },
+      {
+        "roll": "9-11",
+        "min": 9,
+        "max": 11,
+        "effect": "+1 bonus on all Passive Trap Sense and Thievery checks."
+      },
+      {
+        "roll": "12",
+        "min": 12,
+        "max": 12,
+        "effect": "Choose any talent or gain +2 points to distribute among stats."
+      }
+    ]
+  },
+  {
+    "name": "Priest",
+    "hitDie": 6,
+    "weapons": [
+      "Club",
+      "Crossbow",
+      "Dagger",
+      "Mace",
+      "Staff",
+      "Warhammer"
+    ],
+    "armor": [
+      "All armor",
+      "Shields"
+    ],
+    "spellcasting": {
+      "ability": "wis",
+      "type": "divine"
+    },
+    "level1Features": [
+      {
+        "name": "Deity & Alignment",
+        "description": "Sworn to a divine alignment granting access to holy miracles and blessing rights."
+      },
+      {
+        "name": "Divine Spellcasting",
+        "description": "Cast divine spells using Wisdom modifier vs DC 10 + Spell Tier."
+      },
+      {
+        "name": "Turn Undead",
+        "description": "Rebuke undead with holy authority; CHA check vs spell check forces undead to flee or perish."
+      }
+    ],
+    "talentTable": [
+      {
+        "roll": "2",
+        "min": 2,
+        "max": 2,
+        "effect": "Choose one priest spell you know; cast it with Advantage."
+      },
+      {
+        "roll": "3-6",
+        "min": 3,
+        "max": 6,
+        "effect": "+1 to divine spellcasting checks."
+      },
+      {
+        "roll": "7-9",
+        "min": 7,
+        "max": 9,
+        "effect": "+2 to Strength, Constitution, or Wisdom stat."
+      },
+      {
+        "roll": "10-11",
+        "min": 10,
+        "max": 11,
+        "effect": "+1 to melee attack and damage rolls with bludgeoning weapons."
+      },
+      {
+        "roll": "12",
+        "min": 12,
+        "max": 12,
+        "effect": "Choose any talent or gain +2 points to distribute among stats."
+      }
+    ]
+  },
+  {
+    "name": "Wizard",
+    "hitDie": 4,
+    "weapons": [
+      "Dagger",
+      "Staff"
+    ],
+    "armor": [
+      "None"
+    ],
+    "spellcasting": {
+      "ability": "int",
+      "type": "arcane"
+    },
+    "level1Features": [
+      {
+        "name": "Spellbook",
+        "description": "Begins with 3 Tier 1 spells inscribed in personal spellbook."
+      },
+      {
+        "name": "Arcane Spellcasting",
+        "description": "Cast arcane spells using Intelligence modifier vs DC 10 + Spell Tier."
+      },
+      {
+        "name": "Learning Spells",
+        "description": "Copy scrolls into spellbook during downtime with INT check (DC 10 + Tier)."
+      }
+    ],
+    "talentTable": [
+      {
+        "roll": "2",
+        "min": 2,
+        "max": 2,
+        "effect": "Choose one wizard spell you know; cast it with Advantage."
+      },
+      {
+        "roll": "3-6",
+        "min": 3,
+        "max": 6,
+        "effect": "+1 to arcane spellcasting checks."
+      },
+      {
+        "roll": "7-9",
+        "min": 7,
+        "max": 9,
+        "effect": "+2 to Intelligence or Wisdom stat."
+      },
+      {
+        "roll": "10-11",
+        "min": 10,
+        "max": 11,
+        "effect": "Learn one additional spell of any tier you can cast."
+      },
+      {
+        "roll": "12",
+        "min": 12,
+        "max": 12,
+        "effect": "Choose any talent or gain +2 points to distribute among stats."
+      }
+    ]
+  },
+  {
+    "name": "Delver",
+    "hitDie": 6,
+    "weapons": [
+      "Club",
+      "Crossbow",
+      "Dagger",
+      "Shortbow",
+      "Shortsword",
+      "Spear",
+      "Staff",
+      "Whip"
+    ],
+    "armor": [
+      "Leather armor",
+      "Chainmail",
+      "Shields"
+    ],
+    "level1Features": [
+      {
+        "name": "Scavenger",
+        "description": "When expending the last consumable item, roll d6; on 5-6 regain one use of that item."
+      },
+      {
+        "name": "Trailblazer",
+        "description": "Advantage on climbing, swimming, foraging, and avoiding terrain hazards."
+      },
+      {
+        "name": "Trusty Gear",
+        "description": "Choose one piece of gear/weapon; gain +1 + half level on checks or attack rolls with it."
+      }
+    ],
+    "talentTable": [
+      {
+        "roll": "2",
+        "min": 2,
+        "max": 2,
+        "effect": "Scavenger triggers on a roll of 4-6 on 1d6."
+      },
+      {
+        "roll": "3-6",
+        "min": 3,
+        "max": 6,
+        "effect": "+1 to attack rolls with Trusty Gear or light weapons."
+      },
+      {
+        "roll": "7-9",
+        "min": 7,
+        "max": 9,
+        "effect": "+2 to Strength, Dexterity, or Constitution stat."
+      },
+      {
+        "roll": "10-11",
+        "min": 10,
+        "max": 11,
+        "effect": "+2 bonus gear slots and advantage on subterranean navigation."
+      },
+      {
+        "roll": "12",
+        "min": 12,
+        "max": 12,
+        "effect": "Choose any talent or gain +2 points to distribute among stats."
+      }
+    ]
+  },
+  {
+    "name": "Ras-Godai",
+    "hitDie": 6,
+    "weapons": [
+      "Blowgun",
+      "Dagger",
+      "Garrote",
+      "Shortbow",
+      "Shortsword",
+      "Shuriken"
+    ],
+    "armor": [
+      "Leather armor"
+    ],
+    "level1Features": [
+      {
+        "name": "Shadow Step",
+        "description": "Move between darkness and shadows as a near teleportation action."
+      },
+      {
+        "name": "Assassinate",
+        "description": "Deal double weapon dice when attacking from absolute surprise or stealth."
+      },
+      {
+        "name": "Poisoner",
+        "description": "Immune to accidental poisoning and can apply venom as a free action."
+      }
+    ],
+    "talentTable": [
+      {
+        "roll": "2",
+        "min": 2,
+        "max": 2,
+        "effect": "+2 to stealth and poison DC saves."
+      },
+      {
+        "roll": "3-6",
+        "min": 3,
+        "max": 6,
+        "effect": "+1 to attack rolls with light blades and shurikens."
+      },
+      {
+        "roll": "7-9",
+        "min": 7,
+        "max": 9,
+        "effect": "+2 to Dexterity, Wisdom, or Charisma stat."
+      },
+      {
+        "roll": "10-11",
+        "min": 10,
+        "max": 11,
+        "effect": "Extra 1d6 necrotic damage on sneak attacks."
+      },
+      {
+        "roll": "12",
+        "min": 12,
+        "max": 12,
+        "effect": "Choose any talent or gain +2 points to distribute among stats."
+      }
+    ]
+  },
+  {
+    "name": "Druid",
+    "hitDie": 6,
+    "weapons": [
+      "Club",
+      "Dagger",
+      "Dart",
+      "Scimitar",
+      "Sickle",
+      "Sling",
+      "Spear",
+      "Staff"
+    ],
+    "armor": [
+      "Leather armor",
+      "Wooden shields"
+    ],
+    "spellcasting": {
+      "ability": "wis",
+      "type": "primal"
+    },
+    "level1Features": [
+      {
+        "name": "Wild Shape",
+        "description": "Transform into a beast of equal or lower level once per day per level."
+      },
+      {
+        "name": "Primal Spellcasting",
+        "description": "Cast nature spells using Wisdom modifier vs DC 10 + Spell Tier."
+      },
+      {
+        "name": "Beast Speech",
+        "description": "Freely converse with natural animals and primeval flora."
+      }
+    ],
+    "talentTable": [
+      {
+        "roll": "2",
+        "min": 2,
+        "max": 2,
+        "effect": "Wild Shape lasts double duration and grants +2 AC in beast form."
+      },
+      {
+        "roll": "3-6",
+        "min": 3,
+        "max": 6,
+        "effect": "+1 to primal spellcasting checks."
+      },
+      {
+        "roll": "7-9",
+        "min": 7,
+        "max": 9,
+        "effect": "+2 to Constitution or Wisdom stat."
+      },
+      {
+        "roll": "10-11",
+        "min": 10,
+        "max": 11,
+        "effect": "+1 to attack and damage rolls with natural weapons and spears."
+      },
+      {
+        "roll": "12",
+        "min": 12,
+        "max": 12,
+        "effect": "Choose any talent or gain +2 points to distribute among stats."
+      }
+    ]
+  },
+  {
+    "name": "Alchemist",
+    "hitDie": 6,
+    "weapons": [
+      "Club",
+      "Crossbow",
+      "Dagger",
+      "Sling",
+      "Staff"
+    ],
+    "armor": [
+      "Leather armor"
+    ],
+    "level1Features": [
+      {
+        "name": "Reagent Extraction",
+        "description": "Extract potent alchemical essences from fallen beasts and strange flora."
+      },
+      {
+        "name": "Concoct Brews",
+        "description": "Brew volatile bombs, healing salves, and mutagenic draughts during rest."
+      },
+      {
+        "name": "Catalyst Infusion",
+        "description": "Add alchemical elemental damage (fire, acid, cold) to ammunition and weapons."
+      }
+    ],
+    "talentTable": [
+      {
+        "roll": "2",
+        "min": 2,
+        "max": 2,
+        "effect": "Alchemical bombs deal +1d6 splash damage."
+      },
+      {
+        "roll": "3-6",
+        "min": 3,
+        "max": 6,
+        "effect": "+1 to ranged attacks and thrown alchemical flasks."
+      },
+      {
+        "roll": "7-9",
+        "min": 7,
+        "max": 9,
+        "effect": "+2 to Intelligence or Constitution stat."
+      },
+      {
+        "roll": "10-11",
+        "min": 10,
+        "max": 11,
+        "effect": "Brew 1 extra free potion per rest cycle without consuming reagents."
+      },
+      {
+        "roll": "12",
+        "min": 12,
+        "max": 12,
+        "effect": "Choose any talent or gain +2 points to distribute among stats."
+      }
+    ]
+  },
+  {
+    "name": "Sage",
+    "hitDie": 4,
+    "weapons": [
+      "Dagger",
+      "Staff"
+    ],
+    "armor": [
+      "None"
+    ],
+    "level1Features": [
+      {
+        "name": "Encyclopedic Lore",
+        "description": "Roll with Advantage on all checks to identify monsters, relics, and ancient history."
+      },
+      {
+        "name": "Decipher Script",
+        "description": "Read any ancient dialect or decipher magical wards without triggering mishaps."
+      },
+      {
+        "name": "Scroll Savant",
+        "description": "Can activate any arcane or divine scroll regardless of class list."
+      }
+    ],
+    "talentTable": [
+      {
+        "roll": "2",
+        "min": 2,
+        "max": 2,
+        "effect": "Scrolls you cast have DC reduced by 2."
+      },
+      {
+        "roll": "3-6",
+        "min": 3,
+        "max": 6,
+        "effect": "+1 to all INT and WIS ability checks and saving throws."
+      },
+      {
+        "roll": "7-9",
+        "min": 7,
+        "max": 9,
+        "effect": "+2 to Intelligence or Wisdom stat."
+      },
+      {
+        "roll": "10-11",
+        "min": 10,
+        "max": 11,
+        "effect": "Gain 2 additional language proficiencies and +1 lore tier mastery."
+      },
+      {
+        "roll": "12",
+        "min": 12,
+        "max": 12,
+        "effect": "Choose any talent or gain +2 points to distribute among stats."
+      }
+    ]
+  },
+  {
+    "name": "Monk",
+    "hitDie": 6,
+    "weapons": [
+      "Club",
+      "Dagger",
+      "Staff"
+    ],
+    "armor": [
+      "None"
+    ],
+    "level1Features": [
+      {
+        "name": "Martial Arts",
+        "description": "Unarmed strikes deal 1d6 damage (scaling with level) and use DEX for attacks."
+      },
+      {
+        "name": "Ki Defense",
+        "description": "AC is 10 + DEX modifier + WIS modifier when wearing no armor."
+      },
+      {
+        "name": "Slow Fall & Purity",
+        "description": "Reduce falling damage and gain Advantage on saves against poison and disease."
+      }
+    ],
+    "talentTable": [
+      {
+        "roll": "2",
+        "min": 2,
+        "max": 2,
+        "effect": "Unarmed strikes deal +1 damage die step (1d6 -> 1d8 -> 1d10)."
+      },
+      {
+        "roll": "3-6",
+        "min": 3,
+        "max": 6,
+        "effect": "+1 to unarmed attack rolls and combat maneuvers."
+      },
+      {
+        "roll": "7-9",
+        "min": 7,
+        "max": 9,
+        "effect": "+2 to Dexterity, Constitution, or Wisdom stat."
+      },
+      {
+        "roll": "10-11",
+        "min": 10,
+        "max": 11,
+        "effect": "+10 ft movement speed and +1 AC while unarmored."
+      },
+      {
+        "roll": "12",
+        "min": 12,
+        "max": 12,
+        "effect": "Choose any talent or gain +2 points to distribute among stats."
+      }
+    ]
+  },
+  {
+    "name": "Bard",
+    "hitDie": 6,
+    "weapons": [
+      "Club",
+      "Crossbow",
+      "Dagger",
+      "Shortbow",
+      "Shortsword",
+      "Spear",
+      "Staff"
+    ],
+    "armor": [
+      "Leather armor",
+      "Chainmail",
+      "Shields"
+    ],
+    "spellcasting": {
+      "ability": "cha",
+      "type": "arcane"
+    },
+    "level1Features": [
+      {
+        "name": "Bardic Inspiration",
+        "description": "Inspire an ally with a spell-song, granting +1d6 on their next check or attack."
+      },
+      {
+        "name": "Fascinate",
+        "description": "Perform to charm and pacify audiences or sentient beasts."
+      }
+    ],
+    "talentTable": [
+      {
+        "roll": "2",
+        "min": 2,
+        "max": 2,
+        "effect": "Bardic Inspiration die increases to 1d8."
+      },
+      {
+        "roll": "3-6",
+        "min": 3,
+        "max": 6,
+        "effect": "+1 to performance and spellcasting checks."
+      },
+      {
+        "roll": "7-9",
+        "min": 7,
+        "max": 9,
+        "effect": "+2 to Dexterity or Charisma stat."
+      },
+      {
+        "roll": "10-11",
+        "min": 10,
+        "max": 11,
+        "effect": "+1 to melee attack and damage rolls with finesse weapons."
+      },
+      {
+        "roll": "12",
+        "min": 12,
+        "max": 12,
+        "effect": "Choose any talent or gain +2 points to distribute among stats."
+      }
+    ]
+  },
+  {
+    "name": "Duelist",
+    "hitDie": 8,
+    "weapons": [
+      "Crossbow",
+      "Dagger",
+      "Rapier",
+      "Shortsword"
+    ],
+    "armor": [
+      "Leather armor"
+    ],
+    "level1Features": [
+      {
+        "name": "Flourish & Parry",
+        "description": "Use reaction to add +2 AC against incoming melee attack or riposte after a miss."
+      },
+      {
+        "name": "Single Combat",
+        "description": "+2 to attack and damage rolls when engaging a single enemy in melee."
+      }
+    ],
+    "talentTable": [
+      {
+        "roll": "2",
+        "min": 2,
+        "max": 2,
+        "effect": "Parry bonus increases to +3 AC."
+      },
+      {
+        "roll": "3-6",
+        "min": 3,
+        "max": 6,
+        "effect": "+1 to attack rolls with rapiers and dueling blades."
+      },
+      {
+        "roll": "7-9",
+        "min": 7,
+        "max": 9,
+        "effect": "+2 to Dexterity or Charisma stat."
+      },
+      {
+        "roll": "10-11",
+        "min": 10,
+        "max": 11,
+        "effect": "+1 to damage rolls and critical hits trigger on 19-20."
+      },
+      {
+        "roll": "12",
+        "min": 12,
+        "max": 12,
+        "effect": "Choose any talent or gain +2 points to distribute among stats."
+      }
+    ]
+  },
+  {
+    "name": "Ranger",
+    "hitDie": 8,
+    "weapons": [
+      "Dagger",
+      "Longbow",
+      "Longsword",
+      "Shortbow",
+      "Shortsword",
+      "Spear",
+      "Staff"
+    ],
+    "armor": [
+      "Leather armor",
+      "Chainmail",
+      "Shields"
+    ],
+    "level1Features": [
+      {
+        "name": "Favored Terrain",
+        "description": "Cannot become lost in chosen biome and party moves at normal pace during wilderness exploration."
+      },
+      {
+        "name": "Hunter's Mark",
+        "description": "+1d4 damage against tracked or quarry target."
+      }
+    ],
+    "talentTable": [
+      {
+        "roll": "2",
+        "min": 2,
+        "max": 2,
+        "effect": "Hunter's Mark damage increases to 1d6."
+      },
+      {
+        "roll": "3-6",
+        "min": 3,
+        "max": 6,
+        "effect": "+1 to ranged attack rolls."
+      },
+      {
+        "roll": "7-9",
+        "min": 7,
+        "max": 9,
+        "effect": "+2 to Dexterity, Constitution, or Wisdom stat."
+      },
+      {
+        "roll": "10-11",
+        "min": 10,
+        "max": 11,
+        "effect": "+1 to tracking checks and ambush initiative."
+      },
+      {
+        "roll": "12",
+        "min": 12,
+        "max": 12,
+        "effect": "Choose any talent or gain +2 points to distribute among stats."
+      }
+    ]
+  },
+  {
+    "name": "Knight of St. Ydris",
+    "hitDie": 8,
+    "weapons": [
+      "All weapons"
+    ],
+    "armor": [
+      "All armor",
+      "Shields"
+    ],
+    "spellcasting": {
+      "ability": "wis",
+      "type": "divine"
+    },
+    "level1Features": [
+      {
+        "name": "Martyr's Smite",
+        "description": "Channel holy suffering to deal +2d6 radiant damage at the cost of 2 HP."
+      },
+      {
+        "name": "Chivalric Oath",
+        "description": "Immune to fear and grant allies within near +1 to morale checks."
+      }
+    ],
+    "talentTable": [
+      {
+        "roll": "2",
+        "min": 2,
+        "max": 2,
+        "effect": "Martyr's Smite deals +3d6 radiant damage."
+      },
+      {
+        "roll": "3-6",
+        "min": 3,
+        "max": 6,
+        "effect": "+1 to melee attack rolls with martial weapons."
+      },
+      {
+        "roll": "7-9",
+        "min": 7,
+        "max": 9,
+        "effect": "+2 to Strength, Constitution, or Wisdom stat."
+      },
+      {
+        "roll": "10-11",
+        "min": 10,
+        "max": 11,
+        "effect": "+1 to AC while wearing heavy armor."
+      },
+      {
+        "roll": "12",
+        "min": 12,
+        "max": 12,
+        "effect": "Choose any talent or gain +2 points to distribute among stats."
+      }
+    ]
+  },
+  {
+    "name": "Warlock",
+    "hitDie": 6,
+    "weapons": [
+      "Club",
+      "Dagger",
+      "Shortsword",
+      "Staff"
+    ],
+    "armor": [
+      "Leather armor"
+    ],
+    "spellcasting": {
+      "ability": "cha",
+      "type": "occult"
+    },
+    "level1Features": [
+      {
+        "name": "Patron Boon",
+        "description": "Draw occult boons from patron fey, fiend, or primordial void."
+      },
+      {
+        "name": "Eldritch Blast",
+        "description": "Cast far-range beam dealing 1d6 force damage (CHA check vs DC 10)."
+      }
+    ],
+    "talentTable": [
+      {
+        "roll": "2",
+        "min": 2,
+        "max": 2,
+        "effect": "Eldritch Blast deals +1d6 extra force damage."
+      },
+      {
+        "roll": "3-6",
+        "min": 3,
+        "max": 6,
+        "effect": "+1 to occult spellcasting checks."
+      },
+      {
+        "roll": "7-9",
+        "min": 7,
+        "max": 9,
+        "effect": "+2 to Constitution or Charisma stat."
+      },
+      {
+        "roll": "10-11",
+        "min": 10,
+        "max": 11,
+        "effect": "Gain darkvision and resistance to necrotic damage."
+      },
+      {
+        "roll": "12",
+        "min": 12,
+        "max": 12,
+        "effect": "Choose any talent or gain +2 points to distribute among stats."
+      }
+    ]
+  },
+  {
+    "name": "Witch",
+    "hitDie": 6,
+    "weapons": [
+      "Club",
+      "Dagger",
+      "Staff"
+    ],
+    "armor": [
+      "None"
+    ],
+    "spellcasting": {
+      "ability": "int",
+      "type": "occult"
+    },
+    "level1Features": [
+      {
+        "name": "Hexing & Banes",
+        "description": "Inflict misfortune, forcing enemies to roll saves or attacks with Disadvantage."
+      },
+      {
+        "name": "Coven Cauldron",
+        "description": "Brew curative draughts, charms, and herbal wards during camp rest."
+      }
+    ],
+    "talentTable": [
+      {
+        "roll": "2",
+        "min": 2,
+        "max": 2,
+        "effect": "Hexes affect 2 targets simultaneously."
+      },
+      {
+        "roll": "3-6",
+        "min": 3,
+        "max": 6,
+        "effect": "+1 to occult spellcasting and brewing checks."
+      },
+      {
+        "roll": "7-9",
+        "min": 7,
+        "max": 9,
+        "effect": "+2 to Intelligence or Wisdom stat."
+      },
+      {
+        "roll": "10-11",
+        "min": 10,
+        "max": 11,
+        "effect": "Gain a spirit familiar granting advantage on perception."
+      },
+      {
+        "roll": "12",
+        "min": 12,
+        "max": 12,
+        "effect": "Choose any talent or gain +2 points to distribute among stats."
+      }
+    ]
+  }
+]

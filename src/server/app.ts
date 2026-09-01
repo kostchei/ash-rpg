@@ -8,17 +8,23 @@ import { resolve } from "node:path";
 import QRCode from "qrcode";
 import { Server as SocketServer, type Socket } from "socket.io";
 import { z } from "zod";
-import { ANCESTRIES, CLASSES, MONSTERS } from "../shared/content.js";
-import type { Role } from "../shared/types.js";
+import { ANCESTRIES, CLASSES } from "../shared/content.js";
+import type { CampaignPhase, EncounterMonster, Role } from "../shared/types.js";
 import { AshDatabase } from "./database.js";
+import { generateCampaignComplication } from "./generators/campaign.js";
+import { generateNpc } from "./generators/npc.js";
+import { generateSettlement } from "./generators/settlement.js";
 import {
   abilityModifier,
   binaryOracle,
   generateDungeonRoom,
+  generateMonsterVariant,
+  levelUpCharacter,
   loreTier,
   moraleRoll,
   reactionRoll,
   rollAbilities,
+  rollClassTalent,
   rollDice,
   rollDie,
   wildernessWatch,
@@ -49,7 +55,7 @@ const abilitySchema = z.object({
 });
 const characterSchema = z.object({
   name: cleanText.max(50),
-  ancestry: z.enum(ANCESTRIES),
+  ancestry: z.enum(ANCESTRIES as unknown as [string, ...string[]]),
   className: z
     .string()
     .refine((value) => CLASSES.some((item) => item.name === value)),
@@ -124,10 +130,13 @@ export async function createAshServer(options: AshServerOptions = {}) {
     response.json({
       ancestries: ANCESTRIES,
       classes: CLASSES,
-      monsters: Object.entries(MONSTERS).map(([key, value]) => ({
-        key,
-        name: value.name,
+      monsters: db.listMonsters().map((m) => ({
+        key: m.monsterKey,
+        name: m.name,
+        level: m.level,
+        family: m.family,
       })),
+      zones: db.listZones(),
     }),
   );
 
@@ -296,6 +305,133 @@ export async function createAshServer(options: AshServerOptions = {}) {
     const actor = () =>
       actorName(db, identity, `${baseUrl}/play?code=${identity.code}`);
 
+    // --- Phase & Zone State Machine Events ---
+
+    socket.on(
+      "phase:transition",
+      action((raw: unknown) => {
+        hostOnly();
+        const payload = z
+          .object({ phase: z.enum(["sanctuary", "hexcrawl", "dungeon"]) })
+          .parse(raw);
+        db.setCampaignPhase(identity.campaignId, payload.phase as CampaignPhase);
+        db.addRoll(identity.campaignId, {
+          actor: "Table",
+          kind: "campaign",
+          label: `Phase Transition: ${payload.phase.toUpperCase()}`,
+          dice: "—",
+          total: 0,
+          detail: `The campaign phase is now set to ${payload.phase}.`,
+        });
+      }),
+    );
+
+    socket.on(
+      "zone:enter",
+      action((raw: unknown) => {
+        hostOnly();
+        const payload = z.object({ zoneId: z.string().min(1) }).parse(raw);
+        const zone = db.getZoneManifest(payload.zoneId);
+        if (!zone) throw new Error("Zone not found");
+        db.setActiveZone(identity.campaignId, payload.zoneId);
+        db.addRoll(identity.campaignId, {
+          actor: "Table",
+          kind: "zone",
+          label: `Entered Zone: ${zone.name}`,
+          dice: "—",
+          total: 0,
+          detail: `${zone.theme} (${zone.biomePalette.join(", ")})`,
+        });
+      }),
+    );
+
+    socket.on(
+      "zone:exit",
+      action((_raw: unknown) => {
+        hostOnly();
+        db.setActiveZone(identity.campaignId, "oakhaven_borderlands");
+        db.setCampaignPhase(identity.campaignId, "sanctuary");
+        db.addRoll(identity.campaignId, {
+          actor: "Table",
+          kind: "zone",
+          label: "Returned to Sanctuary",
+          dice: "—",
+          total: 0,
+          detail: "Returned safely to Oakhaven Borderlands sanctuary.",
+        });
+      }),
+    );
+
+    // --- Generators (Settlement, NPC, Campaign) ---
+
+    socket.on(
+      "settlement:generate",
+      action((_raw: unknown) => {
+        const result = generateSettlement();
+        db.addRoll(identity.campaignId, {
+          actor: actor(),
+          kind: "settlement",
+          label: `Settlement: ${result.scale.name}`,
+          dice: "1d6 + 2d10 + 1d8",
+          total: 0,
+          detail: `${result.tavern.name} (${result.tavern.vibe}) · Rumor: "${result.rumor.rumor}"`,
+        });
+        return { result };
+      }),
+    );
+
+    socket.on(
+      "npc:generate",
+      action((raw: unknown) => {
+        const payload = z
+          .object({ zoneId: z.string().optional() })
+          .optional()
+          .parse(raw);
+        const state = db.getState(
+          identity.campaignId,
+          identity.role,
+          identity.characterId,
+          "",
+        );
+        const zoneId = payload?.zoneId ?? state.campaign.activeZoneId ?? "oakhaven_borderlands";
+        const result = generateNpc(state.characters, zoneId);
+        db.addRoll(identity.campaignId, {
+          actor: actor(),
+          kind: "npc",
+          label: `NPC: ${result.ancestry} ${result.className}`,
+          dice: "1d100 + 1d12 + 1d12",
+          total: result.retainerStats.level,
+          detail: `${result.demeanor} (${result.quirk}) · Motive: ${result.motive}`,
+        });
+        return { result };
+      }),
+    );
+
+    socket.on(
+      "campaign:complication",
+      action((_raw: unknown) => {
+        hostOnly();
+        const state = db.getState(
+          identity.campaignId,
+          identity.role,
+          identity.characterId,
+          "",
+        );
+        const result = generateCampaignComplication(state.pressures);
+        db.addRoll(identity.campaignId, {
+          actor: "Table",
+          kind: "campaign",
+          label: "Campaign Complication",
+          dice: "1d8",
+          total: 0,
+          detail: result.complication,
+        });
+        return { result };
+      }),
+    );
+
+    // --- Dice & Oracles ---
+
     socket.on(
       "dice:roll",
       action((raw: unknown) => {
@@ -365,6 +501,8 @@ export async function createAshServer(options: AshServerOptions = {}) {
       }),
     );
 
+    // --- Characters, Progression & Leveling (1-36) ---
+
     socket.on(
       "character:roll-abilities",
       action((_raw: unknown) => {
@@ -398,6 +536,10 @@ export async function createAshServer(options: AshServerOptions = {}) {
           1,
           rollDie(classInfo.hitDie) + conMod + ancestryHp,
         );
+
+        // Roll Level 1 Talent for odd level
+        const level1Talent = rollClassTalent(input.className);
+
         const characterId = db.addCharacter(
           identity.campaignId,
           identity.role === "player" ? identity.token : null,
@@ -409,6 +551,8 @@ export async function createAshServer(options: AshServerOptions = {}) {
             ac: 10 + dexMod,
             gold: (rollDie(6) + rollDie(6)) * 10,
             gearSlots: 10 + strMod + (input.ancestry === "Half-Ogre" ? 4 : 0),
+            talents: [`[Lvl 1] ${level1Talent.effect}`],
+            xp: 0,
           },
         );
         identity.characterId =
@@ -419,9 +563,82 @@ export async function createAshServer(options: AshServerOptions = {}) {
           label: "Joined the expedition",
           dice: `1d${classInfo.hitDie}`,
           total: maxHp,
-          detail: `${input.ancestry} ${input.className} · ${maxHp} HP`,
+          detail: `${input.ancestry} ${input.className} · ${maxHp} HP · Talent: ${level1Talent.effect}`,
         });
         return { characterId };
+      }),
+    );
+
+    socket.on(
+      "character:level_up",
+      action((raw: unknown) => {
+        const payload = z.object({ characterId: z.number().int() }).parse(raw);
+        if (
+          identity.role !== "host" &&
+          payload.characterId !== identity.characterId
+        )
+          throw new Error("You can only level up your own character");
+
+        const state = db.getState(
+          identity.campaignId,
+          identity.role,
+          identity.characterId,
+          "",
+        );
+        const character = state.characters.find(
+          (c) => c.id === payload.characterId,
+        );
+        if (!character) throw new Error("Character not found");
+        if (character.level >= 36) throw new Error("Character is already at max level (36)");
+
+        const levelUpResult = levelUpCharacter(character);
+        db.updateCharacter(identity.campaignId, levelUpResult.character);
+
+        db.addRoll(identity.campaignId, {
+          actor: character.name,
+          kind: "character",
+          label: `Advanced to Level ${levelUpResult.character.level}`,
+          dice: levelUpResult.character.level <= 10 ? "1dHD + CON" : "Flat +1 (Grit)",
+          total: levelUpResult.gainedHp,
+          detail: levelUpResult.log,
+        });
+
+        return { result: levelUpResult };
+      }),
+    );
+
+    socket.on(
+      "character:talent_roll",
+      action((raw: unknown) => {
+        const payload = z.object({ characterId: z.number().int() }).parse(raw);
+        const state = db.getState(
+          identity.campaignId,
+          identity.role,
+          identity.characterId,
+          "",
+        );
+        const character = state.characters.find(
+          (c) => c.id === payload.characterId,
+        );
+        if (!character) throw new Error("Character not found");
+
+        const rolled = rollClassTalent(character.className);
+        const updatedTalents = [...(character.talents ?? []), `[Talent Roll] ${rolled.effect}`];
+        db.updateCharacter(identity.campaignId, {
+          ...character,
+          talents: updatedTalents,
+        });
+
+        db.addRoll(identity.campaignId, {
+          actor: character.name,
+          kind: "character",
+          label: `Rolled ${character.className} Talent`,
+          dice: "2d6",
+          total: rolled.roll,
+          detail: rolled.effect,
+        });
+
+        return { roll: rolled };
       }),
     );
 
@@ -441,6 +658,17 @@ export async function createAshServer(options: AshServerOptions = {}) {
           payload.characterId,
           payload.hp,
         );
+      }),
+    );
+
+    socket.on(
+      "character:xp",
+      action((raw: unknown) => {
+        hostOnly();
+        const payload = z
+          .object({ characterId: z.number().int(), amount: z.number().int() })
+          .parse(raw);
+        db.addCharacterXp(identity.campaignId, payload.characterId, payload.amount);
       }),
     );
 
@@ -508,30 +736,73 @@ export async function createAshServer(options: AshServerOptions = {}) {
       }),
     );
 
+    // --- Encounter Generator with 50% Monster Variant Coin-Flip ---
+
     socket.on(
       "encounter:start",
       action((raw: unknown) => {
         hostOnly();
         const payload = z
           .object({
-            monsterKey: z.enum(
-              Object.keys(MONSTERS) as [
-                keyof typeof MONSTERS,
-                ...(keyof typeof MONSTERS)[],
-              ],
-            ),
+            monsterKey: z.string().min(1),
             count: z.number().int().min(1).max(12),
+            forceVariant: z.boolean().optional(),
           })
           .parse(raw);
-        db.addEncounter(identity.campaignId, payload.monsterKey, payload.count);
-        const monster = MONSTERS[payload.monsterKey];
+
+        const baseMonster = db.getMonster(payload.monsterKey) ?? {
+          id: 0,
+          monsterKey: payload.monsterKey,
+          name: payload.monsterKey,
+          currentHp: 10,
+          maxHp: 10,
+          loreTier: 0,
+          ac: 12,
+          morale: 7,
+          attacks: ["Strike +2 (1d6)"],
+          traits: [],
+          lore: [],
+        };
+
+        const state = db.getState(
+          identity.campaignId,
+          identity.role,
+          identity.characterId,
+          "",
+        );
+        const avgLevel = Math.max(
+          1,
+          Math.round(
+            state.characters.reduce((acc, c) => acc + c.level, 0) /
+              Math.max(1, state.characters.length),
+          ),
+        );
+
+        // 50% variant coin flip (or forceVariant)
+        const isVariantRoll = payload.forceVariant ?? rollDie(2) === 1;
+
+        const resolvedMonster: EncounterMonster = isVariantRoll
+          ? generateMonsterVariant(baseMonster, avgLevel)
+          : { ...baseMonster };
+
+        const monstersList: EncounterMonster[] = Array.from(
+          { length: payload.count },
+          () => ({ ...resolvedMonster }),
+        );
+
+        db.addEncounterWithMonsters(
+          identity.campaignId,
+          resolvedMonster.name,
+          monstersList,
+        );
+
         db.addRoll(identity.campaignId, {
           actor: "Table",
           kind: "encounter",
-          label: `${monster.name} encountered`,
-          dice: "—",
+          label: `${resolvedMonster.name} encountered`,
+          dice: isVariantRoll ? "Coin flip (Variant!)" : "Coin flip (Standard)",
           total: payload.count,
-          detail: `${payload.count} appearing; identity only until lore is learned`,
+          detail: `${payload.count} appearing · ${isVariantRoll ? `Variant Quality: ${resolvedMonster.variantQuality}` : "Standard creature"}`,
         });
       }),
     );
@@ -605,13 +876,13 @@ export async function createAshServer(options: AshServerOptions = {}) {
           payload.monsterId,
         );
         if (!row) throw new Error("Monster not found");
-        const monster =
-          MONSTERS[String(row.monster_key) as keyof typeof MONSTERS];
-        const result = moraleRoll(monster.morale);
+        const monster = db.getMonster(String(row.monster_key));
+        const morale = row.morale != null ? Number(row.morale) : monster?.morale ?? 7;
+        const result = moraleRoll(morale);
         db.addRoll(identity.campaignId, {
           actor: actor(),
           kind: "morale",
-          label: `${monster.name} morale`,
+          label: `${row.name ?? monster?.name ?? row.monster_key} morale`,
           dice: "2d6",
           total: result.total,
           detail: result.outcome,

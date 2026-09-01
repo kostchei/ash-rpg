@@ -6,12 +6,33 @@ export type RevealState =
   | "explored"
   | "fully_mapped";
 
+export type CampaignPhase = "sanctuary" | "hexcrawl" | "dungeon";
+
+export interface ZoneSummary {
+  id: string;
+  name: string;
+  theme: string;
+  biomePalette: string[];
+}
+
+export interface ZoneManifest extends ZoneSummary {
+  hazardTable: string[];
+  weatherTable: string[];
+  wanderingMonsterTable: string[];
+  factions: Array<{ name: string; disposition: string; notes: string }>;
+  uniqueFloraFauna: string[];
+  entryConditions: string;
+  exitConditions: string;
+}
+
 export interface CampaignSummary {
   id: number;
   code: string;
   name: string;
   regionName: string;
   act: number;
+  phase: CampaignPhase;
+  activeZoneId: string;
   joinUrl: string;
 }
 
@@ -28,6 +49,8 @@ export interface Character {
   gearSlots: number;
   abilities: Record<"str" | "dex" | "con" | "int" | "wis" | "cha", number>;
   anchors: { homeland: string; landmark: string; nemesis: string };
+  talents?: string[];
+  xp?: number;
   ownerToken?: string;
 }
 
@@ -63,9 +86,19 @@ export interface EncounterMonster {
   loreTier: number;
   ac?: number;
   morale?: number;
+  level?: number;
+  family?: string;
+  move?: string;
+  abilities?: Record<"str" | "dex" | "con" | "int" | "wis" | "cha", number>;
+  alignment?: string;
   attacks?: string[];
   traits?: string[];
   lore?: string[];
+  harvest?: Array<{ reagent: string; dc: number; effect: string }>;
+  isVariant?: boolean;
+  variantQuality?: string;
+  variantStrength?: string;
+  variantWeakness?: string;
 }
 
 export interface Encounter {
@@ -98,6 +131,7 @@ export interface CampaignPressure {
 
 export interface RollRecord {
   id: number;
+  campaignId?: number;
   actor: string;
   kind: string;
   label: string;
@@ -125,10 +159,48 @@ export interface CampaignState {
   pressures: CampaignPressure[];
   rolls: RollRecord[];
   notes: WikiNote[];
+  activeZone?: ZoneManifest;
+  availableZones?: ZoneSummary[];
 }
 
 export interface SessionIdentity {
   code: string;
   role: Role;
   token: string;
+}
+
+export interface SettlementResult {
+  scale: {
+    name: string;
+    population: string;
+    defense: string;
+    services: string;
+  };
+  tavern: {
+    name: string;
+    vibe: string;
+  };
+  rumor: {
+    rumor: string;
+    authenticity: string;
+  };
+}
+
+export interface NpcResult {
+  name?: string;
+  ancestry: string;
+  isWildcardAncestry: boolean;
+  className: string;
+  isWildcardClass: boolean;
+  zoneSubclass?: string;
+  demeanor: string;
+  quirk: string;
+  motive: string;
+  interaction: string;
+  retainerStats: {
+    level: number;
+    hp: number;
+    morale: number;
+    dailyWage: string;
+  };
 }

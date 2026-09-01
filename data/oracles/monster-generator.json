@@ -1,0 +1,146 @@
+{
+  "name": "Shadowdark Monster Generator",
+  "description": "d20 table for procedural monster variant generation based on party level (PL).",
+  "rows": [
+    {
+      "roll": 1,
+      "combatOffset": -3,
+      "quality": "Beastlike",
+      "strength": "+1 attack",
+      "weakness": "Cold"
+    },
+    {
+      "roll": 2,
+      "combatOffset": -3,
+      "quality": "Avian",
+      "strength": "Absorbs magic",
+      "weakness": "Greed"
+    },
+    {
+      "roll": 3,
+      "combatOffset": -2,
+      "quality": "Amphibious",
+      "strength": "Swarm",
+      "weakness": "Light"
+    },
+    {
+      "roll": 4,
+      "combatOffset": -2,
+      "quality": "Demonic",
+      "strength": "1d10 damage",
+      "weakness": "Salt"
+    },
+    {
+      "roll": 5,
+      "combatOffset": -1,
+      "quality": "Arachnid",
+      "strength": "Poison sting",
+      "weakness": "Vanity"
+    },
+    {
+      "roll": 6,
+      "combatOffset": -1,
+      "quality": "Ooze",
+      "strength": "Confusing gaze",
+      "weakness": "Mirrors"
+    },
+    {
+      "roll": 7,
+      "combatOffset": 0,
+      "quality": "Insectoid",
+      "strength": "Eats metal",
+      "weakness": "Electricity"
+    },
+    {
+      "roll": 8,
+      "combatOffset": 0,
+      "quality": "Draconic",
+      "strength": "Ranged attacks",
+      "weakness": "Fragile body"
+    },
+    {
+      "roll": 9,
+      "combatOffset": 0,
+      "quality": "Plantlike",
+      "strength": "Highly intelligent",
+      "weakness": "Sunlight"
+    },
+    {
+      "roll": 10,
+      "combatOffset": 0,
+      "quality": "Elephantine",
+      "strength": "Crushing grasp",
+      "weakness": "Silver"
+    },
+    {
+      "roll": 11,
+      "combatOffset": 0,
+      "quality": "Undead",
+      "strength": "Psychic blast",
+      "weakness": "Fire"
+    },
+    {
+      "roll": 12,
+      "combatOffset": 0,
+      "quality": "Crystalline",
+      "strength": "Stealthy",
+      "weakness": "Food"
+    },
+    {
+      "roll": 13,
+      "combatOffset": 0,
+      "quality": "Humanoid",
+      "strength": "Petrifying gaze",
+      "weakness": "Acid"
+    },
+    {
+      "roll": 14,
+      "combatOffset": 1,
+      "quality": "Angelic",
+      "strength": "1d12 damage",
+      "weakness": "Garlic"
+    },
+    {
+      "roll": 15,
+      "combatOffset": 1,
+      "quality": "Spectral",
+      "strength": "Impersonation",
+      "weakness": "Iron"
+    },
+    {
+      "roll": 16,
+      "combatOffset": 2,
+      "quality": "Stonecarved",
+      "strength": "Blinding aura",
+      "weakness": "Water"
+    },
+    {
+      "roll": 17,
+      "combatOffset": 2,
+      "quality": "Serpentine",
+      "strength": "Turns invisible",
+      "weakness": "Its True Name"
+    },
+    {
+      "roll": 18,
+      "combatOffset": 3,
+      "quality": "Elemental",
+      "strength": "2d6 damage",
+      "weakness": "Loud sounds"
+    },
+    {
+      "roll": 19,
+      "combatOffset": 3,
+      "quality": "Piscine",
+      "strength": "Swallows whole",
+      "weakness": "Holy water"
+    },
+    {
+      "roll": 20,
+      "combatOffset": 4,
+      "quality": "Reptilian",
+      "strength": "+2 attacks",
+      "weakness": "Music"
+    }
+  ]
+}

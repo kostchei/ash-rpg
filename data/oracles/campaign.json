@@ -1,0 +1,46 @@
+{
+  "shapes": [
+    {
+      "shape": "countdown",
+      "description": "Fixed time or steps remaining before an inevitable occurrence."
+    },
+    {
+      "shape": "pursuit",
+      "description": "Distance between hunters and prey with gains and losses."
+    },
+    {
+      "shape": "race",
+      "description": "Multiple factions competing to achieve a milestone first."
+    },
+    {
+      "shape": "heat",
+      "description": "Escalating attention from law enforcement or syndicate syndicates."
+    },
+    {
+      "shape": "spread",
+      "description": "Geographic or contagion infection moving outward."
+    },
+    {
+      "shape": "mystery",
+      "description": "Clues accumulated toward uncovering a mastermind or hidden truth."
+    },
+    {
+      "shape": "opportunity",
+      "description": "A fleeting window of fortune closing as actions are taken."
+    },
+    {
+      "shape": "ladder",
+      "description": "Political hierarchy, reputation tiers, or faction standing."
+    }
+  ],
+  "complications": [
+    "A supply line is severed by roving marauders.",
+    "An unexpected weather anomaly delays travel by 1 day.",
+    "A rival adventuring company arrives seeking the same bounty.",
+    "A trusted merchant reveals they have been blackmailed by local syndicates.",
+    "A planar tremor destabilizes arcane wards across the region.",
+    "A dormant disease spreads from harvested monster carcases.",
+    "A local faction leader is replaced by a shadowy impostor.",
+    "A hidden dungeon collapse exposes an unmapped deeper level."
+  ]
+}

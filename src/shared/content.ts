@@ -4,6 +4,7 @@ export const ANCESTRIES = [
   "Human",
   "Dwarf",
   "Elf",
+  "High Elf",
   "Halfling",
   "Goblin",
   "Orc",
@@ -21,17 +22,249 @@ export const ANCESTRIES = [
   "Deva",
 ] as const;
 
-export const CLASSES = [
-  { name: "Fighter", hitDie: 8 },
-  { name: "Thief", hitDie: 6 },
-  { name: "Priest", hitDie: 6 },
-  { name: "Wizard", hitDie: 4 },
-  { name: "Delver", hitDie: 6 },
-  { name: "Ras-Godai", hitDie: 6 },
-  { name: "Druid", hitDie: 6 },
-  { name: "Alchemist", hitDie: 6 },
-  { name: "Sage", hitDie: 4 },
-  { name: "Monk", hitDie: 6 },
+export interface ClassFeature {
+  name: string;
+  description: string;
+}
+
+export interface TalentEntry {
+  roll: string;
+  min: number;
+  max: number;
+  effect: string;
+}
+
+export interface ClassInfo {
+  name: string;
+  hitDie: number;
+  weapons?: readonly string[];
+  armor?: readonly string[];
+  level1Features?: readonly ClassFeature[];
+  talentTable?: readonly TalentEntry[];
+}
+
+export const CLASSES: readonly ClassInfo[] = [
+  {
+    name: "Fighter",
+    hitDie: 8,
+    weapons: ["All weapons"],
+    armor: ["All armor", "Shields"],
+    level1Features: [
+      { name: "Hauler", description: "Add CON mod to total gear slots." },
+      { name: "Weapon Mastery", description: "+1 attack and damage with mastered weapon group, +1/3 level to damage." },
+      { name: "Grit", description: "Extra attacks progression (2 at lvl 6, 3 at lvl 13, 4 at lvl 20)." },
+    ],
+    talentTable: [
+      { roll: "2", min: 2, max: 2, effect: "Gain Weapon Mastery with an additional weapon type." },
+      { roll: "3-6", min: 3, max: 6, effect: "+1 to melee and ranged attack rolls." },
+      { roll: "7-9", min: 7, max: 9, effect: "+2 to Strength, Dexterity, or Constitution stat." },
+      { roll: "10-11", min: 10, max: 11, effect: "+1 to melee and ranged damage rolls." },
+      { roll: "12", min: 12, max: 12, effect: "Choose any talent or gain +2 points to distribute among stats." },
+    ],
+  },
+  {
+    name: "Thief",
+    hitDie: 6,
+    weapons: ["Club", "Crossbow", "Dagger", "Shortbow", "Shortsword"],
+    armor: ["Leather armor", "Mithral chainmail"],
+    level1Features: [
+      { name: "Backstab", description: "Deal extra damage dice (+1d6 per 2 levels) against unaware/flanked targets." },
+      { name: "Thievery", description: "Advantage on checks for stealth, picking locks, and disarming traps." },
+      { name: "Passive Trap Sense", description: "Automatically test DEX to notice hidden traps." },
+    ],
+    talentTable: [
+      { roll: "2", min: 2, max: 2, effect: "Roll Backstab damage with Advantage." },
+      { roll: "3-5", min: 3, max: 5, effect: "+1 to attack rolls with ranged or finesse weapons." },
+      { roll: "6-8", min: 6, max: 8, effect: "+2 to Dexterity or Charisma stat." },
+      { roll: "9-11", min: 9, max: 11, effect: "+1 bonus on all Passive Trap Sense and Thievery checks." },
+      { roll: "12", min: 12, max: 12, effect: "Choose any talent or gain +2 points to distribute among stats." },
+    ],
+  },
+  {
+    name: "Priest",
+    hitDie: 6,
+    weapons: ["Club", "Crossbow", "Dagger", "Mace", "Staff", "Warhammer"],
+    armor: ["All armor", "Shields"],
+    level1Features: [
+      { name: "Divine Spellcasting", description: "Cast divine miracles using Wisdom vs DC 10 + Tier." },
+      { name: "Turn Undead", description: "Rebuke undead with holy authority." },
+    ],
+    talentTable: [
+      { roll: "2", min: 2, max: 2, effect: "Choose one priest spell you know; cast it with Advantage." },
+      { roll: "3-6", min: 3, max: 6, effect: "+1 to divine spellcasting checks." },
+      { roll: "7-9", min: 7, max: 9, effect: "+2 to Strength, Constitution, or Wisdom stat." },
+      { roll: "10-11", min: 10, max: 11, effect: "+1 to melee attack and damage rolls with bludgeoning weapons." },
+      { roll: "12", min: 12, max: 12, effect: "Choose any talent or gain +2 points to distribute among stats." },
+    ],
+  },
+  {
+    name: "Wizard",
+    hitDie: 4,
+    weapons: ["Dagger", "Staff"],
+    armor: ["None"],
+    level1Features: [
+      { name: "Arcane Spellcasting", description: "Cast arcane formulas using Intelligence vs DC 10 + Tier." },
+      { name: "Spellbook", description: "Begins with 3 Tier 1 spells inscribed." },
+    ],
+    talentTable: [
+      { roll: "2", min: 2, max: 2, effect: "Choose one wizard spell you know; cast it with Advantage." },
+      { roll: "3-6", min: 3, max: 6, effect: "+1 to arcane spellcasting checks." },
+      { roll: "7-9", min: 7, max: 9, effect: "+2 to Intelligence or Wisdom stat." },
+      { roll: "10-11", min: 10, max: 11, effect: "Learn one additional spell of any tier you can cast." },
+      { roll: "12", min: 12, max: 12, effect: "Choose any talent or gain +2 points to distribute among stats." },
+    ],
+  },
+  {
+    name: "Delver",
+    hitDie: 6,
+    weapons: ["Club", "Crossbow", "Dagger", "Shortbow", "Shortsword", "Spear", "Staff", "Whip"],
+    armor: ["Leather armor", "Chainmail", "Shields"],
+    level1Features: [
+      { name: "Scavenger", description: "5-6 on d6 regains last consumed resource." },
+      { name: "Trailblazer", description: "Advantage on climbing, swimming, foraging, avoiding hazards." },
+    ],
+    talentTable: [
+      { roll: "2", min: 2, max: 2, effect: "Scavenger triggers on a roll of 4-6 on 1d6." },
+      { roll: "3-6", min: 3, max: 6, effect: "+1 to attack rolls with light weapons." },
+      { roll: "7-9", min: 7, max: 9, effect: "+2 to Strength, Dexterity, or Constitution stat." },
+      { roll: "10-11", min: 10, max: 11, effect: "+2 bonus gear slots." },
+      { roll: "12", min: 12, max: 12, effect: "Choose any talent or gain +2 points to distribute among stats." },
+    ],
+  },
+  {
+    name: "Ras-Godai",
+    hitDie: 6,
+    weapons: ["Blowgun", "Dagger", "Garrote", "Shortbow", "Shortsword", "Shuriken"],
+    armor: ["Leather armor"],
+    level1Features: [
+      { name: "Shadow Step", description: "Teleport near through dark shadows." },
+      { name: "Assassinate", description: "Double damage dice from stealth." },
+    ],
+    talentTable: [
+      { roll: "2", min: 2, max: 2, effect: "+2 to stealth and poison DC saves." },
+      { roll: "3-6", min: 3, max: 6, effect: "+1 to attack rolls with light blades." },
+      { roll: "7-9", min: 7, max: 9, effect: "+2 to Dexterity, Wisdom, or Charisma stat." },
+      { roll: "10-11", min: 10, max: 11, effect: "Extra 1d6 necrotic damage on sneak attacks." },
+      { roll: "12", min: 12, max: 12, effect: "Choose any talent or gain +2 points to distribute among stats." },
+    ],
+  },
+  {
+    name: "Druid",
+    hitDie: 6,
+    weapons: ["Club", "Dagger", "Scimitar", "Sickle", "Sling", "Spear", "Staff"],
+    armor: ["Leather armor", "Wooden shields"],
+    level1Features: [
+      { name: "Wild Shape", description: "Transform into beast form 1/day per level." },
+      { name: "Primal Spellcasting", description: "Cast nature spells with Wisdom." },
+    ],
+    talentTable: [
+      { roll: "2", min: 2, max: 2, effect: "Wild Shape lasts double duration and grants +2 AC." },
+      { roll: "3-6", min: 3, max: 6, effect: "+1 to primal spellcasting checks." },
+      { roll: "7-9", min: 7, max: 9, effect: "+2 to Constitution or Wisdom stat." },
+      { roll: "10-11", min: 10, max: 11, effect: "+1 to attack and damage rolls with spears." },
+      { roll: "12", min: 12, max: 12, effect: "Choose any talent or gain +2 points to distribute among stats." },
+    ],
+  },
+  {
+    name: "Alchemist",
+    hitDie: 6,
+    weapons: ["Club", "Crossbow", "Dagger", "Sling", "Staff"],
+    armor: ["Leather armor"],
+    level1Features: [
+      { name: "Reagent Extraction", description: "Harvest essence from monsters." },
+      { name: "Concoct Brews", description: "Craft bombs and potions during rest." },
+    ],
+    talentTable: [
+      { roll: "2", min: 2, max: 2, effect: "Alchemical bombs deal +1d6 splash damage." },
+      { roll: "3-6", min: 3, max: 6, effect: "+1 to ranged attacks with thrown flasks." },
+      { roll: "7-9", min: 7, max: 9, effect: "+2 to Intelligence or Constitution stat." },
+      { roll: "10-11", min: 10, max: 11, effect: "Brew 1 extra free potion per rest cycle." },
+      { roll: "12", min: 12, max: 12, effect: "Choose any talent or gain +2 points to distribute among stats." },
+    ],
+  },
+  {
+    name: "Sage",
+    hitDie: 4,
+    weapons: ["Dagger", "Staff"],
+    armor: ["None"],
+    level1Features: [
+      { name: "Encyclopedic Lore", description: "Advantage on monster/history lore checks." },
+      { name: "Scroll Savant", description: "Cast scrolls of any tradition without failure." },
+    ],
+    talentTable: [
+      { roll: "2", min: 2, max: 2, effect: "Scrolls you cast have DC reduced by 2." },
+      { roll: "3-6", min: 3, max: 6, effect: "+1 to all INT and WIS checks and saves." },
+      { roll: "7-9", min: 7, max: 9, effect: "+2 to Intelligence or Wisdom stat." },
+      { roll: "10-11", min: 10, max: 11, effect: "+1 lore tier mastery." },
+      { roll: "12", min: 12, max: 12, effect: "Choose any talent or gain +2 points to distribute among stats." },
+    ],
+  },
+  {
+    name: "Monk",
+    hitDie: 6,
+    weapons: ["Club", "Dagger", "Staff"],
+    armor: ["None"],
+    level1Features: [
+      { name: "Martial Arts", description: "1d6 unarmed strikes using DEX." },
+      { name: "Ki Defense", description: "AC is 10 + DEX + WIS unarmored." },
+    ],
+    talentTable: [
+      { roll: "2", min: 2, max: 2, effect: "Unarmed strikes increase damage die step." },
+      { roll: "3-6", min: 3, max: 6, effect: "+1 to unarmed attack rolls." },
+      { roll: "7-9", min: 7, max: 9, effect: "+2 to Dexterity, Constitution, or Wisdom stat." },
+      { roll: "10-11", min: 10, max: 11, effect: "+10 ft movement speed." },
+      { roll: "12", min: 12, max: 12, effect: "Choose any talent or gain +2 points to distribute among stats." },
+    ],
+  },
+  {
+    name: "Bard",
+    hitDie: 6,
+    weapons: ["Club", "Crossbow", "Dagger", "Shortbow", "Shortsword", "Spear", "Staff"],
+    armor: ["Leather armor", "Chainmail", "Shields"],
+    level1Features: [
+      { name: "Bardic Inspiration", description: "Grant ally +1d6 to next check or attack." },
+    ],
+    talentTable: [
+      { roll: "2", min: 2, max: 2, effect: "Inspiration die increases to 1d8." },
+      { roll: "3-6", min: 3, max: 6, effect: "+1 to spellcasting and performance checks." },
+      { roll: "7-9", min: 7, max: 9, effect: "+2 to Dexterity or Charisma stat." },
+      { roll: "10-11", min: 10, max: 11, effect: "+1 attack and damage with finesse weapons." },
+      { roll: "12", min: 12, max: 12, effect: "Choose any talent or gain +2 points to distribute among stats." },
+    ],
+  },
+  {
+    name: "Duelist",
+    hitDie: 8,
+    weapons: ["Crossbow", "Dagger", "Rapier", "Shortsword"],
+    armor: ["Leather armor"],
+    level1Features: [
+      { name: "Parry & Riposte", description: "+2 AC reaction vs melee attacks." },
+    ],
+    talentTable: [
+      { roll: "2", min: 2, max: 2, effect: "Parry bonus increases to +3 AC." },
+      { roll: "3-6", min: 3, max: 6, effect: "+1 to attack rolls with rapiers." },
+      { roll: "7-9", min: 7, max: 9, effect: "+2 to Dexterity or Charisma stat." },
+      { roll: "10-11", min: 10, max: 11, effect: "+1 damage and crit on 19-20." },
+      { roll: "12", min: 12, max: 12, effect: "Choose any talent or gain +2 points to distribute among stats." },
+    ],
+  },
+  {
+    name: "Ranger",
+    hitDie: 8,
+    weapons: ["Dagger", "Longbow", "Longsword", "Shortbow", "Shortsword", "Spear", "Staff"],
+    armor: ["Leather armor", "Chainmail", "Shields"],
+    level1Features: [
+      { name: "Favored Terrain", description: "Cannot become lost in chosen biome." },
+      { name: "Hunter's Mark", description: "+1d4 damage against quarry." },
+    ],
+    talentTable: [
+      { roll: "2", min: 2, max: 2, effect: "Hunter's Mark damage increases to 1d6." },
+      { roll: "3-6", min: 3, max: 6, effect: "+1 to ranged attack rolls." },
+      { roll: "7-9", min: 7, max: 9, effect: "+2 to Dexterity, Constitution, or Wisdom stat." },
+      { roll: "10-11", min: 10, max: 11, effect: "+1 to tracking checks." },
+      { roll: "12", min: 12, max: 12, effect: "Choose any talent or gain +2 points to distribute among stats." },
+    ],
+  },
 ] as const;
 
 export const HEX_DEFINITIONS = [

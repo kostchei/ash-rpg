@@ -1,4 +1,8 @@
 import { randomInt } from "node:crypto";
+import { readFileSync, existsSync } from "node:fs";
+import { resolve } from "node:path";
+import { CLASSES } from "../shared/content.js";
+import type { Character, EncounterMonster } from "../shared/types.js";
 
 export type RandomSource = (maxExclusive: number) => number;
 const systemRandom: RandomSource = (max) => randomInt(max);
@@ -278,4 +282,243 @@ export function loreTier(total: number) {
         : total >= 9
           ? 1
           : 0;
+}
+
+// -------------------------------------------------------------
+// Monster Variant Generator (Shadowdark p. 194)
+// -------------------------------------------------------------
+
+interface MonsterGeneratorRow {
+  roll: number;
+  combatOffset: number;
+  quality: string;
+  strength: string;
+  weakness: string;
+}
+
+let cachedMonsterGeneratorRows: MonsterGeneratorRow[] | null = null;
+
+function loadMonsterGeneratorRows(): MonsterGeneratorRow[] {
+  if (cachedMonsterGeneratorRows) return cachedMonsterGeneratorRows;
+  const path = resolve("data/oracles/monster-generator.json");
+  if (existsSync(path)) {
+    const raw = JSON.parse(readFileSync(path, "utf-8"));
+    cachedMonsterGeneratorRows = raw.rows;
+  } else {
+    cachedMonsterGeneratorRows = [
+      { roll: 1, combatOffset: -3, quality: "Beastlike", strength: "+1 attack", weakness: "Cold" },
+      { roll: 2, combatOffset: -3, quality: "Avian", strength: "Absorbs magic", weakness: "Greed" },
+      { roll: 3, combatOffset: -2, quality: "Amphibious", strength: "Swarm", weakness: "Light" },
+      { roll: 4, combatOffset: -2, quality: "Demonic", strength: "1d10 damage", weakness: "Salt" },
+      { roll: 5, combatOffset: -1, quality: "Arachnid", strength: "Poison sting", weakness: "Vanity" },
+      { roll: 6, combatOffset: -1, quality: "Ooze", strength: "Confusing gaze", weakness: "Mirrors" },
+      { roll: 7, combatOffset: 0, quality: "Insectoid", strength: "Eats metal", weakness: "Electricity" },
+      { roll: 8, combatOffset: 0, quality: "Draconic", strength: "Ranged attacks", weakness: "Fragile body" },
+      { roll: 9, combatOffset: 0, quality: "Plantlike", strength: "Highly intelligent", weakness: "Sunlight" },
+      { roll: 10, combatOffset: 0, quality: "Elephantine", strength: "Crushing grasp", weakness: "Silver" },
+      { roll: 11, combatOffset: 0, quality: "Undead", strength: "Psychic blast", weakness: "Fire" },
+      { roll: 12, combatOffset: 0, quality: "Crystalline", strength: "Stealthy", weakness: "Food" },
+      { roll: 13, combatOffset: 0, quality: "Humanoid", strength: "Petrifying gaze", weakness: "Acid" },
+      { roll: 14, combatOffset: 1, quality: "Angelic", strength: "1d12 damage", weakness: "Garlic" },
+      { roll: 15, combatOffset: 1, quality: "Spectral", strength: "Impersonation", weakness: "Iron" },
+      { roll: 16, combatOffset: 2, quality: "Stonecarved", strength: "Blinding aura", weakness: "Water" },
+      { roll: 17, combatOffset: 2, quality: "Serpentine", strength: "Turns invisible", weakness: "Its True Name" },
+      { roll: 18, combatOffset: 3, quality: "Elemental", strength: "2d6 damage", weakness: "Loud sounds" },
+      { roll: 19, combatOffset: 3, quality: "Piscine", strength: "Swallows whole", weakness: "Holy water" },
+      { roll: 20, combatOffset: 4, quality: "Reptilian", strength: "+2 attacks", weakness: "Music" },
+    ];
+  }
+  return cachedMonsterGeneratorRows!;
+}
+
+export function generateMonsterVariant(
+  baseMonster: EncounterMonster,
+  partyLevel = 1,
+  rng: RandomSource = systemRandom,
+): EncounterMonster {
+  const rows = loadMonsterGeneratorRows();
+  const roll = rollDie(20, rng);
+  const genRow = rows.find((r) => r.roll === roll) ?? rows[0];
+
+  const scaledLevel = Math.max(1, partyLevel + genRow.combatOffset);
+  const scaledAc = 10 + partyLevel;
+  const scaledHp = Math.max(4, baseMonster.maxHp + genRow.combatOffset * 6);
+
+  const variantName = `${genRow.quality} ${baseMonster.name}`;
+  const addedTraits = [
+    ...(baseMonster.traits ?? []),
+    `Variant Quality: ${genRow.quality}`,
+    `Strength: ${genRow.strength}`,
+    `Weakness: ${genRow.weakness}`,
+  ];
+
+  return {
+    ...baseMonster,
+    name: variantName,
+    level: scaledLevel,
+    ac: scaledAc,
+    maxHp: scaledHp,
+    currentHp: scaledHp,
+    traits: addedTraits,
+    isVariant: true,
+    variantQuality: genRow.quality,
+    variantStrength: genRow.strength,
+    variantWeakness: genRow.weakness,
+  };
+}
+
+// -------------------------------------------------------------
+// Class Talents & 1–36 Leveling Progression
+// -------------------------------------------------------------
+
+export function calculateLevelAdvancement(currentLevel: number, currentXp: number): {
+  nextLevelXp: number;
+  canLevelUp: boolean;
+  maxLevel: boolean;
+} {
+  if (currentLevel >= 36) {
+    return { nextLevelXp: 360, canLevelUp: false, maxLevel: true };
+  }
+  const nextLevelXp = currentLevel * 10;
+  return {
+    nextLevelXp,
+    canLevelUp: currentXp >= nextLevelXp,
+    maxLevel: false,
+  };
+}
+
+export function rollClassTalent(
+  className: string,
+  rng: RandomSource = systemRandom,
+): { roll: number; dice: number[]; effect: string } {
+  const d1 = rollDie(6, rng);
+  const d2 = rollDie(6, rng);
+  const total = d1 + d2;
+
+  const classDef = CLASSES.find((c) => c.name.toLowerCase() === className.toLowerCase());
+  const talentTable = classDef?.talentTable ?? [
+    { roll: "2", min: 2, max: 2, effect: "Gain Advantage on signature class action." },
+    { roll: "3-6", min: 3, max: 6, effect: "+1 to attack or spell checks." },
+    { roll: "7-9", min: 7, max: 9, effect: "+2 to highest ability score." },
+    { roll: "10-11", min: 10, max: 11, effect: "+1 to damage rolls or spell slots." },
+    { roll: "12", min: 12, max: 12, effect: "Choose any talent or gain +2 points to distribute." },
+  ];
+
+  const matched =
+    talentTable.find((t) => total >= t.min && total <= t.max) ??
+    talentTable[0];
+
+  return {
+    roll: total,
+    dice: [d1, d2],
+    effect: matched.effect,
+  };
+}
+
+export function calculateCharacterHp(
+  className: string,
+  level: number,
+  conModifier: number,
+  highestStatModifier: number,
+  previousHp?: number,
+  rng: RandomSource = systemRandom,
+): number {
+  const classDef = CLASSES.find((c) => c.name.toLowerCase() === className.toLowerCase());
+  const hitDie = classDef?.hitDie ?? 6;
+
+  if (level <= 1) {
+    const roll = rollDie(hitDie, rng);
+    return Math.max(1, roll + conModifier);
+  }
+
+  // If previous HP is provided, calculate incremental HP
+  if (previousHp !== undefined && previousHp > 0) {
+    if (level <= 10) {
+      // Levels 2..10: Roll hit die + CON mod (min 1)
+      const roll = rollDie(hitDie, rng);
+      return previousHp + Math.max(1, roll + conModifier);
+    } else {
+      // Levels 11..36: Flat +1 HP per level from grit progression + highestStatMod once at lvl 11
+      const gritBonus = level === 11 ? Math.max(0, highestStatModifier) : 0;
+      return previousHp + 1 + gritBonus;
+    }
+  }
+
+  // Full calculation from level 1 to target level
+  let totalHp = 0;
+  const hdLevels = Math.min(level, 10);
+  for (let l = 1; l <= hdLevels; l++) {
+    totalHp += Math.max(1, rollDie(hitDie, rng) + conModifier);
+  }
+
+  if (level > 10) {
+    const extraLevels = level - 10;
+    // Flat +1 HP per level past 10 + highest stat modifier from grit
+    totalHp += extraLevels + Math.max(0, highestStatModifier);
+  }
+
+  return totalHp;
+}
+
+export function levelUpCharacter(
+  character: Character,
+  rng: RandomSource = systemRandom,
+): {
+  character: Character;
+  gainedHp: number;
+  newTalent?: { roll: number; effect: string };
+  log: string;
+} {
+  const newLevel = Math.min(36, character.level + 1);
+  const conMod = abilityModifier(character.abilities.con);
+
+  const highestScore = Math.max(
+    character.abilities.str,
+    character.abilities.dex,
+    character.abilities.con,
+    character.abilities.int,
+    character.abilities.wis,
+    character.abilities.cha,
+  );
+  const highestStatMod = abilityModifier(highestScore);
+
+  const newMaxHp = calculateCharacterHp(
+    character.className,
+    newLevel,
+    conMod,
+    highestStatMod,
+    character.maxHp,
+    rng,
+  );
+  const gainedHp = newMaxHp - character.maxHp;
+
+  // Odd level check: 1, 3, 5, 7, 9, 11, 13, 15, ..., 35
+  const isOddLevel = newLevel % 2 === 1;
+  let newTalent: { roll: number; effect: string } | undefined = undefined;
+  const updatedTalents = [...(character.talents ?? [])];
+
+  if (isOddLevel) {
+    const rolled = rollClassTalent(character.className, rng);
+    newTalent = { roll: rolled.roll, effect: rolled.effect };
+    updatedTalents.push(`[Lvl ${newLevel}] ${rolled.effect}`);
+  }
+
+  const updatedCharacter: Character = {
+    ...character,
+    level: newLevel,
+    maxHp: newMaxHp,
+    hp: character.hp + gainedHp,
+    talents: updatedTalents,
+  };
+
+  const log = `Level Up! ${character.name} reached Level ${newLevel}. HP increased by +${gainedHp} (Total HP: ${newMaxHp}).${
+    newTalent ? ` Rolled Talent [${newTalent.roll}]: ${newTalent.effect}` : ""
+  }`;
+
+  return {
+    character: updatedCharacter,
+    gainedHp,
+    newTalent,
+    log,
+  };
 }

@@ -1,0 +1,51 @@
+{
+  "id": "the_gloaming",
+  "name": "The Gloaming",
+  "theme": "Gothic Mistwood, Witchcraft & Barrow Mounds (Cursed Scroll 1)",
+  "biomePalette": [
+    "forest",
+    "marsh",
+    "moor"
+  ],
+  "hazardTable": [
+    "Bitter Spore Fog (DC 12 CON or coughing fits / reveal stealth)",
+    "Quicksand Barrow (DC 13 DEX or sink 1 step per round)",
+    "Corrupted Standing Stones (DC 12 WIS or eerie nightmares)",
+    "Creeping Blood-Thorns (DC 11 STR or 1d6 piercing)"
+  ],
+  "weatherTable": [
+    "Chilling mist & perpetual gray drizzle",
+    "Dense pea-soup fog reducing line of sight to close",
+    "Sudden gale with freezing rain",
+    "Pale sickly moonlight filtering through knotted boughs"
+  ],
+  "wanderingMonsterTable": [
+    "bittermold",
+    "bogthorn",
+    "dralech",
+    "hexling",
+    "howler",
+    "ichor_ooze",
+    "marrow_fiend",
+    "skrell"
+  ],
+  "factions": [
+    {
+      "name": "Knights of St. Ydris",
+      "disposition": "Friendly",
+      "notes": "Holy champions defending pilgrim shrines."
+    },
+    {
+      "name": "Coven of Bittermold",
+      "disposition": "Hostile",
+      "notes": "Witches brewing pestilence and curses."
+    }
+  ],
+  "uniqueFloraFauna": [
+    "Bittermold caps",
+    "Grave-moss",
+    "Witchwood briars"
+  ],
+  "entryConditions": "Travel north across the fog-shrouded marsh.",
+  "exitConditions": "Follow the sacred lantern posts back to civilization."
+}

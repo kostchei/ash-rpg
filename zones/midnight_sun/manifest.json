@@ -1,0 +1,51 @@
+{
+  "id": "midnight_sun",
+  "name": "The Isles of Andrik",
+  "theme": "Glacial Fjords, Northern Gods & Sea Wolf Raiders (Cursed Scroll 3)",
+  "biomePalette": [
+    "tundra",
+    "fjord",
+    "glacial_sea"
+  ],
+  "hazardTable": [
+    "Freezing sea spray (DC 12 CON or frostbite fatigue)",
+    "Crevasse ice shelf collapse (DC 13 DEX or fall 20ft)",
+    "Sudden blizzard whiteout (DC 12 WIS to maintain navigation)",
+    "Slippery glacier incline (DC 11 DEX or slide into freezing water)"
+  ],
+  "weatherTable": [
+    "Brilliant solar aurora dancing across ice-peaks",
+    "Howling sub-zero blizzard",
+    "Calm glassy sea with drifting icebergs",
+    "Freezing rain glazing longships in ice"
+  ],
+  "wanderingMonsterTable": [
+    "drake_lesser",
+    "drake_greater",
+    "draugr",
+    "dverg",
+    "nord",
+    "sea_nymph",
+    "sea_serpent",
+    "werebear"
+  ],
+  "factions": [
+    {
+      "name": "Sea Wolf Clans",
+      "disposition": "Wary",
+      "notes": "Longship raiders honoring strength and oaths."
+    },
+    {
+      "name": "Seers of the Northern Gods",
+      "disposition": "Neutral",
+      "notes": "Prophets casting runic whalebones."
+    }
+  ],
+  "uniqueFloraFauna": [
+    "Frost-lichen",
+    "Dire walrus",
+    "Arctic orca"
+  ],
+  "entryConditions": "Sail aboard a reinforced longship into northern waters.",
+  "exitConditions": "Row south toward temperate harbors before the freeze sets in."
+}

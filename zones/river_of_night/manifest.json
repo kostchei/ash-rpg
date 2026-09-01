@@ -1,0 +1,51 @@
+{
+  "id": "river_of_night",
+  "name": "The Black River",
+  "theme": "Primeval Jungle, Ziggurats & Basilisk Cults (Cursed Scroll 4)",
+  "biomePalette": [
+    "jungle",
+    "mangrove",
+    "swamp"
+  ],
+  "hazardTable": [
+    "Swarm of army ants (DC 12 DEX or 2d6 piercing damage)",
+    "Toxic river leeches (DC 11 CON or drained 1d4 HP)",
+    "Falling canopy branch / deadfall (DC 12 DEX or 1d8 bludgeoning)",
+    "Poisonous vine scratch (DC 13 CON or paralyzed 1 round)"
+  ],
+  "weatherTable": [
+    "Oppressive tropical humidity and steamy heat",
+    "Torrents of warm monsoon deluge",
+    "Sudden solar eclipse dimming jungle into twilight",
+    "Heavy canopy mist dampening all sound"
+  ],
+  "wanderingMonsterTable": [
+    "anaconda_giant",
+    "ant_giant",
+    "basilisk_cultists",
+    "basilisk_hatchling",
+    "blue_dart_frog",
+    "catfish_giant",
+    "condor_dire",
+    "jaguar_king"
+  ],
+  "factions": [
+    {
+      "name": "Jungle Rangers",
+      "disposition": "Friendly",
+      "notes": "Survivalists charting primeval ruins."
+    },
+    {
+      "name": "Basilisk Cult",
+      "disposition": "Hostile",
+      "notes": "Zealots worshipping venomous primordial deities."
+    }
+  ],
+  "uniqueFloraFauna": [
+    "Blue dart frogs",
+    "Ironbark mangroves",
+    "Carnivorous orchids"
+  ],
+  "entryConditions": "Paddle upstream along the dark jungle tributaries.",
+  "exitConditions": "Float downstream to coastal river trading posts."
+}

@@ -1,0 +1,51 @@
+{
+  "id": "city_of_masks",
+  "name": "The City of Masks",
+  "theme": "Canal Metropolis, Masked Aristocracy & Duelist Guilds (Cursed Scroll 6)",
+  "biomePalette": [
+    "urban",
+    "canals",
+    "catacombs"
+  ],
+  "hazardTable": [
+    "Rooftop tile slip while escaping guards (DC 12 DEX or fall to alley)",
+    "Canal water splash / pollution (DC 11 CON or sewer fever)",
+    "Masked assassin poisoned dart (DC 13 CON or sleep 1d4 rounds)",
+    "Pickpocket crowd collision (DC 12 DEX or lose 1d10 gp)"
+  ],
+  "weatherTable": [
+    "Brisk canal breeze scented with perfume and roasted chestnut smoke",
+    "Dense evening sea fog rolling between marble bridges",
+    "Carnival fireworks lighting up nighttime waterways",
+    "Gentle rain pattering on grand piazza cobbles"
+  ],
+  "wanderingMonsterTable": [
+    "duelist",
+    "roustabout",
+    "bard",
+    "necromancer",
+    "assassin",
+    "thief",
+    "guard",
+    "wererat"
+  ],
+  "factions": [
+    {
+      "name": "College of Bards",
+      "disposition": "Friendly",
+      "notes": "Performers, skalds, and lorekeepers."
+    },
+    {
+      "name": "Masked Syndicate",
+      "disposition": "Wary",
+      "notes": "Shadowy aristocrats manipulating city politics."
+    }
+  ],
+  "uniqueFloraFauna": [
+    "Canal swans",
+    "Piazza pigeons",
+    "Gilded masks"
+  ],
+  "entryConditions": "Pass through the Grand Water Gate by gondola.",
+  "exitConditions": "Take the western highway coaches or charter a canal vessel."
+}

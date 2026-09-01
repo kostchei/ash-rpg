@@ -1,0 +1,51 @@
+{
+  "id": "dwellers_in_the_deep",
+  "name": "Morzomotha & Karst Deeps",
+  "theme": "Subterranean Karst, Sunless Libraries & Delver Pits (Cursed Scroll 5)",
+  "biomePalette": [
+    "karst",
+    "cavern",
+    "sunless_abyss"
+  ],
+  "hazardTable": [
+    "Falling stalactites from subterranean tremors (DC 13 DEX or 2d8 damage)",
+    "Bioluminescent spore puff (DC 12 CON or hallucinatory visions)",
+    "Chasm rope bridge snapping (DC 14 DEX to catch ledge)",
+    "Flooded cave siphon rush (DC 12 STR or swept 1 chamber down)"
+  ],
+  "weatherTable": [
+    "Stagnant cool air dripping with limestone mineral water",
+    "Warm sulfur draft blowing up from deep planar fissures",
+    "Total lightless silence broken only by clicking chitin",
+    "Echoing wind howling through vast subterranean vaults"
+  ],
+  "wanderingMonsterTable": [
+    "bezelak",
+    "dremir",
+    "librarian_of_leng",
+    "nuln",
+    "morzo_moth",
+    "wendel",
+    "cave_creeper",
+    "troglodyte"
+  ],
+  "factions": [
+    {
+      "name": "Deep Delver Guild",
+      "disposition": "Friendly",
+      "notes": "Spelunkers mapping lost tunnels."
+    },
+    {
+      "name": "Librarians of Leng",
+      "disposition": "Hostile",
+      "notes": "Alien scholars guarding eldritch scrolls."
+    }
+  ],
+  "uniqueFloraFauna": [
+    "Morzo moths",
+    "Bioluminescent glow-lichen",
+    "Blind cave fish"
+  ],
+  "entryConditions": "Rappel down the Great Sinkhole in Hex 06.",
+  "exitConditions": "Climb the anchored chains back to the surface."
+}

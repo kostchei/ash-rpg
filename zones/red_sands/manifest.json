@@ -1,0 +1,51 @@
+{
+  "id": "red_sands",
+  "name": "The Red Sands (Djurum)",
+  "theme": "Sun-Baked Desert, Fighting Pits & Burning Tombs (Cursed Scroll 2)",
+  "biomePalette": [
+    "desert",
+    "canyon",
+    "badlands"
+  ],
+  "hazardTable": [
+    "Blinding sandstorm (DC 12 CON or blinded and disoriented)",
+    "Extreme heat exhaustion (DC 13 CON or consume double water)",
+    "Shifting sink-dune (DC 12 DEX or tumble into pit)",
+    "Sunstroke mirage (DC 11 WIS or waste half day chasing false oasis)"
+  ],
+  "weatherTable": [
+    "Blistering sun and baking dry heat",
+    "Scorching sirocco gusts whipping crimson sand",
+    "Bitter freezing desert night with glittering stars",
+    "Violent dust devil swirling across the flats"
+  ],
+  "wanderingMonsterTable": [
+    "camel_silver",
+    "canyon_ape",
+    "dunefiend",
+    "dust_devil",
+    "mirage",
+    "ras_godai",
+    "scrag",
+    "siruul"
+  ],
+  "factions": [
+    {
+      "name": "Thraxis Gladiators",
+      "disposition": "Neutral",
+      "notes": "Arena masters honoring single combat."
+    },
+    {
+      "name": "Burning Brothers",
+      "disposition": "Hostile",
+      "notes": "Salamander cultists occupying the iron fortress."
+    }
+  ],
+  "uniqueFloraFauna": [
+    "Cactus water-gourds",
+    "Crimson scorpions",
+    "Dune camels"
+  ],
+  "entryConditions": "Pass through the sun-bleached sandstone gorge.",
+  "exitConditions": "Reach the fortified caravan caravanserai."
+}

@@ -1,0 +1,58 @@
+{
+  "id": "oakhaven_borderlands",
+  "name": "Oakhaven Borderlands",
+  "theme": "Classic Frontier Sanctuary & Hex Wilderness",
+  "biomePalette": [
+    "forest",
+    "marsh",
+    "mountain",
+    "foothills",
+    "karst"
+  ],
+  "hazardTable": [
+    "Rockslide in the foothills (DC 12 DEX or 2d6 bludgeoning)",
+    "Stagnant sinkhole gases (DC 11 CON or 1 fatigue)",
+    "Thorny briar thicket (DC 10 STR or lose 1 torch/ration)",
+    "Sudden subterranean fissure (DC 13 DEX or slip near edge)"
+  ],
+  "weatherTable": [
+    "Clear blue skies with crisp mountain wind",
+    "Overcast with mild breeze",
+    "Heavy rain and rolling thunderstorms",
+    "Thick mountain mist clinging to valleys"
+  ],
+  "wanderingMonsterTable": [
+    "wolf",
+    "bandit",
+    "giant_spider",
+    "owlbear",
+    "goblin",
+    "orc",
+    "barrow_wight",
+    "skeleton"
+  ],
+  "factions": [
+    {
+      "name": "Oakhaven Guard",
+      "disposition": "Allied",
+      "notes": "Protectors of the sanctuary basin."
+    },
+    {
+      "name": "Glimmercap Tinkers",
+      "disposition": "Friendly",
+      "notes": "Forest gnomes trading alchemy and gear."
+    },
+    {
+      "name": "Iron Gorge Clan",
+      "disposition": "Wary",
+      "notes": "Orcish iron smelters and miners."
+    }
+  ],
+  "uniqueFloraFauna": [
+    "Glimmercap mushrooms",
+    "Ironwood pine",
+    "Highland stag"
+  ],
+  "entryConditions": "Open frontier accessible from Oakhaven sanctuary basin.",
+  "exitConditions": "Safe haven gates of Oakhaven always open to friendly crawlers."
+}
