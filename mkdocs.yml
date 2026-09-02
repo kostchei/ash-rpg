@@ -107,6 +107,7 @@ nav:
   - "Adventure Paths":
       - "Adventure Path 1: Domains of Dread": adventure_paths/01_domains_of_dread.md
       - "Adventure Path 2: The Mind Below": adventure_paths/02_the_mind_below.md
+      - "Adventure Path 3: The Vanishing Middle": adventure_paths/03_the_vanishing_middle.md
   - "Monsternomicon":
       - "Lore DCs & Harvesting Rules": bestiary/index.md
       - "Creature Compendium": bestiary/creatures.md

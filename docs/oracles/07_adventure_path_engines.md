@@ -87,6 +87,7 @@ A path is built for roughly ten levels and about three acts, but the acts are co
 | **Assembly**        | Components gathered                 | Ragnaros, Titans, Yog-Sothoth                |
 | **Wave**            | Arrivals, emergences, doublings     | Githyanki, Tsathoggua, Marut                 |
 | **Saturation**      | Share of a population reached       | Hastur, Aboleth Savant, Tcho-Tcho, Azathoth  |
+| **Attrition**       | Names left in the middle            | Eternal Cycle                                |
 
 Whatever the units, budget content for the length. A ten-level path is not three big dungeons.
 
@@ -1150,6 +1151,8 @@ The finale depends on what the cult successfully assembled. The party might prev
 ---
 
 ## 10. The Eternal Cycle: Polarization
+
+> Worked in full as [Adventure Path 3: The Vanishing Middle](../adventure_paths/03_the_vanishing_middle.md).
 
 **World Process:** The war between Law and Chaos makes every victory dangerous and drives the world toward an absolute state.
 
