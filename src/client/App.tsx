@@ -1,12 +1,17 @@
 import { useEffect, useState, type FormEvent } from "react";
 import {
+  AlertTriangle,
+  ArrowUpCircle,
   BookOpen,
+  Castle,
+  CheckCircle2,
   ChevronRight,
   CircleDot,
   Compass,
   Copy,
   Dices,
   DoorOpen,
+  Filter,
   Flame,
   Heart,
   HelpCircle,
@@ -14,8 +19,11 @@ import {
   Map,
   Menu,
   Plus,
+  RefreshCw,
   ScrollText,
+  Search,
   Shield,
+  Skull,
   Sparkles,
   Swords,
   Users,
@@ -27,11 +35,16 @@ import type {
   CampaignState,
   Character,
   EncounterMonster,
+  MonsterCatalogEntry,
+  NpcResult,
   PublicHex,
   SessionIdentity,
+  SettlementResult,
+  ZoneManifest,
+  ZoneSummary,
 } from "../shared/types";
 
-type Tab = "map" | "oracle" | "party" | "encounters" | "chronicle";
+type Tab = "sanctuary" | "map" | "encounters" | "party" | "oracle" | "chronicle";
 type Act = <T>(
   event: string,
   payload?: unknown,
@@ -321,10 +334,15 @@ function Campaign({
   leave: () => void;
 }) {
   const [tab, setTab] = useState<Tab>(
-    state.me.role === "player" && !state.me.characterId ? "party" : "map",
+    state.me.role === "player" && !state.me.characterId
+      ? "party"
+      : state.campaign.phase === "sanctuary"
+        ? "sanctuary"
+        : "map",
   );
-  const [menu, setMenu] = useState(false),
-    [toast, setToast] = useState("");
+  const [menu, setMenu] = useState(false);
+  const [showZoneModal, setShowZoneModal] = useState(false);
+  const [toast, setToast] = useState("");
   const emit = <T,>(event: string, payload: unknown = {}) =>
     new Promise<T>((resolve, reject) =>
       socket.emit(
@@ -355,12 +373,17 @@ function Campaign({
     }
   };
   const nav: [Tab, typeof Map, string][] = [
+    ["sanctuary", Castle, "Sanctuary"],
     ["map", Map, "Frontier"],
-    ["oracle", Dices, "Oracle"],
-    ["party", Users, "Party"],
     ["encounters", Swords, "Encounters"],
+    ["party", Users, "Party"],
+    ["oracle", Dices, "Oracle"],
     ["chronicle", BookOpen, "Chronicle"],
   ];
+  const activeEncountersCount = state.encounters.filter(
+    (e) => e.status === "active",
+  ).length;
+
   return (
     <div className="campaign-shell">
       <header className="app-header">
@@ -396,6 +419,17 @@ function Campaign({
           <LogOut size={18} />
         </button>
       </header>
+
+      <CampaignSubbar
+        state={state}
+        act={act}
+        onOpenZone={() => setShowZoneModal(true)}
+        onPhaseChange={(phase) => {
+          if (phase === "sanctuary") setTab("sanctuary");
+          if (phase === "hexcrawl") setTab("map");
+        }}
+      />
+
       <nav className={menu ? "app-nav open" : "app-nav"}>
         {nav.map(([key, Icon, text]) => (
           <button
@@ -409,39 +443,629 @@ function Campaign({
             <Icon size={18} />
             <span>{text}</span>
             {key === "party" && <em>{state.characters.length}</em>}
+            {key === "encounters" && activeEncountersCount > 0 && (
+              <em className="danger-badge">{activeEncountersCount}</em>
+            )}
           </button>
         ))}
       </nav>
       <section className="main-content">
+        {tab === "sanctuary" && <SanctuaryView state={state} act={act} />}
         {tab === "map" && <MapView state={state} act={act} />}
-        {tab === "oracle" && <OracleView state={state} act={act} />}
-        {tab === "party" && <PartyView state={state} act={act} />}
         {tab === "encounters" && <EncounterView state={state} act={act} />}
+        {tab === "party" && <PartyView state={state} act={act} />}
+        {tab === "oracle" && <OracleView state={state} act={act} />}
         {tab === "chronicle" && <ChronicleView state={state} act={act} />}
       </section>
+
+      {showZoneModal && (
+        <ZoneDossierModal
+          state={state}
+          act={act}
+          onClose={() => setShowZoneModal(false)}
+        />
+      )}
+
       {toast && <div className="toast">{toast}</div>}
     </div>
   );
 }
 
+function CampaignSubbar({
+  state,
+  act,
+  onOpenZone,
+  onPhaseChange,
+}: {
+  state: CampaignState;
+  act: Act;
+  onOpenZone: () => void;
+  onPhaseChange?: (phase: string) => void;
+}) {
+  const phases = [
+    { id: "sanctuary", label: "Sanctuary", icon: "🏰" },
+    { id: "hexcrawl", label: "Hexcrawl", icon: "🌲" },
+    { id: "dungeon", label: "Dungeon", icon: "🗝️" },
+  ] as const;
+
+  return (
+    <div className="campaign-subbar">
+      <div className="subbar-group">
+        <span className="subbar-label">PLAY PHASE</span>
+        <div className="phase-pills">
+          {phases.map((p) => {
+            const active = state.campaign.phase === p.id;
+            return state.me.role === "host" ? (
+              <button
+                key={p.id}
+                className={`phase-pill-btn ${active ? "active" : ""}`}
+                onClick={() => {
+                  act(
+                    "phase:transition",
+                    { phase: p.id },
+                    `Phase transition: ${p.label}`,
+                  );
+                  onPhaseChange?.(p.id);
+                }}
+              >
+                <span>{p.icon}</span>
+                <b>{p.label}</b>
+              </button>
+            ) : (
+              <div
+                key={p.id}
+                className={`phase-pill-badge ${active ? "active" : "inactive"}`}
+              >
+                <span>{p.icon}</span>
+                <b>{p.label}</b>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      <div className="subbar-group right">
+        <button className="zone-dossier-btn" onClick={onOpenZone}>
+          <Compass size={15} />
+          <span className="zone-chip-label">ZONE</span>
+          <strong>{state.activeZone?.name ?? "Oakhaven Borderlands"}</strong>
+          <ChevronRight size={14} />
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function ZoneDossierModal({
+  state,
+  act,
+  onClose,
+}: {
+  state: CampaignState;
+  act: Act;
+  onClose: () => void;
+}) {
+  const zone = state.activeZone;
+  const available = state.availableZones ?? [];
+  const [targetZone, setTargetZone] = useState(
+    state.campaign.activeZoneId ?? "oakhaven_borderlands",
+  );
+
+  const switchZone = async () => {
+    if (targetZone === state.campaign.activeZoneId) return;
+    await act(
+      "zone:enter",
+      { zoneId: targetZone },
+      "Traveled to regional zone",
+    );
+    onClose();
+  };
+
+  const returnSanctuary = async () => {
+    await act("zone:exit", {}, "Returned to Oakhaven sanctuary");
+    onClose();
+  };
+
+  return (
+    <div className="modal-backdrop" onClick={onClose}>
+      <div
+        className="modal-card panel zone-modal"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="modal-header">
+          <div>
+            <div className="eyebrow">Thematic Regional Zone</div>
+            <h2>{zone?.name ?? "The Frontier"}</h2>
+            <p className="zone-theme">{zone?.theme}</p>
+          </div>
+          <button className="icon-button" onClick={onClose}>
+            <X size={20} />
+          </button>
+        </div>
+
+        <div className="zone-modal-content">
+          <div className="zone-stat-strip">
+            <div>
+              <span>Biomes</span>
+              <b>{zone?.biomePalette.join(", ") || "Wilderness"}</b>
+            </div>
+            <div>
+              <span>Entry Gateway</span>
+              <b>{zone?.entryConditions || "Open border"}</b>
+            </div>
+            <div>
+              <span>Exit Route</span>
+              <b>{zone?.exitConditions || "Retrace steps"}</b>
+            </div>
+          </div>
+
+          {zone?.factions && zone.factions.length > 0 && (
+            <div className="zone-section">
+              <h3>Regional Factions & Powers</h3>
+              <div className="faction-grid">
+                {zone.factions.map((f) => (
+                  <div
+                    key={f.name}
+                    className={`faction-card ${f.disposition.toLowerCase()}`}
+                  >
+                    <div className="faction-head">
+                      <strong>{f.name}</strong>
+                      <span
+                        className={`disposition-tag ${f.disposition.toLowerCase()}`}
+                      >
+                        {f.disposition}
+                      </span>
+                    </div>
+                    <p>{f.notes}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <div className="zone-two-col">
+            {zone?.hazardTable && zone.hazardTable.length > 0 && (
+              <div className="zone-section">
+                <h3>Environmental Hazards</h3>
+                <ul>
+                  {zone.hazardTable.map((h, i) => (
+                    <li key={i}>{h}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {zone?.weatherTable && zone.weatherTable.length > 0 && (
+              <div className="zone-section">
+                <h3>Regional Weather Patterns</h3>
+                <ul>
+                  {zone.weatherTable.map((w, i) => (
+                    <li key={i}>{w}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+
+          {zone?.uniqueFloraFauna && zone.uniqueFloraFauna.length > 0 && (
+            <div className="zone-section">
+              <h3>Unique Flora & Fauna</h3>
+              <div className="flora-chips">
+                {zone.uniqueFloraFauna.map((item, i) => (
+                  <span key={i} className="flora-chip">
+                    {item}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {state.me.role === "host" && (
+            <div className="zone-travel-controls">
+              <div className="eyebrow">Expedition Navigation (Host Only)</div>
+              <div className="inline-fields">
+                <select
+                  value={targetZone}
+                  onChange={(e) => setTargetZone(e.target.value)}
+                >
+                  {available.map((z) => (
+                    <option key={z.id} value={z.id}>
+                      {z.name} ({z.biomePalette.slice(0, 2).join(", ")})
+                    </option>
+                  ))}
+                </select>
+                <button className="primary" onClick={switchZone}>
+                  Travel to Zone
+                </button>
+                <button onClick={returnSanctuary}>Return to Sanctuary</button>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function SanctuaryView({ state, act }: { state: CampaignState; act: Act }) {
+  const [settlement, setSettlement] = useState<SettlementResult | null>(null);
+  const [npc, setNpc] = useState<NpcResult | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [retainerName, setRetainerName] = useState("");
+
+  const generateSettlementAction = async () => {
+    setBusy(true);
+    try {
+      const res = await act<{ result: SettlementResult }>(
+        "settlement:generate",
+        {},
+        "Settlement consulted via City Oracle",
+      );
+      if (res?.result) setSettlement(res.result);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const generateNpcAction = async () => {
+    setBusy(true);
+    try {
+      const res = await act<{ result: NpcResult }>(
+        "npc:generate",
+        { zoneId: state.campaign.activeZoneId },
+        "NPC & Retainer rolled",
+      );
+      if (res?.result) {
+        setNpc(res.result);
+        setRetainerName(
+          res.result.name || `${res.result.ancestry} ${res.result.className}`,
+        );
+      }
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const hireRetainer = async () => {
+    if (!npc) return;
+    await act(
+      "retainer:hire",
+      {
+        name: retainerName || `${npc.ancestry} ${npc.className}`,
+        ancestry: npc.ancestry,
+        className: npc.zoneSubclass || npc.className,
+        level: npc.retainerStats.level,
+        hp: npc.retainerStats.hp,
+        morale: npc.retainerStats.morale,
+        dailyWage: npc.retainerStats.dailyWage,
+        notes: `${npc.demeanor} (${npc.quirk}). Motive: ${npc.motive}`,
+      },
+      `${retainerName} hired into the adventuring company!`,
+    );
+    setNpc(null);
+  };
+
+  const saveSettlementToNotes = async () => {
+    if (!settlement) return;
+    await act(
+      "note:add",
+      {
+        section: "discovery",
+        title: `${settlement.scale.name}: ${settlement.tavern.name}`,
+        body: `Scale: ${settlement.scale.name} (Pop: ${settlement.scale.population}, Defenses: ${settlement.scale.defense}, Services: ${settlement.scale.services})\nTavern: ${settlement.tavern.name} (${settlement.tavern.vibe})\nTaproom Rumor: "${settlement.rumor.rumor}" (Authenticity: ${settlement.rumor.authenticity})`,
+      },
+      "Settlement recorded to Campaign Chronicle",
+    );
+  };
+
+  return (
+    <div className="sanctuary-page surface-grid">
+      <section className="panel sanctuary-main">
+        <Title
+          eyebrow="Civilized Bastion & Downtime"
+          title="Sanctuary Hub"
+          aside={state.campaign.regionName}
+        />
+
+        <div className="sanctuary-hero-banner">
+          <p>
+            Between expeditions, the adventuring company recovers in sanctuary.
+            Procure supplies, hire retainers, carouse for rumors, and consult the
+            city oracle.
+          </p>
+          {state.me.role === "host" && (
+            <button
+              className="primary rest-btn"
+              onClick={() =>
+                act("party:rest", {}, "Party fully rested and healed")
+              }
+            >
+              <Heart size={16} /> Full Party Rest & Recovery
+            </button>
+          )}
+        </div>
+
+        <div className="sanctuary-grid">
+          {/* City & Settlement Oracle */}
+          <article className="sub-panel settlement-card">
+            <div className="sub-panel-header">
+              <div>
+                <div className="eyebrow">Procedural City Generator</div>
+                <h3>Settlement & Tavern</h3>
+              </div>
+              <button
+                className="primary"
+                disabled={busy}
+                onClick={generateSettlementAction}
+              >
+                <Castle size={16} /> Consult City Oracle
+              </button>
+            </div>
+
+            {settlement ? (
+              <div className="settlement-details">
+                <div className="settlement-scale-banner">
+                  <div>
+                    <span className="badge-tag">SCALE</span>
+                    <h4>{settlement.scale.name}</h4>
+                  </div>
+                  <div className="scale-stats">
+                    <span>
+                      <b>Pop:</b> {settlement.scale.population}
+                    </span>
+                    <span>
+                      <b>Defense:</b> {settlement.scale.defense}
+                    </span>
+                    <span>
+                      <b>Services:</b> {settlement.scale.services}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="tavern-box">
+                  <div className="tavern-name">
+                    <span className="badge-tag">TAVERN</span>
+                    <strong>{settlement.tavern.name}</strong>
+                    <small>({settlement.tavern.vibe})</small>
+                  </div>
+                  <div className="rumor-callout">
+                    <ScrollText size={15} />
+                    <div>
+                      <p>“{settlement.rumor.rumor}”</p>
+                      <span className="rumor-auth">
+                        Authenticity: <b>{settlement.rumor.authenticity}</b>
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <button
+                  className="small-btn save-note-btn"
+                  onClick={saveSettlementToNotes}
+                >
+                  <BookOpen size={14} /> Record in Chronicle
+                </button>
+              </div>
+            ) : (
+              <p className="empty-prompt">
+                Consult the city oracle to reveal local defenses, tavern
+                atmosphere, and active street rumors.
+              </p>
+            )}
+          </article>
+
+          {/* NPC & Retainer Guild */}
+          <article className="sub-panel retainer-card">
+            <div className="sub-panel-header">
+              <div>
+                <div className="eyebrow">Demographic Retainer Engine</div>
+                <h3>Guildhall & Retainers</h3>
+              </div>
+              <button
+                className="primary"
+                disabled={busy}
+                onClick={generateNpcAction}
+              >
+                <Users size={16} /> Seek Retainer / NPC
+              </button>
+            </div>
+
+            {npc ? (
+              <div className="npc-details">
+                <div className="npc-title-row">
+                  <div>
+                    <span className="badge-tag">{npc.ancestry}</span>
+                    {npc.zoneSubclass && (
+                      <span className="badge-tag regional">
+                        {npc.zoneSubclass}
+                      </span>
+                    )}
+                    <h4>{npc.zoneSubclass || npc.className}</h4>
+                  </div>
+                  <div className="npc-stats-pill">
+                    <span>LV {npc.retainerStats.level}</span>
+                    <span>{npc.retainerStats.hp} HP</span>
+                    <span>Morale {npc.retainerStats.morale}</span>
+                  </div>
+                </div>
+
+                <div className="npc-personality">
+                  <div className="personality-row">
+                    <span>Demeanor:</span>
+                    <b>
+                      {npc.demeanor} ({npc.quirk})
+                    </b>
+                  </div>
+                  <div className="personality-row">
+                    <span>Motive:</span>
+                    <p>{npc.motive}</p>
+                  </div>
+                  <div className="personality-row">
+                    <span>Approach:</span>
+                    <p>{npc.interaction}</p>
+                  </div>
+                  <div className="personality-row">
+                    <span>Daily Wage:</span>
+                    <b>{npc.retainerStats.dailyWage}</b>
+                  </div>
+                </div>
+
+                {state.me.role === "host" && (
+                  <div className="hire-controls">
+                    <input
+                      value={retainerName}
+                      onChange={(e) => setRetainerName(e.target.value)}
+                      placeholder="Retainer name"
+                    />
+                    <button className="primary" onClick={hireRetainer}>
+                      <Plus size={15} /> Hire into Party Roster
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <p className="empty-prompt">
+                Seek potential retainers or local contacts influenced by party
+                demographics and current regional subclass.
+              </p>
+            )}
+          </article>
+        </div>
+      </section>
+
+      <aside className="sanctuary-aside">
+        <section className="panel compact downtime-rules">
+          <div className="eyebrow">Downtime Rites</div>
+          <h3>Sanctuary Procedures</h3>
+          <ul className="downtime-list">
+            <li>
+              <strong>Rest & Recovery:</strong> A night in an inn restores full
+              HP and clears temporary exhaustion.
+            </li>
+            <li>
+              <strong>Carousing:</strong> Spend 50 gold at the tavern to roll
+              1d6 for bonus XP and wild rumors.
+            </li>
+            <li>
+              <strong>Provisioning:</strong> Buy rations (5 sp / 3 days),
+              torches (5 sp / 3), and gear before departing.
+            </li>
+            <li>
+              <strong>Retainers:</strong> Pay daily wages upfront. Low morale
+              NPCs require a CHA check to enter deep ruins.
+            </li>
+          </ul>
+        </section>
+        <RollFeed rolls={state.rolls.slice(0, 8)} />
+      </aside>
+    </div>
+  );
+}
+
+function getBiomeClass(hex: PublicHex): string {
+  if (hex.revealState === "unexplored") return "biome-unexplored";
+  const b = (hex.biome || "").toLowerCase();
+  if (
+    b.includes("peak") ||
+    b.includes("crag") ||
+    b.includes("mountain") ||
+    b.includes("ridge")
+  )
+    return "biome-mountain";
+  if (
+    b.includes("wood") ||
+    b.includes("forest") ||
+    b.includes("hollow") ||
+    b.includes("copse")
+  )
+    return "biome-forest";
+  if (
+    b.includes("swamp") ||
+    b.includes("fen") ||
+    b.includes("mire") ||
+    b.includes("reed") ||
+    b.includes("delta")
+  )
+    return "biome-wetland";
+  if (
+    b.includes("basin") ||
+    b.includes("meadow") ||
+    b.includes("weald") ||
+    b.includes("verge") ||
+    b.includes("grass")
+  )
+    return "biome-valley";
+  if (b.includes("coast") || b.includes("scrub") || b.includes("sand"))
+    return "biome-coastal";
+  if (b.includes("karst") || b.includes("sink") || b.includes("chasm"))
+    return "biome-subterranean";
+  return "biome-default";
+}
+
 function MapView({ state, act }: { state: CampaignState; act: Act }) {
   const [selectedId, setSelectedId] = useState("00"),
-    [biome, setBiome] = useState("forest");
+    [biome, setBiome] = useState("forest"),
+    [genTheme, setGenTheme] = useState("temperate");
   const selected =
     state.hexes.find((hex) => hex.id === selectedId) ?? state.hexes[0];
+
   return (
     <div className="surface-grid map-layout">
       <section className="panel map-surface">
         <Title
-          eyebrow="Shared party fog"
+          eyebrow="Shared party fog & horizon knowledge"
           title="The 19-hex frontier"
-          aside={`${state.hexes.filter((h) => h.revealState !== "unexplored").length} / 19 known`}
+          aside={`${state.hexes.filter((h) => h.revealState !== "unexplored").length} / 19 explored`}
         />
         <svg
           className="hex-map"
-          viewBox="0 0 620 570"
+          viewBox="0 0 630 580"
           aria-label="Campaign hex map"
         >
+          {/* Natural River Course & Radiating Roads */}
+          <g className="map-routes">
+            {/* The River Mor / Waterway */}
+            <path
+              d="M 180,45 Q 204,101 230,147 T 257,193 Q 285,240 310,285 Q 338,330 363,377 Q 390,425 416,469 Q 430,500 445,535"
+              className="svg-river-course"
+            />
+            {/* The Coast Road (West: 00 -> 06 -> 17) */}
+            <path
+              d="M 310,285 L 204,285 L 98,285 L 25,285"
+              className="svg-road-course coast-road"
+            />
+            {/* The King's Highroad (NE: 00 -> 02 -> 09) */}
+            <path
+              d="M 310,285 L 363,193 L 416,101 L 455,35"
+              className="svg-road-course capital-road"
+            />
+            {/* The Iron Trace (East: 00 -> 03 -> 11) */}
+            <path
+              d="M 310,285 L 416,285 L 522,285 L 595,285"
+              className="svg-road-course iron-road"
+            />
+          </g>
+
+          {/* Horizon Outflow & Destination Markers */}
+          <g className="map-horizon-labels">
+            <text x="30" y="272" className="horizon-badge left">
+              ⮜ Coast Road (3–4 days)
+            </text>
+            <text x="460" y="32" className="horizon-badge top-right">
+              Highroad to Capital ⮞
+            </text>
+            <text x="590" y="272" className="horizon-badge right">
+              Dwarf-Crags ⮞
+            </text>
+            <text x="180" y="32" className="horizon-badge top">
+              ▲ Wyrm Peaks
+            </text>
+            <text x="445" y="555" className="horizon-badge bottom">
+              🌊 Sunken Delta ⮟
+            </text>
+          </g>
+
+          {/* Hex Grid Polygons & Cells */}
           {state.hexes.map((hex) => {
             const x = 310 + 106 * (hex.q + hex.r / 2),
               y = 285 + 92 * hex.r;
@@ -453,44 +1077,132 @@ function MapView({ state, act }: { state: CampaignState; act: Act }) {
                 onClick={() => setSelectedId(hex.id)}
                 tabIndex={0}
               >
-                <polygon points="0,-56 48,-28 48,28 0,56 -48,28 -48,-28" />
-                <text className="hex-id" y="-6">
+                <polygon
+                  className={`hex-poly ${getBiomeClass(hex)}`}
+                  points="0,-56 48,-28 48,28 0,56 -48,28 -48,-28"
+                />
+                <text className="hex-id" y="-28">
                   {hex.id}
                 </text>
-                <text className="hex-label" y="14">
-                  {hex.name
-                    ? hex.name.split(" ").slice(0, 2).join(" ")
-                    : "UNKNOWN"}
-                </text>
-                {hex.threatTier != null && (
-                  <text className="hex-tier" y="32">
-                    T{hex.threatTier}
-                  </text>
+
+                {hex.revealState !== "unexplored" ? (
+                  <>
+                    <text className="hex-label" y="-4">
+                      {hex.name
+                        ? hex.name.split(" ").slice(0, 2).join(" ")
+                        : "UNKNOWN"}
+                    </text>
+                    {hex.name && hex.name.split(" ").length > 2 && (
+                      <text className="hex-label sub" y="10">
+                        {hex.name.split(" ").slice(2, 4).join(" ")}
+                      </text>
+                    )}
+                    {hex.threatTier != null && (
+                      <text className="hex-tier" y="28">
+                        T{hex.threatTier}
+                      </text>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    {hex.road ? (
+                      <>
+                        <text className="hex-label route" y="-4">
+                          {hex.road.split(" ").slice(-2).join(" ")}
+                        </text>
+                        <text className="hex-sublabel route" y="12">
+                          Known Road
+                        </text>
+                      </>
+                    ) : hex.river ? (
+                      <>
+                        <text className="hex-label river" y="-4">
+                          {hex.river.split(" ").slice(0, 2).join(" ")}
+                        </text>
+                        <text className="hex-sublabel river" y="12">
+                          Waterway
+                        </text>
+                      </>
+                    ) : (
+                      <text className="hex-label fog" y="6">
+                        FOG
+                      </text>
+                    )}
+                  </>
                 )}
               </g>
             );
           })}
         </svg>
+
         <div className="map-legend">
           <span>
             <i className="mapped" /> Explored
           </span>
           <span>
-            <i className="rumored" /> Rumored
+            <i className="rumored" /> Rumored Route
           </span>
           <span>
-            <i className="unknown" /> Unknown
+            <i className="unknown" /> Uncharted Fog
+          </span>
+          <span className="legend-route">
+            <i className="legend-road" /> Road Arteries
+          </span>
+          <span className="legend-route">
+            <i className="legend-river" /> River Mor
           </span>
         </div>
       </section>
+
       <aside className="map-sidebar">
         <section className="panel inspector">
           <div className="eyebrow">
             Hex {selected.id} · {selected.revealState.replace("_", " ")}
           </div>
-          <h2>{selected.name ?? "Beyond the known map"}</h2>
-          {selected.name ? (
-            <>
+          <h2>
+            {selected.revealState !== "unexplored"
+              ? selected.name
+              : selected.road
+                ? `${selected.road} Reach`
+                : selected.river
+                  ? `${selected.river} Reach`
+                  : "Uncharted Frontier"}
+          </h2>
+
+          <div className="hex-tag-row">
+            {selected.road && (
+              <span className="badge-tag route-badge">
+                🛣️ {selected.road}
+              </span>
+            )}
+            {selected.river && (
+              <span className="badge-tag river-badge">
+                🌊 {selected.river}
+              </span>
+            )}
+            {selected.exitDestination && (
+              <span className="badge-tag exit-badge">
+                {selected.exitDestination}
+              </span>
+            )}
+          </div>
+
+          {selected.horizonRumor && (
+            <div className="horizon-rumor-callout">
+              <div className="horizon-head">
+                <Compass size={15} />
+                <strong>Common Horizon Lore & Tavern Talk</strong>
+              </div>
+              <p>"{selected.horizonRumor}"</p>
+              <small>
+                Heard in taverns and from wandering scouts. Exact distance and
+                perils remain uncertain until explored.
+              </small>
+            </div>
+          )}
+
+          {selected.revealState !== "unexplored" ? (
+            <div className="hex-known-details">
               <div className="stat-row">
                 <span>Biome</span>
                 <b>{selected.biome}</b>
@@ -499,43 +1211,86 @@ function MapView({ state, act }: { state: CampaignState; act: Act }) {
                 <span>Threat</span>
                 <b>Tier {selected.threatTier}</b>
               </div>
-              <p>{selected.landmark}</p>
-            </>
+              <p className="hex-landmark-desc">
+                <strong>Landmark:</strong> {selected.landmark}
+              </p>
+            </div>
           ) : (
-            <p>
-              The server withholds this hex’s contents until the party reveals
-              it. There is nothing to find in browser data.
+            <p className="fog-note">
+              Specific landmarks, dungeon thresholds, and encounter tiers remain
+              concealed under regional fog. Dispatch scouts or conduct a travel
+              watch to explore this hex.
             </p>
           )}
-          {state.me.role === "host" &&
-            selected.revealState === "unexplored" && (
-              <button
-                className="primary wide"
-                onClick={() =>
-                  act(
-                    "hex:reveal",
-                    { id: selected.id, revealState: "scouted" },
-                    `Hex ${selected.id} revealed`,
-                  )
-                }
-              >
-                <Sparkles size={17} /> Reveal to the party
-              </button>
-            )}
-          {state.me.role === "host" &&
-            !["unexplored", "fully_mapped"].includes(selected.revealState) && (
-              <button
-                className="wide"
-                onClick={() =>
-                  act("hex:reveal", {
-                    id: selected.id,
-                    revealState: "fully_mapped",
-                  })
-                }
-              >
-                Mark fully mapped
-              </button>
-            )}
+
+          {state.me.role === "host" && (
+            <div className="hex-host-actions">
+              {selected.revealState === "unexplored" && (
+                <button
+                  className="primary wide"
+                  onClick={() =>
+                    act(
+                      "hex:reveal",
+                      { id: selected.id, revealState: "scouted" },
+                      `Hex ${selected.id} revealed to table`,
+                    )
+                  }
+                >
+                  <Sparkles size={16} /> Reveal to the Party (Scout)
+                </button>
+              )}
+              {!["unexplored", "fully_mapped"].includes(
+                selected.revealState,
+              ) && (
+                <button
+                  className="wide"
+                  onClick={() =>
+                    act("hex:reveal", {
+                      id: selected.id,
+                      revealState: "fully_mapped",
+                    })
+                  }
+                >
+                  Mark Fully Mapped
+                </button>
+              )}
+
+              <details className="regenerate-map-box">
+                <summary>
+                  <RefreshCw size={14} /> Regenerate Regional Frontier
+                </summary>
+                <div className="regenerate-body">
+                  <p>
+                    Procedurally re-seed the 19-hex frontier with connected
+                    waterways, radiating roads, and horizon rumors.
+                  </p>
+                  <div className="theme-select-row">
+                    <select
+                      value={genTheme}
+                      onChange={(e) => setGenTheme(e.target.value)}
+                    >
+                      <option value="temperate">Temperate Valley & River</option>
+                      <option value="coastal">Coastal Verge & Delta</option>
+                      <option value="highland">Highland Peaks & Crags</option>
+                      <option value="wildwood">Primeval Wildwood & Fens</option>
+                    </select>
+                    <button
+                      className="primary small-btn"
+                      onClick={() =>
+                        act(
+                          "hex:regenerate",
+                          { theme: genTheme },
+                          "Regional frontier regenerated",
+                        )
+                      }
+                    >
+                      Re-seed
+                    </button>
+                  </div>
+                </div>
+              </details>
+            </div>
+          )}
         </section>
         {state.me.role === "host" && (
           <section className="panel compact join-card">
@@ -884,6 +1639,11 @@ function CharacterCard({
   act: Act;
   own: boolean;
 }) {
+  const nextLevelXp = character.level * 10;
+  const currentXp = character.xp ?? 0;
+  const canLevelUp = currentXp >= nextLevelXp && character.level < 36;
+  const xpPercent = Math.min(100, Math.round((currentXp / nextLevelXp) * 100));
+
   return (
     <article className={`panel character-card${own ? " own" : ""}`}>
       <div className="portrait-mark">{character.name[0]}</div>
@@ -941,6 +1701,69 @@ function CharacterCard({
           </button>
         </div>
       )}
+
+      {/* XP & Level Advancement */}
+      <div className="xp-card-section">
+        <div className="xp-info-row">
+          <span>
+            XP: <b>{currentXp}</b> / {nextLevelXp}
+          </span>
+          {character.level >= 36 ? (
+            <span className="badge-tag max-lvl">MAX LEVEL 36</span>
+          ) : canLevelUp ? (
+            <span className="badge-tag ready-lvl">ADVANCE READY</span>
+          ) : null}
+        </div>
+        <div className="xp-meter">
+          <div className="xp-meter-fill" style={{ width: `${xpPercent}%` }} />
+        </div>
+        {canEdit && (
+          <div className="xp-actions-row">
+            {canLevelUp && (
+              <button
+                className="primary level-up-btn"
+                onClick={() =>
+                  act(
+                    "character:level_up",
+                    { characterId: character.id },
+                    `${character.name} advanced to Level ${character.level + 1}!`,
+                  )
+                }
+              >
+                <ArrowUpCircle size={15} /> Level Up to {character.level + 1}
+              </button>
+            )}
+            <div className="grant-xp-group">
+              <span>+XP:</span>
+              <button
+                className="small-btn"
+                onClick={() =>
+                  act(
+                    "character:xp",
+                    { characterId: character.id, amount: 5 },
+                    "+5 XP awarded",
+                  )
+                }
+              >
+                +5
+              </button>
+              <button
+                className="small-btn"
+                onClick={() =>
+                  act(
+                    "character:xp",
+                    { characterId: character.id, amount: 10 },
+                    "+10 XP awarded",
+                  )
+                }
+              >
+                +10
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+
       <div className="ability-row">
         {ABILITY_KEYS.map((key) => (
           <div key={key}>
@@ -953,68 +1776,255 @@ function CharacterCard({
           </div>
         ))}
       </div>
-      <details>
+
+      {/* Class Talents Drawer */}
+      <details className="card-drawer talents-drawer">
+        <summary>
+          <Sparkles size={14} /> Class Talents & Deeds (
+          {character.talents?.length ?? 0})
+        </summary>
+        <div className="drawer-body">
+          {character.talents && character.talents.length > 0 ? (
+            <ul className="talents-list">
+              {character.talents.map((t, idx) => (
+                <li key={idx}>
+                  <CheckCircle2 size={14} />
+                  <span>{t}</span>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="drawer-empty">No talents recorded yet.</p>
+          )}
+          {canEdit && (
+            <button
+              className="small-btn roll-talent-action"
+              onClick={() =>
+                act(
+                  "character:talent_roll",
+                  { characterId: character.id },
+                  "Class talent rolled",
+                )
+              }
+            >
+              <Dices size={14} /> Roll Class Talent (2d6)
+            </button>
+          )}
+        </div>
+      </details>
+
+      <div className="gear-slot-chip">
+        <Shield size={14} />
+        <span>
+          Gear Capacity: <b>{character.gearSlots} slots</b> (10 + STR mod)
+        </span>
+      </div>
+
+      <details className="card-drawer">
         <summary>Cultural anchors</summary>
-        <p>
-          <b>Homeland:</b> {character.anchors.homeland || "Unwritten"}
-        </p>
-        <p>
-          <b>Landmark:</b> {character.anchors.landmark || "Unwritten"}
-        </p>
-        <p>
-          <b>Nemesis:</b> {character.anchors.nemesis || "Unwritten"}
-        </p>
+        <div className="drawer-body">
+          <p>
+            <b>Homeland:</b> {character.anchors.homeland || "Unwritten"}
+          </p>
+          <p>
+            <b>Landmark:</b> {character.anchors.landmark || "Unwritten"}
+          </p>
+          <p>
+            <b>Nemesis:</b> {character.anchors.nemesis || "Unwritten"}
+          </p>
+        </div>
       </details>
     </article>
   );
 }
 
 function EncounterView({ state, act }: { state: CampaignState; act: Act }) {
-  const entries = Object.entries(MONSTERS),
-    [monsterKey, setMonsterKey] = useState(entries[0][0]),
-    [count, setCount] = useState(1);
+  const [catalog, setCatalog] = useState<MonsterCatalogEntry[]>([]);
+  const [search, setSearch] = useState("");
+  const [familyFilter, setFamilyFilter] = useState("all");
+  const [levelFilter, setLevelFilter] = useState("all");
+  const [zoneOnly, setZoneOnly] = useState(false);
+  const [monsterKey, setMonsterKey] = useState("owlbear");
+  const [count, setCount] = useState(1);
+  const [forceVariant, setForceVariant] = useState(false);
+
+  useEffect(() => {
+    fetch("/api/content")
+      .then((r) => r.json())
+      .then((data) => {
+        if (Array.isArray(data.monsters) && data.monsters.length > 0) {
+          setCatalog(data.monsters);
+          if (
+            !monsterKey ||
+            !data.monsters.some(
+              (m: MonsterCatalogEntry) => m.key === monsterKey,
+            )
+          ) {
+            setMonsterKey(data.monsters[0].key);
+          }
+        }
+      })
+      .catch(() => {
+        const fallback = Object.entries(MONSTERS).map(([k, v]) => ({
+          key: k,
+          name: v.name,
+          level: 1,
+        }));
+        setCatalog(fallback);
+      });
+  }, []);
+
+  const families = Array.from(
+    new Set(catalog.map((m) => m.family).filter(Boolean) as string[]),
+  ).sort();
+
+  const activeZoneTable = state.activeZone?.wanderingMonsterTable ?? [];
+
+  const filteredMonsters = catalog.filter((m) => {
+    if (zoneOnly && activeZoneTable.length > 0) {
+      if (!activeZoneTable.includes(m.key)) return false;
+    }
+    if (familyFilter !== "all" && m.family !== familyFilter) return false;
+    const lvl = m.level ?? 1;
+    if (levelFilter === "0-1" && lvl > 1) return false;
+    if (levelFilter === "2-4" && (lvl < 2 || lvl > 4)) return false;
+    if (levelFilter === "5-8" && (lvl < 5 || lvl > 8)) return false;
+    if (levelFilter === "9+" && lvl < 9) return false;
+    if (search.trim()) {
+      const q = search.toLowerCase();
+      return (
+        m.name.toLowerCase().includes(q) || m.key.toLowerCase().includes(q)
+      );
+    }
+    return true;
+  });
+
   return (
     <div className="encounter-page">
       <div className="encounter-heading">
         <Title
-          eyebrow="Monsternomicon"
-          title="Encounter field board"
+          eyebrow="Monsternomicon & Field Adjudicator"
+          title="Tactical Encounter Board"
           aside={`${state.encounters.filter((e) => e.status === "active").length} active`}
         />
+
         {state.me.role === "host" && (
-          <div className="start-encounter">
-            <select
-              value={monsterKey}
-              onChange={(e) => setMonsterKey(e.target.value)}
-            >
-              {entries.map(([key, monster]) => (
-                <option value={key} key={key}>
-                  {monster.name}
-                </option>
-              ))}
-            </select>
-            <input
-              type="number"
-              value={count}
-              min="1"
-              max="12"
-              onChange={(e) => setCount(Number(e.target.value))}
-            />
-            <button
-              className="primary"
-              onClick={() =>
-                act(
-                  "encounter:start",
-                  { monsterKey, count },
-                  "Encounter started",
-                )
-              }
-            >
-              <Plus size={17} /> Start
-            </button>
+          <div className="start-encounter-panel panel">
+            <div className="panel-title-bar">
+              <div className="eyebrow">Summon Creature or Threat</div>
+              <h3>Launch Table Encounter</h3>
+            </div>
+
+            <div className="monster-filter-bar">
+              <div className="search-input-wrap">
+                <Search size={15} />
+                <input
+                  type="text"
+                  placeholder="Search 270+ bestiary entries..."
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                />
+                {search && (
+                  <button className="clear-btn" onClick={() => setSearch("")}>
+                    <X size={13} />
+                  </button>
+                )}
+              </div>
+
+              <select
+                value={familyFilter}
+                onChange={(e) => setFamilyFilter(e.target.value)}
+              >
+                <option value="all">All Families ({families.length})</option>
+                {families.map((f) => (
+                  <option key={f} value={f}>
+                    {f}
+                  </option>
+                ))}
+              </select>
+
+              <select
+                value={levelFilter}
+                onChange={(e) => setLevelFilter(e.target.value)}
+              >
+                <option value="all">All Levels</option>
+                <option value="0-1">Levels 0–1</option>
+                <option value="2-4">Levels 2–4</option>
+                <option value="5-8">Levels 5–8</option>
+                <option value="9+">Levels 9+</option>
+              </select>
+
+              {activeZoneTable.length > 0 && (
+                <label className="checkbox-label zone-toggle">
+                  <input
+                    type="checkbox"
+                    checked={zoneOnly}
+                    onChange={(e) => setZoneOnly(e.target.checked)}
+                  />
+                  <span>
+                    <b>{state.activeZone?.name?.split(" ")[0]}</b> Wanderers (
+                    {activeZoneTable.length})
+                  </span>
+                </label>
+              )}
+            </div>
+
+            <div className="start-encounter-actions">
+              <div className="monster-select-col">
+                <label>
+                  Creature ({filteredMonsters.length} available)
+                  <select
+                    value={monsterKey}
+                    onChange={(e) => setMonsterKey(e.target.value)}
+                  >
+                    {filteredMonsters.map((m) => (
+                      <option value={m.key} key={m.key}>
+                        {m.name} [LV {m.level ?? 1}
+                        {m.family ? ` · ${m.family}` : ""}]
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              </div>
+
+              <label className="count-col">
+                Qty
+                <input
+                  type="number"
+                  value={count}
+                  min="1"
+                  max="12"
+                  onChange={(e) => setCount(Number(e.target.value))}
+                />
+              </label>
+
+              <label className="checkbox-label variant-toggle">
+                <input
+                  type="checkbox"
+                  checked={forceVariant}
+                  onChange={(e) => setForceVariant(e.target.checked)}
+                />
+                <span>Variant Mutation</span>
+              </label>
+
+              <button
+                className="primary start-btn"
+                disabled={!monsterKey || filteredMonsters.length === 0}
+                onClick={() =>
+                  act(
+                    "encounter:start",
+                    { monsterKey, count, forceVariant },
+                    "Encounter started on table board",
+                  )
+                }
+              >
+                <Plus size={17} /> Start
+              </button>
+            </div>
           </div>
         )}
       </div>
+
       <div className="encounter-grid">
         {state.encounters.map((encounter) => (
           <section
@@ -1028,11 +2038,12 @@ function EncounterView({ state, act }: { state: CampaignState; act: Act }) {
               </div>
               {state.me.role === "host" && encounter.status === "active" && (
                 <button
+                  className="resolve-btn"
                   onClick={() =>
                     act("encounter:resolve", { encounterId: encounter.id })
                   }
                 >
-                  Resolve
+                  <CheckCircle2 size={15} /> Resolve
                 </button>
               )}
             </div>
@@ -1063,14 +2074,38 @@ function MonsterRow({
   state: CampaignState;
   act: Act;
 }) {
+  const isDefeated = monster.currentHp <= 0;
+
   return (
-    <article className="monster-row">
+    <article className={`monster-row ${isDefeated ? "defeated" : ""}`}>
       <div className="monster-number">{index + 1}</div>
       <div className="monster-main">
         <div className="monster-name">
-          <strong>{monster.name}</strong>
+          <div className="monster-heading-left">
+            <strong>{monster.name}</strong>
+            {monster.level != null && (
+              <span className="lvl-chip">LV {monster.level}</span>
+            )}
+            {monster.family && (
+              <span className="family-chip">{monster.family}</span>
+            )}
+          </div>
           <span>Lore {monster.loreTier}/4</span>
         </div>
+
+        {monster.isVariant && (
+          <div className="variant-banner">
+            <span className="variant-tag">MUTANT VARIANT</span>
+            <strong>{monster.variantQuality}</strong>
+            {monster.variantStrength && (
+              <small>⚔️ {monster.variantStrength}</small>
+            )}
+            {monster.variantWeakness && (
+              <small>⚡ Bane: {monster.variantWeakness}</small>
+            )}
+          </div>
+        )}
+
         <div className="hp-bar">
           <i
             style={{
@@ -1078,44 +2113,100 @@ function MonsterRow({
             }}
           />
         </div>
-        <small>
+        <small className="hp-label">
           {monster.currentHp} / {monster.maxHp} HP
         </small>
-        {monster.loreTier === 0 && (
-          <p className="fog-message">
-            <HelpCircle size={15} /> Capabilities unknown. Pass an INT lore
-            check.
-          </p>
-        )}
-        {monster.ac != null && (
-          <div className="revealed-stats">
-            <span>
-              AC <b>{monster.ac}</b>
-            </span>
-            {monster.morale != null && (
-              <span>
-                Morale <b>{monster.morale}</b>
-              </span>
+
+        {isDefeated ? (
+          <div className="defeated-callout">
+            <div className="defeated-badge">
+              <Skull size={15} /> Felled in Combat
+            </div>
+
+            {/* Monsternomicon Anatomical Salvage Table */}
+            {monster.harvest && monster.harvest.length > 0 && (
+              <div className="harvest-box">
+                <div className="harvest-heading">
+                  <Sparkles size={14} />
+                  <span>Monsternomicon Anatomical Salvage</span>
+                </div>
+                {monster.harvest.map((h, i) => (
+                  <div key={i} className="harvest-item">
+                    <div className="harvest-info">
+                      <strong>{h.reagent}</strong>
+                      <span className="harvest-dc-tag">DC {h.dc} INT</span>
+                      <p>{h.effect}</p>
+                    </div>
+                    <button
+                      className="small-btn harvest-roll-btn"
+                      onClick={() =>
+                        act(
+                          "dice:roll",
+                          {
+                            expression: "1d20",
+                            label: `Harvest Check vs DC ${h.dc} (${h.reagent})`,
+                          },
+                          "Harvest check cast",
+                        )
+                      }
+                    >
+                      Roll DC {h.dc}
+                    </button>
+                  </div>
+                ))}
+              </div>
             )}
           </div>
+        ) : (
+          <>
+            {monster.loreTier === 0 && (
+              <p className="fog-message">
+                <HelpCircle size={15} /> Capabilities unknown. Pass an INT lore
+                check.
+              </p>
+            )}
+            {monster.ac != null && (
+              <div className="revealed-stats">
+                <span>
+                  AC <b>{monster.ac}</b>
+                </span>
+                {monster.morale != null && (
+                  <span>
+                    Morale <b>{monster.morale}</b>
+                  </span>
+                )}
+                {monster.move && (
+                  <span>
+                    Move <b>{monster.move}</b>
+                  </span>
+                )}
+                {monster.alignment && (
+                  <span>
+                    Align <b>{monster.alignment}</b>
+                  </span>
+                )}
+              </div>
+            )}
+            {monster.attacks?.map((text) => (
+              <p className="monster-detail" key={text}>
+                <Swords size={14} /> {text}
+              </p>
+            ))}
+            {monster.traits?.map((text) => (
+              <p className="monster-detail" key={text}>
+                <Sparkles size={14} /> {text}
+              </p>
+            ))}
+            {monster.lore?.map((text, i) => (
+              <p className="lore-line" key={text}>
+                <b>DC {[9, 12, 15, 18][i]}</b>
+                {text}
+              </p>
+            ))}
+          </>
         )}
-        {monster.attacks?.map((text) => (
-          <p className="monster-detail" key={text}>
-            <Swords size={14} /> {text}
-          </p>
-        ))}
-        {monster.traits?.map((text) => (
-          <p className="monster-detail" key={text}>
-            <Sparkles size={14} /> {text}
-          </p>
-        ))}
-        {monster.lore?.map((text, i) => (
-          <p className="lore-line" key={text}>
-            <b>DC {[9, 12, 15, 18][i]}</b>
-            {text}
-          </p>
-        ))}
       </div>
+
       <div className="monster-actions">
         {state.me.role === "host" && (
           <>
@@ -1143,7 +2234,11 @@ function MonsterRow({
             })
           }
         >
-          <BookOpen size={14} /> Lore
+          <BookOpen size={14} /> Lore (
+          {monster.loreTier < 4
+            ? `DC ${[9, 12, 15, 18][monster.loreTier]}`
+            : "Max"}
+          )
         </button>
         <button
           onClick={() => act("encounter:morale", { monsterId: monster.id })}
@@ -1234,11 +2329,89 @@ function PressureBoard({ state, act }: { state: CampaignState; act: Act }) {
     threshold: 6,
     consequence: "",
   });
+  const [complication, setComplication] = useState<string | null>(null);
+  const [rollingComplication, setRollingComplication] = useState(false);
+
+  const rollComplication = async () => {
+    setRollingComplication(true);
+    try {
+      const res = await act<{ result: { complication: string } }>(
+        "campaign:complication",
+        {},
+        "Campaign complication determined by oracle",
+      );
+      if (res?.result) setComplication(res.result.complication);
+    } finally {
+      setRollingComplication(false);
+    }
+  };
+
+  const applyShape = (shapeKey: string) => {
+    const presets: Record<
+      string,
+      { name: string; consequence: string; threshold: number }
+    > = {
+      countdown: {
+        name: "The Blood Moon Rises",
+        consequence: "Wards shatter across the valley",
+        threshold: 6,
+      },
+      pursuit: {
+        name: "Ash Riders Close Distance",
+        consequence: "The hunting pack ambushes the company",
+        threshold: 5,
+      },
+      race: {
+        name: "Rival Explorers Delve",
+        consequence: "Rivals claim the inner sanctum first",
+        threshold: 6,
+      },
+      heat: {
+        name: "Garrison & Thieves' Guild Alert",
+        consequence: "Gates barred and bounty placed on adventurers",
+        threshold: 4,
+      },
+      spread: {
+        name: "Blighted Miasma Spreads",
+        consequence: "The sanctuary oasis turns corrupt and foul",
+        threshold: 5,
+      },
+      mystery: {
+        name: "Forgotten Ritual Deciphered",
+        consequence: "The slumbering elder entity awakens",
+        threshold: 4,
+      },
+      opportunity: {
+        name: "Starlight Gate Closing",
+        consequence: "The planar gate seals for a century",
+        threshold: 3,
+      },
+      ladder: {
+        name: "Inquisitorial Purge Escalates",
+        consequence: "Martial law declared; pyres lit at city gates",
+        threshold: 5,
+      },
+    };
+    const p = presets[shapeKey];
+    if (p && (!form.name || form.name === form.shape)) {
+      setForm({
+        ...form,
+        shape: shapeKey,
+        name: p.name,
+        consequence: p.consequence,
+        threshold: p.threshold,
+      });
+    } else {
+      setForm({ ...form, shape: shapeKey });
+    }
+  };
+
   const submit = async (event: FormEvent) => {
     event.preventDefault();
     await act("pressure:add", form, "Campaign pressure added");
     setForm({ ...form, name: "", consequence: "" });
   };
+
   return (
     <section className="panel pressure-board">
       <div className="pressure-heading">
@@ -1250,64 +2423,108 @@ function PressureBoard({ state, act }: { state: CampaignState; act: Act }) {
             global clock unless its fiction creates one.
           </p>
         </div>
-        {state.me.role === "host" && (
-          <details className="pressure-create">
-            <summary>
-              <Plus size={15} /> Add pressure
-            </summary>
-            <form onSubmit={submit}>
-              <Field
-                label="What is moving?"
-                value={form.name}
-                onChange={(name) => setForm({ ...form, name })}
-                placeholder="The Ash Riders close in"
-              />
-              <label>
-                Shape
-                <select
-                  value={form.shape}
-                  onChange={(event) =>
-                    setForm({ ...form, shape: event.target.value })
-                  }
-                >
-                  {pressureShapes.map(([value, label, description]) => (
-                    <option value={value} key={value}>
-                      {label} — {description}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <label>
-                Steps to consequence
-                <input
-                  type="number"
-                  min="2"
-                  max="12"
-                  value={form.threshold}
-                  onChange={(event) =>
-                    setForm({
-                      ...form,
-                      threshold: Number(event.target.value),
-                    })
-                  }
+
+        <div className="pressure-top-actions">
+          {state.me.role === "host" && (
+            <button
+              className="complication-trigger-btn"
+              disabled={rollingComplication}
+              onClick={rollComplication}
+            >
+              <AlertTriangle size={15} /> Trigger Complication
+            </button>
+          )}
+
+          {state.me.role === "host" && (
+            <details className="pressure-create">
+              <summary>
+                <Plus size={15} /> Add pressure
+              </summary>
+              <form onSubmit={submit}>
+                <Field
+                  label="What is moving?"
+                  value={form.name}
+                  onChange={(name) => setForm({ ...form, name })}
+                  placeholder="The Ash Riders close in"
                 />
-              </label>
-              <Field
-                label="What happens at the final step?"
-                value={form.consequence}
-                onChange={(consequence) => setForm({ ...form, consequence })}
-                placeholder="They reach the sanctuary before dawn"
-              />
-              <button
-                className="primary wide"
-                disabled={!form.name || !form.consequence}
-              >
-                Create pressure
-              </button>
-            </form>
-          </details>
-        )}
+                <label>
+                  Shape & Preset
+                  <select
+                    value={form.shape}
+                    onChange={(event) => applyShape(event.target.value)}
+                  >
+                    {pressureShapes.map(([value, label, description]) => (
+                      <option value={value} key={value}>
+                        {label} — {description}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label>
+                  Steps to consequence
+                  <input
+                    type="number"
+                    min="2"
+                    max="12"
+                    value={form.threshold}
+                    onChange={(event) =>
+                      setForm({
+                        ...form,
+                        threshold: Number(event.target.value),
+                      })
+                    }
+                  />
+                </label>
+                <Field
+                  label="What happens at the final step?"
+                  value={form.consequence}
+                  onChange={(consequence) => setForm({ ...form, consequence })}
+                  placeholder="They reach the sanctuary before dawn"
+                />
+                <button
+                  className="primary wide"
+                  disabled={!form.name || !form.consequence}
+                >
+                  Create pressure
+                </button>
+              </form>
+            </details>
+          )}
+        </div>
       </div>
+
+      {complication && (
+        <div className="complication-callout">
+          <div className="complication-head">
+            <AlertTriangle size={16} />
+            <strong>Emergent Campaign Complication</strong>
+            <button
+              className="icon-button"
+              onClick={() => setComplication(null)}
+            >
+              <X size={14} />
+            </button>
+          </div>
+          <p>{complication}</p>
+          <button
+            className="small-btn record-complication-btn"
+            onClick={() => {
+              act(
+                "note:add",
+                {
+                  section: "session",
+                  title: "Campaign Complication",
+                  body: complication,
+                },
+                "Complication saved to session notes",
+              );
+              setToast("Saved to chronicle notes");
+            }}
+          >
+            <BookOpen size={13} /> Save to Chronicle Notes
+          </button>
+        </div>
+      )}
       {state.pressures.length === 0 ? (
         <div className="pressure-empty">
           <Compass size={22} />

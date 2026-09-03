@@ -8,6 +8,7 @@ import {
 } from "node:crypto";
 import Database from "better-sqlite3";
 import { HEX_DEFINITIONS, MONSTERS } from "../shared/content.js";
+import { generateHexMap } from "./generators/hex-map.js";
 import type {
   CampaignPhase,
   CampaignPressure,
@@ -170,6 +171,23 @@ export class AshDatabase {
       this.db.exec("ALTER TABLE encounter_monsters ADD COLUMN traits_json TEXT");
       this.db.exec("ALTER TABLE encounter_monsters ADD COLUMN lore_json TEXT");
     }
+
+    const hexCols = this.db.pragma("table_info(hexes)") as Array<{ name: string }>;
+    if (!hexCols.some((c) => c.name === "road")) {
+      this.db.exec("ALTER TABLE hexes ADD COLUMN road TEXT");
+    }
+    if (!hexCols.some((c) => c.name === "river")) {
+      this.db.exec("ALTER TABLE hexes ADD COLUMN river TEXT");
+    }
+    if (!hexCols.some((c) => c.name === "horizon_rumor")) {
+      this.db.exec("ALTER TABLE hexes ADD COLUMN horizon_rumor TEXT");
+    }
+    if (!hexCols.some((c) => c.name === "exit_destination")) {
+      this.db.exec("ALTER TABLE hexes ADD COLUMN exit_destination TEXT");
+    }
+    if (!hexCols.some((c) => c.name === "elevation")) {
+      this.db.exec("ALTER TABLE hexes ADD COLUMN elevation INTEGER DEFAULT 1");
+    }
   }
 
   private loadZones() {
@@ -315,33 +333,67 @@ export class AshDatabase {
       )
       .run(code, name, regionName, "sanctuary", "oakhaven_borderlands", hashPin(pin), hostToken, now());
     const campaignId = Number(result.lastInsertRowid);
+    const generatedHexes = generateHexMap({ campaignName: name, regionName });
     const insertHex = this.db.prepare(
-      "INSERT INTO hexes (campaign_id,id,ring,q,r,name,biome,threat_tier,landmark,reveal_state) VALUES (?,?,?,?,?,?,?,?,?,?)",
+      "INSERT INTO hexes (campaign_id,id,ring,q,r,name,biome,threat_tier,landmark,reveal_state,road,river,horizon_rumor,exit_destination,elevation) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
     );
-    for (const [
-      id,
-      ring,
-      q,
-      r,
-      hexName,
-      biome,
-      tier,
-      landmark,
-    ] of HEX_DEFINITIONS) {
+    for (const h of generatedHexes) {
       insertHex.run(
         campaignId,
-        id,
-        ring,
-        q,
-        r,
-        hexName,
-        biome,
-        tier,
-        landmark,
-        id === "00" ? "fully_mapped" : "unexplored",
+        h.id,
+        h.ring,
+        h.q,
+        h.r,
+        h.name,
+        h.biome,
+        h.threatTier,
+        h.landmark,
+        h.revealState,
+        h.road ?? null,
+        h.river ?? null,
+        h.horizonRumor ?? null,
+        h.exitDestination ?? null,
+        h.elevation,
       );
     }
     return { code, hostToken, campaignId };
+  }
+
+  regenerateHexMap(campaignId: number, theme?: string) {
+    const campaign = this.db
+      .prepare("SELECT name, region_name FROM campaigns WHERE id = ?")
+      .get(campaignId) as { name: string; region_name: string } | undefined;
+    const generated = generateHexMap({
+      campaignName: campaign?.name,
+      regionName: campaign?.region_name,
+      theme: theme as any,
+    });
+    const deleteHexes = this.db.prepare("DELETE FROM hexes WHERE campaign_id = ?");
+    const insertHex = this.db.prepare(
+      "INSERT INTO hexes (campaign_id,id,ring,q,r,name,biome,threat_tier,landmark,reveal_state,road,river,horizon_rumor,exit_destination,elevation) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+    );
+    this.db.transaction(() => {
+      deleteHexes.run(campaignId);
+      for (const h of generated) {
+        insertHex.run(
+          campaignId,
+          h.id,
+          h.ring,
+          h.q,
+          h.r,
+          h.name,
+          h.biome,
+          h.threatTier,
+          h.landmark,
+          h.revealState,
+          h.road ?? null,
+          h.river ?? null,
+          h.horizonRumor ?? null,
+          h.exitDestination ?? null,
+          h.elevation,
+        );
+      }
+    })();
   }
 
   joinCampaign(code: string, existingToken?: string) {
@@ -870,13 +922,19 @@ function rowToCharacter(row: Row): Character {
 
 function rowToHex(row: Row): PublicHex {
   const revealState = String(row.reveal_state) as PublicHex["revealState"];
-  const base = {
+  const base: PublicHex = {
     id: String(row.id),
     ring: Number(row.ring),
     q: Number(row.q),
     r: Number(row.r),
     revealState,
   };
+  if (row.road) base.road = String(row.road);
+  if (row.river) base.river = String(row.river);
+  if (row.horizon_rumor) base.horizonRumor = String(row.horizon_rumor);
+  if (row.exit_destination) base.exitDestination = String(row.exit_destination);
+  if (row.elevation != null) base.elevation = Number(row.elevation);
+
   return revealState === "unexplored"
     ? base
     : {

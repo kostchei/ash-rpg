@@ -27,13 +27,19 @@ describe("campaign persistence and fog", () => {
       null,
       "http://table/play",
     );
-    expect(state.hexes.find((hex) => hex.id === "01")).toEqual({
+    const hex01 = state.hexes.find((hex) => hex.id === "01");
+    expect(hex01).toMatchObject({
       id: "01",
       ring: 1,
       q: 0,
       r: -1,
       revealState: "unexplored",
     });
+    expect(hex01?.landmark).toBeUndefined();
+    expect(hex01?.threatTier).toBeUndefined();
+    expect(hex01?.name).toBeUndefined();
+    expect(hex01?.river).toBeDefined();
+    expect(hex01?.horizonRumor).toBeTruthy();
     db.revealHex(campaign.campaignId, "01", "scouted");
     state = db.getState(campaign.campaignId, "host", null, "http://table/play");
     expect(state.hexes.find((hex) => hex.id === "01")?.landmark).toContain(

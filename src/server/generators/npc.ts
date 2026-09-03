@@ -188,8 +188,8 @@ export function generateNpc(
   // 3. Zone Subclass
   const zoneMap = data.zoneSubclasses[zoneId] ?? data.zoneSubclasses["oakhaven_borderlands"] ?? {};
   const subclassOptions = zoneMap[baseArchetype] ?? [baseArchetype];
-  const subIdx = rollDie(subclassOptions.length, rng) - 1;
-  const resolvedClass = isWildcardClass ? "Specialist Adventurer" : subclassOptions[subIdx];
+  const subIdx = subclassOptions.length > 1 ? rollDie(subclassOptions.length, rng) - 1 : 0;
+  const resolvedClass = isWildcardClass ? "Specialist Adventurer" : (subclassOptions[subIdx] ?? baseArchetype);
 
   // 4. Demeanor & Quirk (1d12)
   const dRoll = rollDie(data.demeanors.length, rng);

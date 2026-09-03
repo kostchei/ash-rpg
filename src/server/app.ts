@@ -430,6 +430,80 @@ export async function createAshServer(options: AshServerOptions = {}) {
       }),
     );
 
+    socket.on(
+      "retainer:hire",
+      action((raw: unknown) => {
+        hostOnly();
+        const payload = z
+          .object({
+            name: cleanText.max(50),
+            ancestry: z.string().max(50),
+            className: z.string().max(50),
+            level: z.number().int().min(1).max(10),
+            hp: z.number().int().min(1).max(100),
+            morale: z.number().int().min(2).max(12),
+            dailyWage: z.string().max(50),
+            notes: z.string().max(500),
+          })
+          .parse(raw);
+
+        const characterId = db.addCharacter(identity.campaignId, null, {
+          name: `[Retainer] ${payload.name}`,
+          ancestry: payload.ancestry,
+          className: payload.className,
+          level: payload.level,
+          hp: payload.hp,
+          maxHp: payload.hp,
+          ac: 10,
+          gold: 0,
+          gearSlots: 10,
+          abilities: { str: 10, dex: 10, con: 10, int: 10, wis: 10, cha: 10 },
+          anchors: {
+            homeland: `Wage: ${payload.dailyWage}`,
+            landmark: `Morale: ${payload.morale}`,
+            nemesis: payload.notes,
+          },
+          talents: [`Retainer Morale: ${payload.morale}`, `Daily Wage: ${payload.dailyWage}`],
+          xp: 0,
+        });
+
+        db.addRoll(identity.campaignId, {
+          actor: "Table",
+          kind: "character",
+          label: `Hired Retainer: ${payload.name}`,
+          dice: "—",
+          total: payload.level,
+          detail: `${payload.ancestry} ${payload.className} · Level ${payload.level}, ${payload.hp} HP · Daily Wage: ${payload.dailyWage}`,
+        });
+
+        return { characterId };
+      }),
+    );
+
+    socket.on(
+      "party:rest",
+      action((_raw: unknown) => {
+        hostOnly();
+        const state = db.getState(
+          identity.campaignId,
+          identity.role,
+          identity.characterId,
+          "",
+        );
+        for (const c of state.characters) {
+          db.updateCharacterHp(identity.campaignId, c.id, c.maxHp);
+        }
+        db.addRoll(identity.campaignId, {
+          actor: "Table",
+          kind: "party",
+          label: "Sanctuary Rest & Recovery",
+          dice: "—",
+          total: 0,
+          detail: "The party rested in sanctuary. All members restored to maximum HP.",
+        });
+      }),
+    );
+
     // --- Dice & Oracles ---
 
     socket.on(
@@ -695,6 +769,28 @@ export async function createAshServer(options: AshServerOptions = {}) {
           dice: "—",
           total: Number(payload.id),
           detail: payload.revealState.replace("_", " "),
+        });
+      }),
+    );
+
+    socket.on(
+      "hex:regenerate",
+      action((raw: unknown) => {
+        hostOnly();
+        const payload = z
+          .object({
+            theme: z.string().optional(),
+          })
+          .optional()
+          .parse(raw);
+        db.regenerateHexMap(identity.campaignId, payload?.theme);
+        db.addRoll(identity.campaignId, {
+          actor: "Host",
+          kind: "exploration",
+          label: "Regional frontier regenerated",
+          dice: "—",
+          total: 19,
+          detail: "Frontier re-seeded with coherent river courses, trade routes, and horizon rumors.",
         });
       }),
     );

@@ -45,6 +45,20 @@ describe("campaign HTTP API", () => {
     expect(host.body.token).toBe(created.body.token);
   });
 
+  it("returns content catalogs including 200+ monsters and 7 zones", async () => {
+    const response = await request(server.app).get("/api/content");
+    expect(response.status).toBe(200);
+    expect(response.body.ancestries.length).toBeGreaterThan(0);
+    expect(response.body.classes.length).toBeGreaterThan(0);
+    expect(response.body.monsters.length).toBeGreaterThan(200);
+    expect(response.body.zones.length).toBeGreaterThanOrEqual(7);
+
+    // Verify monster shape
+    const sample = response.body.monsters[0];
+    expect(sample.key).toBeDefined();
+    expect(sample.name).toBeDefined();
+  });
+
   it("rejects invalid campaign input and host credentials", async () => {
     expect(
       (

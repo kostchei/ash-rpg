@@ -15,6 +15,13 @@ export interface ZoneSummary {
   biomePalette: string[];
 }
 
+export interface MonsterCatalogEntry {
+  key: string;
+  name: string;
+  level?: number;
+  family?: string;
+}
+
 export interface ZoneManifest extends ZoneSummary {
   hazardTable: string[];
   weatherTable: string[];
@@ -64,6 +71,11 @@ export interface PublicHex {
   biome?: string;
   threatTier?: number;
   landmark?: string;
+  road?: string;
+  river?: string;
+  horizonRumor?: string;
+  exitDestination?: string;
+  elevation?: number;
 }
 
 export interface DungeonRoom {
