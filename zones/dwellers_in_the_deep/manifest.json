@@ -3,9 +3,18 @@
   "name": "Morzomotha & Karst Deeps",
   "theme": "Subterranean Karst, Sunless Libraries & Delver Pits (Cursed Scroll 5)",
   "biomePalette": [
-    "karst",
-    "cavern",
-    "sunless_abyss"
+    "Stalactite Gallery",
+    "Echoing Limestone Vault",
+    "Dripping Flowstone Cavern",
+    "Flooded Cave Siphon",
+    "Claustrophobic Crawlway",
+    "Twisting Fissure",
+    "Great Karst Sinkhole",
+    "Bottomless Chasm",
+    "Subterranean River",
+    "Sunless Lake",
+    "Delver Enclave",
+    "Bioluminescent Fungus Grove"
   ],
   "hazardTable": [
     "Falling stalactites from subterranean tremors (DC 13 DEX or 2d8 damage)",
@@ -15,9 +24,9 @@
   ],
   "weatherTable": [
     "Stagnant cool air dripping with limestone mineral water",
-    "Warm sulfur draft blowing up from deep planar fissures",
-    "Total lightless silence broken only by clicking chitin",
-    "Echoing wind howling through vast subterranean vaults"
+    "Dense humid cave mist hanging over underground pools",
+    "Chilly damp cave winds",
+    "Frozen flowstone cascades in upper passages"
   ],
   "wanderingMonsterTable": [
     "bezelak",
@@ -33,19 +42,24 @@
     {
       "name": "Deep Delver Guild",
       "disposition": "Friendly",
-      "notes": "Spelunkers mapping lost tunnels."
+      "notes": "Map subterranean corridors, secure profitable silver lodes, and maintain rescue routes to the surface."
     },
     {
       "name": "Librarians of Leng",
       "disposition": "Hostile",
-      "notes": "Alien scholars guarding eldritch scrolls."
+      "notes": "Guard occult manuscripts from surface barbarians and preserve cosmic secrets in darkness."
+    },
+    {
+      "name": "Karst Troglodyte Packs",
+      "disposition": "Neutral",
+      "notes": "Defend their mushroom beds, acquire iron scrap, and ambush careless travelers lacking light."
     }
   ],
   "uniqueFloraFauna": [
-    "Morzo moths",
-    "Bioluminescent glow-lichen",
-    "Blind cave fish"
+    "Pure mineral seepage collected in clean stone basins",
+    "Imported smoked meats, iron rations, and cultivated glow-lichen paste",
+    "Surface Hoist Winch"
   ],
-  "entryConditions": "Rappel down the Great Sinkhole in Hex 06.",
-  "exitConditions": "Climb the anchored chains back to the surface."
+  "entryConditions": "Expedition access point into Morzomotha & Karst Deeps.",
+  "exitConditions": "Waymarked return route to Upper Sink Refuge."
 }

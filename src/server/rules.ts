@@ -272,6 +272,85 @@ export function wildernessWatch(
   };
 }
 
+/**
+ * Calculates watch cost to traverse a 6-mile hex based on terrain, road presence, and water crossings.
+ * Road / Paved Way / Calm Canal / Trail: 1 watch.
+ * Standard Off-Road (Grasslands, Open Woods, Rolling Hills): 2 watches.
+ * Difficult Terrain (Dense Swamps, Rocky Mountains, Sand Dunes, Cavern Siphons, Primeval Jungle): 3 watches.
+ * Unbridged River / Chasm Crossing: +1 watch.
+ */
+export function calculateTravelWatches(
+  terrain: string,
+  hasRoad = false,
+  crossingMethod?: "ford" | "stone_bridge" | "wooden_bridge" | "ferry" | "portage" | "none",
+): number {
+  if (hasRoad) return 1;
+
+  const t = terrain.toLowerCase();
+  let baseCost = 2; // Default standard off-road
+
+  if (
+    t.includes("swamp") ||
+    t.includes("mire") ||
+    t.includes("bog") ||
+    t.includes("mountain") ||
+    t.includes("peak") ||
+    t.includes("dune") ||
+    t.includes("desert") ||
+    t.includes("karst") ||
+    t.includes("cavern") ||
+    t.includes("jungle") ||
+    t.includes("quagmire") ||
+    t.includes("crag")
+  ) {
+    baseCost = 3;
+  }
+
+  if (crossingMethod === "none" || crossingMethod === "ford") {
+    baseCost += 1;
+  }
+
+  return baseCost;
+}
+
+/**
+ * 4-watch day fatigue evaluation for Watch 4 (Night) forced march.
+ */
+export function evaluateWatchFatigue(
+  watchNumber: 1 | 2 | 3 | 4,
+  consecutiveForcedWatches = 0,
+  conModifier = 0,
+  rng: RandomSource = systemRandom,
+): {
+  forcedMarch: boolean;
+  checkDc: number;
+  roll: number;
+  passed: boolean;
+  fatigueGained: boolean;
+} {
+  if (watchNumber !== 4) {
+    return {
+      forcedMarch: false,
+      checkDc: 0,
+      roll: 0,
+      passed: true,
+      fatigueGained: false,
+    };
+  }
+
+  const checkDc = 12 + consecutiveForcedWatches;
+  const roll = rollDie(20, rng) + conModifier;
+  const passed = roll >= checkDc;
+
+  return {
+    forcedMarch: true,
+    checkDc,
+    roll,
+    passed,
+    fatigueGained: !passed,
+  };
+}
+
 export function loreTier(total: number) {
   return total >= 18
     ? 4

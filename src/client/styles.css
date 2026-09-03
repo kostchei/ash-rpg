@@ -2235,6 +2235,22 @@ button:disabled {
   fill: #1c1822;
   stroke: #453c52;
 }
+.hex-poly.biome-desert {
+  fill: #2d2417;
+  stroke: #665033;
+}
+.hex-poly.biome-fjord {
+  fill: #16242c;
+  stroke: #395466;
+}
+.hex-poly.biome-jungle {
+  fill: #132717;
+  stroke: #2e5334;
+}
+.hex-poly.biome-urban {
+  fill: #241d24;
+  stroke: #524053;
+}
 .hex-poly.biome-unexplored {
   fill: #141712;
   stroke: #2a2e22;

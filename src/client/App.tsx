@@ -973,10 +973,43 @@ function getBiomeClass(hex: PublicHex): string {
   )
     return "biome-mountain";
   if (
+    b.includes("desert") ||
+    b.includes("dune") ||
+    b.includes("wadi") ||
+    b.includes("salt") ||
+    b.includes("scree") ||
+    b.includes("canyon")
+  )
+    return "biome-desert";
+  if (
+    b.includes("fjord") ||
+    b.includes("ice") ||
+    b.includes("glacier") ||
+    b.includes("sound")
+  )
+    return "biome-fjord";
+  if (
+    b.includes("jungle") ||
+    b.includes("rainforest") ||
+    b.includes("canopy") ||
+    b.includes("ironwood") ||
+    b.includes("bamboo")
+  )
+    return "biome-jungle";
+  if (
+    b.includes("urban") ||
+    b.includes("canal") ||
+    b.includes("piazza") ||
+    b.includes("embankment")
+  )
+    return "biome-urban";
+  if (
     b.includes("wood") ||
     b.includes("forest") ||
     b.includes("hollow") ||
-    b.includes("copse")
+    b.includes("copse") ||
+    b.includes("elderwood") ||
+    b.includes("bramble")
   )
     return "biome-forest";
   if (
@@ -984,7 +1017,9 @@ function getBiomeClass(hex: PublicHex): string {
     b.includes("fen") ||
     b.includes("mire") ||
     b.includes("reed") ||
-    b.includes("delta")
+    b.includes("delta") ||
+    b.includes("bog") ||
+    b.includes("quagmire")
   )
     return "biome-wetland";
   if (
@@ -992,12 +1027,22 @@ function getBiomeClass(hex: PublicHex): string {
     b.includes("meadow") ||
     b.includes("weald") ||
     b.includes("verge") ||
-    b.includes("grass")
+    b.includes("grass") ||
+    b.includes("pasture") ||
+    b.includes("clearing")
   )
     return "biome-valley";
-  if (b.includes("coast") || b.includes("scrub") || b.includes("sand"))
+  if (b.includes("coast") || b.includes("scrub") || b.includes("harbor") || b.includes("beach"))
     return "biome-coastal";
-  if (b.includes("karst") || b.includes("sink") || b.includes("chasm"))
+  if (
+    b.includes("karst") ||
+    b.includes("sink") ||
+    b.includes("chasm") ||
+    b.includes("cavern") ||
+    b.includes("cave") ||
+    b.includes("siphon") ||
+    b.includes("grotto")
+  )
     return "biome-subterranean";
   return "biome-default";
 }
@@ -1008,6 +1053,66 @@ function MapView({ state, act }: { state: CampaignState; act: Act }) {
     [genTheme, setGenTheme] = useState("temperate");
   const selected =
     state.hexes.find((hex) => hex.id === selectedId) ?? state.hexes[0];
+
+  const hexMapById = useMemo(() => {
+    const map = new Map<string, PublicHex>();
+    for (const h of state.hexes) map.set(h.id, h);
+    return map;
+  }, [state.hexes]);
+
+  const dynamicConnections = useMemo(() => {
+    const seen = new Set<string>();
+    const list: Array<{
+      id: string;
+      from: PublicHex;
+      to: PublicHex;
+      kind: string;
+      name: string;
+    }> = [];
+    for (const h of state.hexes) {
+      if (!h.connections) continue;
+      for (const c of h.connections) {
+        const fromHex = hexMapById.get(c.fromId);
+        const toHex = hexMapById.get(c.toId);
+        if (!fromHex || !toHex) continue;
+        const pairKey = [c.fromId, c.toId].sort().join("-") + `:${c.kind}`;
+        if (!seen.has(pairKey)) {
+          seen.add(pairKey);
+          list.push({ id: c.id, from: fromHex, to: toHex, kind: c.kind, name: c.name });
+        }
+      }
+    }
+    return list;
+  }, [state.hexes, hexMapById]);
+
+  const dynamicHorizonBadges = useMemo(() => {
+    return state.hexes
+      .filter((h) => h.ring === 2 && (h.exitDestination || (h.revealState !== "unexplored" && h.horizonRumor)))
+      .map((h) => {
+        const x = 310 + 106 * (h.q + h.r / 2);
+        const y = 285 + 92 * h.r;
+        let badgeX = x;
+        let badgeY = y;
+        let anchorClass = "center";
+        if (h.q < 0) {
+          badgeX -= 60;
+          anchorClass = "left";
+        } else if (h.q > 0) {
+          badgeX += 60;
+          anchorClass = "right";
+        }
+        if (h.r < 0) badgeY -= 45;
+        else if (h.r > 0) badgeY += 45;
+
+        return {
+          id: h.id,
+          x: badgeX,
+          y: badgeY,
+          text: h.exitDestination ? h.exitDestination.replace("➔", "").trim() : "Frontier Verge",
+          anchorClass,
+        };
+      });
+  }, [state.hexes]);
 
   return (
     <div className="surface-grid map-layout">
@@ -1024,45 +1129,93 @@ function MapView({ state, act }: { state: CampaignState; act: Act }) {
         >
           {/* Natural River Course & Radiating Roads */}
           <g className="map-routes">
-            {/* The River Mor / Waterway */}
-            <path
-              d="M 180,45 Q 204,101 230,147 T 257,193 Q 285,240 310,285 Q 338,330 363,377 Q 390,425 416,469 Q 430,500 445,535"
-              className="svg-river-course"
-            />
-            {/* The Coast Road (West: 00 -> 06 -> 17) */}
-            <path
-              d="M 310,285 L 204,285 L 98,285 L 25,285"
-              className="svg-road-course coast-road"
-            />
-            {/* The King's Highroad (NE: 00 -> 02 -> 09) */}
-            <path
-              d="M 310,285 L 363,193 L 416,101 L 455,35"
-              className="svg-road-course capital-road"
-            />
-            {/* The Iron Trace (East: 00 -> 03 -> 11) */}
-            <path
-              d="M 310,285 L 416,285 L 522,285 L 595,285"
-              className="svg-road-course iron-road"
-            />
+            {dynamicConnections.length > 0 ? (
+              dynamicConnections.map((conn) => {
+                const x1 = 310 + 106 * (conn.from.q + conn.from.r / 2);
+                const y1 = 285 + 92 * conn.from.r;
+                const x2 = 310 + 106 * (conn.to.q + conn.to.r / 2);
+                const y2 = 285 + 92 * conn.to.r;
+                if (conn.kind === "river") {
+                  return (
+                    <line
+                      key={conn.id}
+                      x1={x1}
+                      y1={y1}
+                      x2={x2}
+                      y2={y2}
+                      className="svg-river-course"
+                    />
+                  );
+                }
+                return (
+                  <line
+                    key={conn.id}
+                    x1={x1}
+                    y1={y1}
+                    x2={x2}
+                    y2={y2}
+                    className={`svg-road-course ${conn.kind === "trail" ? "trail" : "capital-road"}`}
+                  />
+                );
+              })
+            ) : (
+              <>
+                {/* The River Mor / Waterway */}
+                <path
+                  d="M 180,45 Q 204,101 230,147 T 257,193 Q 285,240 310,285 Q 338,330 363,377 Q 390,425 416,469 Q 430,500 445,535"
+                  className="svg-river-course"
+                />
+                {/* The Coast Road (West: 00 -> 06 -> 17) */}
+                <path
+                  d="M 310,285 L 204,285 L 98,285 L 25,285"
+                  className="svg-road-course coast-road"
+                />
+                {/* The King's Highroad (NE: 00 -> 02 -> 09) */}
+                <path
+                  d="M 310,285 L 363,193 L 416,101 L 455,35"
+                  className="svg-road-course capital-road"
+                />
+                {/* The Iron Trace (East: 00 -> 03 -> 11) */}
+                <path
+                  d="M 310,285 L 416,285 L 522,285 L 595,285"
+                  className="svg-road-course iron-road"
+                />
+              </>
+            )}
           </g>
 
           {/* Horizon Outflow & Destination Markers */}
           <g className="map-horizon-labels">
-            <text x="30" y="272" className="horizon-badge left">
-              ⮜ Coast Road (3–4 days)
-            </text>
-            <text x="460" y="32" className="horizon-badge top-right">
-              Highroad to Capital ⮞
-            </text>
-            <text x="590" y="272" className="horizon-badge right">
-              Dwarf-Crags ⮞
-            </text>
-            <text x="180" y="32" className="horizon-badge top">
-              ▲ Wyrm Peaks
-            </text>
-            <text x="445" y="555" className="horizon-badge bottom">
-              🌊 Sunken Delta ⮟
-            </text>
+            {dynamicHorizonBadges.length > 0 ? (
+              dynamicHorizonBadges.map((badge) => (
+                <text
+                  key={badge.id}
+                  x={badge.x}
+                  y={badge.y}
+                  className={`horizon-badge ${badge.anchorClass}`}
+                >
+                  {badge.text}
+                </text>
+              ))
+            ) : (
+              <>
+                <text x="30" y="272" className="horizon-badge left">
+                  ⮜ Coast Road (3–4 days)
+                </text>
+                <text x="460" y="32" className="horizon-badge top-right">
+                  Highroad to Capital ⮞
+                </text>
+                <text x="590" y="272" className="horizon-badge right">
+                  Dwarf-Crags ⮞
+                </text>
+                <text x="180" y="32" className="horizon-badge top">
+                  ▲ Wyrm Peaks
+                </text>
+                <text x="445" y="555" className="horizon-badge bottom">
+                  🌊 Sunken Delta ⮟
+                </text>
+              </>
+            )}
           </g>
 
           {/* Hex Grid Polygons & Cells */}
@@ -1170,6 +1323,16 @@ function MapView({ state, act }: { state: CampaignState; act: Act }) {
           </h2>
 
           <div className="hex-tag-row">
+            {selected.primaryZone && (
+              <span className="badge-tag zone-badge">
+                📍 {selected.primaryZone.replace(/_/g, " ")}
+              </span>
+            )}
+            {selected.secondaryZone && (
+              <span className="badge-tag border-badge">
+                ⚖️ Border: {selected.secondaryZone.replace(/_/g, " ")}
+              </span>
+            )}
             {selected.road && (
               <span className="badge-tag route-badge">
                 🛣️ {selected.road}
@@ -1214,6 +1377,30 @@ function MapView({ state, act }: { state: CampaignState; act: Act }) {
               <p className="hex-landmark-desc">
                 <strong>Landmark:</strong> {selected.landmark}
               </p>
+              {selected.sites && selected.sites.length > 0 && (
+                <div className="sites-list" style={{ marginTop: "10px" }}>
+                  <span className="eyebrow" style={{ fontSize: "11px" }}>Sites & Holdings</span>
+                  <ul style={{ paddingLeft: "16px", margin: "4px 0 0" }}>
+                    {selected.sites.map((s) => (
+                      <li key={s.id}>
+                        <b>{s.name}</b> ({s.kind})
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              {selected.connections && selected.connections.length > 0 && (
+                <div className="connections-list" style={{ marginTop: "8px" }}>
+                  <span className="eyebrow" style={{ fontSize: "11px" }}>Travel Routes</span>
+                  <ul style={{ paddingLeft: "16px", margin: "4px 0 0" }}>
+                    {selected.connections.map((c) => (
+                      <li key={c.id}>
+                        {c.kind === "river" ? "🌊" : "🛣️"} {c.name} ➔ Hex {c.fromId === selected.id ? c.toId : c.fromId} ({c.costWatches} watch{c.costWatches > 1 ? "es" : ""}{c.crossingMethod ? `, ${c.crossingMethod}` : ""})
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             </div>
           ) : (
             <p className="fog-note">
@@ -1269,6 +1456,13 @@ function MapView({ state, act }: { state: CampaignState; act: Act }) {
                       value={genTheme}
                       onChange={(e) => setGenTheme(e.target.value)}
                     >
+                      <option value="the_gloaming">The Gloaming (Gothic Mistwood - CS1)</option>
+                      <option value="red_sands">The Red Sands (Djurum Desert - CS2)</option>
+                      <option value="midnight_sun">The Isles of Andrik (Glacial Fjords - CS3)</option>
+                      <option value="river_of_night">The Black River (Primeval Jungle - CS4)</option>
+                      <option value="dwellers_in_the_deep">Morzomotha (Karst Deeps - CS5)</option>
+                      <option value="city_of_masks">The City of Masks (Meridia Canals - CS6)</option>
+                      <option value="oakhaven_borderlands">Oakhaven Borderlands (Frontier Sanctuary)</option>
                       <option value="temperate">Temperate Valley & River</option>
                       <option value="coastal">Coastal Verge & Delta</option>
                       <option value="highland">Highland Peaks & Crags</option>

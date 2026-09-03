@@ -9,15 +9,21 @@ import {
 import Database from "better-sqlite3";
 import { HEX_DEFINITIONS, MONSTERS } from "../shared/content.js";
 import { generateHexMap } from "./generators/hex-map.js";
+import { generateProceduralRegion, type GeneratedRegionWorld } from "./generators/procedural-region.js";
+import { CUSTOM_MONSTER_TEMPLATES, resolveMonsterEntry } from "../shared/monster-aliases.js";
 import type {
   CampaignPhase,
   CampaignPressure,
   CampaignState,
   Character,
+  CursedZoneId,
   DungeonRoom,
   Encounter,
   EncounterMonster,
+  PublicConnectionSummary,
   PublicHex,
+  PublicSiteSummary,
+  RegionGenerationConfig,
   Role,
   RollRecord,
   WikiNote,
@@ -92,6 +98,49 @@ export class AshDatabase {
         q INTEGER NOT NULL, r INTEGER NOT NULL, name TEXT NOT NULL, biome TEXT NOT NULL, threat_tier INTEGER NOT NULL,
         landmark TEXT NOT NULL, reveal_state TEXT NOT NULL DEFAULT 'unexplored', PRIMARY KEY (campaign_id, id)
       );
+      CREATE TABLE IF NOT EXISTS regions (
+        id TEXT PRIMARY KEY, campaign_id INTEGER NOT NULL REFERENCES campaigns(id) ON DELETE CASCADE,
+        selection_json TEXT NOT NULL, seed TEXT NOT NULL, generator_version TEXT NOT NULL,
+        content_version TEXT NOT NULL, rules_version TEXT NOT NULL, attempt INTEGER NOT NULL DEFAULT 1,
+        revision INTEGER NOT NULL DEFAULT 1, active INTEGER NOT NULL DEFAULT 1, created_at TEXT NOT NULL
+      );
+      CREATE TABLE IF NOT EXISTS region_layers (
+        region_id TEXT NOT NULL REFERENCES regions(id) ON DELETE CASCADE,
+        layer_id TEXT NOT NULL, kind TEXT NOT NULL, scale INTEGER NOT NULL DEFAULT 6, depth_context TEXT,
+        PRIMARY KEY (region_id, layer_id)
+      );
+      CREATE TABLE IF NOT EXISTS region_hexes (
+        canonical_key TEXT PRIMARY KEY, region_id TEXT NOT NULL REFERENCES regions(id) ON DELETE CASCADE,
+        layer_id TEXT NOT NULL, q INTEGER NOT NULL, r INTEGER NOT NULL, terrain TEXT NOT NULL,
+        elevation INTEGER NOT NULL, depth INTEGER NOT NULL DEFAULT 0, moisture REAL NOT NULL DEFAULT 0.5,
+        primary_zone TEXT NOT NULL, secondary_zone TEXT, threat_tier INTEGER NOT NULL, name TEXT NOT NULL, landmark TEXT
+      );
+      CREATE TABLE IF NOT EXISTS sites (
+        id TEXT PRIMARY KEY, region_id TEXT NOT NULL REFERENCES regions(id) ON DELETE CASCADE,
+        canonical_key TEXT NOT NULL, kind TEXT NOT NULL, name TEXT NOT NULL, current_state TEXT NOT NULL,
+        owner_faction_id TEXT, support_json TEXT, history_refs_json TEXT, visibility TEXT NOT NULL DEFAULT 'visible'
+      );
+      CREATE TABLE IF NOT EXISTS connections (
+        id TEXT PRIMARY KEY, region_id TEXT NOT NULL REFERENCES regions(id) ON DELETE CASCADE,
+        from_key TEXT NOT NULL, to_key TEXT NOT NULL, kind TEXT NOT NULL, name TEXT NOT NULL,
+        direction TEXT NOT NULL DEFAULT 'undirected', modes_json TEXT NOT NULL, cost_watches INTEGER NOT NULL DEFAULT 1,
+        crossing_method TEXT, requirements_json TEXT, physical_feature_id TEXT, owner_faction_id TEXT
+      );
+      CREATE TABLE IF NOT EXISTS historical_events (
+        id TEXT PRIMARY KEY, region_id TEXT NOT NULL REFERENCES regions(id) ON DELETE CASCADE,
+        sequence INTEGER NOT NULL, name TEXT NOT NULL, summary TEXT NOT NULL,
+        affected_entities_json TEXT, consequences_json TEXT
+      );
+      CREATE TABLE IF NOT EXISTS faction_presences (
+        id TEXT PRIMARY KEY, region_id TEXT NOT NULL REFERENCES regions(id) ON DELETE CASCADE,
+        faction_id TEXT NOT NULL, name TEXT NOT NULL, disposition TEXT NOT NULL,
+        location_key TEXT NOT NULL, asset_or_role TEXT, strength_or_control TEXT, agenda TEXT
+      );
+      CREATE TABLE IF NOT EXISTS rumors (
+        id TEXT PRIMARY KEY, region_id TEXT NOT NULL REFERENCES regions(id) ON DELETE CASCADE,
+        origin_site_id TEXT NOT NULL, target_site_id TEXT NOT NULL, claim TEXT NOT NULL,
+        accuracy TEXT NOT NULL DEFAULT 'true', direction_hint TEXT
+      );
       CREATE TABLE IF NOT EXISTS dungeon_rooms (
         id INTEGER PRIMARY KEY, campaign_id INTEGER NOT NULL REFERENCES campaigns(id) ON DELETE CASCADE,
         sequence INTEGER NOT NULL, geometry TEXT NOT NULL, contents TEXT NOT NULL, interaction TEXT NOT NULL,
@@ -148,6 +197,15 @@ export class AshDatabase {
     if (!campaignCols.some((c) => c.name === "active_zone_id")) {
       this.db.exec("ALTER TABLE campaigns ADD COLUMN active_zone_id TEXT NOT NULL DEFAULT 'oakhaven_borderlands'");
     }
+    if (!campaignCols.some((c) => c.name === "active_region_id")) {
+      this.db.exec("ALTER TABLE campaigns ADD COLUMN active_region_id TEXT");
+    }
+    if (!campaignCols.some((c) => c.name === "party_location_json")) {
+      this.db.exec("ALTER TABLE campaigns ADD COLUMN party_location_json TEXT");
+    }
+    if (!campaignCols.some((c) => c.name === "home_location_json")) {
+      this.db.exec("ALTER TABLE campaigns ADD COLUMN home_location_json TEXT");
+    }
 
     const charCols = this.db.pragma("table_info(characters)") as Array<{ name: string }>;
     if (!charCols.some((c) => c.name === "talents_json")) {
@@ -188,6 +246,21 @@ export class AshDatabase {
     if (!hexCols.some((c) => c.name === "elevation")) {
       this.db.exec("ALTER TABLE hexes ADD COLUMN elevation INTEGER DEFAULT 1");
     }
+    if (!hexCols.some((c) => c.name === "canonical_key")) {
+      this.db.exec("ALTER TABLE hexes ADD COLUMN canonical_key TEXT");
+    }
+    if (!hexCols.some((c) => c.name === "primary_zone")) {
+      this.db.exec("ALTER TABLE hexes ADD COLUMN primary_zone TEXT");
+    }
+    if (!hexCols.some((c) => c.name === "secondary_zone")) {
+      this.db.exec("ALTER TABLE hexes ADD COLUMN secondary_zone TEXT");
+    }
+    if (!hexCols.some((c) => c.name === "connections_json")) {
+      this.db.exec("ALTER TABLE hexes ADD COLUMN connections_json TEXT");
+    }
+    if (!hexCols.some((c) => c.name === "sites_json")) {
+      this.db.exec("ALTER TABLE hexes ADD COLUMN sites_json TEXT");
+    }
   }
 
   private loadZones() {
@@ -224,6 +297,14 @@ export class AshDatabase {
         attacks: [...val.attacks],
         traits: [...val.traits],
         lore: [...val.lore],
+      });
+    }
+
+    // Populate custom Cursed Scroll templates
+    for (const [key, val] of Object.entries(CUSTOM_MONSTER_TEMPLATES)) {
+      this.bestiaryCache.set(key, {
+        id: 0,
+        ...val,
       });
     }
 
@@ -296,7 +377,7 @@ export class AshDatabase {
   }
 
   getMonster(key: string): EncounterMonster | undefined {
-    return this.bestiaryCache.get(key);
+    return resolveMonsterEntry(key, (k) => this.bestiaryCache.get(k));
   }
 
   listMonsters(): EncounterMonster[] {
@@ -306,12 +387,12 @@ export class AshDatabase {
   getMonstersForZone(zoneId: string): EncounterMonster[] {
     const zone = this.getZoneManifest(zoneId);
     if (!zone || !zone.wanderingMonsterTable || zone.wanderingMonsterTable.length === 0) {
-      return this.listMonsters();
+      return [];
     }
     const matched = zone.wanderingMonsterTable
       .map((k) => this.getMonster(k))
       .filter((m): m is EncounterMonster => m !== undefined);
-    return matched.length > 0 ? matched : this.listMonsters();
+    return matched;
   }
 
   setCampaignPhase(campaignId: number, phase: CampaignPhase) {
@@ -322,18 +403,272 @@ export class AshDatabase {
     this.db.prepare("UPDATE campaigns SET active_zone_id = ? WHERE id = ?").run(zoneId, campaignId);
   }
 
-  createCampaign(name: string, regionName: string, pin: string) {
+  saveGeneratedRegion(campaignId: number, world: GeneratedRegionWorld) {
+    const insertRegion = this.db.prepare(`
+      INSERT OR REPLACE INTO regions 
+      (id, campaign_id, selection_json, seed, generator_version, content_version, rules_version, attempt, revision, active, created_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `);
+    const insertLayer = this.db.prepare(`
+      INSERT OR REPLACE INTO region_layers
+      (region_id, layer_id, kind, scale, depth_context)
+      VALUES (?, ?, ?, ?, ?)
+    `);
+    const insertRegionHex = this.db.prepare(`
+      INSERT OR REPLACE INTO region_hexes
+      (canonical_key, region_id, layer_id, q, r, terrain, elevation, depth, moisture, primary_zone, secondary_zone, threat_tier, name, landmark)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `);
+    const insertSite = this.db.prepare(`
+      INSERT OR REPLACE INTO sites
+      (id, region_id, canonical_key, kind, name, current_state, owner_faction_id, support_json, history_refs_json, visibility)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `);
+    const insertConn = this.db.prepare(`
+      INSERT OR REPLACE INTO connections
+      (id, region_id, from_key, to_key, kind, name, direction, modes_json, cost_watches, crossing_method, requirements_json, physical_feature_id, owner_faction_id)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `);
+    const insertHist = this.db.prepare(`
+      INSERT OR REPLACE INTO historical_events
+      (id, region_id, sequence, name, summary, affected_entities_json, consequences_json)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
+    `);
+    const insertFaction = this.db.prepare(`
+      INSERT OR REPLACE INTO faction_presences
+      (id, region_id, faction_id, name, disposition, location_key, asset_or_role, strength_or_control, agenda)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `);
+    const insertRumor = this.db.prepare(`
+      INSERT OR REPLACE INTO rumors
+      (id, region_id, origin_site_id, target_site_id, claim, accuracy, direction_hint)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
+    `);
+    const deleteHexes = this.db.prepare("DELETE FROM hexes WHERE campaign_id = ?");
+    const insertHex = this.db.prepare(`
+      INSERT INTO hexes 
+      (campaign_id, id, ring, q, r, name, biome, threat_tier, landmark, reveal_state, road, river, horizon_rumor, exit_destination, elevation, canonical_key, primary_zone, secondary_zone, connections_json, sites_json)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `);
+
+    this.db.transaction(() => {
+      // 1. Region
+      insertRegion.run(
+        world.region.id,
+        campaignId,
+        JSON.stringify(world.region.selection),
+        world.region.seed,
+        world.region.generatorVersion,
+        world.region.contentVersion,
+        world.region.rulesVersion,
+        world.region.attempt,
+        world.region.revision,
+        world.region.active ? 1 : 0,
+        world.region.createdAt,
+      );
+
+      // 2. Layers
+      for (const l of world.layers) {
+        insertLayer.run(l.regionId, l.layerId, l.kind, l.scale, l.depthContext ?? null);
+      }
+
+      // 3. Hexes
+      for (const rh of world.hexes) {
+        insertRegionHex.run(
+          rh.canonicalKey,
+          rh.regionId,
+          rh.layerId,
+          rh.q,
+          rh.r,
+          rh.terrain,
+          rh.elevation,
+          rh.depth,
+          rh.moisture,
+          rh.primaryZone,
+          rh.secondaryZone ?? null,
+          rh.threatTier,
+          rh.name,
+          rh.landmark ?? null,
+        );
+      }
+
+      // 4. Sites
+      for (const s of world.sites) {
+        insertSite.run(
+          s.id,
+          s.regionId,
+          s.canonicalKey,
+          s.kind,
+          s.name,
+          s.currentState,
+          s.ownerFactionId ?? null,
+          s.supportDependencies ? JSON.stringify(s.supportDependencies) : null,
+          s.historyRefIds ? JSON.stringify(s.historyRefIds) : null,
+          s.visibility,
+        );
+      }
+
+      // 5. Connections
+      for (const c of world.connections) {
+        insertConn.run(
+          c.id,
+          c.regionId,
+          c.fromKey,
+          c.toKey,
+          c.kind,
+          c.name,
+          c.direction,
+          JSON.stringify(c.modes),
+          c.costWatches,
+          c.crossingMethod ?? null,
+          c.requirements ? JSON.stringify(c.requirements) : null,
+          c.physicalFeatureId ?? null,
+          c.ownerFactionId ?? null,
+        );
+      }
+
+      // 6. Historical Events
+      for (const h of world.historicalEvents) {
+        insertHist.run(
+          h.id,
+          h.regionId,
+          h.sequence,
+          h.name,
+          h.summary,
+          JSON.stringify(h.affectedEntityIds),
+          JSON.stringify(h.consequences),
+        );
+      }
+
+      // 7. Factions
+      for (const f of world.factionPresences) {
+        insertFaction.run(
+          f.id,
+          f.regionId,
+          f.factionId,
+          f.name,
+          f.disposition,
+          f.locationKey,
+          f.assetOrRole,
+          f.strengthOrControl,
+          f.agenda,
+        );
+      }
+
+      // 8. Rumors
+      for (const r of world.rumors) {
+        insertRumor.run(
+          r.id,
+          r.regionId,
+          r.originSiteId,
+          r.targetSiteId,
+          r.claim,
+          r.accuracy,
+          r.directionHint ?? null,
+        );
+      }
+
+      // 9. Public 19 Hexes
+      deleteHexes.run(campaignId);
+      for (const ph of world.initial19PublicHexes) {
+        insertHex.run(
+          campaignId,
+          ph.id,
+          ph.ring,
+          ph.q,
+          ph.r,
+          ph.name,
+          ph.biome,
+          ph.threatTier,
+          ph.landmark,
+          ph.revealState,
+          ph.road ?? null,
+          ph.river ?? null,
+          ph.horizonRumor ?? null,
+          ph.exitDestination ?? null,
+          ph.elevation ?? 1,
+          ph.canonicalKey ?? null,
+          ph.primaryZone ?? null,
+          ph.secondaryZone ?? null,
+          ph.connections ? JSON.stringify(ph.connections) : null,
+          ph.sites ? JSON.stringify(ph.sites) : null,
+        );
+      }
+
+      // 10. Update campaign active region & zone
+      const primaryZone = world.region.selection.mode === "single"
+        ? world.region.selection.zoneId
+        : world.region.selection.zoneIds[0];
+
+      this.db.prepare(`
+        UPDATE campaigns SET 
+          active_region_id = ?, 
+          active_zone_id = ?,
+          party_location_json = ?,
+          home_location_json = ?
+        WHERE id = ?
+      `).run(
+        world.region.id,
+        primaryZone,
+        JSON.stringify({ q: 0, r: 0, layerId: "surface" }),
+        JSON.stringify({ q: 0, r: 0, layerId: "surface" }),
+        campaignId,
+      );
+    })();
+  }
+
+  previewRegion(config: RegionGenerationConfig): GeneratedRegionWorld {
+    return generateProceduralRegion(0, config);
+  }
+
+  commitRegion(campaignId: number, world: GeneratedRegionWorld) {
+    this.saveGeneratedRegion(campaignId, world);
+  }
+
+  createCampaign(
+    name: string,
+    regionName: string,
+    pin: string,
+    generationConfig?: RegionGenerationConfig,
+  ) {
     let code = campaignCode();
     while (this.db.prepare("SELECT 1 FROM campaigns WHERE code = ?").get(code))
       code = campaignCode();
     const hostToken = token();
+
+    if (generationConfig) {
+      const primaryZone = generationConfig.selection.mode === "single"
+        ? generationConfig.selection.zoneId
+        : generationConfig.selection.zoneIds[0];
+
+      const result = this.db
+        .prepare(
+          "INSERT INTO campaigns (code,name,region_name,current_phase,active_zone_id,pin_hash,host_token,created_at) VALUES (?,?,?,?,?,?,?,?)",
+        )
+        .run(code, name, regionName, "sanctuary", primaryZone, hashPin(pin), hostToken, now());
+      const campaignId = Number(result.lastInsertRowid);
+
+      const world = generateProceduralRegion(campaignId, {
+        ...generationConfig,
+        seed: generationConfig.seed || campaignCode(),
+      });
+
+      const h00 = world.initial19PublicHexes.find((h) => h.id === "00");
+      if (h00) {
+        h00.name = `${name} Sanctuary`;
+      }
+
+      this.saveGeneratedRegion(campaignId, world);
+      return { code, hostToken, campaignId };
+    }
+
     const result = this.db
       .prepare(
         "INSERT INTO campaigns (code,name,region_name,current_phase,active_zone_id,pin_hash,host_token,created_at) VALUES (?,?,?,?,?,?,?,?)",
       )
       .run(code, name, regionName, "sanctuary", "oakhaven_borderlands", hashPin(pin), hostToken, now());
     const campaignId = Number(result.lastInsertRowid);
-    const generatedHexes = generateHexMap({ campaignName: name, regionName });
+    const generatedHexes = generateHexMap({ campaignName: name, regionName, legacy: true });
     const insertHex = this.db.prepare(
       "INSERT INTO hexes (campaign_id,id,ring,q,r,name,biome,threat_tier,landmark,reveal_state,road,river,horizon_rumor,exit_destination,elevation) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
     );
@@ -359,41 +694,43 @@ export class AshDatabase {
     return { code, hostToken, campaignId };
   }
 
-  regenerateHexMap(campaignId: number, theme?: string) {
+  regenerateHexMap(campaignId: number, themeOrConfig?: string | RegionGenerationConfig) {
     const campaign = this.db
-      .prepare("SELECT name, region_name FROM campaigns WHERE id = ?")
-      .get(campaignId) as { name: string; region_name: string } | undefined;
-    const generated = generateHexMap({
-      campaignName: campaign?.name,
-      regionName: campaign?.region_name,
-      theme: theme as any,
-    });
-    const deleteHexes = this.db.prepare("DELETE FROM hexes WHERE campaign_id = ?");
-    const insertHex = this.db.prepare(
-      "INSERT INTO hexes (campaign_id,id,ring,q,r,name,biome,threat_tier,landmark,reveal_state,road,river,horizon_rumor,exit_destination,elevation) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
-    );
-    this.db.transaction(() => {
-      deleteHexes.run(campaignId);
-      for (const h of generated) {
-        insertHex.run(
-          campaignId,
-          h.id,
-          h.ring,
-          h.q,
-          h.r,
-          h.name,
-          h.biome,
-          h.threatTier,
-          h.landmark,
-          h.revealState,
-          h.road ?? null,
-          h.river ?? null,
-          h.horizonRumor ?? null,
-          h.exitDestination ?? null,
-          h.elevation,
-        );
+      .prepare("SELECT name, region_name, active_zone_id FROM campaigns WHERE id = ?")
+      .get(campaignId) as { name: string; region_name: string; active_zone_id?: string } | undefined;
+
+    let config: RegionGenerationConfig;
+    if (typeof themeOrConfig === "object" && themeOrConfig !== null && "selection" in themeOrConfig) {
+      config = themeOrConfig;
+    } else {
+      const theme = typeof themeOrConfig === "string" ? themeOrConfig : "temperate";
+      const zoneMap: Record<string, CursedZoneId> = {
+        temperate: "oakhaven_borderlands",
+        coastal: "midnight_sun",
+        highland: "dwellers_in_the_deep",
+        wildwood: "the_gloaming",
+        marshland: "river_of_night",
+      };
+      const zoneId = zoneMap[theme] || (campaign?.active_zone_id as CursedZoneId) || "oakhaven_borderlands";
+      config = {
+        selection: { mode: "single", zoneId },
+        initialRadius: 2,
+        structuralRadius: 6,
+        regionalHexMiles: 6,
+        season: "autumn",
+        sourceContent: "adapted",
+        rulesProfileId: "ash_4watch_v1",
+      };
+    }
+
+    const world = generateProceduralRegion(campaignId, config);
+    if (campaign?.name) {
+      const h00 = world.initial19PublicHexes.find((h) => h.id === "00");
+      if (h00) {
+        h00.name = `${campaign.name} Sanctuary`;
       }
-    })();
+    }
+    this.saveGeneratedRegion(campaignId, world);
   }
 
   joinCampaign(code: string, existingToken?: string) {
@@ -759,7 +1096,7 @@ export class AshDatabase {
           "SELECT * FROM hexes WHERE campaign_id = ? ORDER BY CAST(id AS INTEGER)",
         )
         .all(campaignId) as Row[]
-    ).map(rowToHex);
+    ).map((r) => rowToHex(r, role));
     const rooms = (
       this.db
         .prepare(
@@ -879,6 +1216,9 @@ export class AshDatabase {
         phase,
         activeZoneId,
         joinUrl,
+        activeRegionId: campaign.active_region_id ? String(campaign.active_region_id) : undefined,
+        partyLocation: campaign.party_location_json ? JSON.parse(String(campaign.party_location_json)) : undefined,
+        homeLocation: campaign.home_location_json ? JSON.parse(String(campaign.home_location_json)) : undefined,
       },
       me: { role, characterId },
       characters,
@@ -920,8 +1260,15 @@ function rowToCharacter(row: Row): Character {
   };
 }
 
-function rowToHex(row: Row): PublicHex {
+function rowToHex(row: Row, role: Role = "player"): PublicHex {
   const revealState = String(row.reveal_state) as PublicHex["revealState"];
+  const connections: PublicConnectionSummary[] = row.connections_json
+    ? JSON.parse(String(row.connections_json))
+    : [];
+  const sites: PublicSiteSummary[] = row.sites_json
+    ? JSON.parse(String(row.sites_json))
+    : [];
+
   const base: PublicHex = {
     id: String(row.id),
     ring: Number(row.ring),
@@ -929,21 +1276,53 @@ function rowToHex(row: Row): PublicHex {
     r: Number(row.r),
     revealState,
   };
-  if (row.road) base.road = String(row.road);
-  if (row.river) base.river = String(row.river);
-  if (row.horizon_rumor) base.horizonRumor = String(row.horizon_rumor);
-  if (row.exit_destination) base.exitDestination = String(row.exit_destination);
-  if (row.elevation != null) base.elevation = Number(row.elevation);
+  if (row.canonical_key) base.canonicalKey = String(row.canonical_key);
+  if (row.primary_zone) base.primaryZone = String(row.primary_zone);
+  if (row.secondary_zone) base.secondaryZone = String(row.secondary_zone);
 
-  return revealState === "unexplored"
-    ? base
-    : {
-        ...base,
-        name: String(row.name),
-        biome: String(row.biome),
-        threatTier: Number(row.threat_tier),
-        landmark: String(row.landmark),
-      };
+  if (revealState === "unexplored") {
+    if (row.road) base.road = String(row.road);
+    if (row.river) base.river = String(row.river);
+    if (row.horizon_rumor) base.horizonRumor = String(row.horizon_rumor);
+    if (row.exit_destination) base.exitDestination = String(row.exit_destination);
+    if (row.elevation != null) base.elevation = Number(row.elevation);
+    if (connections.length > 0) {
+      base.connections = connections.filter((c) => c.kind === "road" || c.kind === "river");
+    }
+    return base;
+  }
+
+  if (revealState === "rumored") {
+    if (row.road) base.road = String(row.road);
+    if (row.river) base.river = String(row.river);
+    if (row.horizon_rumor) base.horizonRumor = String(row.horizon_rumor);
+    if (connections.length > 0) base.connections = connections;
+    return base;
+  }
+
+  // scouted, explored, fully_mapped
+  const result: PublicHex = {
+    ...base,
+    name: String(row.name),
+    biome: String(row.biome),
+    elevation: row.elevation != null ? Number(row.elevation) : 1,
+    road: row.road ? String(row.road) : undefined,
+    river: row.river ? String(row.river) : undefined,
+    horizonRumor: row.horizon_rumor ? String(row.horizon_rumor) : undefined,
+    exitDestination: row.exit_destination ? String(row.exit_destination) : undefined,
+    connections,
+    sites: sites.filter((s) => !s.isSecret || revealState === "fully_mapped"),
+  };
+
+  if (revealState === "scouted") {
+    result.landmark = row.landmark ? String(row.landmark) : undefined;
+    result.threatTier = Number(row.threat_tier);
+  } else {
+    result.threatTier = Number(row.threat_tier);
+    result.landmark = String(row.landmark);
+  }
+
+  return result;
 }
 
 function rowToRoom(row: Row): DungeonRoom {

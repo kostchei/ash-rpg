@@ -9,6 +9,8 @@ import {
   rollAbilities,
   rollDice,
   wildernessWatch,
+  calculateTravelWatches,
+  evaluateWatchFatigue,
 } from "../src/server/rules.js";
 
 function sequence(...values: number[]) {
@@ -73,5 +75,44 @@ describe("ASH rules engine", () => {
 
   it("maps Monsternomicon lore tiers to DCs", () => {
     expect([8, 9, 12, 15, 18].map(loreTier)).toEqual([0, 1, 2, 3, 4]);
+  });
+
+  it("calculates movement watch costs per 6-mile hex and terrain difficulties", () => {
+    // Roads are 1 watch
+    expect(calculateTravelWatches("Dense Swamps", true)).toBe(1);
+    expect(calculateTravelWatches("Mountain Pass", true)).toBe(1);
+
+    // Standard off-road is 2 watches
+    expect(calculateTravelWatches("Rolling Grasslands", false)).toBe(2);
+    expect(calculateTravelWatches("Open Woods", false)).toBe(2);
+
+    // Difficult terrain is 3 watches
+    expect(calculateTravelWatches("Peat Bogs", false)).toBe(3);
+    expect(calculateTravelWatches("Granite Mountain Peaks", false)).toBe(3);
+    expect(calculateTravelWatches("Deep Sand Dunes", false)).toBe(3);
+
+    // Unbridged crossings add +1 watch
+    expect(calculateTravelWatches("Rolling Grasslands", false, "ford")).toBe(3);
+    expect(calculateTravelWatches("Rolling Grasslands", false, "stone_bridge")).toBe(2);
+  });
+
+  it("enforces forced march CON checks on Watch 4 and assigns fatigue on failure", () => {
+    // Watches 1-3 do not trigger forced march
+    expect(evaluateWatchFatigue(1).forcedMarch).toBe(false);
+    expect(evaluateWatchFatigue(2).forcedMarch).toBe(false);
+    expect(evaluateWatchFatigue(3).forcedMarch).toBe(false);
+
+    // Watch 4 triggers forced march with DC 12
+    const failRoll = (max: number) => 5; // roll 6 (fails DC 12)
+    const failedCheck = evaluateWatchFatigue(4, 0, 0, failRoll);
+    expect(failedCheck.forcedMarch).toBe(true);
+    expect(failedCheck.checkDc).toBe(12);
+    expect(failedCheck.passed).toBe(false);
+    expect(failedCheck.fatigueGained).toBe(true);
+
+    const passRoll = (max: number) => 15; // roll 16 (passes DC 12)
+    const passedCheck = evaluateWatchFatigue(4, 0, 0, passRoll);
+    expect(passedCheck.passed).toBe(true);
+    expect(passedCheck.fatigueGained).toBe(false);
   });
 });

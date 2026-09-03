@@ -3,9 +3,16 @@
   "name": "The Black River",
   "theme": "Primeval Jungle, Ziggurats & Basilisk Cults (Cursed Scroll 4)",
   "biomePalette": [
-    "jungle",
-    "mangrove",
-    "swamp"
+    "Canopy Rainforest",
+    "Upland Ironwood Jungle",
+    "Black River Trunk",
+    "Silt Riverbank",
+    "Flooded Swamp Basin",
+    "Oxbow Lagoon",
+    "Itzalca Maize Terraces",
+    "Riverside Fish-Trap Reaches",
+    "Basalt Volcanic Outcrop",
+    "Obsidian Ridge"
   ],
   "hazardTable": [
     "Swarm of army ants (DC 12 DEX or 2d6 piercing damage)",
@@ -14,10 +21,10 @@
     "Poisonous vine scratch (DC 13 CON or paralyzed 1 round)"
   ],
   "weatherTable": [
-    "Oppressive tropical humidity and steamy heat",
-    "Torrents of warm monsoon deluge",
-    "Sudden solar eclipse dimming jungle into twilight",
-    "Heavy canopy mist dampening all sound"
+    "Warm morning canopy mist",
+    "Torrents of warm deluge flooding low channels",
+    "Warm steady river breezes",
+    "Lower water exposing treacherous rapids"
   ],
   "wanderingMonsterTable": [
     "anaconda_giant",
@@ -31,21 +38,26 @@
   ],
   "factions": [
     {
-      "name": "Jungle Rangers",
+      "name": "Itzalca Free Communities",
       "disposition": "Friendly",
-      "notes": "Survivalists charting primeval ruins."
+      "notes": "Preserve tribal autonomy, fish the waterways, and drive off dangerous cultists."
     },
     {
-      "name": "Basilisk Cult",
+      "name": "Priests of the Emerald Basilisk",
       "disposition": "Hostile",
-      "notes": "Zealots worshipping venomous primordial deities."
+      "notes": "Subjugate river communities, harvest venom, and awaken primeval serpent deities."
+    },
+    {
+      "name": "Black River Guides",
+      "disposition": "Neutral",
+      "notes": "Charter canoe expeditions, trade exotic pelts, and scout unmapped inland tributaries."
     }
   ],
   "uniqueFloraFauna": [
-    "Blue dart frogs",
-    "Ironbark mangroves",
-    "Carnivorous orchids"
+    "Rushing tributary spring filtered through volcanic basalt",
+    "River catfish, maize terraces, wild cassava, and sweet papayas",
+    "Palisade Watchtower"
   ],
-  "entryConditions": "Paddle upstream along the dark jungle tributaries.",
-  "exitConditions": "Float downstream to coastal river trading posts."
+  "entryConditions": "Expedition access point into The Black River.",
+  "exitConditions": "Waymarked return route to Tepoz Landing."
 }

@@ -3,9 +3,18 @@
   "name": "The Isles of Andrik",
   "theme": "Glacial Fjords, Northern Gods & Sea Wolf Raiders (Cursed Scroll 3)",
   "biomePalette": [
-    "tundra",
-    "fjord",
-    "glacial_sea"
+    "Deep Glacial Fjord",
+    "Outer Island Sound",
+    "Pebble Beach Harbor",
+    "Basalt Sea Cliffs",
+    "Pine-Clad Slopes",
+    "Birch Fjord Verge",
+    "Barley Steading Valley",
+    "Moss Meadow",
+    "Snow-Dusted Crags",
+    "Granite Needle Peaks",
+    "Glacial Tongue",
+    "Blue Ice Ridge"
   ],
   "hazardTable": [
     "Freezing sea spray (DC 12 CON or frostbite fatigue)",
@@ -14,10 +23,10 @@
     "Slippery glacier incline (DC 11 DEX or slide into freezing water)"
   ],
   "weatherTable": [
+    "Cool glassy waters under pale midnight twilight",
+    "Calm fjord waters reflecting snow-peaks",
     "Brilliant solar aurora dancing across ice-peaks",
-    "Howling sub-zero blizzard",
-    "Calm glassy sea with drifting icebergs",
-    "Freezing rain glazing longships in ice"
+    "Howling sub-zero blizzard across the ice-shelf"
   ],
   "wanderingMonsterTable": [
     "drake_lesser",
@@ -33,19 +42,24 @@
     {
       "name": "Sea Wolf Clans",
       "disposition": "Wary",
-      "notes": "Longship raiders honoring strength and oaths."
+      "notes": "Defend harbor waters, maintain sworn oaths of fealty, and raid rival islands for plunder."
     },
     {
       "name": "Seers of the Northern Gods",
       "disposition": "Neutral",
-      "notes": "Prophets casting runic whalebones."
+      "notes": "Appease the sky gods, interpret auroral portents, and enforce sacred hospitality laws."
+    },
+    {
+      "name": "Andrik Freeholders",
+      "disposition": "Friendly",
+      "notes": "Safeguard livestock and grain stores against raiders, trolls, and the freezing sea spray."
     }
   ],
   "uniqueFloraFauna": [
-    "Frost-lichen",
-    "Dire walrus",
-    "Arctic orca"
+    "Rushing glacial melt stream and freshwater fjord springs",
+    "Hardy barley, dairy cattle, salted cod, and foraged lingonberries",
+    "Great Longhouse"
   ],
-  "entryConditions": "Sail aboard a reinforced longship into northern waters.",
-  "exitConditions": "Row south toward temperate harbors before the freeze sets in."
+  "entryConditions": "Expedition access point into The Isles of Andrik.",
+  "exitConditions": "Waymarked return route to Sunderfjord Harbor."
 }

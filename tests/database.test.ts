@@ -86,4 +86,82 @@ describe("campaign persistence and fog", () => {
       status: "active",
     });
   });
+
+  it("persists procedural region, layers, sites, connections, and historical records", () => {
+    db = new AshDatabase(":memory:");
+    const campaign = db.createCampaign("Gothic Mist", "The Mistwood", "9876", {
+      selection: {
+        mode: "border",
+        zoneIds: ["the_gloaming", "red_sands"],
+        connection: "surface",
+      },
+      seed: "persisted_test_seed",
+      season: "autumn",
+    });
+
+    const state = db.getState(campaign.campaignId, "host", null, "");
+    expect(state.campaign.activeRegionId).toBeTruthy();
+    expect(state.campaign.activeZoneId).toBe("the_gloaming");
+    expect(state.hexes).toHaveLength(19);
+
+    // Verify regions table
+    const regionRow = db.db.prepare("SELECT * FROM regions WHERE campaign_id = ?").get(campaign.campaignId) as any;
+    expect(regionRow).toBeDefined();
+    expect(regionRow.seed).toBe("persisted_test_seed");
+    expect(regionRow.active).toBe(1);
+
+    // Verify sites table
+    const sites = db.db.prepare("SELECT * FROM sites WHERE region_id = ?").all(regionRow.id) as any[];
+    expect(sites.length).toBeGreaterThan(0);
+    const havenSite = sites.find((s) => s.kind === "haven");
+    expect(havenSite).toBeDefined();
+
+    // Verify connections table
+    const connections = db.db.prepare("SELECT * FROM connections WHERE region_id = ?").all(regionRow.id) as any[];
+    expect(connections.length).toBeGreaterThan(0);
+
+    // Verify historical events table
+    const events = db.db.prepare("SELECT * FROM historical_events WHERE region_id = ?").all(regionRow.id) as any[];
+    expect(events.length).toBeGreaterThanOrEqual(2);
+
+    // Verify rumors table
+    const rumors = db.db.prepare("SELECT * FROM rumors WHERE region_id = ?").all(regionRow.id) as any[];
+    expect(rumors.length).toBeGreaterThanOrEqual(3);
+  });
+
+  it("enforces strict knowledge filtering across reveal states", () => {
+    db = new AshDatabase(":memory:");
+    const campaign = db.createCampaign("Fog Test", "The Frontier", "1111", {
+      selection: { mode: "single", zoneId: "the_gloaming" },
+      seed: "knowledge_filtering_seed",
+    });
+
+    // 1. Unexplored state: no landmark, no threat tier, no biome, no name
+    let state = db.getState(campaign.campaignId, "player", null, "");
+    const hex02 = state.hexes.find((h) => h.id === "02");
+    expect(hex02).toBeDefined();
+    expect(hex02?.revealState).toBe("unexplored");
+    expect(hex02?.name).toBeUndefined();
+    expect(hex02?.biome).toBeUndefined();
+    expect(hex02?.landmark).toBeUndefined();
+    expect(hex02?.threatTier).toBeUndefined();
+
+    // 2. Rumored state: shows horizon rumor, hides exact landmark & threat
+    db.revealHex(campaign.campaignId, "02", "rumored");
+    state = db.getState(campaign.campaignId, "player", null, "");
+    const hex02Rumored = state.hexes.find((h) => h.id === "02");
+    expect(hex02Rumored?.revealState).toBe("rumored");
+    expect(hex02Rumored?.landmark).toBeUndefined();
+    expect(hex02Rumored?.threatTier).toBeUndefined();
+
+    // 3. Scouted state: reveals biome, elevation, visible landmark, and threat
+    db.revealHex(campaign.campaignId, "02", "scouted");
+    state = db.getState(campaign.campaignId, "player", null, "");
+    const hex02Scouted = state.hexes.find((h) => h.id === "02");
+    expect(hex02Scouted?.revealState).toBe("scouted");
+    expect(hex02Scouted?.name).toBeTruthy();
+    expect(hex02Scouted?.biome).toBeTruthy();
+    expect(hex02Scouted?.threatTier).toBeDefined();
+    expect(hex02Scouted?.landmark).toBeTruthy();
+  });
 });

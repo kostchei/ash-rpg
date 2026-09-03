@@ -1,11 +1,18 @@
 {
   "id": "city_of_masks",
-  "name": "The City of Masks",
+  "name": "The City of Masks (Meridia)",
   "theme": "Canal Metropolis, Masked Aristocracy & Duelist Guilds (Cursed Scroll 6)",
   "biomePalette": [
-    "urban",
-    "canals",
-    "catacombs"
+    "Grape & Olive Terraces",
+    "Market Garden Allotments",
+    "Trematora Estuary",
+    "Grand Shipping Canal",
+    "Cobblestone Piazza",
+    "Grand Canal Embankment",
+    "Forested River Approach",
+    "Pasture Meadows",
+    "Salt Marshes",
+    "Estuary Reedbeds"
   ],
   "hazardTable": [
     "Rooftop tile slip while escaping guards (DC 12 DEX or fall to alley)",
@@ -14,10 +21,10 @@
     "Pickpocket crowd collision (DC 12 DEX or lose 1d10 gp)"
   ],
   "weatherTable": [
-    "Brisk canal breeze scented with perfume and roasted chestnut smoke",
+    "Gentle rain pattering on grand piazza cobbles",
     "Dense evening sea fog rolling between marble bridges",
-    "Carnival fireworks lighting up nighttime waterways",
-    "Gentle rain pattering on grand piazza cobbles"
+    "Brisk canal breeze scented with perfume and chimney smoke",
+    "Bitter sea winds howling down canal corridors"
   ],
   "wanderingMonsterTable": [
     "duelist",
@@ -31,21 +38,31 @@
   ],
   "factions": [
     {
-      "name": "College of Bards",
+      "name": "The Bardic College",
       "disposition": "Friendly",
-      "notes": "Performers, skalds, and lorekeepers."
+      "notes": "Preserve artistic truth, educate skilled orators and duelists, and uncover ducal conspiracies."
     },
     {
-      "name": "Masked Syndicate",
-      "disposition": "Wary",
-      "notes": "Shadowy aristocrats manipulating city politics."
+      "name": "The Shroud",
+      "disposition": "Hostile",
+      "notes": "Enrich members through blackmail, eliminate political rivals, and undermine ducal authority."
+    },
+    {
+      "name": "Meridia City Watch",
+      "disposition": "Neutral",
+      "notes": "Enforce the curfew, collect harbor tariffs, and quell riots in the lower canal tenements."
+    },
+    {
+      "name": "House of Seren",
+      "disposition": "Neutral",
+      "notes": "Monopolize overseas trade routes and fund sympathetic candidates for ducal offices."
     }
   ],
   "uniqueFloraFauna": [
-    "Canal swans",
-    "Piazza pigeons",
-    "Gilded masks"
+    "Trematora River aqueducts and deep artesian city cisterns",
+    "River barge grain imports, coastal fishing fleets, and hinterland market gardens",
+    "Private Gondola Mooring"
   ],
-  "entryConditions": "Pass through the Grand Water Gate by gondola.",
-  "exitConditions": "Take the western highway coaches or charter a canal vessel."
+  "entryConditions": "Expedition access point into The City of Masks (Meridia).",
+  "exitConditions": "Waymarked return route to The Gilded Swan Inn."
 }

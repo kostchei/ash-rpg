@@ -1,5 +1,6 @@
 import { rollDie, type RandomSource } from "../rules.js";
-import type { PublicHex, RevealState } from "../../shared/types.js";
+import type { CursedZoneId, PublicHex, RegionGenerationConfig, RevealState } from "../../shared/types.js";
+import { generateProceduralRegion } from "./procedural-region.js";
 
 export interface GeneratedHexDefinition {
   id: string;
@@ -16,6 +17,11 @@ export interface GeneratedHexDefinition {
   horizonRumor?: string;
   exitDestination?: string;
   elevation: number;
+  canonicalKey?: string;
+  primaryZone?: string;
+  secondaryZone?: string;
+  connections?: any[];
+  sites?: any[];
 }
 
 export interface HexMapOptions {
@@ -23,6 +29,8 @@ export interface HexMapOptions {
   regionName?: string;
   sanctuaryName?: string;
   theme?: "temperate" | "coastal" | "highland" | "wildwood" | "marshland";
+  config?: RegionGenerationConfig;
+  legacy?: boolean;
 }
 
 // 19-hex layout coordinates in axial (q, r)
@@ -51,30 +59,63 @@ export const HEX_GRID: Array<{ id: string; ring: number; q: number; r: number }>
   { id: "18", ring: 2, q: -1, r: -1 },// NNW
 ];
 
-const RIVER_NAMES = [
-  "River Mor",
-  "The Whispering River",
-  "The Silverwash",
-  "The Ashflow",
-  "River Vael",
-  "Coldwater Creek",
-  "The Sunken Brook",
-];
-
-const ROAD_NAMES = {
-  coast: ["The Old Coast Road", "The Salt Way", "The Mariner's Trace", "The Low Coast Highway"],
-  capital: ["The King's Highroad", "The Imperial Way", "The Capital Highway", "The Crown Post-Road"],
-  mountain: ["The Miner's Trace", "The Iron Pass", "The Pilgrim's Ascent", "The High Crag Road"],
+const THEME_TO_ZONE: Record<string, CursedZoneId> = {
+  temperate: "oakhaven_borderlands",
+  coastal: "midnight_sun",
+  highland: "dwellers_in_the_deep",
+  wildwood: "the_gloaming",
+  marshland: "river_of_night",
 };
 
-function pickOne<T>(list: readonly T[], rng?: RandomSource): T {
-  if (rng) {
-    return list[rng(list.length)];
+/**
+ * Main procedural hex map generator.
+ * By default, uses the new seeded, zone-aware procedural generation pipeline.
+ * If options.legacy === true, runs the original fixed river/road baseline.
+ */
+export function generateHexMap(
+  options: HexMapOptions = {},
+  rng?: RandomSource,
+): GeneratedHexDefinition[] {
+  if (options.legacy || (!options.config && !options.theme)) {
+    return generateLegacyHexMap(options, rng);
   }
-  return list[Math.floor(Math.random() * list.length)];
+
+  // Determine zone from config, theme, or default
+  const zoneId: CursedZoneId =
+    options.config?.selection.mode === "single"
+      ? options.config.selection.zoneId
+      : options.config?.selection.mode === "border"
+        ? options.config.selection.zoneIds[0]
+        : (options.theme && THEME_TO_ZONE[options.theme]) || "oakhaven_borderlands";
+
+  const config: RegionGenerationConfig = options.config ?? {
+    selection: { mode: "single", zoneId },
+    initialRadius: 2,
+    structuralRadius: 6,
+    regionalHexMiles: 6,
+    season: "autumn",
+    sourceContent: "adapted",
+    rulesProfileId: "ash_4watch_v1",
+  };
+
+  const world = generateProceduralRegion(0, config);
+
+  // Apply sanctuary / campaign name override if provided
+  if (options.sanctuaryName || options.campaignName) {
+    const sName = options.sanctuaryName || `${options.campaignName} Sanctuary`;
+    const h00 = world.initial19PublicHexes.find((h) => h.id === "00");
+    if (h00) {
+      h00.name = sName;
+    }
+  }
+
+  return world.initial19PublicHexes as GeneratedHexDefinition[];
 }
 
-export function generateHexMap(
+/**
+ * Original fixed-route 19-hex generator kept for regression and legacy campaign reproduction.
+ */
+export function generateLegacyHexMap(
   options: HexMapOptions = {},
   rng?: RandomSource,
 ): GeneratedHexDefinition[] {
@@ -83,29 +124,16 @@ export function generateHexMap(
     (options.campaignName
       ? `${options.campaignName} Sanctuary`
       : "Oakhaven Sanctuary");
-  const riverName = pickOne(RIVER_NAMES, rng);
-  const coastRoadName = pickOne(ROAD_NAMES.coast, rng);
-  const capitalRoadName = pickOne(ROAD_NAMES.capital, rng);
-  const ironTraceName = pickOne(ROAD_NAMES.mountain, rng);
+  const riverName = "River Mor";
+  const coastRoadName = "The Old Coast Road";
+  const capitalRoadName = "The King's Highroad";
+  const ironTraceName = "The Miner's Trace";
 
-  // Define linear routes
-  // River: 07 (Highland source) -> 01 (Gorge) -> 00 (Sanctuary docks) -> 04 (Wetland reed) -> 13 (Outflow Delta)
   const riverHexIds = new Set(["07", "01", "00", "04", "13"]);
-
-  // Coast Road (West): 00 -> 06 -> 17 (To the Coast)
   const coastRoadHexIds = new Set(["00", "06", "17"]);
-
-  // Capital Road (North-East): 00 -> 02 -> 09 (To the Capital)
   const capitalRoadHexIds = new Set(["00", "02", "09"]);
-
-  // Iron Trace (East): 00 -> 03 -> 11 (To the Dwarf-Crags)
   const ironTraceHexIds = new Set(["00", "03", "11"]);
 
-  // Map elevation profiles:
-  // 3 = Mountains/Peaks (North sector: 07, 08, 18, 01)
-  // 2 = Foothills/High Forest (02, 06, 09, 10, 16)
-  // 1 = Lowland Valleys/Farmlands (00, 03, 05, 12, 17)
-  // 0 = Marshes/Swamps/Waterways (04, 13, 14, 15, 11)
   const elevations: Record<string, number> = {
     "00": 1,
     "01": 2, "02": 2, "03": 1, "04": 0, "05": 1, "06": 2,
@@ -137,7 +165,6 @@ export function generateHexMap(
       road = ironTraceName;
     }
 
-    // Border Exit Destinations & Horizon Rumors
     if (id === "00") {
       horizonRumor = `Starting haven and crossroads. Tavern keepers gossip of the ancient Coast Road to the west and the Capital Highroad northeast.`;
     } else if (id === "17") {
@@ -167,7 +194,6 @@ export function generateHexMap(
       horizonRumor = `${riverName} empties into mist-choked fens. Fisherfolk say an ancient sunken shrine lies downstream, but no skiff has returned from past the delta.`;
     }
 
-    // Biome and Landmark by elevation and river proximity
     let name = "";
     let biome = "";
     let threatTier = ring === 0 ? 0 : ring === 1 ? 1 : 2;

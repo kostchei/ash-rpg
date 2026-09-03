@@ -1,13 +1,18 @@
 {
   "id": "oakhaven_borderlands",
   "name": "Oakhaven Borderlands",
-  "theme": "Classic Frontier Sanctuary & Hex Wilderness",
+  "theme": "Classic Frontier Sanctuary & Hex Wilderness (Legacy Baseline)",
   "biomePalette": [
-    "forest",
-    "marsh",
-    "mountain",
-    "foothills",
-    "karst"
+    "Ancient Elderwood",
+    "Rocky Foothills",
+    "Stagnant Swamp",
+    "Peat Bogs",
+    "Mountain Ridge",
+    "Granite Peaks",
+    "Fortified Basin",
+    "Rolling Grasslands",
+    "Subterranean Karst",
+    "Coastal Scrub"
   ],
   "hazardTable": [
     "Rockslide in the foothills (DC 12 DEX or 2d6 bludgeoning)",
@@ -17,9 +22,9 @@
   ],
   "weatherTable": [
     "Clear blue skies with crisp mountain wind",
-    "Overcast with mild breeze",
-    "Heavy rain and rolling thunderstorms",
-    "Thick mountain mist clinging to valleys"
+    "Pleasant evening breezes",
+    "Chilly morning frost and amber leaves",
+    "Frozen mud and rime-crusted branches"
   ],
   "wanderingMonsterTable": [
     "wolf",
@@ -35,24 +40,24 @@
     {
       "name": "Oakhaven Guard",
       "disposition": "Allied",
-      "notes": "Protectors of the sanctuary basin."
+      "notes": "Protect the sanctuary basin and maintain peace within the walls."
     },
     {
       "name": "Glimmercap Tinkers",
       "disposition": "Friendly",
-      "notes": "Forest gnomes trading alchemy and gear."
+      "notes": "Trade potions, salvage clockwork curios, and explore strange ruins."
     },
     {
       "name": "Iron Gorge Clan",
       "disposition": "Wary",
-      "notes": "Orcish iron smelters and miners."
+      "notes": "Secure iron shipments and defend mountain passes against goblin raiders."
     }
   ],
   "uniqueFloraFauna": [
-    "Glimmercap mushrooms",
-    "Ironwood pine",
-    "Highland stag"
+    "River Mor freshwater flow",
+    "Barley wealds and cattle enclosures",
+    "High Watchtower"
   ],
-  "entryConditions": "Open frontier accessible from Oakhaven sanctuary basin.",
-  "exitConditions": "Safe haven gates of Oakhaven always open to friendly crawlers."
+  "entryConditions": "Expedition access point into Oakhaven Borderlands.",
+  "exitConditions": "Waymarked return route to Oakhaven Sanctuary."
 }

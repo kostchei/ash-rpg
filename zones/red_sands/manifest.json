@@ -3,9 +3,18 @@
   "name": "The Red Sands (Djurum)",
   "theme": "Sun-Baked Desert, Fighting Pits & Burning Tombs (Cursed Scroll 2)",
   "biomePalette": [
-    "desert",
-    "canyon",
-    "badlands"
+    "Bleached Stone Flats",
+    "Basalt Scree",
+    "Crimson Dune Sea",
+    "Shifting Crests",
+    "Red Sandstone Gorge",
+    "Shadowed Escarpment",
+    "Dry Wadi Wash",
+    "Thorn Scrub Steppe",
+    "Blinding Salt Flats",
+    "Alkali Sink",
+    "Palm Oasis",
+    "Natural Spring Alcove"
   ],
   "hazardTable": [
     "Blinding sandstorm (DC 12 CON or blinded and disoriented)",
@@ -14,10 +23,10 @@
     "Sunstroke mirage (DC 11 WIS or waste half day chasing false oasis)"
   ],
   "weatherTable": [
-    "Blistering sun and baking dry heat",
+    "Warm desert breeze with clear skies",
     "Scorching sirocco gusts whipping crimson sand",
-    "Bitter freezing desert night with glittering stars",
-    "Violent dust devil swirling across the flats"
+    "Brisk dry breeze kicking up sand grains",
+    "Crisp sunny midday"
   ],
   "wanderingMonsterTable": [
     "camel_silver",
@@ -31,21 +40,26 @@
   ],
   "factions": [
     {
-      "name": "Thraxis Gladiators",
+      "name": "Thraxis Arena Masters",
       "disposition": "Neutral",
-      "notes": "Arena masters honoring single combat."
+      "notes": "Host grand combat tournaments, recruit skilled mercenaries, and enforce martial honor."
     },
     {
       "name": "Burning Brothers",
       "disposition": "Hostile",
-      "notes": "Salamander cultists occupying the iron fortress."
+      "notes": "Cleanse the desert with flame and claim ancient solar relics for their salamander god."
+    },
+    {
+      "name": "Djurum Water Keepers",
+      "disposition": "Friendly",
+      "notes": "Repair cracked conduits, ration spring water, and punish those who pollute the wells."
     }
   ],
   "uniqueFloraFauna": [
-    "Cactus water-gourds",
-    "Crimson scorpions",
-    "Dune camels"
+    "Perennial artesian spring fed by deep sandstone aquifers",
+    "Date palms, goat milk, roasted barley, and imported figs",
+    "Artesian Spring Basin"
   ],
-  "entryConditions": "Pass through the sun-bleached sandstone gorge.",
-  "exitConditions": "Reach the fortified caravan caravanserai."
+  "entryConditions": "Expedition access point into The Red Sands (Djurum).",
+  "exitConditions": "Waymarked return route to Qasr Al-Rimal."
 }

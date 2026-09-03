@@ -52,11 +52,49 @@ describe("campaign HTTP API", () => {
     expect(response.body.classes.length).toBeGreaterThan(0);
     expect(response.body.monsters.length).toBeGreaterThan(200);
     expect(response.body.zones.length).toBeGreaterThanOrEqual(7);
+    expect(response.body.zoneProfiles.length).toBe(7);
+    expect(response.body.borderPairings.length).toBe(15);
 
     // Verify monster shape
     const sample = response.body.monsters[0];
     expect(sample.key).toBeDefined();
     expect(sample.name).toBeDefined();
+  });
+
+  it("previews a procedural region and creates campaign with generationConfig", async () => {
+    // 1. Preview endpoint
+    const previewRes = await request(server.app)
+      .post("/api/regions/preview")
+      .send({
+        selection: {
+          mode: "border",
+          zoneIds: ["the_gloaming", "red_sands"],
+          connection: "surface",
+        },
+        seed: "api_test_preview_seed",
+      });
+    expect(previewRes.status).toBe(200);
+    expect(previewRes.body.region).toBeDefined();
+    expect(previewRes.body.initial19PublicHexes).toHaveLength(19);
+
+    // 2. Create campaign with generationConfig
+    const created = await request(server.app)
+      .post("/api/campaigns")
+      .send({
+        name: "Gloaming March",
+        regionName: "Pass of the Red Sun",
+        pin: "5678",
+        generationConfig: {
+          selection: {
+            mode: "border",
+            zoneIds: ["the_gloaming", "red_sands"],
+            connection: "surface",
+          },
+          seed: "api_campaign_seed",
+        },
+      });
+    expect(created.status).toBe(201);
+    expect(created.body.code).toBeTruthy();
   });
 
   it("rejects invalid campaign input and host credentials", async () => {

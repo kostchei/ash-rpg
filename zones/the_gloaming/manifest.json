@@ -3,9 +3,16 @@
   "name": "The Gloaming",
   "theme": "Gothic Mistwood, Witchcraft & Barrow Mounds (Cursed Scroll 1)",
   "biomePalette": [
-    "forest",
-    "marsh",
-    "moor"
+    "Ancient Elderwood",
+    "Twisted Woodlands",
+    "Peat Bogs",
+    "Mist Fen",
+    "Heathland",
+    "Overgrown Commons",
+    "Woodcutter Clearings",
+    "Charcoal Verge",
+    "Rocky Ridge",
+    "Standing Stone Crest"
   ],
   "hazardTable": [
     "Bitter Spore Fog (DC 12 CON or coughing fits / reveal stealth)",
@@ -14,10 +21,10 @@
     "Creeping Blood-Thorns (DC 11 STR or 1d6 piercing)"
   ],
   "weatherTable": [
-    "Chilling mist & perpetual gray drizzle",
-    "Dense pea-soup fog reducing line of sight to close",
-    "Sudden gale with freezing rain",
-    "Pale sickly moonlight filtering through knotted boughs"
+    "Perpetual drizzling mist",
+    "Dense insect-swarming warmth",
+    "Dense pea-soup fog reducing sight to close",
+    "Frost-rimed barrows and brittle reed beds"
   ],
   "wanderingMonsterTable": [
     "bittermold",
@@ -33,19 +40,24 @@
     {
       "name": "Knights of St. Ydris",
       "disposition": "Friendly",
-      "notes": "Holy champions defending pilgrim shrines."
+      "notes": "Protect pilgrims, maintain the sacred lantern trails, and cleanse barrow horrors."
     },
     {
       "name": "Coven of Bittermold",
       "disposition": "Hostile",
-      "notes": "Witches brewing pestilence and curses."
+      "notes": "Brew potent curse draughts and awaken slumbering primeval powers beneath the mounds."
+    },
+    {
+      "name": "Gloaming Fen-Herders",
+      "disposition": "Neutral",
+      "notes": "Preserve independent marsh rights and trade medicinal herbs to anyone with silver."
     }
   ],
   "uniqueFloraFauna": [
-    "Bittermold caps",
-    "Grave-moss",
-    "Witchwood briars"
+    "Clear forest brook and timber-shored spring",
+    "Small turnip plots, trapped hare, and smoked boar",
+    "Stone Priory Guest House"
   ],
-  "entryConditions": "Travel north across the fog-shrouded marsh.",
-  "exitConditions": "Follow the sacred lantern posts back to civilization."
+  "entryConditions": "Expedition access point into The Gloaming.",
+  "exitConditions": "Waymarked return route to Oakhaven Refuge."
 }

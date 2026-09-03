@@ -8,6 +8,40 @@ export type RevealState =
 
 export type CampaignPhase = "sanctuary" | "hexcrawl" | "dungeon";
 
+export type CursedZoneId =
+  | "the_gloaming"
+  | "red_sands"
+  | "midnight_sun"
+  | "river_of_night"
+  | "dwellers_in_the_deep"
+  | "city_of_masks"
+  | "oakhaven_borderlands";
+
+export type ConnectionMode = "surface" | "vertical" | "urban" | "distant";
+
+export type RegionSelection =
+  | { mode: "single"; zoneId: CursedZoneId }
+  | {
+      mode: "border";
+      zoneIds: [CursedZoneId, CursedZoneId];
+      connection: ConnectionMode;
+      borderProfileId: string;
+    };
+
+export type Season = "spring" | "summer" | "autumn" | "winter";
+export type SourceContentMode = "adapted" | "named";
+
+export interface RegionGenerationConfig {
+  selection: RegionSelection;
+  seed?: string;
+  initialRadius?: number;
+  structuralRadius?: number;
+  regionalHexMiles?: number;
+  season?: Season;
+  sourceContent?: SourceContentMode;
+  rulesProfileId?: string;
+}
+
 export interface ZoneSummary {
   id: string;
   name: string;
@@ -41,6 +75,9 @@ export interface CampaignSummary {
   phase: CampaignPhase;
   activeZoneId: string;
   joinUrl: string;
+  activeRegionId?: string;
+  partyLocation?: { q: number; r: number; layerId?: string };
+  homeLocation?: { q: number; r: number; layerId?: string };
 }
 
 export interface Character {
@@ -61,12 +98,33 @@ export interface Character {
   ownerToken?: string;
 }
 
+export interface PublicConnectionSummary {
+  id: string;
+  fromId: string;
+  toId: string;
+  kind: "road" | "trail" | "river" | "canal" | "ferry" | "sea_lane" | "shaft" | "cave_passage" | "voyage";
+  name: string;
+  costWatches: number;
+  crossingMethod?: "ford" | "bridge" | "ferry" | "boat" | "climb";
+}
+
+export interface PublicSiteSummary {
+  id: string;
+  name: string;
+  kind: "haven" | "settlement" | "ruin" | "fort" | "entrance" | "sanctuary" | "resource" | "shrine" | "district";
+  description?: string;
+  isSecret?: boolean;
+}
+
 export interface PublicHex {
   id: string;
   ring: number;
   q: number;
   r: number;
   revealState: RevealState;
+  canonicalKey?: string;
+  primaryZone?: string;
+  secondaryZone?: string;
   name?: string;
   biome?: string;
   threatTier?: number;
@@ -76,6 +134,113 @@ export interface PublicHex {
   horizonRumor?: string;
   exitDestination?: string;
   elevation?: number;
+  connections?: PublicConnectionSummary[];
+  sites?: PublicSiteSummary[];
+}
+
+export interface RegionEntity {
+  id: string;
+  campaignId: number;
+  selection: RegionSelection;
+  seed: string;
+  generatorVersion: string;
+  contentVersion: string;
+  rulesVersion: string;
+  attempt: number;
+  revision: number;
+  active: boolean;
+  createdAt: string;
+}
+
+export interface RegionLayer {
+  regionId: string;
+  layerId: string;
+  kind: "surface" | "subterranean" | "urban_inset";
+  scale: number;
+  depthContext?: string;
+}
+
+export interface RegionHex {
+  canonicalKey: string;
+  regionId: string;
+  layerId: string;
+  q: number;
+  r: number;
+  terrain: string;
+  elevation: number;
+  depth: number;
+  moisture: number;
+  primaryZone: string;
+  secondaryZone?: string;
+  threatTier: number;
+  name: string;
+  landmark?: string;
+}
+
+export interface SiteEntity {
+  id: string;
+  regionId: string;
+  canonicalKey: string;
+  kind: "haven" | "settlement" | "ruin" | "fort" | "entrance" | "sanctuary" | "resource" | "shrine" | "district";
+  name: string;
+  currentState: string;
+  ownerFactionId?: string;
+  supportDependencies?: {
+    waterSource?: string;
+    foodProvenance?: string;
+    reasonForLocation?: string;
+    vulnerability?: string;
+  };
+  historyRefIds?: string[];
+  visibility: "visible" | "hidden" | "secret";
+}
+
+export interface ConnectionEntity {
+  id: string;
+  regionId: string;
+  fromKey: string;
+  toKey: string;
+  kind: "road" | "trail" | "river" | "canal" | "ferry" | "sea_lane" | "shaft" | "cave_passage" | "voyage";
+  name: string;
+  direction: "undirected" | "downstream" | "forward";
+  modes: string[];
+  costWatches: number;
+  crossingMethod?: "ford" | "bridge" | "ferry" | "boat" | "climb";
+  requirements?: string[];
+  physicalFeatureId?: string;
+  ownerFactionId?: string;
+}
+
+export interface HistoricalEvent {
+  id: string;
+  regionId: string;
+  sequence: number;
+  name: string;
+  summary: string;
+  affectedEntityIds: string[];
+  consequences: string[];
+}
+
+export interface FactionPresence {
+  id: string;
+  regionId: string;
+  factionId: string;
+  name: string;
+  disposition: string;
+  locationKey: string;
+  assetOrRole: string;
+  strengthOrControl: string;
+  agenda: string;
+}
+
+export interface RumorRecord {
+  id: string;
+  regionId: string;
+  originSiteId: string;
+  targetSiteId: string;
+  claim: string;
+  accuracy: "true" | "distorted" | "false";
+  directionHint: string;
 }
 
 export interface DungeonRoom {

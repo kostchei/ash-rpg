@@ -9,7 +9,8 @@ import QRCode from "qrcode";
 import { Server as SocketServer, type Socket } from "socket.io";
 import { z } from "zod";
 import { ANCESTRIES, CLASSES } from "../shared/content.js";
-import type { CampaignPhase, EncounterMonster, Role } from "../shared/types.js";
+import { BORDER_PAIRINGS, ZONE_PROFILES } from "../shared/zone-profiles.js";
+import type { CampaignPhase, EncounterMonster, RegionGenerationConfig, Role } from "../shared/types.js";
 import { AshDatabase } from "./database.js";
 import { generateCampaignComplication } from "./generators/campaign.js";
 import { generateNpc } from "./generators/npc.js";
@@ -36,6 +37,7 @@ const createCampaignSchema = z.object({
   name: cleanText.max(80),
   regionName: cleanText.max(80),
   pin: z.string().regex(/^\d{4,8}$/),
+  generationConfig: z.any().optional(),
 });
 const joinSchema = z.object({
   code: z.string().trim().length(6),
@@ -137,8 +139,19 @@ export async function createAshServer(options: AshServerOptions = {}) {
         family: m.family,
       })),
       zones: db.listZones(),
+      zoneProfiles: Object.values(ZONE_PROFILES),
+      borderPairings: BORDER_PAIRINGS,
     }),
   );
+
+  app.post("/api/regions/preview", (request, response) => {
+    const config = request.body as RegionGenerationConfig;
+    if (!config || !config.selection) {
+      return response.status(400).json({ error: "Invalid region configuration." });
+    }
+    const preview = db.previewRegion(config);
+    return response.json(preview);
+  });
 
   app.post("/api/campaigns", (request, response) => {
     const parsed = createCampaignSchema.safeParse(request.body);
@@ -150,6 +163,7 @@ export async function createAshServer(options: AshServerOptions = {}) {
       parsed.data.name,
       parsed.data.regionName,
       parsed.data.pin,
+      parsed.data.generationConfig,
     );
     return response.status(201).json({
       code: created.code,
@@ -780,10 +794,11 @@ export async function createAshServer(options: AshServerOptions = {}) {
         const payload = z
           .object({
             theme: z.string().optional(),
+            config: z.any().optional(),
           })
           .optional()
           .parse(raw);
-        db.regenerateHexMap(identity.campaignId, payload?.theme);
+        db.regenerateHexMap(identity.campaignId, payload?.config ?? payload?.theme);
         db.addRoll(identity.campaignId, {
           actor: "Host",
           kind: "exploration",
