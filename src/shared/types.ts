@@ -14,8 +14,7 @@ export type CursedZoneId =
   | "midnight_sun"
   | "river_of_night"
   | "dwellers_in_the_deep"
-  | "city_of_masks"
-  | "oakhaven_borderlands";
+  | "city_of_masks";
 
 export type ConnectionMode = "surface" | "vertical" | "urban" | "distant";
 
@@ -25,7 +24,7 @@ export type RegionSelection =
       mode: "border";
       zoneIds: [CursedZoneId, CursedZoneId];
       connection: ConnectionMode;
-      borderProfileId: string;
+      borderProfileId?: string;
     };
 
 export type Season = "spring" | "summer" | "autumn" | "winter";
@@ -40,6 +39,12 @@ export interface RegionGenerationConfig {
   season?: Season;
   sourceContent?: SourceContentMode;
   rulesProfileId?: string;
+}
+
+export interface SiteDiscovery {
+  campaignId: number;
+  siteId: string;
+  discoveredAt: string;
 }
 
 export interface ZoneSummary {
@@ -66,6 +71,82 @@ export interface ZoneManifest extends ZoneSummary {
   exitConditions: string;
 }
 
+export interface ExpeditionObjective {
+  leadId?: string;
+  title: string;
+  targetHexId?: string;
+  targetSiteId?: string;
+  directionHint?: string;
+  notes?: string;
+}
+
+export interface TavernLead {
+  id: string;
+  title: string;
+  claim: string;
+  source: string;
+  targetHexId: string;
+  targetSiteId: string;
+  directionHint: string;
+  dangerHint: string;
+  preparationHint: string;
+  accuracy: "true" | "distorted" | "false";
+  isPathLead?: boolean;
+  isFollowUp?: boolean;
+}
+
+export interface TavernEstablishment {
+  name: string;
+  vibe: string;
+  barkeep: string;
+  leads: TavernLead[];
+}
+
+export interface PublicAdventurePathSummary {
+  pathId: string;
+  name: string;
+  activeSituation?: {
+    title: string;
+    premise: string;
+    status: "active" | "resolved" | "neglected";
+    knownClues: string[];
+  } | null;
+  narrativeTells: string[];
+  revealedMethods: string[];
+  hostDetails?: {
+    startingZoneId: string;
+    caveZoneId: string;
+    endZoneId: string;
+    progress: { reach: number; awakening: number; knowledge: number; access: number };
+    toll: string[];
+    resolvedDeeds: string[];
+  };
+}
+
+export interface AdventurePathRecord {
+  pathId: "the_mind_below" | string;
+  name: string;
+  startingZoneId: string;
+  caveZoneId: string;
+  endZoneId: string;
+  progress: { reach: number; awakening: number; knowledge: number; access: number };
+  installations: string[];
+  resolvedDeeds: string[];
+  toll: string[];
+  aquaticMethodsRevealed: string[];
+  activeSituation: {
+    id: string;
+    siteId: string;
+    hexId: string;
+    title: string;
+    premise: string;
+    npcName: string;
+    status: "active" | "resolved" | "neglected";
+    clues: string[];
+    requiredDeed: string;
+  } | null;
+}
+
 export interface CampaignSummary {
   id: number;
   code: string;
@@ -78,6 +159,15 @@ export interface CampaignSummary {
   activeRegionId?: string;
   partyLocation?: { q: number; r: number; layerId?: string };
   homeLocation?: { q: number; r: number; layerId?: string };
+  day?: number;
+  watch?: 1 | 2 | 3 | 4;
+  watchesTraveledToday?: number;
+  weather?: string;
+  rations?: number;
+  activeObjective?: ExpeditionObjective | null;
+  activeSiteId?: string | null;
+  tavernEstablishment?: TavernEstablishment | null;
+  adventurePath?: PublicAdventurePathSummary | null;
 }
 
 export interface Character {
@@ -95,6 +185,7 @@ export interface Character {
   anchors: { homeland: string; landmark: string; nemesis: string };
   talents?: string[];
   xp?: number;
+  fatigue?: number;
   ownerToken?: string;
 }
 
@@ -114,6 +205,7 @@ export interface PublicSiteSummary {
   kind: "haven" | "settlement" | "ruin" | "fort" | "entrance" | "sanctuary" | "resource" | "shrine" | "district";
   description?: string;
   isSecret?: boolean;
+  visibility?: "visible" | "hidden" | "secret";
 }
 
 export interface PublicHex {
@@ -251,6 +343,7 @@ export interface DungeonRoom {
   interaction: string;
   exits: number;
   trap?: { name: string; trigger: string; effect: string; dc: number };
+  siteId?: string;
   createdAt: string;
 }
 

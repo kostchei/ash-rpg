@@ -11,7 +11,9 @@ import { HEX_DEFINITIONS, MONSTERS } from "../shared/content.js";
 import { generateHexMap } from "./generators/hex-map.js";
 import { generateProceduralRegion, type GeneratedRegionWorld } from "./generators/procedural-region.js";
 import { CUSTOM_MONSTER_TEMPLATES, resolveMonsterEntry } from "../shared/monster-aliases.js";
+import { abilityModifier } from "./rules.js";
 import type {
+  AdventurePathRecord,
   CampaignPhase,
   CampaignPressure,
   CampaignState,
@@ -20,12 +22,16 @@ import type {
   DungeonRoom,
   Encounter,
   EncounterMonster,
+  ExpeditionObjective,
+  PublicAdventurePathSummary,
   PublicConnectionSummary,
   PublicHex,
   PublicSiteSummary,
   RegionGenerationConfig,
   Role,
   RollRecord,
+  TavernEstablishment,
+  TavernLead,
   WikiNote,
   ZoneManifest,
   ZoneSummary,
@@ -80,7 +86,7 @@ export class AshDatabase {
       CREATE TABLE IF NOT EXISTS campaigns (
         id INTEGER PRIMARY KEY, code TEXT NOT NULL UNIQUE, name TEXT NOT NULL, region_name TEXT NOT NULL,
         act INTEGER NOT NULL DEFAULT 1, current_phase TEXT NOT NULL DEFAULT 'sanctuary',
-        active_zone_id TEXT NOT NULL DEFAULT 'oakhaven_borderlands', pin_hash TEXT NOT NULL, host_token TEXT NOT NULL UNIQUE, created_at TEXT NOT NULL
+        active_zone_id TEXT NOT NULL DEFAULT 'the_gloaming', pin_hash TEXT NOT NULL, host_token TEXT NOT NULL UNIQUE, created_at TEXT NOT NULL
       );
       CREATE TABLE IF NOT EXISTS devices (
         token TEXT PRIMARY KEY, campaign_id INTEGER NOT NULL REFERENCES campaigns(id) ON DELETE CASCADE,
@@ -141,6 +147,11 @@ export class AshDatabase {
         origin_site_id TEXT NOT NULL, target_site_id TEXT NOT NULL, claim TEXT NOT NULL,
         accuracy TEXT NOT NULL DEFAULT 'true', direction_hint TEXT
       );
+      CREATE TABLE IF NOT EXISTS site_discoveries (
+        campaign_id INTEGER NOT NULL REFERENCES campaigns(id) ON DELETE CASCADE,
+        site_id TEXT NOT NULL, discovered_at TEXT NOT NULL,
+        PRIMARY KEY (campaign_id, site_id)
+      );
       CREATE TABLE IF NOT EXISTS dungeon_rooms (
         id INTEGER PRIMARY KEY, campaign_id INTEGER NOT NULL REFERENCES campaigns(id) ON DELETE CASCADE,
         sequence INTEGER NOT NULL, geometry TEXT NOT NULL, contents TEXT NOT NULL, interaction TEXT NOT NULL,
@@ -195,7 +206,7 @@ export class AshDatabase {
       this.db.exec("ALTER TABLE campaigns ADD COLUMN current_phase TEXT NOT NULL DEFAULT 'sanctuary'");
     }
     if (!campaignCols.some((c) => c.name === "active_zone_id")) {
-      this.db.exec("ALTER TABLE campaigns ADD COLUMN active_zone_id TEXT NOT NULL DEFAULT 'oakhaven_borderlands'");
+      this.db.exec("ALTER TABLE campaigns ADD COLUMN active_zone_id TEXT NOT NULL DEFAULT 'the_gloaming'");
     }
     if (!campaignCols.some((c) => c.name === "active_region_id")) {
       this.db.exec("ALTER TABLE campaigns ADD COLUMN active_region_id TEXT");
@@ -206,6 +217,33 @@ export class AshDatabase {
     if (!campaignCols.some((c) => c.name === "home_location_json")) {
       this.db.exec("ALTER TABLE campaigns ADD COLUMN home_location_json TEXT");
     }
+    if (!campaignCols.some((c) => c.name === "day")) {
+      this.db.exec("ALTER TABLE campaigns ADD COLUMN day INTEGER NOT NULL DEFAULT 1");
+    }
+    if (!campaignCols.some((c) => c.name === "watch")) {
+      this.db.exec("ALTER TABLE campaigns ADD COLUMN watch INTEGER NOT NULL DEFAULT 1");
+    }
+    if (!campaignCols.some((c) => c.name === "watches_traveled_today")) {
+      this.db.exec("ALTER TABLE campaigns ADD COLUMN watches_traveled_today INTEGER NOT NULL DEFAULT 0");
+    }
+    if (!campaignCols.some((c) => c.name === "weather")) {
+      this.db.exec("ALTER TABLE campaigns ADD COLUMN weather TEXT NOT NULL DEFAULT 'Overcast / Mild Breeze'");
+    }
+    if (!campaignCols.some((c) => c.name === "rations")) {
+      this.db.exec("ALTER TABLE campaigns ADD COLUMN rations INTEGER NOT NULL DEFAULT 12");
+    }
+    if (!campaignCols.some((c) => c.name === "active_objective_json")) {
+      this.db.exec("ALTER TABLE campaigns ADD COLUMN active_objective_json TEXT");
+    }
+    if (!campaignCols.some((c) => c.name === "active_site_id")) {
+      this.db.exec("ALTER TABLE campaigns ADD COLUMN active_site_id TEXT");
+    }
+    if (!campaignCols.some((c) => c.name === "adventure_path_json")) {
+      this.db.exec("ALTER TABLE campaigns ADD COLUMN adventure_path_json TEXT");
+    }
+    if (!campaignCols.some((c) => c.name === "tavern_establishment_json")) {
+      this.db.exec("ALTER TABLE campaigns ADD COLUMN tavern_establishment_json TEXT");
+    }
 
     const charCols = this.db.pragma("table_info(characters)") as Array<{ name: string }>;
     if (!charCols.some((c) => c.name === "talents_json")) {
@@ -213,6 +251,14 @@ export class AshDatabase {
     }
     if (!charCols.some((c) => c.name === "xp")) {
       this.db.exec("ALTER TABLE characters ADD COLUMN xp INTEGER NOT NULL DEFAULT 0");
+    }
+    if (!charCols.some((c) => c.name === "fatigue")) {
+      this.db.exec("ALTER TABLE characters ADD COLUMN fatigue INTEGER NOT NULL DEFAULT 0");
+    }
+
+    const roomCols = this.db.pragma("table_info(dungeon_rooms)") as Array<{ name: string }>;
+    if (!roomCols.some((c) => c.name === "site_id")) {
+      this.db.exec("ALTER TABLE dungeon_rooms ADD COLUMN site_id TEXT");
     }
 
     const encMonCols = this.db.pragma("table_info(encounter_monsters)") as Array<{ name: string }>;
@@ -403,9 +449,39 @@ export class AshDatabase {
     this.db.prepare("UPDATE campaigns SET active_zone_id = ? WHERE id = ?").run(zoneId, campaignId);
   }
 
+  setPartyLocation(campaignId: number, location: { q: number; r: number; layerId?: string }) {
+    this.db
+      .prepare("UPDATE campaigns SET party_location_json = ? WHERE id = ?")
+      .run(JSON.stringify(location), campaignId);
+  }
+
+  discoverSite(campaignId: number, siteId: string) {
+    this.db
+      .prepare(
+        "INSERT OR IGNORE INTO site_discoveries (campaign_id, site_id, discovered_at) VALUES (?, ?, ?)",
+      )
+      .run(campaignId, siteId, now());
+  }
+
+  isSiteDiscovered(campaignId: number, siteId: string): boolean {
+    const row = this.db
+      .prepare(
+        "SELECT 1 FROM site_discoveries WHERE campaign_id = ? AND site_id = ?",
+      )
+      .get(campaignId, siteId);
+    return !!row;
+  }
+
+  getDiscoveredSiteIds(campaignId: number): Set<string> {
+    const rows = this.db
+      .prepare("SELECT site_id FROM site_discoveries WHERE campaign_id = ?")
+      .all(campaignId) as { site_id: string }[];
+    return new Set(rows.map((r) => r.site_id));
+  }
+
   saveGeneratedRegion(campaignId: number, world: GeneratedRegionWorld) {
     const insertRegion = this.db.prepare(`
-      INSERT OR REPLACE INTO regions 
+      INSERT INTO regions 
       (id, campaign_id, selection_json, seed, generator_version, content_version, rules_version, attempt, revision, active, created_at)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `);
@@ -452,7 +528,17 @@ export class AshDatabase {
     `);
 
     this.db.transaction(() => {
-      // 1. Region
+      // Find current max revision for this campaign and deactivate prior active region
+      const lastRevRow = this.db
+        .prepare("SELECT MAX(revision) as max_rev FROM regions WHERE campaign_id = ?")
+        .get(campaignId) as { max_rev: number | null } | undefined;
+      const nextRevision = (lastRevRow?.max_rev ?? 0) + 1;
+
+      this.db
+        .prepare("UPDATE regions SET active = 0 WHERE campaign_id = ?")
+        .run(campaignId);
+
+      // 1. Region (INSERT, preserving history and avoiding FK cascade deletions)
       insertRegion.run(
         world.region.id,
         campaignId,
@@ -462,8 +548,8 @@ export class AshDatabase {
         world.region.contentVersion,
         world.region.rulesVersion,
         world.region.attempt,
-        world.region.revision,
-        world.region.active ? 1 : 0,
+        nextRevision,
+        1,
         world.region.createdAt,
       );
 
@@ -605,15 +691,24 @@ export class AshDatabase {
           active_region_id = ?, 
           active_zone_id = ?,
           party_location_json = ?,
-          home_location_json = ?
+          home_location_json = ?,
+          tavern_establishment_json = ?,
+          adventure_path_json = ?
         WHERE id = ?
       `).run(
         world.region.id,
         primaryZone,
         JSON.stringify({ q: 0, r: 0, layerId: "surface" }),
         JSON.stringify({ q: 0, r: 0, layerId: "surface" }),
+        world.tavernEstablishment ? JSON.stringify(world.tavernEstablishment) : null,
+        world.adventurePath ? JSON.stringify(world.adventurePath) : null,
         campaignId,
       );
+
+      const havenSite = world.sites.find((s) => s.kind === "haven");
+      if (havenSite) {
+        this.discoverSite(campaignId, havenSite.id);
+      }
     })();
   }
 
@@ -636,61 +731,69 @@ export class AshDatabase {
       code = campaignCode();
     const hostToken = token();
 
-    if (generationConfig) {
-      const primaryZone = generationConfig.selection.mode === "single"
-        ? generationConfig.selection.zoneId
-        : generationConfig.selection.zoneIds[0];
+    if (!generationConfig || (generationConfig as any).legacy === true) {
+      const result = this.db
+        .prepare(
+          "INSERT INTO campaigns (code,name,region_name,current_phase,active_zone_id,pin_hash,host_token,created_at) VALUES (?,?,?,?,?,?,?,?)",
+        )
+        .run(code, name, regionName, "sanctuary", "the_gloaming", hashPin(pin), hostToken, now());
+      const campaignId = Number(result.lastInsertRowid);
+      const generatedHexes = generateHexMap({ campaignName: name, regionName, legacy: true });
+      const insertHex = this.db.prepare(
+        "INSERT INTO hexes (campaign_id,id,ring,q,r,name,biome,threat_tier,landmark,reveal_state,road,river,horizon_rumor,exit_destination,elevation) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+      );
+      for (const h of generatedHexes) {
+        insertHex.run(
+          campaignId,
+          h.id,
+          h.ring,
+          h.q,
+          h.r,
+          h.name,
+          h.biome,
+          h.threatTier,
+          h.landmark,
+          h.revealState,
+          h.road ?? null,
+          h.river ?? null,
+          h.horizonRumor ?? null,
+          h.exitDestination ?? null,
+          h.elevation,
+        );
+      }
+      return { code, hostToken, campaignId };
+    }
 
+    const config = generationConfig;
+    const primaryZone =
+      config.selection.mode === "single"
+        ? config.selection.zoneId
+        : config.selection.zoneIds[0];
+
+    // Generate procedural world FIRST so any failure aborts before campaign record insertion
+    const world = generateProceduralRegion(0, {
+      ...config,
+      seed: config.seed || campaignCode(),
+    });
+
+    let campaignId = 0;
+    this.db.transaction(() => {
       const result = this.db
         .prepare(
           "INSERT INTO campaigns (code,name,region_name,current_phase,active_zone_id,pin_hash,host_token,created_at) VALUES (?,?,?,?,?,?,?,?)",
         )
         .run(code, name, regionName, "sanctuary", primaryZone, hashPin(pin), hostToken, now());
-      const campaignId = Number(result.lastInsertRowid);
+      campaignId = Number(result.lastInsertRowid);
 
-      const world = generateProceduralRegion(campaignId, {
-        ...generationConfig,
-        seed: generationConfig.seed || campaignCode(),
-      });
-
+      world.region.campaignId = campaignId;
       const h00 = world.initial19PublicHexes.find((h) => h.id === "00");
       if (h00) {
         h00.name = `${name} Sanctuary`;
       }
 
       this.saveGeneratedRegion(campaignId, world);
-      return { code, hostToken, campaignId };
-    }
+    })();
 
-    const result = this.db
-      .prepare(
-        "INSERT INTO campaigns (code,name,region_name,current_phase,active_zone_id,pin_hash,host_token,created_at) VALUES (?,?,?,?,?,?,?,?)",
-      )
-      .run(code, name, regionName, "sanctuary", "oakhaven_borderlands", hashPin(pin), hostToken, now());
-    const campaignId = Number(result.lastInsertRowid);
-    const generatedHexes = generateHexMap({ campaignName: name, regionName, legacy: true });
-    const insertHex = this.db.prepare(
-      "INSERT INTO hexes (campaign_id,id,ring,q,r,name,biome,threat_tier,landmark,reveal_state,road,river,horizon_rumor,exit_destination,elevation) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
-    );
-    for (const h of generatedHexes) {
-      insertHex.run(
-        campaignId,
-        h.id,
-        h.ring,
-        h.q,
-        h.r,
-        h.name,
-        h.biome,
-        h.threatTier,
-        h.landmark,
-        h.revealState,
-        h.road ?? null,
-        h.river ?? null,
-        h.horizonRumor ?? null,
-        h.exitDestination ?? null,
-        h.elevation,
-      );
-    }
     return { code, hostToken, campaignId };
   }
 
@@ -703,15 +806,26 @@ export class AshDatabase {
     if (typeof themeOrConfig === "object" && themeOrConfig !== null && "selection" in themeOrConfig) {
       config = themeOrConfig;
     } else {
-      const theme = typeof themeOrConfig === "string" ? themeOrConfig : "temperate";
+      const theme = typeof themeOrConfig === "string" ? themeOrConfig.toLowerCase().trim() : "temperate";
       const zoneMap: Record<string, CursedZoneId> = {
-        temperate: "oakhaven_borderlands",
+        temperate: "the_gloaming",
         coastal: "midnight_sun",
         highland: "dwellers_in_the_deep",
         wildwood: "the_gloaming",
         marshland: "river_of_night",
+        desert: "red_sands",
+        urban: "city_of_masks",
+        the_gloaming: "the_gloaming",
+        red_sands: "red_sands",
+        midnight_sun: "midnight_sun",
+        river_of_night: "river_of_night",
+        dwellers_in_the_deep: "dwellers_in_the_deep",
+        city_of_masks: "city_of_masks",
       };
-      const zoneId = zoneMap[theme] || (campaign?.active_zone_id as CursedZoneId) || "oakhaven_borderlands";
+      const zoneId = zoneMap[theme];
+      if (!zoneId) {
+        throw new Error(`Unknown theme or zone: "${themeOrConfig}"`);
+      }
       config = {
         selection: { mode: "single", zoneId },
         initialRadius: 2,
@@ -731,6 +845,7 @@ export class AshDatabase {
       }
     }
     this.saveGeneratedRegion(campaignId, world);
+    return world;
   }
 
   joinCampaign(code: string, existingToken?: string) {
@@ -892,19 +1007,23 @@ export class AshDatabase {
   addRoom(
     campaignId: number,
     room: Omit<DungeonRoom, "id" | "sequence" | "createdAt">,
+    siteId?: string,
   ) {
     const row = this.db
       .prepare(
-        "SELECT COALESCE(MAX(sequence),0)+1 next FROM dungeon_rooms WHERE campaign_id = ?",
+        siteId
+          ? "SELECT COALESCE(MAX(sequence),0)+1 next FROM dungeon_rooms WHERE campaign_id = ? AND site_id = ?"
+          : "SELECT COALESCE(MAX(sequence),0)+1 next FROM dungeon_rooms WHERE campaign_id = ?",
       )
-      .get(campaignId) as Row;
+      .get(...(siteId ? [campaignId, siteId] : [campaignId])) as Row;
     const sequence = Number(row.next);
     this.db
       .prepare(
-        "INSERT INTO dungeon_rooms (campaign_id,sequence,geometry,contents,interaction,exits,trap_json,created_at) VALUES (?,?,?,?,?,?,?,?)",
+        "INSERT INTO dungeon_rooms (campaign_id,site_id,sequence,geometry,contents,interaction,exits,trap_json,created_at) VALUES (?,?,?,?,?,?,?,?,?)",
       )
       .run(
         campaignId,
+        siteId ?? null,
         sequence,
         room.geometry,
         room.contents,
@@ -913,6 +1032,215 @@ export class AshDatabase {
         room.trap ? JSON.stringify(room.trap) : null,
         now(),
       );
+  }
+
+  setExpeditionObjective(campaignId: number, objective: ExpeditionObjective | null) {
+    this.db
+      .prepare("UPDATE campaigns SET active_objective_json = ? WHERE id = ?")
+      .run(objective ? JSON.stringify(objective) : null, campaignId);
+  }
+
+  setActiveSite(campaignId: number, siteId: string | null) {
+    this.db
+      .prepare("UPDATE campaigns SET active_site_id = ? WHERE id = ?")
+      .run(siteId ?? null, campaignId);
+  }
+
+  updateSiteState(siteId: string, currentState: string) {
+    this.db
+      .prepare("UPDATE sites SET current_state = ? WHERE id = ?")
+      .run(currentState, siteId);
+  }
+
+  updateCharacterFatigue(characterId: number, fatigue: number) {
+    this.db
+      .prepare("UPDATE characters SET fatigue = ? WHERE id = ?")
+      .run(Math.max(0, fatigue), characterId);
+  }
+
+  consumePartyRations(campaignId: number, amount: number): number {
+    const row = this.db
+      .prepare("SELECT rations FROM campaigns WHERE id = ?")
+      .get(campaignId) as { rations?: number } | undefined;
+    const current = row?.rations ?? 12;
+    const nextRations = Math.max(0, current - amount);
+    this.db
+      .prepare("UPDATE campaigns SET rations = ? WHERE id = ?")
+      .run(nextRations, campaignId);
+    return nextRations;
+  }
+
+  resupplyPartyRations(campaignId: number, amount: number): number {
+    const row = this.db
+      .prepare("SELECT rations FROM campaigns WHERE id = ?")
+      .get(campaignId) as { rations?: number } | undefined;
+    const current = row?.rations ?? 12;
+    const nextRations = Math.min(30, current + amount);
+    this.db
+      .prepare("UPDATE campaigns SET rations = ? WHERE id = ?")
+      .run(nextRations, campaignId);
+    return nextRations;
+  }
+
+  advanceWatch(campaignId: number, count: number = 1) {
+    const campaign = this.db
+      .prepare("SELECT day, watch, watches_traveled_today, weather, rations FROM campaigns WHERE id = ?")
+      .get(campaignId) as {
+        day?: number;
+        watch?: number;
+        watches_traveled_today?: number;
+        weather?: string;
+        rations?: number;
+      };
+
+    let day = campaign.day ?? 1;
+    let watch = (campaign.watch ?? 1) as 1 | 2 | 3 | 4;
+    let watchesTraveledToday = campaign.watches_traveled_today ?? 0;
+    let weather = campaign.weather ?? "Overcast / Mild Breeze";
+    let rations = campaign.rations ?? 12;
+
+    const chars = this.db
+      .prepare("SELECT id FROM characters WHERE campaign_id = ?")
+      .all(campaignId) as { id: number }[];
+    const partySize = Math.max(1, chars.length);
+
+    for (let i = 0; i < count; i++) {
+      if (watch === 4) {
+        watch = 1;
+        day += 1;
+        watchesTraveledToday = 0;
+        const d1 = randomInt(6) + 1;
+        const d2 = randomInt(6) + 1;
+        const roll = d1 + d2;
+        if (roll <= 2) weather = "Cataclysmic Storm / Gale";
+        else if (roll <= 4) weather = "Heavy Rain / Dense Fog";
+        else if (roll <= 8) weather = "Overcast / Mild Breeze";
+        else if (roll <= 10) weather = "Clear Skies & Bright Sun";
+        else if (roll === 11) weather = "Unnatural Heat / Aridity";
+        else weather = "Planar Aurora / Omen Sky";
+
+        rations = Math.max(0, rations - partySize);
+      } else {
+        watch = (watch + 1) as 1 | 2 | 3 | 4;
+        watchesTraveledToday += 1;
+      }
+    }
+
+    this.db
+      .prepare(
+        "UPDATE campaigns SET day = ?, watch = ?, watches_traveled_today = ?, weather = ?, rations = ? WHERE id = ?",
+      )
+      .run(day, watch, watchesTraveledToday, weather, rations, campaignId);
+
+    return { day, watch, watchesTraveledToday, weather, rations };
+  }
+
+  evaluatePartyForcedMarch(campaignId: number, conDcBase: number = 12) {
+    const characters = this.db
+      .prepare("SELECT * FROM characters WHERE campaign_id = ?")
+      .all(campaignId) as Row[];
+
+    return characters.map((c) => {
+      const charId = Number(c.id);
+      const name = String(c.name);
+      const conVal = Number(c.con);
+      const conMod = abilityModifier(conVal);
+      const currentFatigue = Number(c.fatigue ?? 0);
+      const dc = conDcBase + currentFatigue;
+      const rollD20 = randomInt(20) + 1;
+      const total = rollD20 + conMod;
+      const passed = total >= dc;
+      const nextFatigue = passed ? currentFatigue : currentFatigue + 1;
+      if (!passed) {
+        this.updateCharacterFatigue(charId, nextFatigue);
+      }
+      return {
+        characterId: charId,
+        name,
+        roll: total,
+        dc,
+        passed,
+        fatigue: nextFatigue,
+      };
+    });
+  }
+
+  getAdventurePath(campaignId: number): AdventurePathRecord | null {
+    const row = this.db
+      .prepare("SELECT adventure_path_json FROM campaigns WHERE id = ?")
+      .get(campaignId) as { adventure_path_json?: string } | undefined;
+    if (!row?.adventure_path_json) return null;
+    try {
+      return JSON.parse(row.adventure_path_json);
+    } catch {
+      return null;
+    }
+  }
+
+  saveAdventurePath(campaignId: number, path: AdventurePathRecord) {
+    this.db
+      .prepare("UPDATE campaigns SET adventure_path_json = ? WHERE id = ?")
+      .run(JSON.stringify(path), campaignId);
+  }
+
+  resolveAdventurePathDeed(
+    campaignId: number,
+    deed: string,
+    knowledgeDelta: number = 1,
+    tollMessage?: string,
+  ): { alreadyResolved: boolean; path: AdventurePathRecord | null } {
+    const path = this.getAdventurePath(campaignId);
+    if (!path) return { alreadyResolved: false, path: null };
+
+    if (path.resolvedDeeds.includes(deed)) {
+      return { alreadyResolved: true, path };
+    }
+
+    path.resolvedDeeds.push(deed);
+    path.progress.knowledge = Math.min(6, Math.max(0, path.progress.knowledge + knowledgeDelta));
+    if (tollMessage) {
+      path.toll.push(tollMessage);
+    }
+
+    if (path.activeSituation && path.activeSituation.requiredDeed === deed) {
+      path.activeSituation.status = "resolved";
+    }
+
+    this.saveAdventurePath(campaignId, path);
+
+    // If surveyor was rescued, add follow-up lead to haven tavern
+    if (deed === "rescue_surveyor") {
+      const campRow = this.db
+        .prepare("SELECT tavern_establishment_json FROM campaigns WHERE id = ?")
+        .get(campaignId) as { tavern_establishment_json?: string } | undefined;
+      if (campRow?.tavern_establishment_json) {
+        try {
+          const establishment: TavernEstablishment = JSON.parse(campRow.tavern_establishment_json);
+          const followUpLead: TavernLead = {
+            id: `lead_surveyor_followup_${campaignId}`,
+            title: "Rescued Surveyor's Account: The Karst Siphons",
+            claim: "Surveyor Jonathan Vane has recovered at the taproom. He warns that the pumping tunnels descend into subterranean living sandstone, where amphibious guards fear something far deeper.",
+            source: "Jonathan Vane (Rescued Surveyor)",
+            targetHexId: "00",
+            targetSiteId: path.activeSituation?.siteId ?? "",
+            directionHint: "Down through the waterworks overflow shaft",
+            dangerHint: "Tier 3 Threat · Deep Karst pressure and mind-siphoning slimes",
+            preparationHint: "Water-breathing draughts or kuo-toa gill charms",
+            accuracy: "true",
+            isPathLead: true,
+            isFollowUp: true,
+          };
+          if (!establishment.leads.some((l) => l.id === followUpLead.id)) {
+            establishment.leads.unshift(followUpLead);
+            this.db
+              .prepare("UPDATE campaigns SET tavern_establishment_json = ? WHERE id = ?")
+              .run(JSON.stringify(establishment), campaignId);
+          }
+        } catch {}
+      }
+    }
+
+    return { alreadyResolved: false, path };
   }
 
   addEncounterWithMonsters(
@@ -1090,19 +1418,27 @@ export class AshDatabase {
         .prepare("SELECT * FROM characters WHERE campaign_id = ? ORDER BY id")
         .all(campaignId) as Row[]
     ).map(rowToCharacter);
+    const discoveredSiteIds = this.getDiscoveredSiteIds(campaignId);
     const hexes = (
       this.db
         .prepare(
           "SELECT * FROM hexes WHERE campaign_id = ? ORDER BY CAST(id AS INTEGER)",
         )
         .all(campaignId) as Row[]
-    ).map((r) => rowToHex(r, role));
+    ).map((r) => rowToHex(r, role, discoveredSiteIds));
+    const activeSiteId = campaign.active_site_id ? String(campaign.active_site_id) : undefined;
     const rooms = (
-      this.db
-        .prepare(
-          "SELECT * FROM dungeon_rooms WHERE campaign_id = ? ORDER BY sequence",
-        )
-        .all(campaignId) as Row[]
+      activeSiteId
+        ? (this.db
+            .prepare(
+              "SELECT * FROM dungeon_rooms WHERE campaign_id = ? AND site_id = ? ORDER BY sequence",
+            )
+            .all(campaignId, activeSiteId) as Row[])
+        : (this.db
+            .prepare(
+              "SELECT * FROM dungeon_rooms WHERE campaign_id = ? ORDER BY sequence",
+            )
+            .all(campaignId) as Row[])
     ).map(rowToRoom);
     const encounterRows = this.db
       .prepare(
@@ -1201,10 +1537,56 @@ export class AshDatabase {
       }),
     );
 
-    const activeZoneId = campaign.active_zone_id ? String(campaign.active_zone_id) : "oakhaven_borderlands";
+    const activeZoneId = campaign.active_zone_id ? String(campaign.active_zone_id) : "the_gloaming";
     const phase = (campaign.current_phase ? String(campaign.current_phase) : "sanctuary") as CampaignPhase;
     const activeZone = this.getZoneManifest(activeZoneId);
     const availableZones = this.listZones();
+
+    let adventurePath: PublicAdventurePathSummary | null = null;
+    if (campaign.adventure_path_json) {
+      try {
+        const rawAP: AdventurePathRecord = JSON.parse(String(campaign.adventure_path_json));
+        const tells: string[] = [];
+        if (rawAP.progress.reach >= 2) {
+          tells.push("Locals report officials and couriers acting with strange, synchronized detachment.");
+        } else {
+          tells.push("Quiet rumors circulate of sleepwalkers and water-damaged records.");
+        }
+        if (rawAP.progress.awakening >= 2) {
+          tells.push("Strange subterranean tides pulse through deep wells and cellars.");
+        }
+        if (rawAP.progress.knowledge >= 2) {
+          tells.push("Evidence confirms a coordinated mind-traffic heading toward the deep waterways.");
+        }
+
+        adventurePath = {
+          pathId: rawAP.pathId,
+          name: rawAP.name,
+          activeSituation: rawAP.activeSituation
+            ? {
+                title: rawAP.activeSituation.title,
+                premise: rawAP.activeSituation.premise,
+                status: rawAP.activeSituation.status,
+                knownClues: rawAP.activeSituation.clues,
+              }
+            : null,
+          narrativeTells: tells,
+          revealedMethods: rawAP.aquaticMethodsRevealed ?? [],
+          ...(role === "host"
+            ? {
+                hostDetails: {
+                  startingZoneId: rawAP.startingZoneId,
+                  caveZoneId: rawAP.caveZoneId,
+                  endZoneId: rawAP.endZoneId,
+                  progress: { ...rawAP.progress },
+                  toll: [...rawAP.toll],
+                  resolvedDeeds: [...rawAP.resolvedDeeds],
+                },
+              }
+            : {}),
+        };
+      } catch {}
+    }
 
     return {
       campaign: {
@@ -1219,6 +1601,15 @@ export class AshDatabase {
         activeRegionId: campaign.active_region_id ? String(campaign.active_region_id) : undefined,
         partyLocation: campaign.party_location_json ? JSON.parse(String(campaign.party_location_json)) : undefined,
         homeLocation: campaign.home_location_json ? JSON.parse(String(campaign.home_location_json)) : undefined,
+        day: Number(campaign.day ?? 1),
+        watch: (Number(campaign.watch ?? 1) as 1 | 2 | 3 | 4),
+        watchesTraveledToday: Number(campaign.watches_traveled_today ?? 0),
+        weather: campaign.weather ? String(campaign.weather) : "Overcast / Mild Breeze",
+        rations: Number(campaign.rations ?? 12),
+        activeObjective: campaign.active_objective_json ? JSON.parse(String(campaign.active_objective_json)) : null,
+        activeSiteId: activeSiteId ?? null,
+        tavernEstablishment: campaign.tavern_establishment_json ? JSON.parse(String(campaign.tavern_establishment_json)) : null,
+        adventurePath,
       },
       me: { role, characterId },
       characters,
@@ -1257,15 +1648,20 @@ function rowToCharacter(row: Row): Character {
     anchors: JSON.parse(String(row.anchors_json)),
     talents: row.talents_json ? JSON.parse(String(row.talents_json)) : [],
     xp: row.xp != null ? Number(row.xp) : 0,
+    fatigue: row.fatigue != null ? Number(row.fatigue) : 0,
   };
 }
 
-function rowToHex(row: Row, role: Role = "player"): PublicHex {
+function rowToHex(
+  row: Row,
+  role: Role = "player",
+  discoveredSiteIds: Set<string> = new Set(),
+): PublicHex {
   const revealState = String(row.reveal_state) as PublicHex["revealState"];
   const connections: PublicConnectionSummary[] = row.connections_json
     ? JSON.parse(String(row.connections_json))
     : [];
-  const sites: PublicSiteSummary[] = row.sites_json
+  const rawSites: PublicSiteSummary[] = row.sites_json
     ? JSON.parse(String(row.sites_json))
     : [];
 
@@ -1281,26 +1677,41 @@ function rowToHex(row: Row, role: Role = "player"): PublicHex {
   if (row.secondary_zone) base.secondaryZone = String(row.secondary_zone);
 
   if (revealState === "unexplored") {
-    if (row.road) base.road = String(row.road);
-    if (row.river) base.river = String(row.river);
-    if (row.horizon_rumor) base.horizonRumor = String(row.horizon_rumor);
-    if (row.exit_destination) base.exitDestination = String(row.exit_destination);
-    if (row.elevation != null) base.elevation = Number(row.elevation);
-    if (connections.length > 0) {
-      base.connections = connections.filter((c) => c.kind === "road" || c.kind === "river");
+    if (role === "host") {
+      if (row.road) base.road = String(row.road);
+      if (row.river) base.river = String(row.river);
+      if (row.horizon_rumor) base.horizonRumor = String(row.horizon_rumor);
+      if (row.exit_destination) base.exitDestination = String(row.exit_destination);
+      if (row.elevation != null) base.elevation = Number(row.elevation);
+      if (connections.length > 0) base.connections = connections;
     }
     return base;
   }
 
   if (revealState === "rumored") {
-    if (row.road) base.road = String(row.road);
-    if (row.river) base.river = String(row.river);
     if (row.horizon_rumor) base.horizonRumor = String(row.horizon_rumor);
-    if (connections.length > 0) base.connections = connections;
+    if (role === "host") {
+      if (row.road) base.road = String(row.road);
+      if (row.river) base.river = String(row.river);
+      if (connections.length > 0) base.connections = connections;
+    }
     return base;
   }
 
   // scouted, explored, fully_mapped
+  const filteredSites = rawSites
+    .filter((s) => {
+      if (role === "host") return true;
+      if (s.visibility === "visible" || (!s.visibility && !s.isSecret)) {
+        return true;
+      }
+      return discoveredSiteIds.has(s.id);
+    })
+    .map((s) => ({
+      ...s,
+      isSecret: s.isSecret ?? s.visibility === "secret",
+    }));
+
   const result: PublicHex = {
     ...base,
     name: String(row.name),
@@ -1311,7 +1722,7 @@ function rowToHex(row: Row, role: Role = "player"): PublicHex {
     horizonRumor: row.horizon_rumor ? String(row.horizon_rumor) : undefined,
     exitDestination: row.exit_destination ? String(row.exit_destination) : undefined,
     connections,
-    sites: sites.filter((s) => !s.isSecret || revealState === "fully_mapped"),
+    sites: filteredSites,
   };
 
   if (revealState === "scouted") {
@@ -1334,6 +1745,7 @@ function rowToRoom(row: Row): DungeonRoom {
     interaction: String(row.interaction),
     exits: Number(row.exits),
     trap: row.trap_json ? JSON.parse(String(row.trap_json)) : undefined,
+    siteId: row.site_id ? String(row.site_id) : undefined,
     createdAt: String(row.created_at),
   };
 }

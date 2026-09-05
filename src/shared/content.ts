@@ -273,10 +273,10 @@ export const HEX_DEFINITIONS = [
     0,
     0,
     0,
-    "Oakhaven Sanctuary",
-    "Fortified Basin",
+    "Marin's Hold",
+    "River Confluence Motte",
     0,
-    "High Watchtower, Temple of St. Jude, Tavern",
+    "Motte-and-bailey Keep, Timber Palisade, The Crayfish Tavern",
   ],
   [
     "01",

@@ -101,6 +101,7 @@ obj/
 *.db-wal
 *.db-shm
 data/local/
+public/hexcrawl-tiles/
 campaigns/local_*
 saves/local_*
 backups/

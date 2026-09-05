@@ -114,12 +114,6 @@ function loadNpcData(): NpcOracleData {
           Wizard: ["Sage", "Wizard"],
           Thief: ["Thief"],
         },
-        oakhaven_borderlands: {
-          Fighter: ["Fighter", "Ranger"],
-          Thief: ["Thief", "Delver"],
-          Priest: ["Priest", "Druid"],
-          Wizard: ["Wizard", "Sage", "Alchemist"],
-        },
       },
     };
   }
@@ -128,7 +122,7 @@ function loadNpcData(): NpcOracleData {
 
 export function generateNpc(
   activeParty: Character[] = [],
-  zoneId = "oakhaven_borderlands",
+  zoneId = "the_gloaming",
   rng?: RandomSource,
 ): NpcResult {
   const data = loadNpcData();
@@ -186,7 +180,7 @@ export function generateNpc(
   baseArchetype = classPool[cIdx] ?? "Fighter";
 
   // 3. Zone Subclass
-  const zoneMap = data.zoneSubclasses[zoneId] ?? data.zoneSubclasses["oakhaven_borderlands"] ?? {};
+  const zoneMap = data.zoneSubclasses[zoneId] ?? data.zoneSubclasses["the_gloaming"] ?? {};
   const subclassOptions = zoneMap[baseArchetype] ?? [baseArchetype];
   const subIdx = subclassOptions.length > 1 ? rollDie(subclassOptions.length, rng) - 1 : 0;
   const resolvedClass = isWildcardClass ? "Specialist Adventurer" : (subclassOptions[subIdx] ?? baseArchetype);

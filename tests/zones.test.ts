@@ -5,11 +5,10 @@ import { BORDER_PAIRINGS, ZONE_PROFILES } from "../src/shared/zone-profiles.js";
 describe("Thematic Zone Framework & CampaignPhase State Machine", () => {
   const db = new AshDatabase(":memory:");
 
-  it("loads 7 complete thematic zones", () => {
+  it("loads 6 complete thematic zones", () => {
     const zones = db.listZones();
-    expect(zones.length).toBe(7);
+    expect(zones.length).toBe(6);
     const ids = zones.map((z) => z.id);
-    expect(ids).toContain("oakhaven_borderlands");
     expect(ids).toContain("the_gloaming");
     expect(ids).toContain("red_sands");
     expect(ids).toContain("midnight_sun");
@@ -88,14 +87,64 @@ describe("Thematic Zone Framework & CampaignPhase State Machine", () => {
     const created = db.createCampaign("Test Campaign", "Borderlands", "1234");
     const state1 = db.getState(created.campaignId, "host", null, "");
     expect(state1.campaign.phase).toBe("sanctuary");
-    expect(state1.campaign.activeZoneId).toBe("oakhaven_borderlands");
+    expect(state1.campaign.activeZoneId).toBe("the_gloaming");
 
     db.setCampaignPhase(created.campaignId, "hexcrawl");
-    db.setActiveZone(created.campaignId, "the_gloaming");
+    db.setActiveZone(created.campaignId, "red_sands");
 
     const state2 = db.getState(created.campaignId, "host", null, "");
     expect(state2.campaign.phase).toBe("hexcrawl");
-    expect(state2.campaign.activeZoneId).toBe("the_gloaming");
-    expect(state2.activeZone?.name).toBe("The Gloaming");
+    expect(state2.campaign.activeZoneId).toBe("red_sands");
+    expect(state2.activeZone?.name).toBe("The Red Sands (Djurum)");
+  });
+
+  it("generates authentic havens, taverns, and settlements across all 6 canonical zones", async () => {
+    const { generateProceduralRegion } = await import("../src/server/generators/procedural-region.js");
+    const { ZONE_HAVEN_DEFINITIONS } = await import("../src/server/generators/names.js");
+
+    const canonicalZones = [
+      "the_gloaming",
+      "red_sands",
+      "midnight_sun",
+      "river_of_night",
+      "dwellers_in_the_deep",
+      "city_of_masks",
+    ] as const;
+
+    for (const zoneId of canonicalZones) {
+      const world = generateProceduralRegion(100, {
+        selection: { mode: "single", zoneId },
+        initialRadius: 2,
+        structuralRadius: 6,
+        regionalHexMiles: 6,
+        season: "autumn",
+        sourceContent: "adapted",
+        rulesProfileId: "ash_4watch_v1",
+      });
+
+      // Haven Hex 00 must match zone canonical haven
+      const hex00 = world.initial19PublicHexes.find((h) => h.id === "00");
+      expect(hex00).toBeDefined();
+      expect(hex00!.name).toBe(ZONE_HAVEN_DEFINITIONS[zoneId].name);
+
+      // Tavern establishment must match zone canonical tavern
+      expect(world.tavernEstablishment).toBeDefined();
+      expect(world.tavernEstablishment!.name).toBe(ZONE_HAVEN_DEFINITIONS[zoneId].tavernName);
+
+      // Verify no legacy 'Oakhaven' occurs in any generated public hex or site
+      for (const h of world.initial19PublicHexes) {
+        expect(h.name.toLowerCase()).not.toContain("oakhaven");
+        expect(h.landmark.toLowerCase()).not.toContain("oakhaven");
+      }
+      for (const s of world.sites) {
+        expect(s.name.toLowerCase()).not.toContain("oakhaven");
+      }
+
+      // Settlements must have authentic names (not generic 'Woodcutter Steading of Hex 01')
+      const settlements = world.sites.filter((s) => s.kind === "settlement");
+      for (const s of settlements) {
+        expect(s.name).not.toMatch(/of Hex \d\d/);
+      }
+    }
   });
 });

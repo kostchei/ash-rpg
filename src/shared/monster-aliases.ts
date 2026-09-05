@@ -15,7 +15,7 @@ export const MONSTER_ALIASES: Record<string, string> = {
  * Sources: Shadowdark RPG Core Rules and Cursed Scroll zines 1-6.
  */
 export const CUSTOM_MONSTER_TEMPLATES: Record<string, Omit<EncounterMonster, "id">> = {
-  // --- Oakhaven Borderlands & Common Core Monsters ---
+  // --- Common Core & Western Reaches Monsters ---
   bandit: {
     monsterKey: "bandit",
     name: "Bandit",

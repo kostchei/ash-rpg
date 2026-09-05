@@ -1,0 +1,119 @@
+{
+  "terrain": {
+    "forest": [
+      "forest1",
+      "forest2",
+      "forest3",
+      "forest4",
+      "forest5"
+    ],
+    "desert": [
+      "desert1",
+      "desert2",
+      "desert3",
+      "desert4",
+      "desert5",
+      "desert6",
+      "desert7"
+    ],
+    "deadlands": [
+      "deadlands1",
+      "deadlands2"
+    ],
+    "grass": [
+      "grass1",
+      "grass2",
+      "grass3"
+    ],
+    "fields": [
+      "field1",
+      "field2",
+      "field3",
+      "field4"
+    ],
+    "hills": [
+      "hills1",
+      "hills2",
+      "hills3",
+      "hills4",
+      "hills5",
+      "hills6"
+    ],
+    "wetlands": [
+      "wetands1",
+      "wetlands2",
+      "wetlands3",
+      "wetlands4",
+      "wetlands5",
+      "wetlands6"
+    ],
+    "mountains": [
+      "mountain1",
+      "mountain2",
+      "mountain3",
+      "mountain4",
+      "mountain5"
+    ],
+    "sea": [
+      "sea1",
+      "sea2",
+      "sea3",
+      "sea4",
+      "sea5",
+      "sea6"
+    ]
+  },
+  "pointsOfInterest": [
+    "s01",
+    "s02",
+    "s03",
+    "s04",
+    "s05",
+    "s06",
+    "s07",
+    "s08",
+    "s09",
+    "s10",
+    "s11",
+    "s12",
+    "s13",
+    "s14",
+    "s15",
+    "s17",
+    "s18"
+  ],
+  "paths": {
+    "2,5": "r1",
+    "1,4": "r2",
+    "0,3": "r3",
+    "0,4": "r4",
+    "3,5": "r5",
+    "2,4": "r6",
+    "1,5": "r7",
+    "0,2": "r8",
+    "1,3": "r9",
+    "3,4": "r10",
+    "4,5": "r11",
+    "0,5": "r12",
+    "0,1": "r13",
+    "1,2": "r14",
+    "2,3": "r15"
+  },
+  "rivers": {
+    "3,4": "river01",
+    "4,5": "river02",
+    "0,5": "river03",
+    "0,1": "river04",
+    "1,2": "river05",
+    "2,3": "river06",
+    "1,5": "river07",
+    "3,5": "river08",
+    "1,3": "river09",
+    "2,4": "river10",
+    "0,4": "river11",
+    "0,2": "river12",
+    "0,3": "river13",
+    "1,4": "river14",
+    "2,5": "river15"
+  }
+}

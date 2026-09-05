@@ -2,6 +2,8 @@
 
 The Table Companion is the local-first campaign application for running ASH without a dedicated Dungeon Master. One computer hosts the campaign, a shared display shows the party state, and players join from phones over the same network.
 
+The next release targets a complete in-person expedition with four core classes, individual phone activity choices, connected dungeon exploration, initiative, and treasure allocation. See the [product scope](../README.md#the-next-playable-release-a-companion-for-the-physical-table) and [engineering plan](plans/table_companion_mvp.md). The implemented foundations below do not imply that this complete release flow has passed a multiplayer playtest.
+
 ## What is implemented
 
 - Campaign creation with a six-character table code and hashed host PIN.

@@ -1,6 +1,8 @@
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useState, type FormEvent } from "react";
+import { FrontierMap } from "./FrontierMap";
 import {
   AlertTriangle,
+  Apple,
   ArrowUpCircle,
   BookOpen,
   Castle,
@@ -13,6 +15,7 @@ import {
   DoorOpen,
   Filter,
   Flame,
+  Footprints,
   Heart,
   HelpCircle,
   LogOut,
@@ -26,18 +29,22 @@ import {
   Skull,
   Sparkles,
   Swords,
+  Tent,
   Users,
   X,
 } from "lucide-react";
 import { io, type Socket } from "socket.io-client";
 import { ABILITY_KEYS, ANCESTRIES, CLASSES, MONSTERS } from "../shared/content";
+import { BORDER_PAIRINGS, getBorderPairing, validateBorderPairing, ZONE_PROFILES } from "../shared/zone-profiles";
 import type {
   CampaignState,
   Character,
+  CursedZoneId,
   EncounterMonster,
   MonsterCatalogEntry,
   NpcResult,
   PublicHex,
+  RegionGenerationConfig,
   SessionIdentity,
   SettlementResult,
   ZoneManifest,
@@ -179,11 +186,70 @@ function Welcome({
   const [busy, setBusy] = useState(false),
     [error, setError] = useState("");
   const [form, setForm] = useState({
-    name: "The Oakhaven Company",
+    name: "The Torchbearer Company",
     regionName: "The Western Reaches",
     pin: "",
     code: queryCode,
   });
+  const [settingMode, setSettingMode] = useState<"single" | "border">("single");
+  const [selectedZone, setSelectedZone] = useState<CursedZoneId>("the_gloaming");
+  const [borderZoneA, setBorderZoneA] = useState<CursedZoneId>("the_gloaming");
+  const [borderZoneB, setBorderZoneB] = useState<CursedZoneId>("red_sands");
+  const [borderConnection, setBorderConnection] = useState<string>("surface");
+  const [seed, setSeed] = useState("");
+  const [season, setSeason] = useState<"spring" | "summer" | "autumn" | "winter">("autumn");
+  const [preview, setPreview] = useState<any>(null);
+  const [previewLoading, setPreviewLoading] = useState(false);
+  const [previewError, setPreviewError] = useState("");
+
+  const pairing = getBorderPairing(borderZoneA, borderZoneB);
+
+  useEffect(() => {
+    if (pairing) {
+      setBorderConnection(pairing.recommendedConnection);
+    }
+  }, [borderZoneA, borderZoneB]);
+
+  const buildGenerationConfig = (): RegionGenerationConfig => {
+    if (settingMode === "single") {
+      return {
+        selection: { mode: "single", zoneId: selectedZone },
+        seed: seed.trim() || undefined,
+        season,
+        initialRadius: 2,
+        structuralRadius: 6,
+        regionalHexMiles: 6,
+      };
+    }
+    return {
+      selection: {
+        mode: "border",
+        zoneIds: [borderZoneA, borderZoneB],
+        connection: (borderConnection as any) || "surface",
+        borderProfileId: pairing?.borderProfileId,
+      },
+      seed: seed.trim() || undefined,
+      season,
+      initialRadius: 2,
+      structuralRadius: 6,
+      regionalHexMiles: 6,
+    };
+  };
+
+  const handlePreview = async () => {
+    setPreviewLoading(true);
+    setPreviewError("");
+    try {
+      const cfg = buildGenerationConfig();
+      const res = await post("/api/regions/preview", cfg);
+      setPreview(res);
+    } catch (err: any) {
+      setPreviewError(err.message || "Failed to preview map");
+    } finally {
+      setPreviewLoading(false);
+    }
+  };
+
   const submit = async (event: FormEvent) => {
     event.preventDefault();
     setBusy(true);
@@ -195,6 +261,7 @@ function Welcome({
               name: form.name,
               regionName: form.regionName,
               pin: form.pin,
+              generationConfig: buildGenerationConfig(),
             })
           : mode === "join"
             ? await post("/api/campaigns/join", { code: form.code })
@@ -281,6 +348,158 @@ function Welcome({
                 value={form.regionName}
                 onChange={(regionName) => setForm({ ...form, regionName })}
               />
+
+              <div className="field-group">
+                <label className="field-label" style={{ fontWeight: 600, display: "block", marginBottom: 6 }}>
+                  Frontier Setting Strategy
+                </label>
+                <div className="mode-tabs mini-tabs" style={{ marginBottom: 12 }}>
+                  <button
+                    type="button"
+                    className={settingMode === "single" ? "active" : ""}
+                    onClick={() => { setSettingMode("single"); setPreview(null); }}
+                  >
+                    Single Setting
+                  </button>
+                  <button
+                    type="button"
+                    className={settingMode === "border" ? "active" : ""}
+                    onClick={() => { setSettingMode("border"); setPreview(null); }}
+                  >
+                    Border Crossing
+                  </button>
+                </div>
+
+                {settingMode === "single" ? (
+                  <div className="field" style={{ marginBottom: 10 }}>
+                    <label>Setting / Realm</label>
+                    <select
+                      value={selectedZone}
+                      onChange={(e) => { setSelectedZone(e.target.value as CursedZoneId); setPreview(null); }}
+                    >
+                      <option value="the_gloaming">The Gloaming (Gothic Wildwood - CS1)</option>
+                      <option value="red_sands">The Red Sands (Djurum Desert - CS2)</option>
+                      <option value="midnight_sun">The Isles of Andrik (Glacial Fjords - CS3)</option>
+                      <option value="river_of_night">The Black River (Primeval Jungle - CS4)</option>
+                      <option value="dwellers_in_the_deep">Morzomotha (Karst Deeps - CS5)</option>
+                      <option value="city_of_masks">The City of Masks (Meridia Canals - CS6)</option>
+                    </select>
+                    <small style={{ display: "block", marginTop: 4, opacity: 0.75 }}>
+                      {ZONE_PROFILES[selectedZone]?.historicalPremise}
+                    </small>
+                  </div>
+                ) : (
+                  <div className="border-selection-fields" style={{ marginBottom: 10 }}>
+                    <div className="field" style={{ marginBottom: 8 }}>
+                      <label>First Realm (Zone A)</label>
+                      <select
+                        value={borderZoneA}
+                        onChange={(e) => { setBorderZoneA(e.target.value as CursedZoneId); setPreview(null); }}
+                      >
+                        <option value="the_gloaming">The Gloaming (CS1)</option>
+                        <option value="red_sands">The Red Sands (CS2)</option>
+                        <option value="midnight_sun">The Isles of Andrik (CS3)</option>
+                        <option value="river_of_night">The Black River (CS4)</option>
+                        <option value="dwellers_in_the_deep">Morzomotha (CS5)</option>
+                        <option value="city_of_masks">The City of Masks (CS6)</option>
+                      </select>
+                    </div>
+                    <div className="field" style={{ marginBottom: 8 }}>
+                      <label>Second Realm (Zone B)</label>
+                      <select
+                        value={borderZoneB}
+                        onChange={(e) => { setBorderZoneB(e.target.value as CursedZoneId); setPreview(null); }}
+                      >
+                        <option value="red_sands">The Red Sands (CS2)</option>
+                        <option value="the_gloaming">The Gloaming (CS1)</option>
+                        <option value="midnight_sun">The Isles of Andrik (CS3)</option>
+                        <option value="river_of_night">The Black River (CS4)</option>
+                        <option value="dwellers_in_the_deep">Morzomotha (CS5)</option>
+                        <option value="city_of_masks">The City of Masks (CS6)</option>
+                      </select>
+                    </div>
+
+                    {pairing ? (
+                      <div className="field" style={{ marginBottom: 8 }}>
+                        <label>Border Connection Mode</label>
+                        <select
+                          value={borderConnection}
+                          onChange={(e) => { setBorderConnection(e.target.value); setPreview(null); }}
+                        >
+                          {pairing.supportedConnections.map((c) => (
+                            <option key={c} value={c}>
+                              {c.toUpperCase()} {c === pairing.recommendedConnection ? "(Recommended)" : ""}
+                            </option>
+                          ))}
+                        </select>
+                        <small style={{ display: "block", marginTop: 4, opacity: 0.75 }}>
+                          {pairing.transitionMechanism}
+                        </small>
+                      </div>
+                    ) : (
+                      <div className="form-error" style={{ marginBottom: 8 }}>
+                        {borderZoneA === borderZoneB
+                          ? "Please select two distinct realms for border crossing."
+                          : "This realm pairing does not have a supported border connection."}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginTop: 8 }}>
+                  <Field
+                    label="Seed (Optional)"
+                    value={seed}
+                    onChange={(s) => { setSeed(s); setPreview(null); }}
+                    placeholder="e.g. review_0"
+                  />
+                  <div className="field">
+                    <label>Season</label>
+                    <select
+                      value={season}
+                      onChange={(e) => setSeason(e.target.value as any)}
+                    >
+                      <option value="spring">Spring</option>
+                      <option value="summer">Summer</option>
+                      <option value="autumn">Autumn</option>
+                      <option value="winter">Winter</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div style={{ marginTop: 10 }}>
+                  <button
+                    type="button"
+                    className="secondary small-btn"
+                    onClick={handlePreview}
+                    disabled={previewLoading || (settingMode === "border" && !pairing)}
+                    style={{ width: "100%" }}
+                  >
+                    {previewLoading ? "Generating Map Preview…" : "Preview Map Coherence"}
+                  </button>
+                  {previewError && <div className="form-error" style={{ marginTop: 6 }}>{previewError}</div>}
+                  {preview && (
+                    <div className="preview-card" style={{ marginTop: 8, padding: 10, borderRadius: 6, background: "rgba(0,0,0,0.3)", border: "1px solid var(--gold-border, #665)" }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
+                        <span style={{ fontWeight: 600, color: "var(--gold-light, #d8b870)" }}>Map Preview Ready</span>
+                        <span style={{ fontSize: "0.8em", opacity: 0.8 }}>{preview.hexes?.length || 19} Hexes</span>
+                      </div>
+                      <div style={{ fontSize: "0.85em", lineHeight: 1.4 }}>
+                        <div><strong>Haven:</strong> {preview.initial19PublicHexes?.find((h: any) => h.id === "00")?.landmark || "Sanctuary"}</div>
+                        <div><strong>Sites:</strong> {preview.sites?.length || 0} locations · <strong>Routes:</strong> {preview.connections?.length || 0}</div>
+                        {preview.validationReport?.zoneCounts && (
+                          <div style={{ opacity: 0.8, marginTop: 4 }}>
+                            Zones: {Object.entries(preview.validationReport.zoneCounts).map(([z, c]) => `${z.replace(/_/g, " ")}: ${c}`).join(", ")}
+                          </div>
+                        )}
+                        <div style={{ color: preview.validationReport?.valid ? "#4caf50" : "#f44336", marginTop: 4, fontWeight: 500 }}>
+                          {preview.validationReport?.valid ? "✓ Geographically Coherent & Valid" : `⚠ Validation warnings: ${preview.validationReport?.warnings?.join("; ")}`}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
             </>
           )}
           {mode !== "create" && (
@@ -488,6 +707,15 @@ function CampaignSubbar({
     { id: "dungeon", label: "Dungeon", icon: "🗝️" },
   ] as const;
 
+  const watchNames = {
+    1: "Morning",
+    2: "Afternoon",
+    3: "Evening",
+    4: "Night",
+  };
+  const currentWatch = (state.campaign.watch ?? 1) as 1 | 2 | 3 | 4;
+  const fatiguedChars = state.characters.filter((c) => (c.fatigue ?? 0) > 0);
+
   return (
     <div className="campaign-subbar">
       <div className="subbar-group">
@@ -524,11 +752,41 @@ function CampaignSubbar({
         </div>
       </div>
 
+      <div className="subbar-group expedition-clock-widget">
+        <div className="clock-chip" title="4-Watch Expedition Clock">
+          <span className="clock-icon">⏳</span>
+          <span>Day {state.campaign.day ?? 1} · Watch {currentWatch} ({watchNames[currentWatch]})</span>
+          {currentWatch === 4 && (
+            <span className="forced-march-badge">⚠️ Forced March Risk</span>
+          )}
+        </div>
+        <div className="clock-chip weather-chip" title="Dawn Weather Condition">
+          <span>🌤️</span>
+          <span>{state.campaign.weather ?? "Overcast / Mild Breeze"}</span>
+        </div>
+        <div className="clock-chip rations-chip" title="Party Iron Rations">
+          <span>🍞</span>
+          <span>{state.campaign.rations ?? 12} Rations</span>
+        </div>
+        {state.campaign.activeObjective && (
+          <div className="clock-chip objective-chip" title={state.campaign.activeObjective.claim || state.campaign.activeObjective.notes || ""}>
+            <span>🎯</span>
+            <span className="objective-title">Obj: {state.campaign.activeObjective.title}</span>
+          </div>
+        )}
+        {fatiguedChars.length > 0 && (
+          <div className="clock-chip fatigue-chip" title="Fatigued Party Members">
+            <span>😫</span>
+            <span>{fatiguedChars.map((c) => `${c.name} (F${c.fatigue})`).join(", ")}</span>
+          </div>
+        )}
+      </div>
+
       <div className="subbar-group right">
         <button className="zone-dossier-btn" onClick={onOpenZone}>
           <Compass size={15} />
           <span className="zone-chip-label">ZONE</span>
-          <strong>{state.activeZone?.name ?? "Oakhaven Borderlands"}</strong>
+          <strong>{state.activeZone?.name ?? "The Gloaming"}</strong>
           <ChevronRight size={14} />
         </button>
       </div>
@@ -548,7 +806,7 @@ function ZoneDossierModal({
   const zone = state.activeZone;
   const available = state.availableZones ?? [];
   const [targetZone, setTargetZone] = useState(
-    state.campaign.activeZoneId ?? "oakhaven_borderlands",
+    state.campaign.activeZoneId ?? "the_gloaming",
   );
 
   const switchZone = async () => {
@@ -562,7 +820,7 @@ function ZoneDossierModal({
   };
 
   const returnSanctuary = async () => {
-    await act("zone:exit", {}, "Returned to Oakhaven sanctuary");
+    await act("zone:exit", {}, `Returned to ${state.activeZone?.havenDefaults?.name ?? "sanctuary"}`);
     onClose();
   };
 
@@ -786,6 +1044,191 @@ function SanctuaryView({ state, act }: { state: CampaignState; act: Act }) {
         </div>
 
         <div className="sanctuary-grid">
+          {/* Haven Bastion Taproom & Grounded Leads */}
+          {state.campaign.tavernEstablishment && (
+            <article className="sub-panel tavern-establishment-card full-width">
+              <div className="sub-panel-header">
+                <div>
+                  <div className="eyebrow">Haven Bastion Taproom</div>
+                  <h3>{state.campaign.tavernEstablishment.name}</h3>
+                  <p className="tavern-submeta" style={{ margin: "4px 0 0", fontSize: "13px", color: "var(--muted)" }}>
+                    <b>Vibe:</b> {state.campaign.tavernEstablishment.vibe} · <b>Barkeep:</b> {state.campaign.tavernEstablishment.barkeepName} · <b>Patrons:</b> {state.campaign.tavernEstablishment.patronage}
+                  </p>
+                </div>
+              </div>
+
+              {state.campaign.activeObjective && (
+                <div className="active-objective-banner" style={{ background: "rgba(217, 117, 56, 0.12)", border: "1px solid var(--ember)", borderRadius: "6px", padding: "12px", margin: "12px 0" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <span className="badge-tag active-obj-tag" style={{ background: "var(--ember)", color: "#000", fontWeight: "bold" }}>CURRENT EXPEDITION OBJECTIVE</span>
+                    {state.me.role === "host" && (
+                      <button
+                        className="small-btn"
+                        onClick={() => act("expedition:select_objective", { title: "" }, "Objective cleared")}
+                      >
+                        Clear Objective
+                      </button>
+                    )}
+                  </div>
+                  <h4 style={{ margin: "6px 0 2px", color: "var(--ember)" }}>{state.campaign.activeObjective.title}</h4>
+                  <p style={{ margin: "0 0 6px", fontSize: "13px" }}>{state.campaign.activeObjective.claim || state.campaign.activeObjective.notes}</p>
+                  <div style={{ display: "flex", gap: "16px", fontSize: "12px", color: "var(--muted)" }}>
+                    {state.campaign.activeObjective.directionHint && (
+                      <span><b>Heading:</b> {state.campaign.activeObjective.directionHint}</span>
+                    )}
+                    {state.campaign.activeObjective.targetHexId && (
+                      <span><b>Target Hex:</b> {state.campaign.activeObjective.targetHexId}</span>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              <div className="leads-section" style={{ marginTop: "12px" }}>
+                <div className="eyebrow" style={{ marginBottom: "8px" }}>Tavern Intel & Grounded Leads</div>
+                <div className="leads-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "12px" }}>
+                  {state.campaign.tavernEstablishment.leads.map((lead) => {
+                    const isCurrentObj = state.campaign.activeObjective?.leadId === lead.id || state.campaign.activeObjective?.title === lead.title;
+                    return (
+                      <div
+                        key={lead.id}
+                        className={`lead-card ${lead.isPathLead ? "path-lead" : ""} ${isCurrentObj ? "active-lead" : ""}`}
+                        style={{
+                          background: isCurrentObj ? "rgba(217, 117, 56, 0.15)" : lead.isPathLead ? "rgba(79, 140, 201, 0.12)" : "rgba(255, 255, 255, 0.04)",
+                          border: isCurrentObj ? "1px solid var(--ember)" : lead.isPathLead ? "1px solid #4f8cc9" : "1px solid var(--line)",
+                          borderRadius: "6px",
+                          padding: "12px",
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: "8px",
+                        }}
+                      >
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                          {lead.isPathLead ? (
+                            <span className="badge-tag" style={{ background: "#4f8cc9", color: "#fff", fontSize: "10px" }}>🧭 ADVENTURE PATH</span>
+                          ) : lead.isFollowUp ? (
+                            <span className="badge-tag" style={{ background: "#9d4edd", color: "#fff", fontSize: "10px" }}>⭐ FOLLOW-UP INTEL</span>
+                          ) : (
+                            <span className="badge-tag" style={{ fontSize: "10px" }}>REGIONAL LEAD</span>
+                          )}
+                          <span style={{ fontSize: "11px", color: "var(--muted)" }}>{lead.source}</span>
+                        </div>
+                        <h4 style={{ margin: "0", fontSize: "14px" }}>{lead.title}</h4>
+                        <p style={{ margin: "0", fontSize: "13px", fontStyle: "italic", color: "var(--ink)" }}>“{lead.claim}”</p>
+                        <div style={{ fontSize: "12px", color: "var(--muted)", display: "flex", flexDirection: "column", gap: "2px" }}>
+                          {lead.directionHint && <div><b>Direction:</b> {lead.directionHint}</div>}
+                          {lead.dangerHint && <div><b>Hazards:</b> {lead.dangerHint}</div>}
+                          {lead.preparationHint && <div><b>Preparation:</b> {lead.preparationHint}</div>}
+                        </div>
+                        <div style={{ marginTop: "auto", paddingTop: "8px" }}>
+                          {isCurrentObj ? (
+                            <span style={{ color: "var(--ember)", fontWeight: "bold", fontSize: "12px" }}>✓ Selected Expedition Objective</span>
+                          ) : (
+                            <button
+                              className="small-btn primary wide"
+                              onClick={() =>
+                                act(
+                                  "expedition:select_objective",
+                                  {
+                                    leadId: lead.id,
+                                    title: lead.title,
+                                    targetHexId: lead.targetHexId,
+                                    targetSiteId: lead.targetSiteId,
+                                    directionHint: lead.directionHint,
+                                    notes: lead.claim,
+                                  },
+                                  `Selected objective: ${lead.title}`,
+                                )
+                              }
+                            >
+                              Set as Active Objective
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </article>
+          )}
+
+          {/* Adventure Path Clues & World Whispers */}
+          {state.campaign.adventurePath && (
+            <article className="sub-panel adventure-path-card full-width" style={{ border: "1px solid #4f8cc9" }}>
+              <div className="sub-panel-header">
+                <div>
+                  <div className="eyebrow" style={{ color: "#4f8cc9" }}>Adventure Path Investigation</div>
+                  <h3>{state.campaign.adventurePath.name}</h3>
+                </div>
+              </div>
+
+              {state.campaign.adventurePath.activeSituation && (
+                <div style={{ background: "rgba(79, 140, 201, 0.08)", padding: "12px", borderRadius: "6px", margin: "10px 0" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between" }}>
+                    <h4 style={{ margin: "0 0 4px" }}>{state.campaign.adventurePath.activeSituation.title}</h4>
+                    <span className="badge-tag" style={{ textTransform: "uppercase" }}>{state.campaign.adventurePath.activeSituation.status}</span>
+                  </div>
+                  <p style={{ margin: "0 0 8px", fontSize: "13px" }}>{state.campaign.adventurePath.activeSituation.premise}</p>
+                  {state.campaign.adventurePath.activeSituation.knownClues.length > 0 && (
+                    <div>
+                      <span className="eyebrow" style={{ fontSize: "10px" }}>Known Leads & Evidence</span>
+                      <ul style={{ margin: "4px 0 0", paddingLeft: "16px", fontSize: "12px" }}>
+                        {state.campaign.adventurePath.activeSituation.knownClues.map((c, i) => (
+                          <li key={i}>{c}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {state.campaign.adventurePath.narrativeTells.length > 0 && (
+                <div style={{ marginTop: "10px" }}>
+                  <div className="eyebrow" style={{ fontSize: "11px" }}>Tells & Atmospheric Phenomena</div>
+                  <ul style={{ margin: "4px 0 0", paddingLeft: "16px", fontSize: "12px", color: "var(--muted)" }}>
+                    {state.campaign.adventurePath.narrativeTells.map((tell, i) => (
+                      <li key={i}>{tell}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {state.campaign.adventurePath.hostDetails && (
+                <div className="host-ap-dashboard" style={{ marginTop: "14px", paddingTop: "10px", borderTop: "1px dashed var(--line)" }}>
+                  <div className="eyebrow" style={{ color: "var(--ember)" }}>Host Path Ledger (Hidden Tracks & Tolls)</div>
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "8px", margin: "8px 0" }}>
+                    <div className="stat-box" style={{ background: "rgba(0,0,0,0.3)", padding: "6px 8px", borderRadius: "4px", textAlign: "center" }}>
+                      <span style={{ fontSize: "10px", color: "var(--muted)" }}>REACH</span>
+                      <div style={{ fontWeight: "bold", fontSize: "15px" }}>{state.campaign.adventurePath.hostDetails.progress.reach} / 6</div>
+                    </div>
+                    <div className="stat-box" style={{ background: "rgba(0,0,0,0.3)", padding: "6px 8px", borderRadius: "4px", textAlign: "center" }}>
+                      <span style={{ fontSize: "10px", color: "var(--muted)" }}>AWAKENING</span>
+                      <div style={{ fontWeight: "bold", fontSize: "15px" }}>{state.campaign.adventurePath.hostDetails.progress.awakening} / 6</div>
+                    </div>
+                    <div className="stat-box" style={{ background: "rgba(0,0,0,0.3)", padding: "6px 8px", borderRadius: "4px", textAlign: "center" }}>
+                      <span style={{ fontSize: "10px", color: "var(--muted)" }}>KNOWLEDGE</span>
+                      <div style={{ fontWeight: "bold", fontSize: "15px" }}>{state.campaign.adventurePath.hostDetails.progress.knowledge} / 6</div>
+                    </div>
+                    <div className="stat-box" style={{ background: "rgba(0,0,0,0.3)", padding: "6px 8px", borderRadius: "4px", textAlign: "center" }}>
+                      <span style={{ fontSize: "10px", color: "var(--muted)" }}>ACCESS</span>
+                      <div style={{ fontWeight: "bold", fontSize: "15px" }}>{state.campaign.adventurePath.hostDetails.progress.access} / 6</div>
+                    </div>
+                  </div>
+                  {state.campaign.adventurePath.hostDetails.resolvedDeeds.length > 0 && (
+                    <div style={{ fontSize: "11px", marginTop: "4px" }}>
+                      <b>Resolved Deeds:</b> {state.campaign.adventurePath.hostDetails.resolvedDeeds.join(", ")}
+                    </div>
+                  )}
+                  {state.campaign.adventurePath.hostDetails.toll.length > 0 && (
+                    <div style={{ fontSize: "11px", marginTop: "4px", color: "var(--ember)" }}>
+                      <b>Toll Incurred:</b> {state.campaign.adventurePath.hostDetails.toll.join(" · ")}
+                    </div>
+                  )}
+                </div>
+              )}
+            </article>
+          )}
+
           {/* City & Settlement Oracle */}
           <article className="sub-panel settlement-card">
             <div className="sub-panel-header">
@@ -962,349 +1405,450 @@ function SanctuaryView({ state, act }: { state: CampaignState; act: Act }) {
   );
 }
 
-function getBiomeClass(hex: PublicHex): string {
-  if (hex.revealState === "unexplored") return "biome-unexplored";
-  const b = (hex.biome || "").toLowerCase();
-  if (
-    b.includes("peak") ||
-    b.includes("crag") ||
-    b.includes("mountain") ||
-    b.includes("ridge")
-  )
-    return "biome-mountain";
-  if (
-    b.includes("desert") ||
-    b.includes("dune") ||
-    b.includes("wadi") ||
-    b.includes("salt") ||
-    b.includes("scree") ||
-    b.includes("canyon")
-  )
-    return "biome-desert";
-  if (
-    b.includes("fjord") ||
-    b.includes("ice") ||
-    b.includes("glacier") ||
-    b.includes("sound")
-  )
-    return "biome-fjord";
-  if (
-    b.includes("jungle") ||
-    b.includes("rainforest") ||
-    b.includes("canopy") ||
-    b.includes("ironwood") ||
-    b.includes("bamboo")
-  )
-    return "biome-jungle";
-  if (
-    b.includes("urban") ||
-    b.includes("canal") ||
-    b.includes("piazza") ||
-    b.includes("embankment")
-  )
-    return "biome-urban";
-  if (
-    b.includes("wood") ||
-    b.includes("forest") ||
-    b.includes("hollow") ||
-    b.includes("copse") ||
-    b.includes("elderwood") ||
-    b.includes("bramble")
-  )
-    return "biome-forest";
-  if (
-    b.includes("swamp") ||
-    b.includes("fen") ||
-    b.includes("mire") ||
-    b.includes("reed") ||
-    b.includes("delta") ||
-    b.includes("bog") ||
-    b.includes("quagmire")
-  )
-    return "biome-wetland";
-  if (
-    b.includes("basin") ||
-    b.includes("meadow") ||
-    b.includes("weald") ||
-    b.includes("verge") ||
-    b.includes("grass") ||
-    b.includes("pasture") ||
-    b.includes("clearing")
-  )
-    return "biome-valley";
-  if (b.includes("coast") || b.includes("scrub") || b.includes("harbor") || b.includes("beach"))
-    return "biome-coastal";
-  if (
-    b.includes("karst") ||
-    b.includes("sink") ||
-    b.includes("chasm") ||
-    b.includes("cavern") ||
-    b.includes("cave") ||
-    b.includes("siphon") ||
-    b.includes("grotto")
-  )
-    return "biome-subterranean";
-  return "biome-default";
+function CampAllowanceModal({
+  state,
+  act,
+  onClose,
+}: {
+  state: CampaignState;
+  act: Act;
+  onClose: () => void;
+}) {
+  // Sort crawlers by Wisdom descending to assign the 2 highest wisdom crawlers to watch
+  const sortedByWis = useMemo(() => {
+    return [...state.characters].sort(
+      (a, b) => (b.abilities?.wis ?? 10) - (a.abilities?.wis ?? 10),
+    );
+  }, [state.characters]);
+
+  const watchSentries = useMemo(() => {
+    return sortedByWis.slice(0, 2);
+  }, [sortedByWis]);
+
+  const watchSentryIds = useMemo(() => {
+    return new Set(watchSentries.map((c) => c.id));
+  }, [watchSentries]);
+
+  const otherCrawlers = useMemo(() => {
+    return state.characters.filter((c) => !watchSentryIds.has(c.id));
+  }, [state.characters, watchSentryIds]);
+
+  const [taskAssignments, setTaskAssignments] = useState<Record<number, string>>(() => {
+    const initial: Record<number, string> = {};
+    // Auto-assign 2 highest WIS to watch
+    watchSentries.forEach((c) => {
+      initial[c.id] = "watch";
+    });
+    // Default tasks for other crawlers
+    otherCrawlers.forEach((c, idx) => {
+      initial[c.id] = idx === 0 ? "cook" : idx === 1 ? "firewood" : idx === 2 ? "hunt" : "bed_down";
+    });
+    return initial;
+  });
+
+  const [isResolving, setIsResolving] = useState(false);
+
+  const handleMakeCamp = () => {
+    setIsResolving(true);
+    const tasks = state.characters.map((c) => ({
+      characterId: c.id,
+      task: (taskAssignments[c.id] || (watchSentryIds.has(c.id) ? "watch" : "bed_down")) as any,
+    }));
+    act(
+      "expedition:camp_night",
+      { tasks },
+      "Evening camp resolved with assigned tasks",
+    );
+    onClose();
+  };
+
+  const handleForceMarch = () => {
+    setIsResolving(true);
+    act(
+      "expedition:force_march",
+      {},
+      "Party declared Forced March into Watch 4 darkness",
+    );
+    onClose();
+  };
+
+  const currentLoc = state.campaign.partyLocation ?? { q: 0, r: 0 };
+  const currentHex = state.hexes.find(
+    (h) => h.q === currentLoc.q && h.r === currentLoc.r,
+  );
+
+  return (
+    <div className="modal-backdrop" onClick={onClose}>
+      <div
+        className="modal-panel camp-modal-card"
+        onClick={(e) => e.stopPropagation()}
+        style={{ maxWidth: "720px", width: "95%" }}
+      >
+        <div
+          className="modal-header"
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            borderBottom: "1px solid var(--line)",
+            paddingBottom: "12px",
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+            <span style={{ fontSize: "28px" }}>🌙</span>
+            <div>
+              <div className="eyebrow" style={{ color: "var(--ember)" }}>
+                DAILY TRAVEL ALLOWANCE REACHED
+              </div>
+              <h2 style={{ margin: 0 }}>Night Falls: Make Camp or Force March</h2>
+            </div>
+          </div>
+          <button className="icon-button close-btn" onClick={onClose} title="Dismiss for now">
+            ✕
+          </button>
+        </div>
+
+        <div className="camp-modal-body" style={{ margin: "14px 0" }}>
+          <p
+            style={{
+              margin: "0 0 12px",
+              fontSize: "13px",
+              color: "var(--muted)",
+              lineHeight: "1.5",
+            }}
+          >
+            The adventuring company has marched <b>{state.campaign.watchesTraveledToday ?? 3} watches</b> today.
+            Dusk has faded into the freezing dark of <b>Watch 4 (Night)</b>. The wilderness around{" "}
+            <b>Hex {currentHex?.id ?? "00"} ({currentHex?.name || "Wilderness"})</b> grows pitch-black and perilous.
+          </p>
+
+          <div
+            className="camp-status-strip"
+            style={{
+              display: "flex",
+              justifyContent: "space-around",
+              padding: "8px 12px",
+              background: "rgba(0,0,0,0.35)",
+              border: "1px solid var(--line)",
+              borderRadius: "6px",
+              fontSize: "12px",
+              marginBottom: "16px",
+            }}
+          >
+            <span>📍 <b>Current Hex:</b> {currentHex?.id ?? "00"}</span>
+            <span>🍞 <b>Party Supplies:</b> {state.campaign.rations ?? 12} Rations</span>
+            <span>🌤️ <b>Weather:</b> {state.campaign.weather}</span>
+          </div>
+
+          <div
+            className="camp-choice-grid"
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+              gap: "14px",
+            }}
+          >
+            {/* Card 1: Make Camp */}
+            <div
+              className="camp-choice-card"
+              style={{
+                background: "rgba(34, 60, 40, 0.35)",
+                border: "1px solid #4a9e5b",
+                borderRadius: "8px",
+                padding: "16px",
+                display: "flex",
+                flexDirection: "column",
+                gap: "12px",
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                <div style={{ background: "rgba(74, 158, 91, 0.25)", padding: "8px", borderRadius: "8px" }}>
+                  <Tent size={26} color="#72d587" />
+                </div>
+                <div>
+                  <h3 style={{ margin: 0, fontSize: "17px", color: "#72d587" }}>Make Camp</h3>
+                  <span style={{ fontSize: "11px", color: "var(--muted)" }}>Rest safely until Dawn</span>
+                </div>
+              </div>
+
+              <p style={{ margin: 0, fontSize: "12px", lineHeight: "1.4" }}>
+                Pitch tents, build a fire, and assign night tasks. Clear fatigue and awaken refreshed at dawn.
+              </p>
+
+              {state.characters.length > 0 && (
+                <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                  {/* Designated Sentries (2 Highest WIS) */}
+                  <div
+                    className="watch-sentries-box"
+                    style={{
+                      background: "rgba(0, 0, 0, 0.35)",
+                      border: "1px solid rgba(114, 213, 135, 0.35)",
+                      borderRadius: "6px",
+                      padding: "8px 10px",
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: "6px",
+                    }}
+                  >
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                      <span className="eyebrow" style={{ fontSize: "10px", color: "#72d587" }}>
+                        Designated Night Sentries (2 Highest WIS)
+                      </span>
+                      <span style={{ fontSize: "10px", color: "#a8e6cf" }}>
+                        {watchSentries.length >= 2 ? "Both shifts guarded (immune to surprise)" : "Single shift guarded"}
+                      </span>
+                    </div>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "4px", fontSize: "12px" }}>
+                      {watchSentries.map((sentry, sIdx) => {
+                        const wis = sentry.abilities?.wis ?? 10;
+                        const mod = Math.floor((wis - 10) / 2);
+                        const modStr = mod >= 0 ? `+${mod}` : `${mod}`;
+                        const shiftName = sIdx === 0 ? "First Watch Shift (Dusk)" : "Second Watch Shift (Late Night)";
+                        return (
+                          <div
+                            key={sentry.id}
+                            style={{
+                              display: "flex",
+                              justifyContent: "space-between",
+                              alignItems: "center",
+                              background: "rgba(255, 255, 255, 0.04)",
+                              padding: "4px 8px",
+                              borderRadius: "4px",
+                            }}
+                          >
+                            <div>
+                              <b>🛡️ {sentry.name}</b>{" "}
+                              <span style={{ fontSize: "11px", color: "var(--muted)" }}>
+                                (WIS {wis}, {modStr})
+                              </span>
+                            </div>
+                            <span style={{ fontSize: "11px", color: "#72d587", fontWeight: 500 }}>{shiftName}</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Other Crawlers: Prompt to Choose Task */}
+                  {otherCrawlers.length > 0 ? (
+                    <div className="other-crawlers-task-list" style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
+                        <span className="eyebrow" style={{ fontSize: "10px", color: "var(--ember)" }}>
+                          Other Party Members: Choose Task
+                        </span>
+                        <span style={{ fontSize: "10px", color: "var(--muted)" }}>
+                          Prompt crawlers to select camping duty (DC 12)
+                        </span>
+                      </div>
+                      {otherCrawlers.map((c) => (
+                        <div
+                          key={c.id}
+                          style={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                            gap: "8px",
+                            fontSize: "12px",
+                            background: "rgba(0, 0, 0, 0.2)",
+                            padding: "4px 8px",
+                            borderRadius: "4px",
+                          }}
+                        >
+                          <span style={{ fontWeight: 500, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: "110px" }}>
+                            {c.name}:
+                          </span>
+                          <select
+                            value={taskAssignments[c.id] || "cook"}
+                            onChange={(e) =>
+                              setTaskAssignments((prev) => ({
+                                ...prev,
+                                [c.id]: e.target.value,
+                              }))
+                            }
+                            style={{ fontSize: "11px", padding: "4px 8px", flex: 1, minWidth: "150px" }}
+                          >
+                            <option value="cook">🍲 Cook (INT/WIS) — +2 Temp HP (pg. 230)</option>
+                            <option value="firewood">🪵 Firewood (STR/CON) — Free Campfire</option>
+                            <option value="hunt">🏹 Hunt (STR/DEX) — Find 1d4 Rations</option>
+                            <option value="bed_down">🛏️ Bed Down (Restful Sleep)</option>
+                            <option value="entertain">🎭 Entertain (CHA) — Grant Luck</option>
+                            <option value="craft">⚒️ Craft (DEX) — Ammo / Repair</option>
+                            <option value="predict">🔮 Predict (INT/WIS) — Weather</option>
+                            <option value="watch">🛡️ Additional Watch Guard</option>
+                          </select>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div style={{ fontSize: "11px", color: "var(--muted)", fontStyle: "italic", background: "rgba(0,0,0,0.2)", padding: "6px 8px", borderRadius: "4px" }}>
+                      Small company: all available crawlers are deployed on night watch shifts.
+                    </div>
+                  )}
+                </div>
+              )}
+
+              <div style={{ fontSize: "11px", color: "var(--muted)", display: "flex", flexDirection: "column", gap: "3px", borderTop: "1px solid rgba(255,255,255,0.08)", paddingTop: "8px" }}>
+                <span>✓ Clears 1 Fatigue level for all</span>
+                <span>✓ Consumes 1 ration per crawler at dawn</span>
+                <span>✓ Dawn arrives: Day {(state.campaign.day ?? 1) + 1}, Watch 1</span>
+              </div>
+
+              <button
+                className="primary wide"
+                style={{ marginTop: "auto", background: "#2e7d32", borderColor: "#4caf50", padding: "10px" }}
+                onClick={handleMakeCamp}
+                disabled={isResolving}
+              >
+                <Tent size={16} /> Make Camp & Resolve Evening
+              </button>
+            </div>
+
+            {/* Card 2: Forced March */}
+            <div
+              className="camp-choice-card"
+              style={{
+                background: "rgba(90, 30, 30, 0.35)",
+                border: "1px solid #d9534f",
+                borderRadius: "8px",
+                padding: "16px",
+                display: "flex",
+                flexDirection: "column",
+                gap: "12px",
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                <div style={{ background: "rgba(217, 83, 79, 0.25)", padding: "8px", borderRadius: "8px" }}>
+                  <Footprints size={26} color="#ff7675" />
+                </div>
+                <div>
+                  <h3 style={{ margin: 0, fontSize: "17px", color: "#ff7675" }}>Forced March</h3>
+                  <span style={{ fontSize: "11px", color: "var(--muted)" }}>Push Into Watch 4</span>
+                </div>
+              </div>
+
+              <p style={{ margin: 0, fontSize: "12px", lineHeight: "1.4" }}>
+                Refuse to make camp. Drive the party onward through the freezing night watch despite aching limbs.
+              </p>
+
+              <div
+                className="forced-march-perils"
+                style={{
+                  background: "rgba(0,0,0,0.3)",
+                  padding: "10px",
+                  borderRadius: "6px",
+                  fontSize: "11px",
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "6px",
+                  color: "#fab1a0",
+                }}
+              >
+                <div>⚠️ <b>CON Save (DC 12 + fatigue):</b> Each crawler must test CON or suffer +1 Fatigue.</div>
+                <div>⚠️ <b>Exhaustion:</b> Pushed crawlers cannot hunt or forage.</div>
+                <div>⚠️ <b>Nocturnal Perils:</b> Navigation and encounter hazards are magnified in pitch darkness.</div>
+              </div>
+
+              <div style={{ fontSize: "11px", color: "var(--muted)", marginTop: "auto", borderTop: "1px solid rgba(255,255,255,0.08)", paddingTop: "8px" }}>
+                Crawlers currently fatigued:{" "}
+                <b>{state.characters.filter((c) => (c.fatigue ?? 0) > 0).length} / {state.characters.length}</b>
+              </div>
+
+              <button
+                className="danger wide"
+                style={{ marginTop: "auto", background: "#c0392b", borderColor: "#e74c3c", color: "#fff", padding: "10px" }}
+                onClick={handleForceMarch}
+                disabled={isResolving}
+              >
+                <Footprints size={16} /> Force March Into Darkness
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div className="modal-footer" style={{ borderTop: "1px solid var(--line)", paddingTop: "12px", display: "flex", justifyContent: "flex-end" }}>
+          <button className="subtle-btn" onClick={onClose}>
+            Inspect Map First
+          </button>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 function MapView({ state, act }: { state: CampaignState; act: Act }) {
   const [selectedId, setSelectedId] = useState("00"),
     [biome, setBiome] = useState("forest"),
-    [genTheme, setGenTheme] = useState("temperate");
+    [genTheme, setGenTheme] = useState("temperate"),
+    [travelMode, setTravelMode] = useState<"foot" | "cart" | "boat" | "climb">("foot");
+
+  const isAllowanceReached =
+    (state.campaign.watchesTraveledToday ?? 0) >= 3 || (state.campaign.watch ?? 1) === 4;
+  const currentDayWatchKey = `${state.campaign.day ?? 1}:${state.campaign.watch ?? 1}:${state.campaign.watchesTraveledToday ?? 0}`;
+  const [dismissedDayWatchKey, setDismissedDayWatchKey] = useState<string | null>(null);
+  const [forcedCampModalOpen, setForcedCampModalOpen] = useState(false);
+
+  const showCampPopup =
+    forcedCampModalOpen || (isAllowanceReached && dismissedDayWatchKey !== currentDayWatchKey);
+
   const selected =
     state.hexes.find((hex) => hex.id === selectedId) ?? state.hexes[0];
-
-  const hexMapById = useMemo(() => {
-    const map = new Map<string, PublicHex>();
-    for (const h of state.hexes) map.set(h.id, h);
-    return map;
-  }, [state.hexes]);
-
-  const dynamicConnections = useMemo(() => {
-    const seen = new Set<string>();
-    const list: Array<{
-      id: string;
-      from: PublicHex;
-      to: PublicHex;
-      kind: string;
-      name: string;
-    }> = [];
-    for (const h of state.hexes) {
-      if (!h.connections) continue;
-      for (const c of h.connections) {
-        const fromHex = hexMapById.get(c.fromId);
-        const toHex = hexMapById.get(c.toId);
-        if (!fromHex || !toHex) continue;
-        const pairKey = [c.fromId, c.toId].sort().join("-") + `:${c.kind}`;
-        if (!seen.has(pairKey)) {
-          seen.add(pairKey);
-          list.push({ id: c.id, from: fromHex, to: toHex, kind: c.kind, name: c.name });
-        }
-      }
-    }
-    return list;
-  }, [state.hexes, hexMapById]);
-
-  const dynamicHorizonBadges = useMemo(() => {
-    return state.hexes
-      .filter((h) => h.ring === 2 && (h.exitDestination || (h.revealState !== "unexplored" && h.horizonRumor)))
-      .map((h) => {
-        const x = 310 + 106 * (h.q + h.r / 2);
-        const y = 285 + 92 * h.r;
-        let badgeX = x;
-        let badgeY = y;
-        let anchorClass = "center";
-        if (h.q < 0) {
-          badgeX -= 60;
-          anchorClass = "left";
-        } else if (h.q > 0) {
-          badgeX += 60;
-          anchorClass = "right";
-        }
-        if (h.r < 0) badgeY -= 45;
-        else if (h.r > 0) badgeY += 45;
-
-        return {
-          id: h.id,
-          x: badgeX,
-          y: badgeY,
-          text: h.exitDestination ? h.exitDestination.replace("➔", "").trim() : "Frontier Verge",
-          anchorClass,
-        };
-      });
-  }, [state.hexes]);
 
   return (
     <div className="surface-grid map-layout">
       <section className="panel map-surface">
         <Title
-          eyebrow="Shared party fog & horizon knowledge"
+          eyebrow="The campaign atlas"
           title="The 19-hex frontier"
-          aside={`${state.hexes.filter((h) => h.revealState !== "unexplored").length} / 19 explored`}
+          aside={`${state.hexes.filter((h) => h.revealState !== "unexplored").length} / ${state.hexes.length} charted`}
         />
-        <svg
-          className="hex-map"
-          viewBox="0 0 630 580"
-          aria-label="Campaign hex map"
-        >
-          {/* Natural River Course & Radiating Roads */}
-          <g className="map-routes">
-            {dynamicConnections.length > 0 ? (
-              dynamicConnections.map((conn) => {
-                const x1 = 310 + 106 * (conn.from.q + conn.from.r / 2);
-                const y1 = 285 + 92 * conn.from.r;
-                const x2 = 310 + 106 * (conn.to.q + conn.to.r / 2);
-                const y2 = 285 + 92 * conn.to.r;
-                if (conn.kind === "river") {
-                  return (
-                    <line
-                      key={conn.id}
-                      x1={x1}
-                      y1={y1}
-                      x2={x2}
-                      y2={y2}
-                      className="svg-river-course"
-                    />
-                  );
-                }
-                return (
-                  <line
-                    key={conn.id}
-                    x1={x1}
-                    y1={y1}
-                    x2={x2}
-                    y2={y2}
-                    className={`svg-road-course ${conn.kind === "trail" ? "trail" : "capital-road"}`}
-                  />
-                );
-              })
-            ) : (
-              <>
-                {/* The River Mor / Waterway */}
-                <path
-                  d="M 180,45 Q 204,101 230,147 T 257,193 Q 285,240 310,285 Q 338,330 363,377 Q 390,425 416,469 Q 430,500 445,535"
-                  className="svg-river-course"
-                />
-                {/* The Coast Road (West: 00 -> 06 -> 17) */}
-                <path
-                  d="M 310,285 L 204,285 L 98,285 L 25,285"
-                  className="svg-road-course coast-road"
-                />
-                {/* The King's Highroad (NE: 00 -> 02 -> 09) */}
-                <path
-                  d="M 310,285 L 363,193 L 416,101 L 455,35"
-                  className="svg-road-course capital-road"
-                />
-                {/* The Iron Trace (East: 00 -> 03 -> 11) */}
-                <path
-                  d="M 310,285 L 416,285 L 522,285 L 595,285"
-                  className="svg-road-course iron-road"
-                />
-              </>
-            )}
-          </g>
 
-          {/* Horizon Outflow & Destination Markers */}
-          <g className="map-horizon-labels">
-            {dynamicHorizonBadges.length > 0 ? (
-              dynamicHorizonBadges.map((badge) => (
-                <text
-                  key={badge.id}
-                  x={badge.x}
-                  y={badge.y}
-                  className={`horizon-badge ${badge.anchorClass}`}
-                >
-                  {badge.text}
-                </text>
-              ))
-            ) : (
-              <>
-                <text x="30" y="272" className="horizon-badge left">
-                  ⮜ Coast Road (3–4 days)
-                </text>
-                <text x="460" y="32" className="horizon-badge top-right">
-                  Highroad to Capital ⮞
-                </text>
-                <text x="590" y="272" className="horizon-badge right">
-                  Dwarf-Crags ⮞
-                </text>
-                <text x="180" y="32" className="horizon-badge top">
-                  ▲ Wyrm Peaks
-                </text>
-                <text x="445" y="555" className="horizon-badge bottom">
-                  🌊 Sunken Delta ⮟
-                </text>
-              </>
-            )}
-          </g>
-
-          {/* Hex Grid Polygons & Cells */}
-          {state.hexes.map((hex) => {
-            const x = 310 + 106 * (hex.q + hex.r / 2),
-              y = 285 + 92 * hex.r;
-            return (
-              <g
-                key={hex.id}
-                className={`hex-cell ${hex.revealState}${selected.id === hex.id ? " selected" : ""}`}
-                transform={`translate(${x} ${y})`}
-                onClick={() => setSelectedId(hex.id)}
-                tabIndex={0}
+        {isAllowanceReached && !showCampPopup && (
+          <div
+            className="travel-allowance-banner"
+            style={{
+              background: "rgba(217, 117, 56, 0.15)",
+              border: "1px solid var(--ember)",
+              borderRadius: "6px",
+              padding: "8px 12px",
+              marginBottom: "12px",
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              flexWrap: "wrap",
+              gap: "8px",
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "13px" }}>
+              <span>⚠️</span>
+              <span>
+                <b>Daily Travel Allowance Reached</b> — Dusk has fallen into Watch 4 (Night).
+              </span>
+            </div>
+            <div style={{ display: "flex", gap: "8px" }}>
+              <button
+                className="small-btn primary"
+                onClick={() => setForcedCampModalOpen(true)}
+                style={{ background: "#388e3c", borderColor: "#4caf50" }}
               >
-                <polygon
-                  className={`hex-poly ${getBiomeClass(hex)}`}
-                  points="0,-56 48,-28 48,28 0,56 -48,28 -48,-28"
-                />
-                <text className="hex-id" y="-28">
-                  {hex.id}
-                </text>
+                <Tent size={14} /> Make Camp
+              </button>
+              <button
+                className="small-btn"
+                onClick={() => setForcedCampModalOpen(true)}
+                style={{ background: "#c0392b", borderColor: "#e74c3c", color: "#fff" }}
+              >
+                <Footprints size={14} /> Forced March
+              </button>
+            </div>
+          </div>
+        )}
 
-                {hex.revealState !== "unexplored" ? (
-                  <>
-                    <text className="hex-label" y="-4">
-                      {hex.name
-                        ? hex.name.split(" ").slice(0, 2).join(" ")
-                        : "UNKNOWN"}
-                    </text>
-                    {hex.name && hex.name.split(" ").length > 2 && (
-                      <text className="hex-label sub" y="10">
-                        {hex.name.split(" ").slice(2, 4).join(" ")}
-                      </text>
-                    )}
-                    {hex.threatTier != null && (
-                      <text className="hex-tier" y="28">
-                        T{hex.threatTier}
-                      </text>
-                    )}
-                  </>
-                ) : (
-                  <>
-                    {hex.road ? (
-                      <>
-                        <text className="hex-label route" y="-4">
-                          {hex.road.split(" ").slice(-2).join(" ")}
-                        </text>
-                        <text className="hex-sublabel route" y="12">
-                          Known Road
-                        </text>
-                      </>
-                    ) : hex.river ? (
-                      <>
-                        <text className="hex-label river" y="-4">
-                          {hex.river.split(" ").slice(0, 2).join(" ")}
-                        </text>
-                        <text className="hex-sublabel river" y="12">
-                          Waterway
-                        </text>
-                      </>
-                    ) : (
-                      <text className="hex-label fog" y="6">
-                        FOG
-                      </text>
-                    )}
-                  </>
-                )}
-              </g>
-            );
-          })}
-        </svg>
-
-        <div className="map-legend">
-          <span>
-            <i className="mapped" /> Explored
-          </span>
-          <span>
-            <i className="rumored" /> Rumored Route
-          </span>
-          <span>
-            <i className="unknown" /> Uncharted Fog
-          </span>
-          <span className="legend-route">
-            <i className="legend-road" /> Road Arteries
-          </span>
-          <span className="legend-route">
-            <i className="legend-river" /> River Mor
-          </span>
-        </div>
+        <FrontierMap
+          hexes={state.hexes}
+          selectedId={selected.id}
+          onSelect={setSelectedId}
+          partyLocation={state.campaign.partyLocation ?? { q: 0, r: 0 }}
+        />
       </section>
 
       <aside className="map-sidebar">
@@ -1410,6 +1954,150 @@ function MapView({ state, act }: { state: CampaignState; act: Act }) {
             </p>
           )}
 
+          {/* Expedition & Movement Operations */}
+          {(() => {
+            const pLoc = state.campaign.partyLocation ?? { q: 0, r: 0 };
+            const isPartyHere = selected.q === pLoc.q && selected.r === pLoc.r;
+            const currentHex = state.hexes.find((h) => h.q === pLoc.q && h.r === pLoc.r);
+            const axialDist =
+              (Math.abs(pLoc.q - selected.q) +
+                Math.abs(pLoc.q + pLoc.r - selected.q - selected.r) +
+                Math.abs(pLoc.r - selected.r)) /
+              2;
+            const conn = selected.connections?.find(
+              (c) =>
+                (c.fromId === currentHex?.id && c.toId === selected.id) ||
+                (c.toId === currentHex?.id && c.fromId === selected.id),
+            );
+            const canTravel = !isPartyHere && (axialDist === 1 || !!conn);
+
+            return (
+              <div
+                className="hex-expedition-section"
+                style={{
+                  margin: "14px 0",
+                  padding: "12px",
+                  background: "#f4f5f0",
+                  borderRadius: "6px",
+                  border: "1px solid var(--line)",
+                }}
+              >
+                {isPartyHere ? (
+                  <div>
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "6px",
+                        color: "var(--ember)",
+                        fontWeight: "bold",
+                        marginBottom: "8px",
+                        fontSize: "13px",
+                      }}
+                    >
+                      <span>⚔️ Adventuring Company is Camped Here</span>
+                    </div>
+                    <div className="eyebrow" style={{ fontSize: "11px", marginBottom: "6px" }}>
+                      Local Hex Operations
+                    </div>
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "6px" }}>
+                      <button
+                        className="small-btn primary"
+                        onClick={() => act("hex:search", {}, "Searched Hex " + selected.id)}
+                      >
+                        <Search size={14} /> Search (1 Watch)
+                      </button>
+                      <button
+                        className="small-btn"
+                        onClick={() => act("expedition:forage", {}, "Party foraged for provisions")}
+                      >
+                        <Apple size={14} /> Forage (1 Watch)
+                      </button>
+                      <button
+                        className="small-btn full-span"
+                        style={{ gridColumn: "1 / -1" }}
+                        onClick={() => setForcedCampModalOpen(true)}
+                      >
+                        <Tent size={14} /> Make Camp / Rest
+                      </button>
+                    </div>
+
+                    {selected.sites && selected.sites.length > 0 && (
+                      <div style={{ marginTop: "12px", paddingTop: "8px", borderTop: "1px solid var(--line)" }}>
+                        <div className="eyebrow" style={{ fontSize: "11px", marginBottom: "6px" }}>
+                          Discovered Adventure Sites
+                        </div>
+                        {selected.sites.map((s) => (
+                          <div
+                            key={s.id}
+                            style={{
+                              display: "flex",
+                              justifyContent: "space-between",
+                              alignItems: "center",
+                              marginBottom: "6px",
+                            }}
+                          >
+                            <span style={{ fontSize: "12px" }}>
+                              <b>{s.name}</b> ({s.kind})
+                            </span>
+                            <button
+                              className="small-btn primary"
+                              onClick={() => act("site:enter", { siteId: s.id }, `Entered ${s.name}`)}
+                            >
+                              <DoorOpen size={14} /> Enter Site
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div>
+                    <div className="eyebrow" style={{ fontSize: "11px", marginBottom: "6px" }}>
+                      Travel March to Hex {selected.id}
+                    </div>
+                    <div style={{ display: "flex", gap: "8px", alignItems: "center", marginBottom: "8px" }}>
+                      <label style={{ fontSize: "12px", color: "var(--muted)" }}>Mode:</label>
+                      <select
+                        value={travelMode}
+                        onChange={(e) => setTravelMode(e.target.value as any)}
+                        style={{ flex: 1, padding: "4px 8px", fontSize: "12px" }}
+                      >
+                        <option value="foot">On Foot</option>
+                        <option value="cart">Cart & Mule</option>
+                        <option value="boat">Riverboat / Canoe</option>
+                        <option value="climb">Climbing Rig</option>
+                      </select>
+                    </div>
+                    <button
+                      className="primary wide"
+                      disabled={!canTravel}
+                      title={canTravel ? "" : "Must be adjacent (distance 1) or directly connected by a travel route"}
+                      onClick={() => {
+                        if (isAllowanceReached) {
+                          setForcedCampModalOpen(true);
+                          return;
+                        }
+                        act(
+                          "travel:move",
+                          { toHexId: selected.id, mode: travelMode },
+                          `Traveled to Hex ${selected.id} on ${travelMode}`,
+                        );
+                      }}
+                    >
+                      <Footprints size={15} />{" "}
+                      {canTravel
+                        ? isAllowanceReached
+                          ? `March to Hex ${selected.id} (Allowance Reached)`
+                          : `March to Hex ${selected.id}`
+                        : "Cannot Travel (Not Adjacent)"}
+                    </button>
+                  </div>
+                )}
+              </div>
+            );
+          })()}
+
           {state.me.role === "host" && (
             <div className="hex-host-actions">
               {selected.revealState === "unexplored" && (
@@ -1462,11 +2150,6 @@ function MapView({ state, act }: { state: CampaignState; act: Act }) {
                       <option value="river_of_night">The Black River (Primeval Jungle - CS4)</option>
                       <option value="dwellers_in_the_deep">Morzomotha (Karst Deeps - CS5)</option>
                       <option value="city_of_masks">The City of Masks (Meridia Canals - CS6)</option>
-                      <option value="oakhaven_borderlands">Oakhaven Borderlands (Frontier Sanctuary)</option>
-                      <option value="temperate">Temperate Valley & River</option>
-                      <option value="coastal">Coastal Verge & Delta</option>
-                      <option value="highland">Highland Peaks & Crags</option>
-                      <option value="wildwood">Primeval Wildwood & Fens</option>
                     </select>
                     <button
                       className="primary small-btn"
@@ -1535,9 +2218,42 @@ function MapView({ state, act }: { state: CampaignState; act: Act }) {
           )}
         </section>
       </aside>
-      {state.rooms.length > 0 && (
+      {(state.rooms.length > 0 || state.campaign.activeSiteId) && (
         <section className="panel full-span room-strip">
-          <Title eyebrow="Current delve" title="Revealed chambers" />
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: "10px" }}>
+            <Title
+              eyebrow={state.campaign.activeSiteId ? `Adventure Site: ${state.campaign.activeSiteId}` : "Current delve"}
+              title={state.campaign.activeSiteId ? "Site Delve & Chambers" : "Revealed chambers"}
+            />
+            {state.campaign.activeSiteId && (
+              <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+                {state.campaign.activeSiteId.includes("waterworks") && (
+                  <button
+                    className="primary small-btn"
+                    onClick={() =>
+                      act(
+                        "site:resolve_deed",
+                        {
+                          siteId: state.campaign.activeSiteId!,
+                          deed: "rescue_surveyor",
+                          details: "Rescued surveyor Jonathan Vane and halted water contamination",
+                        },
+                        "Resolved deed: rescue_surveyor",
+                      )
+                    }
+                  >
+                    🏆 Resolve Deed: Rescue Surveyor Jonathan Vane
+                  </button>
+                )}
+                <button
+                  className="small-btn"
+                  onClick={() => act("site:exit", {}, "Exited site back to surface")}
+                >
+                  <DoorOpen size={14} /> Exit Site to Overworld
+                </button>
+              </div>
+            )}
+          </div>
           <div className="room-list">
             {state.rooms.map((room) => (
               <article key={room.id}>
@@ -1556,6 +2272,16 @@ function MapView({ state, act }: { state: CampaignState; act: Act }) {
             ))}
           </div>
         </section>
+      )}
+      {showCampPopup && (
+        <CampAllowanceModal
+          state={state}
+          act={act}
+          onClose={() => {
+            setDismissedDayWatchKey(currentDayWatchKey);
+            setForcedCampModalOpen(false);
+          }}
+        />
       )}
     </div>
   );

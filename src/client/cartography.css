@@ -1,0 +1,151 @@
+/* Paper, ink, and a single rust accent, shared by the atlas and its inspector. */
+.campaign-shell:has(.map-layout) { background: #f3f4ef; }
+.campaign-shell:has(.map-layout) > :is(.app-header, .app-nav, .campaign-subbar) {
+  --ink: #252922;
+  --muted: #60675c;
+  --line: #d3d6cb;
+  --ember: #984624;
+  --moss: #506743;
+  color: var(--ink);
+  background: #fafbf7;
+}
+.campaign-shell:has(.map-layout) :is(.app-header .icon-button, .phase-pill-btn, .phase-pill-badge) { background: #f3f4ef; color: #60675c; }
+.campaign-shell:has(.map-layout) :is(.app-nav button.active, .phase-pill-btn.active, .phase-pill-badge.active) { background: #f4eadc; color: #984624; border-color: #c5a88c; }
+.campaign-shell:has(.map-layout) .app-nav em { color: #fff; }
+.map-layout {
+  --ink: #252922;
+  --muted: #60675c;
+  --surface: #fff;
+  --line: #d3d6cb;
+  --ember: #984624;
+  --moss: #506743;
+  --danger: #ac3529;
+  color: var(--ink);
+}
+.map-layout .panel {
+  background: #fff;
+  box-shadow: 0 4px 18px #0000000a;
+}
+.map-surface { padding: 24px; }
+.map-surface .surface-title { margin-bottom: 22px; }
+.map-surface .surface-title h1 { font-size: clamp(36px, 3.5vw, 54px); }
+.map-surface .surface-title > span { white-space: nowrap; }
+.atlas-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 0;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 11px;
+}
+.atlas-toolbar-dot { margin: 0 8px; }
+.atlas-zoom { display: flex; align-items: center; gap: 8px; }
+.atlas-zoom > span { min-width: 38px; text-align: center; }
+.map-layout .atlas-zoom button {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  color: var(--ink);
+  background: #fff;
+}
+.atlas-scroll { overflow: auto; background: #fff; }
+.atlas-scroll:focus-visible { outline: 2px solid var(--ember); outline-offset: 2px; }
+.frontier-atlas .hex-map {
+  display: block;
+  min-width: 640px;
+  min-height: 0;
+  height: auto;
+  background: #fff;
+}
+.hex-cell { cursor: pointer; outline: none; }
+.hex-cell .hex-poly {
+  fill: #fff;
+  stroke: #8c9385;
+  stroke-width: 1.15;
+  stroke-linejoin: round;
+  transition: fill 120ms ease;
+}
+.hex-cell.unexplored .hex-poly { fill: #f2f3ee; }
+.hex-cell:hover .hex-poly,
+.hex-cell:focus-visible .hex-poly { fill: #f4eadc; }
+.hex-cell:focus-visible .hex-poly { stroke: #252922; stroke-width: 3; }
+.map-terrain, .map-routes, .map-labels, .hex-selection, .party-marker-group { pointer-events: none; }
+.atlas-road, .atlas-river {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.atlas-road { stroke: #45443e; stroke-width: 1; stroke-dasharray: 2 6; }
+.atlas-road.trail { stroke: #95816b; stroke-width: 1.6; stroke-dasharray: 2 5; }
+.atlas-river { stroke: #787b73; stroke-width: 1.4; }
+.hex-site-paper { fill: #fff; fill-opacity: 0.94; }
+.map-labels text { text-anchor: middle; fill: #252922; }
+.map-labels .hex-id {
+  font-family: "Cascadia Mono", Consolas, monospace;
+  font-size: 10px;
+  fill: #596151;
+  paint-order: stroke;
+  stroke: #fff;
+  stroke-width: 3px;
+}
+.hex-symbol { mix-blend-mode: multiply; }
+.atlas-credit { font-size: 10px; margin: 15px 0 0; text-align: center; color: var(--muted); }
+.atlas-credit a { color: #505d43; text-underline-offset: 3px; }
+.map-labels .hex-label {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 12px;
+  font-weight: 700;
+  paint-order: stroke;
+  stroke: #fff;
+  stroke-width: 4px;
+  stroke-linejoin: round;
+}
+.map-labels .hex-tier { font: 8.5px "Cascadia Mono", Consolas, monospace; fill: #60675c; paint-order: stroke; stroke: #fff; stroke-width: 3px; }
+.map-labels .hex-unknown-symbol { font: italic 27px Georgia, serif; fill: #909787; paint-order: stroke; stroke: #f2f3ee; stroke-width: 4px; }
+.map-labels .uncharted-label .hex-label { fill: #666d5f; stroke: #f2f3ee; font-weight: 400; font-style: italic; }
+.hex-rumor-mark { fill: #a6744f; }
+.hex-selection { fill: none; stroke: #984624; stroke-width: 3; stroke-linejoin: round; }
+.party-marker-group circle { fill: #984624; stroke: #fff; stroke-width: 2; }
+.party-marker-group path { fill: #fff; }
+.map-legend {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 12px 18px;
+  padding: 18px 0 4px;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font: 11px Georgia, "Times New Roman", serif;
+}
+.map-legend span { display: inline-flex; align-items: center; gap: 6px; }
+.map-legend i { display: block; width: 11px; height: 11px; border: 1px solid #8c9385; background: #fff; }
+.map-legend .unknown { background: #f2f3ee; }
+.map-legend .rumored { background: #a6744f; width: 6px; height: 6px; border: 0; border-radius: 50%; }
+.map-legend .legend-road { width: 20px; height: 0; border: 0; border-top: 1px dashed #45443e; }
+.map-legend .legend-river { width: 20px; height: 0; border: 0; border-top: 3px double #787b73; }
+.map-legend .legend-party { border: 0; border-radius: 50%; background: #984624; }
+.atlas-destinations { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+.map-layout .atlas-destinations button { font-size: 10px; padding: 7px 9px; background: #fafbf7; border-color: var(--line); color: var(--ink); }
+.atlas-destinations button span { color: var(--ember); font-weight: bold; }
+.map-layout input, .map-layout select, .map-layout textarea { color: var(--ink); background: #fff; border-color: var(--line); }
+.map-layout button:not(.primary):not(.danger) { background: #f7f8f3; color: var(--ink); border-color: var(--line); }
+.map-layout button.primary { background: #984624; color: #fff; border-color: #984624; }
+.map-layout button:focus-visible { outline: 2px solid #984624; outline-offset: 3px; }
+.map-layout .badge-tag { color: #49523d; background: #f4f5ee; border-color: #cbd1be; }
+.map-layout .badge-tag.river-badge { color: #315e73; background: #edf5f7; border-color: #98bdca; }
+.map-layout .badge-tag.route-badge { color: #984624; background: #faf1e8; border-color: #d4b196; }
+.map-layout .inspector h2 { overflow-wrap: anywhere; }
+@media (max-width: 700px) {
+  .map-surface { padding: 18px 12px; }
+  .map-surface .surface-title { gap: 10px; flex-wrap: wrap; }
+  .map-surface .surface-title h1 { font-size: 36px; }
+  .atlas-toolbar { font-size: 10px; }
+  .campaign-shell:has(.map-layout) .campaign-title { min-width: 0; }
+}

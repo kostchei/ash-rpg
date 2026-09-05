@@ -60,11 +60,13 @@ export const HEX_GRID: Array<{ id: string; ring: number; q: number; r: number }>
 ];
 
 const THEME_TO_ZONE: Record<string, CursedZoneId> = {
-  temperate: "oakhaven_borderlands",
+  temperate: "the_gloaming",
   coastal: "midnight_sun",
   highland: "dwellers_in_the_deep",
   wildwood: "the_gloaming",
   marshland: "river_of_night",
+  desert: "red_sands",
+  urban: "city_of_masks",
 };
 
 /**
@@ -86,7 +88,7 @@ export function generateHexMap(
       ? options.config.selection.zoneId
       : options.config?.selection.mode === "border"
         ? options.config.selection.zoneIds[0]
-        : (options.theme && THEME_TO_ZONE[options.theme]) || "oakhaven_borderlands";
+        : (options.theme && THEME_TO_ZONE[options.theme]) || "the_gloaming";
 
   const config: RegionGenerationConfig = options.config ?? {
     selection: { mode: "single", zoneId },
@@ -123,7 +125,7 @@ export function generateLegacyHexMap(
     options.sanctuaryName ||
     (options.campaignName
       ? `${options.campaignName} Sanctuary`
-      : "Oakhaven Sanctuary");
+      : "Marin's Hold");
   const riverName = "River Mor";
   const coastRoadName = "The Old Coast Road";
   const capitalRoadName = "The King's Highroad";

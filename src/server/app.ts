@@ -1,4 +1,5 @@
 import express from "express";
+import { randomInt } from "node:crypto";
 import {
   createServer as createHttpServer,
   type Server as HttpServer,
@@ -9,15 +10,25 @@ import QRCode from "qrcode";
 import { Server as SocketServer, type Socket } from "socket.io";
 import { z } from "zod";
 import { ANCESTRIES, CLASSES } from "../shared/content.js";
-import { BORDER_PAIRINGS, ZONE_PROFILES } from "../shared/zone-profiles.js";
-import type { CampaignPhase, EncounterMonster, RegionGenerationConfig, Role } from "../shared/types.js";
+import { BORDER_PAIRINGS, validateBorderPairing, ZONE_PROFILES } from "../shared/zone-profiles.js";
+import type {
+  CampaignPhase,
+  EncounterMonster,
+  ExpeditionObjective,
+  PublicConnectionSummary,
+  RegionGenerationConfig,
+  Role,
+} from "../shared/types.js";
 import { AshDatabase } from "./database.js";
 import { generateCampaignComplication } from "./generators/campaign.js";
+import { AQUATIC_METHODS, evaluateAquaticAccess } from "./generators/mind-below.js";
 import { generateNpc } from "./generators/npc.js";
 import { generateSettlement } from "./generators/settlement.js";
 import {
   abilityModifier,
   binaryOracle,
+  calculateTravelWatches,
+  evaluateWatchFatigue,
   generateDungeonRoom,
   generateMonsterVariant,
   levelUpCharacter,
@@ -33,11 +44,59 @@ import {
 } from "./rules.js";
 
 const cleanText = z.string().trim().min(1).max(500);
+
+const cursedZoneIds = [
+  "the_gloaming",
+  "red_sands",
+  "midnight_sun",
+  "river_of_night",
+  "dwellers_in_the_deep",
+  "city_of_masks",
+] as const;
+
+const singleSelectionSchema = z.object({
+  mode: z.literal("single"),
+  zoneId: z.enum(cursedZoneIds),
+});
+
+const borderSelectionSchema = z.object({
+  mode: z.literal("border"),
+  zoneIds: z.tuple([z.enum(cursedZoneIds), z.enum(cursedZoneIds)]),
+  connection: z.enum(["surface", "vertical", "urban", "distant"]),
+  borderProfileId: z.string().optional(),
+}).refine(
+  (sel) => sel.zoneIds[0] !== sel.zoneIds[1],
+  { message: "Border mode requires two distinct zones" },
+).refine(
+  (sel) => {
+    const res = validateBorderPairing(sel.zoneIds[0], sel.zoneIds[1], sel.connection);
+    return res.valid;
+  },
+  { message: "Unsupported border pairing or connection mode" },
+);
+
+const regionSelectionSchema = z.discriminatedUnion("mode", [
+  singleSelectionSchema,
+  borderSelectionSchema,
+]);
+
+export const regionGenerationConfigSchema = z.object({
+  selection: regionSelectionSchema,
+  initialRadius: z.number().int().min(1).max(4).optional(),
+  structuralRadius: z.number().int().min(2).max(12).optional(),
+  regionalHexMiles: z.number().int().min(1).max(30).optional(),
+  seed: z.string().trim().min(1).max(100).optional(),
+  season: z.enum(["spring", "summer", "autumn", "winter"]).optional(),
+  sourceContent: z.enum(["adapted", "named"]).optional(),
+  rulesProfileId: z.string().optional(),
+  legacy: z.boolean().optional(),
+});
+
 const createCampaignSchema = z.object({
   name: cleanText.max(80),
   regionName: cleanText.max(80),
   pin: z.string().regex(/^\d{4,8}$/),
-  generationConfig: z.any().optional(),
+  generationConfig: regionGenerationConfigSchema.optional(),
 });
 const joinSchema = z.object({
   code: z.string().trim().length(6),
@@ -145,12 +204,20 @@ export async function createAshServer(options: AshServerOptions = {}) {
   );
 
   app.post("/api/regions/preview", (request, response) => {
-    const config = request.body as RegionGenerationConfig;
-    if (!config || !config.selection) {
-      return response.status(400).json({ error: "Invalid region configuration." });
+    const parsed = regionGenerationConfigSchema.safeParse(request.body);
+    if (!parsed.success) {
+      return response.status(400).json({
+        error: "Invalid region configuration: " + parsed.error.issues.map((i) => i.message).join("; "),
+      });
     }
-    const preview = db.previewRegion(config);
-    return response.json(preview);
+    try {
+      const preview = db.previewRegion(parsed.data);
+      return response.json(preview);
+    } catch (err: any) {
+      return response.status(422).json({
+        error: err.message || "Failed to generate region preview.",
+      });
+    }
   });
 
   app.post("/api/campaigns", (request, response) => {
@@ -158,19 +225,26 @@ export async function createAshServer(options: AshServerOptions = {}) {
     if (!parsed.success)
       return response.status(400).json({
         error: "Campaign name, region, and a 4–8 digit PIN are required.",
+        details: parsed.error.issues,
       });
-    const created = db.createCampaign(
-      parsed.data.name,
-      parsed.data.regionName,
-      parsed.data.pin,
-      parsed.data.generationConfig,
-    );
-    return response.status(201).json({
-      code: created.code,
-      token: created.hostToken,
-      role: "host",
-      joinUrl: `${baseUrl}/play?code=${created.code}`,
-    });
+    try {
+      const created = db.createCampaign(
+        parsed.data.name,
+        parsed.data.regionName,
+        parsed.data.pin,
+        parsed.data.generationConfig,
+      );
+      return response.status(201).json({
+        code: created.code,
+        token: created.hostToken,
+        role: "host",
+        joinUrl: `${baseUrl}/play?code=${created.code}`,
+      });
+    } catch (err: any) {
+      return response.status(422).json({
+        error: err.message || "Failed to generate campaign world.",
+      });
+    }
   });
 
   app.post("/api/campaigns/join", (request, response) => {
@@ -363,15 +437,39 @@ export async function createAshServer(options: AshServerOptions = {}) {
       "zone:exit",
       action((_raw: unknown) => {
         hostOnly();
-        db.setActiveZone(identity.campaignId, "oakhaven_borderlands");
+        const state = db.getState(
+          identity.campaignId,
+          identity.role,
+          identity.characterId,
+          "",
+        );
+        const homeLoc = (state.campaign as any).homeLocation ?? { q: 0, r: 0, layerId: "surface" };
+        const regRow = db.db
+          .prepare("SELECT selection_json FROM regions WHERE campaign_id = ? AND active = 1")
+          .get(identity.campaignId) as { selection_json?: string } | undefined;
+        let primaryZone = "the_gloaming";
+        if (regRow?.selection_json) {
+          try {
+            const sel = JSON.parse(regRow.selection_json);
+            primaryZone = sel.mode === "single" ? sel.zoneId : sel.zoneIds[0];
+          } catch {}
+        } else if (state.campaign.activeZoneId) {
+          primaryZone = state.campaign.activeZoneId;
+        }
+
+        db.setActiveZone(identity.campaignId, primaryZone);
         db.setCampaignPhase(identity.campaignId, "sanctuary");
+        db.setPartyLocation(identity.campaignId, homeLoc);
+
+        const sanctuaryHex = state.hexes.find((h) => h.id === "00");
+        const sanctuaryName = sanctuaryHex?.name || "Sanctuary";
         db.addRoll(identity.campaignId, {
           actor: "Table",
           kind: "zone",
           label: "Returned to Sanctuary",
           dice: "—",
           total: 0,
-          detail: "Returned safely to Oakhaven Borderlands sanctuary.",
+          detail: `Returned safely to ${sanctuaryName} in ${primaryZone.replace(/_/g, " ")}.`,
         });
       }),
     );
@@ -407,7 +505,7 @@ export async function createAshServer(options: AshServerOptions = {}) {
           identity.characterId,
           "",
         );
-        const zoneId = payload?.zoneId ?? state.campaign.activeZoneId ?? "oakhaven_borderlands";
+        const zoneId = payload?.zoneId ?? state.campaign.activeZoneId ?? "the_gloaming";
         const result = generateNpc(state.characters, zoneId);
         db.addRoll(identity.campaignId, {
           actor: actor(),
@@ -504,16 +602,25 @@ export async function createAshServer(options: AshServerOptions = {}) {
           identity.characterId,
           "",
         );
+        const loc = state.campaign.partyLocation ?? { q: 0, r: 0 };
+        const isSanctuary = state.campaign.phase === "sanctuary" || (loc.q === 0 && loc.r === 0);
+        if (!isSanctuary) {
+          throw new Error("Cannot take full sanctuary rest in the wild. Pitch camp or return to haven.");
+        }
+
         for (const c of state.characters) {
           db.updateCharacterHp(identity.campaignId, c.id, c.maxHp);
+          db.updateCharacterFatigue(c.id, 0);
         }
+        db.resupplyPartyRations(identity.campaignId, 12);
+
         db.addRoll(identity.campaignId, {
           actor: "Table",
           kind: "party",
-          label: "Sanctuary Rest & Recovery",
+          label: "Sanctuary Rest & Full Recovery",
           dice: "—",
           total: 0,
-          detail: "The party rested in sanctuary. All members restored to maximum HP.",
+          detail: "The company rested in sanctuary. All hit points restored, travel fatigue cleared, and travel rations replenished.",
         });
       }),
     );
@@ -830,18 +937,868 @@ export async function createAshServer(options: AshServerOptions = {}) {
     );
 
     socket.on(
+      "travel:move",
+      action((raw: unknown) => {
+        const payload = z
+          .object({
+            toHexId: z.string().min(1),
+            mode: z.enum(["foot", "cart", "boat", "climb"]).default("foot"),
+          })
+          .parse(raw);
+
+        // 1. Authoritative origin from DB
+        const camp = db.db
+          .prepare(
+            "SELECT party_location_json, active_region_id, active_zone_id, day, watch, watches_traveled_today FROM campaigns WHERE id = ?",
+          )
+          .get(identity.campaignId) as any;
+        const currentLoc = camp?.party_location_json
+          ? JSON.parse(camp.party_location_json)
+          : { q: 0, r: 0, layerId: "surface" };
+
+        // 2. Authoritative target hex from DB
+        const targetHexRow = db.db
+          .prepare("SELECT * FROM hexes WHERE campaign_id = ? AND id = ?")
+          .get(identity.campaignId, payload.toHexId) as any;
+        if (!targetHexRow) throw new Error(`Target hex ${payload.toHexId} not found`);
+
+        const fromQ = currentLoc.q;
+        const fromR = currentLoc.r;
+        const toQ = Number(targetHexRow.q);
+        const toR = Number(targetHexRow.r);
+
+        // 3. Adjacency check
+        const axialDist =
+          (Math.abs(fromQ - toQ) +
+            Math.abs(fromQ + fromR - toQ - toR) +
+            Math.abs(fromR - toR)) /
+          2;
+
+        let travelConnection: any = null;
+        if (camp?.active_region_id) {
+          const fromKey = `${camp.active_region_id}:${currentLoc.layerId || "surface"}:${fromQ}:${fromR}`;
+          const toKey = `${camp.active_region_id}:${currentLoc.layerId || "surface"}:${toQ}:${toR}`;
+          const connRow = db.db
+            .prepare(
+              "SELECT * FROM connections WHERE region_id = ? AND ((from_key = ? AND to_key = ?) OR (to_key = ? AND from_key = ?))",
+            )
+            .get(camp.active_region_id, fromKey, toKey, fromKey, toKey) as any;
+          if (connRow) {
+            travelConnection = connRow;
+          }
+        }
+        if (!travelConnection && targetHexRow.connections_json) {
+          const conns = JSON.parse(targetHexRow.connections_json);
+          const originHexRow = db.db
+            .prepare("SELECT id FROM hexes WHERE campaign_id = ? AND q = ? AND r = ?")
+            .get(identity.campaignId, fromQ, fromR) as any;
+          if (originHexRow) {
+            travelConnection = conns.find(
+              (c: any) =>
+                (c.fromId === originHexRow.id && c.toId === targetHexRow.id) ||
+                (c.toId === originHexRow.id && c.fromId === targetHexRow.id),
+            );
+          }
+        }
+
+        if (axialDist > 1 && !travelConnection) {
+          throw new Error(
+            `Cannot travel directly from (${fromQ}, ${fromR}) to non-adjacent hex ${payload.toHexId} at (${toQ}, ${toR}) without a connecting route`,
+          );
+        }
+
+        // 4. Validate Travel Mode & Requirements
+        if (travelConnection) {
+          const connModes: string[] = travelConnection.modes_json
+            ? JSON.parse(travelConnection.modes_json)
+            : travelConnection.modes ?? ["foot"];
+          const connReqs: string[] = travelConnection.requirements_json
+            ? JSON.parse(travelConnection.requirements_json)
+            : travelConnection.requirements ?? [];
+
+          if (travelConnection.kind === "shaft" && payload.mode !== "climb") {
+            throw new Error("Ascending or descending a vertical shaft requires climbing mode and gear.");
+          }
+          if ((connReqs.includes("rope") || connReqs.includes("climbing_gear")) && payload.mode !== "climb") {
+            throw new Error("This passage requires climbing mode and gear.");
+          }
+          if (payload.mode === "boat") {
+            const isWaterway =
+              ["river", "sea_lane", "canal", "ferry", "voyage"].includes(travelConnection.kind) ||
+              targetHexRow.river;
+            if (!isWaterway) {
+              throw new Error("Boat travel requires a navigable waterway, canal, or sea lane.");
+            }
+          }
+          if (payload.mode === "cart" && travelConnection.kind === "shaft") {
+            throw new Error("Carts cannot traverse vertical shafts.");
+          }
+        } else {
+          if (payload.mode === "boat" && !targetHexRow.river) {
+            throw new Error("Boat travel requires a navigable river or water feature.");
+          }
+        }
+
+        // 5. Cost calculation from saved world truth
+        const hasRoad =
+          !!travelConnection &&
+          (travelConnection.kind === "road" || travelConnection.kind === "trail");
+        const crossingMethod =
+          travelConnection?.crossing_method || travelConnection?.crossingMethod;
+        const calculatedWatches = calculateTravelWatches(
+          targetHexRow.biome || "Wilderness",
+          hasRoad,
+          crossingMethod,
+        );
+        const watches =
+          travelConnection?.cost_watches ||
+          travelConnection?.costWatches ||
+          calculatedWatches;
+
+        // 6. Advance watch clock
+        const clockResult = db.advanceWatch(identity.campaignId, watches);
+
+        // 7. Check Forced March if Night travel occurred
+        const fatigueResults =
+          clockResult.watch === 1 || clockResult.watchesTraveledToday > 3
+            ? db.evaluatePartyForcedMarch(identity.campaignId)
+            : [];
+
+        // 8. Wilderness Encounter Check (1d6 -> 1 triggers encounter)
+        let encounterTriggered = false;
+        let encounterName = "";
+        const encRoll = rollDie(6);
+        if (encRoll === 1) {
+          encounterTriggered = true;
+          const manifest = db.getZoneManifest(
+            camp.active_zone_id || "the_gloaming",
+          );
+          const table =
+            manifest?.wanderingMonsterTable && manifest.wanderingMonsterTable.length > 0
+              ? manifest.wanderingMonsterTable
+              : ["wolf", "bandit", "giant_spider"];
+          const monsterKey = table[randomInt(table.length)];
+          const monster = db.getMonster(monsterKey) ?? {
+            id: 0,
+            monsterKey,
+            name: monsterKey,
+            currentHp: 8,
+            maxHp: 8,
+            loreTier: 0,
+            ac: 12,
+            morale: 7,
+            attacks: ["Strike +2 (1d6)"],
+            traits: [],
+            lore: [],
+          };
+          encounterName = `Wilderness Encounter: ${monster.name}`;
+          db.addEncounterWithMonsters(identity.campaignId, encounterName, [monster]);
+        }
+
+        // 9. Update location and reveal target hex
+        db.setPartyLocation(identity.campaignId, {
+          q: toQ,
+          r: toR,
+          layerId: currentLoc.layerId || "surface",
+        });
+
+        if (
+          targetHexRow.reveal_state === "unexplored" ||
+          targetHexRow.reveal_state === "rumored"
+        ) {
+          db.revealHex(identity.campaignId, targetHexRow.id, "scouted");
+        }
+
+        if (
+          targetHexRow.primary_zone &&
+          targetHexRow.primary_zone !== camp.active_zone_id
+        ) {
+          db.setActiveZone(identity.campaignId, targetHexRow.primary_zone);
+        }
+
+        // 10. Log roll
+        db.addRoll(identity.campaignId, {
+          actor: actor(),
+          kind: "exploration",
+          label: `Traveled to Hex ${targetHexRow.id} (${targetHexRow.name || targetHexRow.biome || "Wilderness"})`,
+          dice: `${watches} watch${watches > 1 ? "es" : ""}`,
+          total: watches,
+          detail: `Mode: ${payload.mode} · Cost: ${watches} watch(es) · Day ${clockResult.day}, Watch ${clockResult.watch} (${clockResult.weather}) · ${
+            fatigueResults.length > 0
+              ? fatigueResults.some((f) => !f.passed)
+                ? `Forced march: fatigue incurred (${fatigueResults.filter((f) => !f.passed).map((f) => f.name).join(", ")})`
+                : "Forced march CON check passed"
+              : "Standard watch"
+          }${encounterTriggered ? ` · [INTERRUPTED: ${encounterName}]` : ""}`,
+        });
+
+        return {
+          watches,
+          clock: clockResult,
+          fatigueResults,
+          encounterTriggered,
+          newPartyLocation: { q: toQ, r: toR },
+        };
+      }),
+    );
+
+    socket.on(
+      "site:discover",
+      action((raw: unknown) => {
+        const payload = z.object({ siteId: z.string().min(1) }).parse(raw);
+        const camp = db.db
+          .prepare("SELECT party_location_json, active_region_id FROM campaigns WHERE id = ?")
+          .get(identity.campaignId) as any;
+        const currentLoc = camp?.party_location_json
+          ? JSON.parse(camp.party_location_json)
+          : { q: 0, r: 0, layerId: "surface" };
+
+        const site = db.db.prepare("SELECT * FROM sites WHERE id = ?").get(payload.siteId) as any;
+        if (!site) throw new Error(`Site ${payload.siteId} not found`);
+
+        const parts = site.canonical_key.split(":");
+        const sq = Number(parts[2]);
+        const sr = Number(parts[3]);
+        if (sq !== currentLoc.q || sr !== currentLoc.r) {
+          throw new Error(`Cannot discover remote site ${site.name} without being present in that hex.`);
+        }
+
+        db.discoverSite(identity.campaignId, payload.siteId);
+        db.addRoll(identity.campaignId, {
+          actor: actor(),
+          kind: "exploration",
+          label: "Site Discovered",
+          dice: "—",
+          total: 0,
+          detail: `Party discovered hidden site: ${site.name}`,
+        });
+        return { ok: true, site };
+      }),
+    );
+
+    socket.on(
+      "expedition:select_objective",
+      action((raw: unknown) => {
+        const payload = z
+          .object({
+            leadId: z.string().optional(),
+            title: z.string().min(1),
+            targetHexId: z.string().optional(),
+            targetSiteId: z.string().optional(),
+            directionHint: z.string().optional(),
+            notes: z.string().optional(),
+          })
+          .parse(raw);
+
+        db.setExpeditionObjective(identity.campaignId, payload);
+        db.addRoll(identity.campaignId, {
+          actor: actor(),
+          kind: "expedition",
+          label: `Objective Selected: ${payload.title}`,
+          dice: "—",
+          total: 0,
+          detail: `Company established expedition objective: "${payload.title}". Known direction: ${payload.directionHint || "Undisclosed"}.`,
+        });
+
+        return { ok: true };
+      }),
+    );
+
+    socket.on(
+      "hex:search",
+      action((_raw: unknown) => {
+        const camp = db.db
+          .prepare("SELECT party_location_json, active_region_id FROM campaigns WHERE id = ?")
+          .get(identity.campaignId) as any;
+        const currentLoc = camp?.party_location_json
+          ? JSON.parse(camp.party_location_json)
+          : { q: 0, r: 0, layerId: "surface" };
+        const regionId = camp?.active_region_id;
+
+        const clock = db.advanceWatch(identity.campaignId, 1);
+
+        const targetKey = `${regionId}:${currentLoc.layerId || "surface"}:${currentLoc.q}:${currentLoc.r}`;
+        const sitesInHex = db.db
+          .prepare("SELECT * FROM sites WHERE region_id = ? AND canonical_key = ?")
+          .all(regionId, targetKey) as any[];
+
+        const newlyDiscovered: string[] = [];
+        for (const s of sitesInHex) {
+          if (!db.isSiteDiscovered(identity.campaignId, s.id)) {
+            db.discoverSite(identity.campaignId, s.id);
+            newlyDiscovered.push(s.name);
+          }
+        }
+
+        db.addRoll(identity.campaignId, {
+          actor: actor(),
+          kind: "exploration",
+          label: "Hex Thoroughly Searched",
+          dice: "1 watch",
+          total: clock.watch,
+          detail:
+            newlyDiscovered.length > 0
+              ? `Search revealed hidden sites: ${newlyDiscovered.join(", ")}!`
+              : "Search complete: no new secret entrances or hidden features observed.",
+        });
+
+        return { newlyDiscovered, clock };
+      }),
+    );
+
+    socket.on(
+      "expedition:forage",
+      action((_raw: unknown) => {
+        const clock = db.advanceWatch(identity.campaignId, 1);
+        const roll = rollDice("1d20");
+        const success = roll.total >= 10;
+        const rationsFound = success ? rollDie(4) : 0;
+        if (rationsFound > 0) {
+          db.resupplyPartyRations(identity.campaignId, rationsFound);
+        }
+
+        db.addRoll(identity.campaignId, {
+          actor: actor(),
+          kind: "wilderness",
+          label: `Wilderness Forage Check: ${success ? "Success" : "Failure"}`,
+          dice: "1d20",
+          total: roll.total,
+          detail: success
+            ? `Foraging gathered ${rationsFound} fresh ration(s) from wild roots and game.`
+            : "Scoured the surrounding brush but found no potable water or edible forage.",
+        });
+
+        return { success, rationsFound, clock };
+      }),
+    );
+
+    socket.on(
+      "expedition:camp",
+      action((_raw: unknown) => {
+        const camp = db.db.prepare("SELECT watch FROM campaigns WHERE id = ?").get(identity.campaignId) as any;
+        const clockBefore = camp?.watch ?? 1;
+
+        if (clockBefore === 4) {
+          const chars = db.getState(identity.campaignId, "host", null, "").characters;
+          for (const c of chars) {
+            db.updateCharacterFatigue(c.id, Math.max(0, (c.fatigue ?? 0) - 1));
+          }
+          const clock = db.advanceWatch(identity.campaignId, 1);
+          db.addRoll(identity.campaignId, {
+            actor: actor(),
+            kind: "wilderness",
+            label: "Camp Long Rest (Night)",
+            dice: "Watch 4 Rest",
+            total: 0,
+            detail: "Camp pitched through the night watch. Cleared 1 fatigue level. Rations consumed at dawn.",
+          });
+          return { rested: true, clock };
+        } else {
+          const chars = db.getState(identity.campaignId, "host", null, "").characters;
+          for (const c of chars) {
+            const heal = rollDie(4);
+            db.updateCharacterHp(identity.campaignId, c.id, c.hp + heal);
+          }
+          const clock = db.advanceWatch(identity.campaignId, 1);
+          db.addRoll(identity.campaignId, {
+            actor: actor(),
+            kind: "wilderness",
+            label: "Daytime Breather & Rest",
+            dice: "1d4 HP",
+            total: clock.watch,
+            detail: "Party took a short rest watch to bandage wounds and catch breath (regained 1d4 HP).",
+          });
+          return { rested: true, clock };
+        }
+      }),
+    );
+
+    socket.on(
+      "expedition:camp_night",
+      action((raw: unknown) => {
+        const payload = z
+          .object({
+            tasks: z
+              .array(
+                z.object({
+                  characterId: z.number(),
+                  task: z.enum([
+                    "watch",
+                    "cook",
+                    "hunt",
+                    "firewood",
+                    "bed_down",
+                    "entertain",
+                    "craft",
+                    "predict",
+                  ]),
+                }),
+              )
+              .optional(),
+          })
+          .parse(raw ?? {});
+
+        const campaignId = identity.campaignId;
+        const camp = db.db
+          .prepare(
+            "SELECT watch, day, rations, weather, party_location_json, active_region_id FROM campaigns WHERE id = ?",
+          )
+          .get(campaignId) as any;
+        const currentLoc = camp?.party_location_json
+          ? JSON.parse(camp.party_location_json)
+          : { q: 0, r: 0 };
+        const chars = db.getState(campaignId, "host", null, "").characters;
+
+        // 1. Process tasks per PG to Western Reaches pg. 230
+        const taskResults: Array<{
+          characterName: string;
+          task: string;
+          roll: number;
+          dc: number;
+          passed: boolean;
+          detail: string;
+        }> = [];
+
+        let campfireSuccess = true;
+        let watchAlert = false;
+        let cookedBonus = false;
+        let rationsGathered = 0;
+
+        const tasksToRun =
+          payload.tasks && payload.tasks.length > 0
+            ? payload.tasks
+            : chars.map((c, idx) => ({
+                characterId: c.id,
+                task:
+                  idx === 0
+                    ? ("watch" as const)
+                    : idx === 1
+                      ? ("cook" as const)
+                      : idx === 2
+                        ? ("firewood" as const)
+                        : ("bed_down" as const),
+              }));
+
+        for (const t of tasksToRun) {
+          const char = chars.find((c) => c.id === t.characterId);
+          if (!char) continue;
+          let statMod = 0;
+          switch (t.task) {
+            case "watch":
+              statMod = abilityModifier(char.abilities.wis);
+              break;
+            case "cook":
+              statMod = Math.max(
+                abilityModifier(char.abilities.int),
+                abilityModifier(char.abilities.wis),
+              );
+              break;
+            case "hunt":
+              statMod = Math.max(
+                abilityModifier(char.abilities.str),
+                abilityModifier(char.abilities.dex),
+              );
+              break;
+            case "firewood":
+              statMod = Math.max(
+                abilityModifier(char.abilities.str),
+                abilityModifier(char.abilities.con),
+              );
+              break;
+            case "bed_down":
+              statMod = Math.max(
+                abilityModifier(char.abilities.wis),
+                abilityModifier(char.abilities.con),
+              );
+              break;
+            case "entertain":
+              statMod = abilityModifier(char.abilities.cha);
+              break;
+            case "craft":
+              statMod = abilityModifier(char.abilities.dex);
+              break;
+            case "predict":
+              statMod = Math.max(
+                abilityModifier(char.abilities.int),
+                abilityModifier(char.abilities.wis),
+              );
+              break;
+          }
+
+          const roll = rollDie(20);
+          const total = roll + statMod;
+          const dc = 12;
+          const passed = total >= dc;
+
+          let detail = "";
+          if (t.task === "watch") {
+            if (passed) {
+              detail = "Kept vigilant watch (guards one half of the night).";
+            } else {
+              detail = "Dozed off during their watch shift.";
+            }
+          } else if (t.task === "cook") {
+            if (passed) {
+              cookedBonus = true;
+              detail = "Cooked a hearty hot meal (+2 temporary HP to party).";
+            } else {
+              detail = "Burned the meal; meager sustenance.";
+            }
+          } else if (t.task === "hunt") {
+            if (passed) {
+              const found = rollDie(4);
+              rationsGathered += found;
+              detail = `Tracked and dressed wild game (+${found} rations).`;
+            } else {
+              detail = "Game trails were barren.";
+            }
+          } else if (t.task === "firewood") {
+            if (passed) {
+              campfireSuccess = true;
+              detail = "Gathered dry fallen logs for a crackling blaze.";
+            } else {
+              campfireSuccess = false;
+              detail = "Only wet peat found; smoky campfire.";
+            }
+          } else if (t.task === "bed_down") {
+            detail = passed ? "Deep, undisturbed slumber." : "Restless sleep on stony ground.";
+          } else {
+            detail = passed ? "Task completed successfully." : "Inconclusive results.";
+          }
+
+          taskResults.push({
+            characterName: char.name,
+            task: t.task,
+            roll: total,
+            dc,
+            passed,
+            detail,
+          });
+        }
+
+        // 2. Apply cooked bonus
+        if (cookedBonus) {
+          for (const c of chars) {
+            db.updateCharacterHp(campaignId, c.id, c.hp + 2);
+          }
+        }
+
+        // 3. Apply rations gathered
+        if (rationsGathered > 0) {
+          db.resupplyPartyRations(campaignId, rationsGathered);
+        }
+
+        // 4. Clear 1 level of fatigue
+        for (const c of chars) {
+          db.updateCharacterFatigue(c.id, Math.max(0, (c.fatigue ?? 0) - 1));
+        }
+
+        // 5. Advance clock to next dawn (Day + 1, Watch 1)
+        const currentWatch = (camp?.watch ?? 1) as 1 | 2 | 3 | 4;
+        const watchesToDawn = (5 - currentWatch) % 4 || 4;
+        const clock = db.advanceWatch(campaignId, watchesToDawn);
+
+        // Evaluate watch coverage (PG to Western Reaches pg. 230: 1 sentry covers 1/2 night)
+        const watchTasks = tasksToRun.filter((t) => t.task === "watch");
+        const watchSuccesses = taskResults.filter(
+          (t) => t.task === "watch" && t.passed,
+        ).length;
+
+        if (watchTasks.length === 0) {
+          watchAlert = false; // No sentry: surprised!
+        } else if (watchSuccesses >= 2) {
+          watchAlert = true; // 2+ sentries cover both halves of the night!
+        } else if (watchSuccesses === 1) {
+          // 1 sentry covers half the night (50% chance encounter occurs during their watch)
+          const shiftRoll = rollDie(2);
+          watchAlert = shiftRoll === 1;
+        } else {
+          watchAlert = false; // Sentry failed check
+        }
+
+        // 6. Night encounter check (1 on 1d6)
+        const encRoll = rollDie(6);
+        let encounterTriggered = false;
+        let encounterName = "";
+        if (encRoll === 1) {
+          encounterTriggered = true;
+          const reg = db.db
+            .prepare("SELECT selection_json FROM regions WHERE id = ?")
+            .get(camp.active_region_id) as any;
+          let zoneKey = "the_gloaming";
+          if (reg?.selection_json) {
+            try {
+              const s = JSON.parse(reg.selection_json);
+              if (s.zoneId) zoneKey = s.zoneId;
+            } catch {}
+          }
+          const zoneProfile =
+            (ZONE_PROFILES as any)[zoneKey] || (ZONE_PROFILES as any)["the_gloaming"];
+          const table =
+            zoneProfile?.wanderingMonsterTable && zoneProfile.wanderingMonsterTable.length > 0
+              ? zoneProfile.wanderingMonsterTable
+              : ["wolf", "bandit", "giant_spider"];
+          const monsterKey = table[randomInt(table.length)];
+          encounterName = `Midnight Stalkers: ${monsterKey.replace("_", " ")}`;
+          db.addEncounterWithMonsters(campaignId, encounterName, [
+            {
+              id: 0,
+              monsterKey,
+              name:
+                monsterKey.charAt(0).toUpperCase() +
+                monsterKey.slice(1).replace("_", " "),
+              currentHp: 10,
+              maxHp: 10,
+              loreTier: 1,
+            },
+          ]);
+        }
+
+        // 7. Chronicle roll entry
+        const taskSummary = taskResults
+          .map((t) => `${t.characterName} (${t.task}: ${t.passed ? "Pass" : "Fail"})`)
+          .join(", ");
+        db.addRoll(campaignId, {
+          actor: actor(),
+          kind: "wilderness",
+          label: "Evening Camp Resolved",
+          dice: "Camping Procedure",
+          total: taskResults.filter((t) => t.passed).length,
+          detail: `Camp pitched in Hex (${currentLoc.q}, ${currentLoc.r}). Tasks: ${taskSummary}. Fatigue cleared (-1). Supplies consumed at dawn. Dawn arrives: Day ${clock.day}, Watch ${clock.watch} (${clock.weather}).${
+            encounterTriggered
+              ? ` ⚠️ NIGHT ENCOUNTER: ${encounterName} (${watchAlert ? "Party Alert" : "Party Surprised!"})`
+              : " Night passed peacefully under the stars."
+          }`,
+        });
+
+        return {
+          rested: true,
+          clock,
+          taskResults,
+          encounterTriggered,
+          encounterName: encounterTriggered ? encounterName : null,
+          watchAlert,
+          cookedBonus,
+          rationsGathered,
+        };
+      }),
+    );
+
+    socket.on(
+      "expedition:force_march",
+      action((_raw: unknown) => {
+        const campaignId = identity.campaignId;
+        const camp = db.db
+          .prepare(
+            "SELECT watch, day, watches_traveled_today, weather, rations FROM campaigns WHERE id = ?",
+          )
+          .get(campaignId) as any;
+        const currentWatch = camp?.watch ?? 1;
+
+        let clock = {
+          day: camp?.day ?? 1,
+          watch: currentWatch,
+          weather: camp?.weather ?? "Overcast / Mild Breeze",
+          rations: camp?.rations ?? 12,
+        };
+        // If at watch 3, advance into watch 4
+        if (currentWatch === 3) {
+          clock = db.advanceWatch(campaignId, 1);
+        }
+
+        // Evaluate forced march CON DC 12 + fatigue
+        const fatigueResults = db.evaluatePartyForcedMarch(campaignId, 12);
+        const failedNames = fatigueResults.filter((f) => !f.passed).map((f) => f.name);
+
+        db.addRoll(campaignId, {
+          actor: actor(),
+          kind: "wilderness",
+          label: "Forced March Into Darkness (Watch 4)",
+          dice: "CON DC 12+Fatigue",
+          total: fatigueResults.filter((f) => f.passed).length,
+          detail: `Party pushed past the daily allowance into the freezing dark of Watch 4. Saves: ${fatigueResults
+            .map((f) => `${f.name}: ${f.roll} vs DC ${f.dc} (${f.passed ? "Pass" : "Fail, +1 Fatigue"})`)
+            .join(", ")}.${failedNames.length > 0 ? ` Exhausted: ${failedNames.join(", ")}.` : " All pushed through successfully."}`,
+        });
+
+        return {
+          forcedMarch: true,
+          clock,
+          fatigueResults,
+        };
+      }),
+    );
+
+    socket.on(
+      "encounter:flee",
+      action((_raw: unknown) => {
+        const enc = db.db
+          .prepare("SELECT * FROM encounters WHERE campaign_id = ? AND status = 'active' ORDER BY id DESC LIMIT 1")
+          .get(identity.campaignId) as any;
+        if (enc) {
+          db.db.prepare("UPDATE encounters SET status = 'resolved' WHERE id = ?").run(enc.id);
+        }
+
+        db.addRoll(identity.campaignId, {
+          actor: actor(),
+          kind: "encounter",
+          label: "Tactical Retreat",
+          dice: "—",
+          total: 0,
+          detail: "Company beat a hasty tactical retreat from hostile engagement back into safety.",
+        });
+
+        return { retreated: true };
+      }),
+    );
+
+    socket.on(
+      "site:enter",
+      action((raw: unknown) => {
+        const payload = z.object({ siteId: z.string().min(1) }).parse(raw);
+        const camp = db.db.prepare("SELECT * FROM campaigns WHERE id = ?").get(identity.campaignId) as any;
+        const currentLoc = camp?.party_location_json ? JSON.parse(camp.party_location_json) : { q: 0, r: 0 };
+
+        const site = db.db.prepare("SELECT * FROM sites WHERE id = ?").get(payload.siteId) as any;
+        if (!site) throw new Error(`Site ${payload.siteId} not found`);
+
+        const siteParts = site.canonical_key.split(":");
+        const siteQ = Number(siteParts[2]);
+        const siteR = Number(siteParts[3]);
+
+        if (siteQ !== currentLoc.q || siteR !== currentLoc.r) {
+          throw new Error(`Party is at (${currentLoc.q}, ${currentLoc.r}), not at site location (${siteQ}, ${siteR})`);
+        }
+
+        if (
+          site.currentState?.toLowerCase().includes("aquatic") ||
+          site.id.includes("faerzress") ||
+          site.id.includes("abyss") ||
+          site.id.includes("mireforge")
+        ) {
+          const ap = db.getAdventurePath(identity.campaignId);
+          if (ap && ap.endZoneId) {
+            const chars = db.getState(identity.campaignId, "host", null, "").characters;
+            const access = evaluateAquaticAccess({
+              endZone: ap.endZoneId as any,
+              characters: chars.map((c) => ({
+                characterId: String(c.id),
+                personalMethods: (c.talents ?? []).filter((t: string) => t in AQUATIC_METHODS) as any[],
+              })),
+            });
+            if (!access.canEnter) {
+              throw new Error(
+                "Cannot enter submerged depths: party lacks required aquatic capabilities (water breathing/pressure).",
+              );
+            }
+          }
+        }
+
+        db.setActiveSite(identity.campaignId, site.id);
+        db.setCampaignPhase(identity.campaignId, "dungeon");
+
+        const existingRoom = db.db
+          .prepare("SELECT 1 FROM dungeon_rooms WHERE campaign_id = ? AND site_id = ?")
+          .get(identity.campaignId, site.id);
+        if (!existingRoom) {
+          const room = generateDungeonRoom();
+          db.addRoom(identity.campaignId, room, site.id);
+        }
+
+        db.addRoll(identity.campaignId, {
+          actor: actor(),
+          kind: "exploration",
+          label: `Entered Site: ${site.name}`,
+          dice: "—",
+          total: 0,
+          detail: `Party crossed threshold into ${site.name} (${site.kind}). Phase transitioned to dungeon.`,
+        });
+
+        return { ok: true, activeSiteId: site.id };
+      }),
+    );
+
+    socket.on(
+      "site:resolve_deed",
+      action((raw: unknown) => {
+        const payload = z
+          .object({
+            siteId: z.string().min(1),
+            deed: z.string().min(1),
+            details: z.string().optional(),
+          })
+          .parse(raw);
+
+        const camp = db.db.prepare("SELECT * FROM campaigns WHERE id = ?").get(identity.campaignId) as any;
+        const currentSiteId = camp?.active_site_id;
+        if (currentSiteId !== payload.siteId) {
+          throw new Error(`Party is not currently inside site ${payload.siteId}`);
+        }
+
+        const res = db.resolveAdventurePathDeed(
+          identity.campaignId,
+          payload.deed,
+          1,
+          payload.details || `Resolved deed ${payload.deed} at site ${payload.siteId}`,
+        );
+
+        db.updateSiteState(payload.siteId, `Deed Resolved: ${payload.deed}`);
+
+        db.addRoll(identity.campaignId, {
+          actor: actor(),
+          kind: "adventure_path",
+          label: `Deed Resolved: ${payload.deed}`,
+          dice: "—",
+          total: 0,
+          detail: res.alreadyResolved
+            ? `Deed ${payload.deed} was already completed earlier; no duplicate progress awarded.`
+            : `Deed ${payload.deed} accomplished! Path knowledge increased and world state permanently updated.`,
+        });
+
+        return { ok: true, alreadyResolved: res.alreadyResolved };
+      }),
+    );
+
+    socket.on(
+      "site:exit",
+      action((_raw: unknown) => {
+        const camp = db.db.prepare("SELECT * FROM campaigns WHERE id = ?").get(identity.campaignId) as any;
+        const currentLoc = camp?.party_location_json ? JSON.parse(camp.party_location_json) : { q: 0, r: 0 };
+        const isAtHaven = currentLoc.q === 0 && currentLoc.r === 0;
+
+        db.setActiveSite(identity.campaignId, null);
+        db.setCampaignPhase(identity.campaignId, isAtHaven ? "sanctuary" : "hexcrawl");
+
+        db.addRoll(identity.campaignId, {
+          actor: actor(),
+          kind: "exploration",
+          label: "Exited Site to Surface",
+          dice: "—",
+          total: 0,
+          detail: `Party emerged at overworld coordinates (${currentLoc.q}, ${currentLoc.r}). Phase restored to ${isAtHaven ? "sanctuary" : "hexcrawl"}.`,
+        });
+
+        return { ok: true, phase: isAtHaven ? "sanctuary" : "hexcrawl" };
+      }),
+    );
+
+    socket.on(
       "dungeon:generate",
       action((_raw: unknown) => {
         hostOnly();
+        const camp = db.db
+          .prepare("SELECT active_site_id FROM campaigns WHERE id = ?")
+          .get(identity.campaignId) as any;
+        const siteId = camp?.active_site_id || undefined;
         const room = generateDungeonRoom();
-        db.addRoom(identity.campaignId, room);
+        db.addRoom(identity.campaignId, room, siteId);
         db.addRoll(identity.campaignId, {
           actor: "Table",
           kind: "dungeon",
           label: "Generated next chamber",
           dice: "1d6 + 1d6",
           total: room.contentRoll,
-          detail: `${room.geometry}; ${room.contents}`,
+          detail: `${room.geometry}; ${room.contents}${siteId ? ` [Bound to ${siteId}]` : ""}`,
         });
         return { room };
       }),

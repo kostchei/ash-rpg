@@ -12,6 +12,39 @@ By blending the deep flavor and crunch of **1st Edition AD&D** with the streamli
 
 ---
 
+## The next playable release: a companion for the physical table
+
+ASH's immediate goal is a complete, repeatable expedition played by several people together in real life. One computer hosts the campaign; players use phones to view characters, choose activities, roll or record dice, and operate shared exploration. Conversation, fictional decisions, unusual rulings, and miniature positioning remain at the table.
+
+The first release is complete when four players can join, create a Fighter, Thief, Priest, and Wizard, choose tavern activities, follow a generated lead, travel and camp, explore a dungeon, resolve combat, divide treasure, return home, and resume the saved campaign next session.
+
+### Minimum playable scope
+
+| Part | Release requirement |
+| --- | --- |
+| Shared table | QR joining, character ownership, live state, reconnect recovery, a nominated caller for shared actions, and correction of mistakes. The caller can also be a player; this role does not require a dedicated GM. |
+| Four core classes | Fighter, Thief, Priest, and Wizard with usable equipment, class features, talents, and spells. Validate levels 1–3 first; existing higher-level content remains outside this release's completion claim. |
+| Mobile character sheet | HP, AC, conditions, inventory, spells, ability/skill checks, saves, attacks, and damage. Support app rolls and entered physical-dice results. |
+| Tavern | Each player chooses recovery, rumor gathering, carousing, or buying supplies; costs and outcomes persist. The party selects a lead or its own objective. |
+| Hex exploration | A shared party marker, legal travel, visible travel costs, time and supplies, encounters, discovery, and a return journey. |
+| Camping | Each player selects a duty on their phone; the table resolves one shared camp with supplies, recovery, and possible interruption. |
+| Adventure paths | Generate connected situations, leads, clues, sites, and consequences. Use The Mind Below as the first supported template, with reusable interfaces for other paths. |
+| Sites and dungeons | Persistent site changes, connected rooms and exits, a shared current room, discovery, revisiting, and exploration turns. |
+| Combat assistance | Monster generation, initiative, rounds and turns, PC and monster HP, conditions, death saves, reaction, and morale. |
+| Treasure and return | Generate and claim treasure once, allocate items and gold, award XP, and preserve the expedition's discoveries and outcomes. |
+
+### What exists and what remains
+
+The current implementation provides campaign hosting and persistence, live phone synchronization, character statistics and progression, procedural hex travel, tavern leads, camping resolution, site entry, room generation, monster generation, and HP tracking. These are foundations, not a claim that the complete release flow has been verified.
+
+The principal remaining work is playable class actions and spells, inventory and contextual rolls, persistent individual tavern/camp choices, shared-action coordination, a connected dungeon map, initiative, and treasure allocation. Dungeon generation currently produces chamber records rather than a traversable room graph. Existing path integration also needs reusable situation and outcome handling.
+
+Build in four stages: **playable party → playable expedition → playable adventure → complete session**. Keep one party marker on each exploration map and use the rules' Close/Near/Far distances for table combat. Additional classes, individual tactical tokens, automatic monster turns, exhaustive spell automation, and additional path templates can follow the first complete session.
+
+See the [engineering implementation plan](docs/plans/table_companion_mvp.md) for dependencies, data changes, milestones, and release acceptance. The [Table Companion guide](docs/table_companion.md) covers running the existing application. The broader pillars below describe the longer-term vision.
+
+---
+
 ## 🌟 The Five Pillars of ASH
 
 ```mermaid

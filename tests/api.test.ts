@@ -45,14 +45,14 @@ describe("campaign HTTP API", () => {
     expect(host.body.token).toBe(created.body.token);
   });
 
-  it("returns content catalogs including 200+ monsters and 7 zones", async () => {
+  it("returns content catalogs including 200+ monsters and 6 canonical zones", async () => {
     const response = await request(server.app).get("/api/content");
     expect(response.status).toBe(200);
     expect(response.body.ancestries.length).toBeGreaterThan(0);
     expect(response.body.classes.length).toBeGreaterThan(0);
     expect(response.body.monsters.length).toBeGreaterThan(200);
-    expect(response.body.zones.length).toBeGreaterThanOrEqual(7);
-    expect(response.body.zoneProfiles.length).toBe(7);
+    expect(response.body.zones.length).toBe(6);
+    expect(response.body.zoneProfiles.length).toBe(6);
     expect(response.body.borderPairings.length).toBe(15);
 
     // Verify monster shape

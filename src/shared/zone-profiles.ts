@@ -150,10 +150,10 @@ export const ZONE_PROFILES: Record<CursedZoneId, ZoneGenerationProfile> = {
       },
     ],
     havenDefaults: {
-      name: "Oakhaven Refuge",
-      biome: "Woodland Refuge",
-      landmark: "Stone Priory Guest House, Sacred Lantern Gate, Timber Docks",
-      description: "A fortified woodland settlement nestled in a dry clearing, offering hearth-warmth, provisions, and safe travel advice.",
+      name: "Marin's Hold",
+      biome: "River Confluence Motte",
+      landmark: "Motte-and-bailey Keep, Timber Palisade, The Crayfish Tavern, River Docks",
+      description: "A fortified fisherfolk settlement of 300 souls where the river meets the mist bog, governed by Reeve Tarley Winters atop a palisaded hill.",
     },
     waterDrainageType: "river_network",
     hazardTable: [
@@ -270,10 +270,10 @@ export const ZONE_PROFILES: Record<CursedZoneId, ZoneGenerationProfile> = {
       },
     ],
     havenDefaults: {
-      name: "Qasr Al-Rimal",
-      biome: "Palm Oasis",
-      landmark: "Artesian Spring Basin, High Adobe Watchtower, Caravan Exchange",
-      description: "A defended desert oasis walled against sandstorms, offering cool date shade, clean water, and camel provisions.",
+      name: "Alkesh",
+      biome: "Sunstone Oasis",
+      landmark: "Artesian Cistern Basin, Adobe High Watchtower, Camel Exchange, The Golden Scorpion",
+      description: "A bustling mudbrick desert hub walled against dust devils, where salt traders, caravan masters, and desert pilgrims water their beasts.",
     },
     waterDrainageType: "scarce_oasis",
     hazardTable: [
@@ -390,10 +390,10 @@ export const ZONE_PROFILES: Record<CursedZoneId, ZoneGenerationProfile> = {
       },
     ],
     havenDefaults: {
-      name: "Sunderfjord Harbor",
+      name: "Valthis",
       biome: "Sheltered Bay Harbor",
-      landmark: "Great Longhouse, Slipway Docks, Runestone Beacon",
-      description: "A sheltered island harbor surrounded by turf longhouses, offering boat repairs, salt rations, and hearty mead by the hearth.",
+      landmark: "Great Turf Longhouse, Slipway Docks, Runestone Beacon, The Whalebone Hall",
+      description: "A hardy coastal haven ringed by smoking cod racks and carved dragon prows, sheltered from arctic squalls beneath towering basalt cliffs.",
     },
     waterDrainageType: "archipelago_sea",
     hazardTable: [
@@ -509,10 +509,10 @@ export const ZONE_PROFILES: Record<CursedZoneId, ZoneGenerationProfile> = {
       },
     ],
     havenDefaults: {
-      name: "Tepoz Landing",
+      name: "Tecuhan",
       biome: "Elevated River Bluff",
-      landmark: "Palisade Watchtower, Stone Canoe Slips, Trade Post",
-      description: "A secure riverside settlement raised on ancient basalt terraces, safe from floodwaters and primeval predators.",
+      landmark: "Palisaded Canoe Slips, Thatched Council Terrace, Serpentine Totem, The Riverman's Perch",
+      description: "An elevated river village built atop ancient stone terraces safe from jungle floodwaters, trading obsidian and bird plumes with river skiffs.",
     },
     waterDrainageType: "basin_trunk",
     hazardTable: [
@@ -629,10 +629,10 @@ export const ZONE_PROFILES: Record<CursedZoneId, ZoneGenerationProfile> = {
       },
     ],
     havenDefaults: {
-      name: "Upper Sink Refuge",
-      biome: "Fortified Cavern Vault",
-      landmark: "Surface Hoist Winch, Iron Gatehouse, Guano Lanterns",
-      description: "A defended underground staging post situated just below the great sinkhole, with reliable supply hoists to the surface world.",
+      name: "Maugrinhold",
+      biome: "Granite Underworld Bastion",
+      landmark: "Surface Hoist Winch, Phosphor Lantern Arch, Iron Tramway, The Deep Siphon Tap",
+      description: "A deep dwarven outpost carved directly into cavern rock below the surface sinkhole, guarding the upper iron hoists against abyss terrors.",
     },
     waterDrainageType: "karst_siphon",
     hazardTable: [
@@ -755,10 +755,10 @@ export const ZONE_PROFILES: Record<CursedZoneId, ZoneGenerationProfile> = {
       },
     ],
     havenDefaults: {
-      name: "The Gilded Swan Inn",
-      biome: "Canal Quarter Refuge",
-      landmark: "Private Gondola Mooring, Courtyard Fountain, Guarded Hearth",
-      description: "A fortified merchant hostelry in a quiet canal cul-de-sac, offering dependable beds, trustworthy information, and secure boat moorings.",
+      name: "Meridia (The Rooks)",
+      biome: "Canal District Hub",
+      landmark: "Gondola Mooring Wharves, Masked Plaza, Clockwork Canal Siphon, The Mask & Dagger",
+      description: "The bustling artisan and market district of the City of Masks, crowded with masked merchants, canal barges, and shadowy gondoliers.",
     },
     waterDrainageType: "estuary_canals",
     hazardTable: [
@@ -782,111 +782,6 @@ export const ZONE_PROFILES: Record<CursedZoneId, ZoneGenerationProfile> = {
       "thief",
       "guard",
       "wererat",
-    ],
-  },
-
-  oakhaven_borderlands: {
-    id: "oakhaven_borderlands",
-    name: "Oakhaven Borderlands",
-    theme: "Classic Frontier Sanctuary & Hex Wilderness (Legacy Baseline)",
-    sourceVolume: "Shadowdark RPG Core / ASH Baseline",
-    sourcePageRef: "ASH dc229a4 baseline",
-    provenance: "adapted",
-    terrainPriors: [
-      { group: "Forest", weight: 35, biomes: ["Ancient Elderwood", "Rocky Foothills", "Enchanted Woods", "Wooded Verge"] },
-      { group: "Marsh", weight: 20, biomes: ["Stagnant Swamp", "Peat Bogs", "Reed Riverbanks", "Deep Quagmire"] },
-      { group: "Highland", weight: 20, biomes: ["Mountain Ridge", "Granite Peaks", "Highland Pass"] },
-      { group: "Valley", weight: 15, biomes: ["Fortified Basin", "Rolling Grasslands", "Fallow Meadows"] },
-      { group: "Karst", weight: 10, biomes: ["Subterranean Karst", "Coastal Scrub"] },
-    ],
-    typicalElevationRange: [0, 3],
-    settlementHubRange: [1, 2],
-    settlementTypes: [
-      {
-        name: "Frontier Basin Town",
-        description: "Walled market settlement with stone watchtowers and river landing.",
-        waterSource: "River Mor freshwater flow",
-        foodProvenance: "Barley wealds and cattle enclosures",
-        reason: "Crossroads between the coast, dwarven crags, and imperial highroad",
-      },
-    ],
-    historicalLayers: [
-      {
-        phase: "earlier_occupation",
-        title: "Ancient Imperial Outposts",
-        summary: "The old Empire constructed paved highroads, stone wayposts, and border watchtowers.",
-        consequences: ["Old milestones line the road", "Ruined sentry redoubts survive"],
-      },
-      {
-        phase: "expansion",
-        title: "Frontier Settlement Boom",
-        summary: "Settlers and miners established Oakhaven and prospector quarries in the hills.",
-        consequences: ["Active iron quarries and timber mills operate", "Trade routes connect the valleys"],
-      },
-      {
-        phase: "disruption",
-        title: "The Karst Collapse",
-        summary: "A massive karst sink opened in the north, severing the deep dwarf tunnels and opening underworld incursions.",
-        consequences: ["Great Karst Sinkhole breaches the surface", "Goblins and wights contest the outer perimeter"],
-      },
-      {
-        phase: "present_response",
-        title: "Frontier Defense",
-        summary: "The Oakhaven Guard fortifies the basin while hiring crawlers to scout the wild hexes.",
-        consequences: ["Tavern keepers trade rumors for silver", "Scouts offer rewards for mapping the wild frontier"],
-      },
-    ],
-    factions: [
-      {
-        id: "oakhaven_guard",
-        name: "Oakhaven Guard",
-        disposition: "Allied",
-        asset: "High watchtower, stone garrison, and gatehouse",
-        agenda: "Protect the sanctuary basin and maintain peace within the walls.",
-      },
-      {
-        id: "glimmercap_tinkers",
-        name: "Glimmercap Tinkers",
-        disposition: "Friendly",
-        asset: "Caravan wagons and alchemical stalls",
-        agenda: "Trade potions, salvage clockwork curios, and explore strange ruins.",
-      },
-      {
-        id: "iron_gorge_clan",
-        name: "Iron Gorge Clan",
-        disposition: "Wary",
-        asset: "Highland smelters and quarry pits",
-        agenda: "Secure iron shipments and defend mountain passes against goblin raiders.",
-      },
-    ],
-    havenDefaults: {
-      name: "Oakhaven Sanctuary",
-      biome: "Fortified Basin",
-      landmark: "High Watchtower, Temple of St. Jude, Taproom, River Docks",
-      description: "A fortified frontier basin nestled between mountain spires and ancient elderwoods, offering warm beds, fresh supplies, and safe harbor.",
-    },
-    waterDrainageType: "river_network",
-    hazardTable: [
-      "Rockslide in the foothills (DC 12 DEX or 2d6 bludgeoning)",
-      "Stagnant sinkhole gases (DC 11 CON or 1 fatigue)",
-      "Thorny briar thicket (DC 10 STR or lose 1 torch/ration)",
-      "Sudden subterranean fissure (DC 13 DEX or slip near edge)",
-    ],
-    weatherTable: {
-      spring: ["Clear blue skies with crisp mountain wind", "Overcast with mild breeze", "Heavy rain and rolling thunderstorms", "Thick mountain mist clinging to valleys"],
-      summer: ["Bright sunshine and dry valley heat", "Pleasant evening breezes", "Sudden summer thunderclap", "Hazy warm stillness"],
-      autumn: ["Chilly morning frost and amber leaves", "Dense valley fog", "Crisp autumn winds howling from the north", "Steady gray drizzle"],
-      winter: ["Cold biting wind with driving snow", "Frozen mud and rime-crusted branches", "Sub-zero blizzard howling through the gap", "Still crisp winter sunshine"],
-    },
-    wanderingMonsterKeys: [
-      "wolf",
-      "bandit",
-      "giant_spider",
-      "owlbear",
-      "goblin",
-      "orc",
-      "barrow_wight",
-      "skeleton",
     ],
   },
 };
@@ -1075,4 +970,26 @@ export function getBorderPairing(
       (b.zoneIds[0] === zoneA && b.zoneIds[1] === zoneB) ||
       (b.zoneIds[0] === zoneB && b.zoneIds[1] === zoneA),
   );
+}
+
+export function validateBorderPairing(
+  zoneA: CursedZoneId,
+  zoneB: CursedZoneId,
+  connectionMode: ConnectionMode,
+): { valid: boolean; pairing?: BorderPairingDefinition; error?: string } {
+  if (zoneA === zoneB) {
+    return { valid: false, error: "A border cannot pair a zone with itself." };
+  }
+  const pairing = getBorderPairing(zoneA, zoneB);
+  if (!pairing) {
+    return { valid: false, error: `No border pairing exists between '${zoneA}' and '${zoneB}'.` };
+  }
+  if (!pairing.supportedConnections.includes(connectionMode)) {
+    return {
+      valid: false,
+      pairing,
+      error: `Connection mode '${connectionMode}' is not supported for ${pairing.title}. Supported modes: ${pairing.supportedConnections.join(", ")}.`,
+    };
+  }
+  return { valid: true, pairing };
 }
