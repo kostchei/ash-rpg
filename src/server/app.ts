@@ -28,6 +28,7 @@ import type {
 } from "../shared/types.js";
 import { AshDatabase } from "./database.js";
 import { populateSiteRooms, requireTreasureAccess } from "./room-features.js";
+import { materializeNeighborhood } from "./frontier.js";
 import { generateCampaignComplication } from "./generators/campaign.js";
 import { AQUATIC_METHODS, evaluateAquaticAccess } from "./generators/mind-below.js";
 import { generateNpc } from "./generators/npc.js";
@@ -1959,6 +1960,10 @@ export async function createAshServer(options: AshServerOptions = {}) {
           layerId: currentLoc.layerId || "surface",
         });
 
+        // Chart the ground the party can step onto next, so the frontier stays one ring ahead of
+        // them and an outward march has a real destination instead of an invisible wall.
+        const charted = materializeNeighborhood(db, identity.campaignId, toQ, toR);
+
         if (
           targetHexRow.reveal_state === "unexplored" ||
           targetHexRow.reveal_state === "rumored"
@@ -1995,6 +2000,7 @@ export async function createAshServer(options: AshServerOptions = {}) {
           fatigueResults,
           encounterTriggered,
           newPartyLocation: { q: toQ, r: toR },
+          chartedHexIds: charted.map((h) => h.id),
         };
       }),
     );

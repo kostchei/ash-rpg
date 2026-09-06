@@ -42,8 +42,33 @@
   font-size: 11px;
 }
 .atlas-toolbar-dot { margin: 0 8px; }
-.atlas-zoom { display: flex; align-items: center; gap: 8px; }
-.atlas-zoom > span { min-width: 38px; text-align: center; }
+.map-zoom { display: flex; align-items: center; gap: 8px; }
+.map-zoom-readout { min-width: 42px; text-align: right; font-variant-numeric: tabular-nums; }
+.map-zoom input[type="range"] { width: 116px; accent-color: var(--ember); cursor: pointer; }
+.map-zoom button {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  font-size: 15px;
+  line-height: 1;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  color: var(--ink);
+  background: #fff;
+  cursor: pointer;
+}
+.map-zoom button:disabled { opacity: 0.45; cursor: default; }
+
+/* Drag-to-pan surface shared by the frontier and site maps. */
+/* max-width/min-width keep the viewport inside its flex or grid parent instead of stretching to
+   the map's natural width, which would scroll the page rather than pan the map. */
+.map-viewport { overflow: auto; max-width: 100%; min-width: 0; cursor: grab; touch-action: pan-x pan-y; }
+.map-viewport.panning { cursor: grabbing; user-select: none; }
+.map-viewport.panning * { pointer-events: none; }
+.map-viewport:focus-visible { outline: 2px solid var(--ember); outline-offset: 2px; }
+
 .map-layout .atlas-zoom button {
   display: grid;
   place-items: center;

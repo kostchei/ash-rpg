@@ -541,6 +541,12 @@ describe("Complete Expedition Loop & Adventure Path Integration", () => {
     expect(resolveCampRes.ok).toBe(true);
 
     // 5. Enter Site & Explore Dungeon Graph
+    // Travel and camp can raise a wilderness encounter on a 1-in-6, and an unresolved encounter
+    // legitimately blocks site entry. Clear it so this scripted loop tests entry, not the roll.
+    for (const encounter of server.db.getState(1, "host", null, "").encounters) {
+      if (encounter.status === "active") server.db.resolveEncounter(1, encounter.id);
+    }
+
     // Move party to waterworks site coordinates
     const site = server.db.db.prepare("SELECT * FROM sites WHERE id = ?").get(waterworksSiteId) as any;
     const siteParts = site.canonical_key.split(":");

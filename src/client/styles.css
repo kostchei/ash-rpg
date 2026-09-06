@@ -545,6 +545,9 @@ button:disabled {
 }
 .panel {
   min-height: 0;
+  /* Grid items default to a min-width of their content, so one wide child (a site map) would
+     stretch the panel past its track and scroll the whole page sideways. */
+  min-width: 0;
 }
 .map-surface {
   padding: 28px;
@@ -2250,11 +2253,11 @@ button:disabled {
   background: #0d0f0c;
   border: 1px solid var(--line);
   border-radius: 6px;
-  overflow: hidden;
+  max-height: 420px;
+  margin-bottom: 20px;
 }
 .dungeon-svg-map {
   width: 100%;
-  max-height: 400px;
   display: block;
 }
 .party-ring-pulse {

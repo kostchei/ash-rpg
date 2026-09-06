@@ -93,7 +93,7 @@ export function generateHexMap(
   const config: RegionGenerationConfig = options.config ?? {
     selection: { mode: "single", zoneId },
     initialRadius: 2,
-    structuralRadius: 6,
+    structuralRadius: 12,
     regionalHexMiles: 6,
     season: "autumn",
     sourceContent: "adapted",

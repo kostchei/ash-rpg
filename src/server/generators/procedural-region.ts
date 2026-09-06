@@ -100,7 +100,7 @@ export function generateProceduralRegion(
   }
 
   const seedString = config.seed?.trim() || Math.random().toString(36).substring(2, 10);
-  const structuralRadius = config.structuralRadius ?? 6;
+  const structuralRadius = config.structuralRadius ?? 12;
   const initialRadius = config.initialRadius ?? 2;
   const maxAttempts = 32;
 

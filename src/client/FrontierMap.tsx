@@ -1,6 +1,6 @@
-import { useId, useState } from "react";
-import { Minus, Plus } from "lucide-react";
+import { useId, useRef, useState } from "react";
 import type { PublicHex } from "../shared/types";
+import { MapViewport, useZoomAnchor, ZoomSlider } from "./MapViewport";
 import { HEX_DIRECTIONS, HEX_POLYGON, HEX_RADIUS, HEX_WIDTH, hexCenter, mapConnections, mapLabel, terrainTile, pointOfInterestTile, routeArtwork, isWaterRoute, wrapMapLabel } from "./hex-cartography";
 
 interface FrontierMapProps {
@@ -10,8 +10,13 @@ interface FrontierMapProps {
   partyLocation: { q: number; r: number };
 }
 
+const MIN_ZOOM = 1;
+const MAX_ZOOM = 5;
+
 export function FrontierMap({ hexes, selectedId, onSelect, partyLocation }: FrontierMapProps) {
   const [zoom, setZoom] = useState(1);
+  const viewportRef = useRef<HTMLDivElement | null>(null);
+  const zoomTo = useZoomAnchor(viewportRef, zoom, setZoom);
   const clipId = useId().replaceAll(":", "");
   if (!hexes.length) return <p>No hexes have been charted.</p>;
   const centers = hexes.map(hexCenter);
@@ -27,14 +32,10 @@ export function FrontierMap({ hexes, selectedId, onSelect, partyLocation }: Fron
   return (
     <div className="frontier-atlas">
       <div className="atlas-toolbar">
-        <span>FIELD MAP <span className="atlas-toolbar-dot">·</span> Select a hex to inspect</span>
-        <div className="atlas-zoom">
-          <button type="button" aria-label="Zoom out map" disabled={zoom <= 1} onClick={() => setZoom(Math.max(1, zoom - 0.25))}><Minus size={15} /></button>
-          <span>{Math.round(zoom * 100)}%</span>
-          <button type="button" aria-label="Zoom in map" disabled={zoom >= 2} onClick={() => setZoom(Math.min(2, zoom + 0.25))}><Plus size={15} /></button>
-        </div>
+        <span>FIELD MAP <span className="atlas-toolbar-dot">·</span> Click a hex to inspect, drag to pan</span>
+        <ZoomSlider zoom={zoom} onZoom={zoomTo} min={MIN_ZOOM} max={MAX_ZOOM} step={0.25} label="Hex map zoom" />
       </div>
-      <div className="atlas-scroll" tabIndex={0} role="region" aria-label="Scrollable frontier map">
+      <MapViewport viewportRef={viewportRef} className="atlas-scroll" ariaLabel="Frontier map. Drag to pan, arrow keys to scroll.">
         <svg className="hex-map" viewBox={`${minX} ${minY} ${width} ${height}`} style={{ width: `${zoom * 100}%` }} aria-label="Campaign hex map">
           <defs>
             <clipPath id={clipId}><polygon points={HEX_POLYGON} transform="scale(0.94)" /></clipPath>
@@ -105,7 +106,7 @@ export function FrontierMap({ hexes, selectedId, onSelect, partyLocation }: Fron
             <path d="M -4 4 L 0 -5 L 4 4 L 0 2 Z" />
           </g>
         </svg>
-      </div>
+      </MapViewport>
       <div className="map-legend">
         <span><i className="mapped" /> Charted</span>
         <span><i className="unknown" /> Uncharted</span>

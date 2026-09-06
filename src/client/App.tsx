@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import { RECEIPTED_ACTIONS } from "../shared/mutations";
 import { createActionId, sendMutation } from "./mutations";
 import { FrontierMap } from "./FrontierMap";
+import { MapViewport } from "./MapViewport";
 import {
   AlertTriangle,
   Apple,
@@ -2239,7 +2240,7 @@ function MapView({ state, act }: { state: CampaignState; act: Act }) {
       <section className="panel map-surface">
         <Title
           eyebrow="The campaign atlas"
-          title="The 19-hex frontier"
+          title="The charted frontier"
           aside={`${state.hexes.filter((h) => h.revealState !== "unexplored").length} / ${state.hexes.length} charted`}
         />
 
@@ -2579,7 +2580,7 @@ function MapView({ state, act }: { state: CampaignState; act: Act }) {
                 </summary>
                 <div className="regenerate-body">
                   <p>
-                    Procedurally re-seed the 19-hex frontier with connected
+                    Procedurally re-seed the frontier with connected
                     waterways, radiating roads, and horizon rumors.
                   </p>
                   <div className="theme-select-row">
@@ -3386,6 +3387,7 @@ function CharacterCard({
 }
 
 function DungeonView({ state, act }: { state: CampaignState; act: Act }) {
+  const dungeonMapRef = useRef<HTMLDivElement | null>(null);
   const dungeon = state.activeDungeon;
   const isCaller = Boolean(state.me.isCaller || state.me.role === "host");
   const [outcome, setOutcome] = useState("searched");
@@ -3504,8 +3506,27 @@ function DungeonView({ state, act }: { state: CampaignState; act: Act }) {
         </div>
 
         {/* Interactive SVG Dungeon Map */}
-        <div className="dungeon-map-container" style={{ padding: "16px", marginBottom: "20px" }}>
-          <svg viewBox="0 0 680 320" className="dungeon-svg-map">
+        {(() => {
+          // Bounds follow the actual rooms, so a site larger than the old fixed frame is panned to
+          // rather than cropped. Site maps stay legible at one scale, so they pan without zooming.
+          const pad = 70;
+          const xs = dungeon.nodes.map((n) => n.x);
+          const ys = dungeon.nodes.map((n) => n.y);
+          const minX = Math.min(...xs) - pad;
+          const minY = Math.min(...ys) - pad;
+          const mapWidth = Math.max(...xs) + pad - minX;
+          const mapHeight = Math.max(...ys) + pad - minY;
+          return (
+        <MapViewport
+          viewportRef={dungeonMapRef}
+          className="dungeon-map-container"
+          ariaLabel="Site map. Drag to pan, arrow keys to scroll."
+        >
+          <svg
+            viewBox={`${minX} ${minY} ${mapWidth} ${mapHeight}`}
+            className="dungeon-svg-map"
+            style={{ minWidth: `${mapWidth}px`, height: `${mapHeight}px` }}
+          >
             {/* Edges */}
             {dungeon.edges.map((edge, idx) => {
               const from = dungeon.nodes.find((n) => n.id === edge.fromRoomId);
@@ -3594,7 +3615,9 @@ function DungeonView({ state, act }: { state: CampaignState; act: Act }) {
               );
             })}
           </svg>
-        </div>
+        </MapViewport>
+          );
+        })()}
 
         {/* Current & Inspected Room Details */}
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: "20px" }}>

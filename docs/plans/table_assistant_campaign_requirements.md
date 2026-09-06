@@ -58,7 +58,25 @@ Knowing a river four hexes away does not reveal today's bandits there. Previousl
 
 ### Expedition and room procedure — owner clarification
 
-The opening adventure site may be **one to six hexes away**. Move the party across the intervening map, advance travel time and ration use, and resolve or evade encounters before continuing. Following a road avoids the wilderness navigation check. Off-road travel requires a **party Intelligence check**; failure chooses one of **all six hex directions uniformly**, including the intended direction. Do not choose only from the five wrong directions, reroll an inconvenient destination, or bias the roll toward already generated hexes. Specify the party navigator/check procedure and difficulty before implementation. A direction beyond the current frontier must extend the saved world, not become an invisible wall or a free reroll.
+The opening adventure site may be **one to six hexes away**. Move the party across the intervening map, advance travel time and ration use, and resolve or evade encounters before continuing. Following a road avoids the wilderness navigation check. Off-road travel requires a **party Intelligence check**; failure chooses one of **all six hex directions uniformly**, including the intended direction. Do not choose only from the five wrong directions, reroll an inconvenient destination, or bias the roll toward already generated hexes. A direction beyond the current frontier must extend the saved world, not become an invisible wall or a free reroll.
+
+#### Navigation procedure — settled 2026-09-06
+
+Hexes are **6 miles across**, per the Hexcrawl Guidebook (pp. 9, 26, 58). Three travel watches per day; the existing `calculateTravelWatches` cost already sorts terrain into that book's easy/moderate/hard classes, so the navigation difficulty keys off the same cost rather than a second terrain table.
+
+| Watch cost | Terrain class | Navigation check |
+| --- | --- | --- |
+| 1 (road or trail) | Easy: plains, roads, grassland | No check |
+| 2 | Moderate: forest, hills | DC 9 |
+| 3 | Hard: swamp, jungle, mountains, desert | DC 15 |
+
+The check is a **party Intelligence check using the single best INT modifier in the active roster**, against the standard ASH ladder (DC 9/12/15/18). Night travel (watch 4) or obscuring weather raises the terrain one step, so an easy hex becomes DC 9 and a moderate hex becomes DC 15.
+
+**Recorded ASH variance, not a source rule.** The Hexcrawl Guidebook resolves navigation with a d6 — lost on 1 in moderate terrain, on 1–2 in hard terrain and in fog or night travel — and where a system substitutes a check it names survival or **wisdom**. Shadowdark has no survival skill and publishes no navigation DC. The owner has specified an Intelligence check; that choice and these DCs are ASH decisions.
+
+The DCs are calibrated against the source's own odds. The guidebook rolls once per watch while ASH resolves one hex per travel action, so a moderate hex is 1-(5/6)^2 = 30.6% lost and a hard hex is 1-(4/6)^3 = 70.4%. At a representative +2 INT, DC 9 fails 30% and DC 15 fails 60%. DC 12 for hard terrain would fail only 45% and sits well below the source; do not substitute it without re-deriving these figures.
+
+Failure drifts the party into a neighbour chosen uniformly from all six directions, including the intended one, and the party is not told the check failed. Time, rations, and the encounter check are paid for the hex actually entered. The check result is part of the travel action's stored outcome; a retried action replays it and never re-rolls the direction.
 
 On reaching the site, enter at its entrance. Subsequent room choices must be reachable through the saved connections. Each new room uses this feature table, rolled once and persisted:
 
@@ -163,7 +181,7 @@ These do not block documenting the intended product. They must be resolved befor
 - Exact class-based Unearthed Arcana roll tables and eligibility rules for every offered class.
 - Whether one of each generation method is required and whether both characters are active or one is reserve; replacement and reserve XP rules.
 - Starting-zone agreement for mixed-origin parties and the supported secret-selection path pool.
-- Hex scale and source-verified observation/travel rules; precise extent of the proposed regional familiarity layer.
+- ~~Hex scale~~ and source-verified observation rules; precise extent of the proposed regional familiarity layer. **Settled 2026-09-06:** 6-mile hexes and the off-road navigation check are specified in section 5; the observation/visibility rule and familiarity radius remain open.
 - Approval or adjustment of the tentative two-path/one-unrelated opening mix, 50/50 third-lead branch, and 25% overland site weighting.
 - The authoritative Shadowdark progression profile and explicit ASH deviations. Existing support above level 10 may remain, but it does not enlarge this campaign target.
 
@@ -187,4 +205,40 @@ New sites now populate the exact d10 room-feature table and independently place 
 
 The room UI starts combat using the actual room creature/count. Room combat outcomes link back to their source room and victory does not automatically create room loot. A caller can record a reasoned table outcome, treasure discovery/access, and objective completion. Claims require recorded access and stable site/room reward identity. The old deed endpoint now also requires reaching its placed objective. Graph acknowledgements apply the existing role projection so undiscovered objectives are not exposed to player callers. Journey continuation and site entry reject unresolved encounters. This does not yet replace the legacy standalone combat/treasure generation flow.
 
-Travel's off-road INT/random-direction procedure and the one-to-six-hex placement range remain the next travel work package. The current 19-hex frontier is too small for the complete range or unbiased outward movement; implement persistent expansion together with navigation. Existing day-boundary ration consumption remains in place. Do not describe navigation, expanded placement, geomorphs, or rich room content as finished because the new room/reward checks pass.
+Travel's off-road INT/random-direction procedure remains the next travel work package. Existing day-boundary ration consumption remains in place. Do not describe navigation, geomorphs, or rich room content as finished because the new room/reward checks pass.
+
+### Frontier expansion — implemented 2026-09-06
+
+The public map is no longer fixed at 19 hexes. The region generator already solved elevation, hydrology, biome, and zone attribution across a whole structural field and persisted it to `region_hexes`; only the 19 `HEX_GRID` coordinates were ever projected into the campaign-facing `hexes` table. `src/server/frontier.ts` promotes that saved structural ground into the public map on demand, so a hex charted on the tenth expedition holds the ground it always held. Nothing is regenerated and no new terrain is invented.
+
+- `travel:move` charts the party's new hex and its six neighbours after each march, keeping the frontier one ring ahead of them. New hexes enter as `unexplored`, so the existing role projection still hides their name, biome, and sites from players until the party arrives.
+- Promotion is idempotent and assigned ids continue the original numbering, so a replayed travel action charts nothing new and a hex keeps its id for the life of the campaign.
+- Routes recorded by earlier hexes with an unresolved `"??"` far end are repaired when the far hex is charted, so roads and rivers draw across the new frontier.
+- The client needed no change: it positions hexes from their axial coordinates and gates travel on coordinate adjacency, so charted ground becomes visible and travellable automatically.
+
+**The default structural radius is raised from 6 to 12, giving a complete radius of 10 hexes from home** (469 saved hexes, ~77 ms to generate). The owner set the 10-hex target on 2026-09-06. The field is translated so the haven sits at (0,0), which costs about two rings on the far side, so the radius must exceed the required reach: at radius 6 the field was complete only to **four** hexes from home, short even of the one-to-six-hex lead range. No campaigns have been saved yet, so this changes generated output with no migration concern, and no existing test expectation depended on it. Note that the API's `structuralRadius` cap is 12, so the default now equals the maximum; raising the reach further means raising that cap too.
+
+**The world still ends somewhere, and this slice does not remove that.** Travel beyond the saved structural field throws an explicit error naming the limit rather than fabricating geography. Genuinely unbounded outward travel needs a chunked region generator, which is a separate work package: terrain here depends on a hydrology solve and an RNG stream consumed across the whole coordinate set, so a single coordinate cannot be regenerated in isolation and a larger radius would produce a different world for the same seed. Until that exists, the frontier is finite by construction — adequate for the one-to-six-hex lead range, not for indefinite wandering.
+
+### Map navigation — implemented 2026-09-06
+
+Both maps share one drag-to-pan surface (`src/client/MapViewport.tsx`). Scrolling stays the browser's own, so scrollbars, the wheel, and arrow keys keep working and the region remains keyboard reachable; dragging moves the scroll offsets. A drag that travels more than a few pixels swallows the click it ends on, so panning across the map never selects the hex or room under the pointer.
+
+- **Frontier map:** a zoom slider replaces the old two-button control, and the range widens from 100–200% to 100–500% because a growing charted area makes each hex smaller at a fixed width. Zoom is anchored on the viewport centre, so zooming in magnifies the ground being looked at instead of jumping to the map's corner.
+- **Site map:** panning only, per the owner's direction that site maps are small enough not to need zoom. Its `viewBox` now follows the actual room bounds rather than a fixed 680x320 frame, so a site larger than that frame is panned to instead of cropped — necessary before geomorph assembly produces larger layouts.
+
+Two layout defects surfaced and were fixed: `.panel` is a grid item whose default `min-width: auto` let one wide child stretch the panel past its track and scroll the whole page sideways, and the atlas heading was hard-coded to "The 19-hex frontier", which the frontier work had made untrue.
+
+Verified in a browser against a running server: zoom slider to 400% with the centre held, drag-pan on both maps, and clicks still selecting a hex and a room after panning.
+
+### Fog of war: what persists and what is current
+
+**Owner requirement recorded 2026-09-06: when fog of war lifts, landmarks remain; sites, monsters, and NPCs may change.** Terrain, biome, elevation, landmark, roads, and rivers are permanent world truth, saved on the hex and shown from the moment the party charts it. Occupancy is not.
+
+The hex row previously carried a frozen `sites_json` snapshot written when the hex was charted, so a renamed, razed, or newly founded site would never appear on a hex the party had already seen. That column is removed. Site occupancy is now read live from the `sites` table at projection time and filtered by the existing visibility and discovery rules, so a revisited hex reports today's occupants while keeping the ground the party mapped. Monsters and NPCs were never stored on the hex — encounters are rolled per travel — so nothing there was frozen.
+
+This is the persistent half of section 4's knowledge layers. Dating reported information and separating direct observation from regional familiarity remain unimplemented.
+
+Verification: **120 tests in 18 files pass**, five consecutive full runs clean, including seven new frontier tests covering promotion fidelity against `region_hexes`, id stability, replay safety, the ten-hex reach in every direction, edge refusal, an outward socket march onto ground the initial map never contained, and landmark permanence against changed site occupancy. Client type checking and the production build pass. No browser or physical-table rehearsal was performed for this slice.
+
+A pre-existing flaky test was fixed in passing: the four-player end-to-end loop entered a site without clearing a wilderness encounter, which travel and camp raise on a 1-in-6, and an unresolved encounter correctly blocks site entry. It failed roughly one run in four. The block was right and the script was wrong, so the fix is in the test. Verified over ten consecutive runs.

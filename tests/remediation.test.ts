@@ -332,19 +332,19 @@ describe("Remediation Verification (R1-R7 and G1-G6)", () => {
       });
       const campaignId = campaign.campaignId;
 
-      // Find a hex containing a hidden resource site from the 19 hexes
+      // Find a public hex holding a hidden site, reading occupancy from the live sites table.
       const row = db.db
         .prepare(
-          "SELECT id, sites_json FROM hexes WHERE campaign_id = ? AND sites_json LIKE '%\"visibility\":\"hidden\"%'",
+          `SELECT h.id AS hex_id, s.id AS site_id
+           FROM hexes h
+           JOIN sites s ON s.canonical_key = h.canonical_key
+           WHERE h.campaign_id = ? AND s.visibility = 'hidden'`,
         )
         .get(campaignId) as any;
       expect(row).toBeDefined();
 
-      const targetHexId = row.id;
-      const parsedSites = JSON.parse(row.sites_json);
-      const hiddenSite = parsedSites.find((s: any) => s.visibility === "hidden");
-      expect(hiddenSite).toBeDefined();
-      const hiddenSiteId = hiddenSite.id;
+      const targetHexId = row.hex_id;
+      const hiddenSiteId = row.site_id;
 
       // Fully map the hex
       db.revealHex(campaignId, targetHexId, "fully_mapped");

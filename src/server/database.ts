@@ -395,9 +395,6 @@ export class AshDatabase {
     if (!hexCols.some((c) => c.name === "connections_json")) {
       this.db.exec("ALTER TABLE hexes ADD COLUMN connections_json TEXT");
     }
-    if (!hexCols.some((c) => c.name === "sites_json")) {
-      this.db.exec("ALTER TABLE hexes ADD COLUMN sites_json TEXT");
-    }
   }
 
   private loadZones() {
@@ -570,6 +567,37 @@ export class AshDatabase {
     return new Set(rows.map((r) => r.site_id));
   }
 
+  /**
+   * Current site occupancy per hex, read live rather than from a snapshot taken when the hex was
+   * charted. Terrain and landmarks are permanent once observed; who or what holds a place is not.
+   */
+  getSitesByHex(campaignId: number): Map<string, PublicSiteSummary[]> {
+    const rows = this.db
+      .prepare(
+        `SELECT s.* FROM sites s
+         JOIN regions rg ON rg.id = s.region_id
+         WHERE rg.campaign_id = ?`,
+      )
+      .all(campaignId) as Row[];
+    const index = new Map<string, PublicSiteSummary[]>();
+    for (const row of rows) {
+      const key = String(row.canonical_key);
+      const support = row.support_json ? JSON.parse(String(row.support_json)) : undefined;
+      const summary: PublicSiteSummary = {
+        id: String(row.id),
+        name: String(row.name),
+        kind: String(row.kind) as PublicSiteSummary["kind"],
+        description: support?.reasonForLocation,
+        isSecret: row.visibility === "secret",
+        visibility: String(row.visibility) as PublicSiteSummary["visibility"],
+      };
+      const bucket = index.get(key);
+      if (bucket) bucket.push(summary);
+      else index.set(key, [summary]);
+    }
+    return index;
+  }
+
   saveGeneratedRegion(campaignId: number, world: GeneratedRegionWorld) {
     const insertRegion = this.db.prepare(`
       INSERT INTO regions 
@@ -614,8 +642,8 @@ export class AshDatabase {
     const deleteHexes = this.db.prepare("DELETE FROM hexes WHERE campaign_id = ?");
     const insertHex = this.db.prepare(`
       INSERT INTO hexes 
-      (campaign_id, id, ring, q, r, name, biome, threat_tier, landmark, reveal_state, road, river, horizon_rumor, exit_destination, elevation, canonical_key, primary_zone, secondary_zone, connections_json, sites_json)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      (campaign_id, id, ring, q, r, name, biome, threat_tier, landmark, reveal_state, road, river, horizon_rumor, exit_destination, elevation, canonical_key, primary_zone, secondary_zone, connections_json)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `);
 
     this.db.transaction(() => {
@@ -768,7 +796,6 @@ export class AshDatabase {
           ph.primaryZone ?? null,
           ph.secondaryZone ?? null,
           ph.connections ? JSON.stringify(ph.connections) : null,
-          ph.sites ? JSON.stringify(ph.sites) : null,
         );
       }
 
@@ -1840,13 +1867,14 @@ export class AshDatabase {
         .all(campaignId) as Row[]
     ).map(rowToCharacter);
     const discoveredSiteIds = this.getDiscoveredSiteIds(campaignId);
+    const siteIndex = this.getSitesByHex(campaignId);
     const hexes = (
       this.db
         .prepare(
           "SELECT * FROM hexes WHERE campaign_id = ? ORDER BY CAST(id AS INTEGER)",
         )
         .all(campaignId) as Row[]
-    ).map((r) => rowToHex(r, role, discoveredSiteIds));
+    ).map((r) => rowToHex(r, role, discoveredSiteIds, siteIndex));
     const activeSiteId = campaign.active_site_id ? String(campaign.active_site_id) : undefined;
     const rooms = (
       activeSiteId
@@ -2163,13 +2191,14 @@ function rowToHex(
   row: Row,
   role: Role = "player",
   discoveredSiteIds: Set<string> = new Set(),
+  siteIndex: Map<string, PublicSiteSummary[]> = new Map(),
 ): PublicHex {
   const revealState = String(row.reveal_state) as PublicHex["revealState"];
   const connections: PublicConnectionSummary[] = row.connections_json
     ? JSON.parse(String(row.connections_json))
     : [];
-  const rawSites: PublicSiteSummary[] = row.sites_json
-    ? JSON.parse(String(row.sites_json))
+  const rawSites: PublicSiteSummary[] = row.canonical_key
+    ? siteIndex.get(String(row.canonical_key)) ?? []
     : [];
 
   const base: PublicHex = {
