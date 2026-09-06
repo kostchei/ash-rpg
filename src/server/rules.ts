@@ -3,6 +3,7 @@ import { readFileSync, existsSync } from "node:fs";
 import { resolve } from "node:path";
 import { ARCANE_MISHAPS, CLASSES, ITEMS, SPELLS } from "../shared/content.js";
 import type { Character, EncounterMonster, InventoryItem, SpellDefinition } from "../shared/types.js";
+import { HEX_DIRECTIONS } from "./frontier.js";
 
 export type RandomSource = (maxExclusive: number) => number;
 const systemRandom: RandomSource = (max) => randomInt(max);
@@ -311,6 +312,188 @@ export function calculateTravelWatches(
   }
 
   return baseCost;
+}
+
+/**
+ * Returns true if weather reduces visibility enough to disorient navigation
+ * (dense fog, heavy rain, gale, storm, mist, blizzard).
+ */
+export function isObscuringWeather(weather?: string): boolean {
+  if (!weather) return false;
+  const w = weather.toLowerCase();
+  return (
+    w.includes("fog") ||
+    w.includes("rain") ||
+    w.includes("storm") ||
+    w.includes("gale") ||
+    w.includes("blizzard") ||
+    w.includes("mist")
+  );
+}
+
+export interface NavigationCheckParams {
+  watchCost: number;
+  hasRoad?: boolean;
+  weather?: string;
+  isNightTravel?: boolean;
+  partyIntMod?: number;
+  currentQ: number;
+  currentR: number;
+  intendedQ: number;
+  intendedR: number;
+  rng?: RandomSource;
+  forcedRoll?: number;
+  forcedDriftIndex?: number;
+}
+
+export interface NavigationResult {
+  checkRequired: boolean;
+  terrainClass: "easy" | "moderate" | "hard";
+  dc: number;
+  roll: number;
+  total: number;
+  passed: boolean;
+  actualQ: number;
+  actualR: number;
+  drifted: boolean;
+  driftDirection?: string;
+  driftIndex?: number;
+}
+
+/**
+ * Wilderness navigation check per settled table requirements:
+ * - Following a road or trail avoids the check.
+ * - Watch cost 1 (easy terrain): no check in clear daylight, DC 9 in night or obscuring weather.
+ * - Watch cost 2 (moderate terrain): DC 9 in clear daylight, DC 15 in night or obscuring weather.
+ * - Watch cost 3 (hard terrain): DC 15 in clear daylight, DC 18 in night or obscuring weather.
+ * - If both night and obscuring weather apply, raises terrain 2 steps (up to max DC 18).
+ * - Check uses party's best INT modifier against the ASH ladder (DC 9/12/15/18).
+ * - On failure: drifts into one of all 6 hex directions uniformly, including the intended direction.
+ */
+export function resolveWildernessNavigation(
+  params: NavigationCheckParams,
+): NavigationResult {
+  const {
+    watchCost,
+    hasRoad = false,
+    weather,
+    isNightTravel = false,
+    partyIntMod = 0,
+    currentQ,
+    currentR,
+    intendedQ,
+    intendedR,
+    rng = systemRandom,
+    forcedRoll,
+    forcedDriftIndex,
+  } = params;
+
+  if (hasRoad) {
+    return {
+      checkRequired: false,
+      terrainClass: "easy",
+      dc: 0,
+      roll: 0,
+      total: 0,
+      passed: true,
+      actualQ: intendedQ,
+      actualR: intendedR,
+      drifted: false,
+    };
+  }
+
+  const terrainClass: "easy" | "moderate" | "hard" =
+    watchCost <= 1 ? "easy" : watchCost === 2 ? "moderate" : "hard";
+
+  const obscuring = isObscuringWeather(weather);
+  let stepRaises = 0;
+  if (isNightTravel) stepRaises++;
+  if (obscuring) stepRaises++;
+
+  let dc = 0;
+  let checkRequired = true;
+
+  if (terrainClass === "easy") {
+    if (stepRaises === 0) {
+      checkRequired = false;
+      dc = 0;
+    } else if (stepRaises === 1) {
+      dc = 9;
+    } else {
+      dc = 15;
+    }
+  } else if (terrainClass === "moderate") {
+    if (stepRaises === 0) {
+      dc = 9;
+    } else if (stepRaises === 1) {
+      dc = 15;
+    } else {
+      dc = 18;
+    }
+  } else {
+    // hard
+    if (stepRaises === 0) {
+      dc = 15;
+    } else {
+      dc = 18;
+    }
+  }
+
+  if (!checkRequired) {
+    return {
+      checkRequired: false,
+      terrainClass,
+      dc: 0,
+      roll: 0,
+      total: 0,
+      passed: true,
+      actualQ: intendedQ,
+      actualR: intendedR,
+      drifted: false,
+    };
+  }
+
+  const roll = forcedRoll !== undefined ? forcedRoll : rollDie(20, rng);
+  const total = roll + partyIntMod;
+  const passed = total >= dc;
+
+  if (passed) {
+    return {
+      checkRequired: true,
+      terrainClass,
+      dc,
+      roll,
+      total,
+      passed: true,
+      actualQ: intendedQ,
+      actualR: intendedR,
+      drifted: false,
+    };
+  }
+
+  // Check failed: uniformly choose 1 of all 6 hex directions
+  const driftIndex =
+    forcedDriftIndex !== undefined
+      ? (forcedDriftIndex % 6 + 6) % 6
+      : rng(6);
+  const dir = HEX_DIRECTIONS[driftIndex];
+  const actualQ = currentQ + dir.dq;
+  const actualR = currentR + dir.dr;
+  const drifted = actualQ !== intendedQ || actualR !== intendedR;
+
+  return {
+    checkRequired: true,
+    terrainClass,
+    dc,
+    roll,
+    total,
+    passed: false,
+    actualQ,
+    actualR,
+    drifted,
+    driftDirection: dir.name,
+    driftIndex,
+  };
 }
 
 /**

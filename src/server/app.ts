@@ -28,7 +28,7 @@ import type {
 } from "../shared/types.js";
 import { AshDatabase } from "./database.js";
 import { populateSiteRooms, requireTreasureAccess } from "./room-features.js";
-import { materializeNeighborhood } from "./frontier.js";
+import { materializeHex, materializeNeighborhood } from "./frontier.js";
 import { generateCampaignComplication } from "./generators/campaign.js";
 import { AQUATIC_METHODS, evaluateAquaticAccess } from "./generators/mind-below.js";
 import { generateNpc } from "./generators/npc.js";
@@ -46,12 +46,14 @@ import {
   generateDungeonRoom,
   generateMonsterVariant,
   generateTreasureReward,
+  isObscuringWeather,
   levelUpCharacter,
   loreTier,
   moraleRoll,
   reactionRoll,
   resolveInitiativeRoll,
   resolveSpellCast,
+  resolveWildernessNavigation,
   rollAbilities,
   rollClassTalent,
   rollDice,
@@ -1799,6 +1801,9 @@ export async function createAshServer(options: AshServerOptions = {}) {
           .object({
             toHexId: z.string().min(1),
             mode: z.enum(["foot", "cart", "boat", "climb"]).default("foot"),
+            navigationRoll: z.number().int().min(1).max(20).optional(),
+            driftIndex: z.number().int().min(0).max(5).optional(),
+            bypassNavigation: z.boolean().optional(),
           })
           .parse(raw);
 
@@ -1807,7 +1812,7 @@ export async function createAshServer(options: AshServerOptions = {}) {
         // 1. Authoritative origin from DB
         const camp = db.db
           .prepare(
-            "SELECT party_location_json, active_region_id, active_zone_id, day, watch, watches_traveled_today FROM campaigns WHERE id = ?",
+            "SELECT party_location_json, active_region_id, active_zone_id, day, watch, watches_traveled_today, weather FROM campaigns WHERE id = ?",
           )
           .get(identity.campaignId) as any;
         const currentLoc = camp?.party_location_json
@@ -1865,7 +1870,7 @@ export async function createAshServer(options: AshServerOptions = {}) {
           );
         }
 
-        // 4. Validate Travel Mode & Requirements
+        // 4. Validate Travel Mode & Requirements for intended route
         if (travelConnection) {
           const connModes: string[] = travelConnection.modes_json
             ? JSON.parse(travelConnection.modes_json)
@@ -1897,40 +1902,123 @@ export async function createAshServer(options: AshServerOptions = {}) {
           }
         }
 
-        // 5. Cost calculation from saved world truth
-        const hasRoad =
+        // 5. Navigation check
+        const intendedHasRoad =
           !!travelConnection &&
           (travelConnection.kind === "road" || travelConnection.kind === "trail");
-        const crossingMethod =
+        const intendedCrossingMethod =
           travelConnection?.crossing_method || travelConnection?.crossingMethod;
-        const calculatedWatches = calculateTravelWatches(
+        const intendedWatches = calculateTravelWatches(
           targetHexRow.biome || "Wilderness",
-          hasRoad,
-          crossingMethod,
+          intendedHasRoad,
+          intendedCrossingMethod,
+        );
+
+        // Party best INT modifier
+        const charRows = db.db
+          .prepare("SELECT int FROM characters WHERE campaign_id = ?")
+          .all(identity.campaignId) as Array<{ int: number }>;
+        const partyIntMod =
+          charRows.length > 0
+            ? Math.max(...charRows.map((c) => abilityModifier(Number(c.int))))
+            : 0;
+
+        const navResult = resolveWildernessNavigation({
+          watchCost: intendedWatches,
+          hasRoad:
+            intendedHasRoad ||
+            Boolean(payload.bypassNavigation) ||
+            charRows.length === 0,
+          weather: camp?.weather,
+          isNightTravel: Number(camp?.watch) === 4,
+          partyIntMod,
+          currentQ: fromQ,
+          currentR: fromR,
+          intendedQ: toQ,
+          intendedR: toR,
+          forcedRoll: payload.navigationRoll,
+          forcedDriftIndex: payload.driftIndex,
+        });
+
+        const actualQ = navResult.actualQ;
+        const actualR = navResult.actualR;
+
+        let actualHexRow = targetHexRow;
+        let actualConnection = travelConnection;
+
+        if (navResult.drifted) {
+          actualHexRow = db.db
+            .prepare("SELECT * FROM hexes WHERE campaign_id = ? AND q = ? AND r = ?")
+            .get(identity.campaignId, actualQ, actualR) as any;
+          if (!actualHexRow) {
+            materializeHex(db, identity.campaignId, actualQ, actualR);
+            actualHexRow = db.db
+              .prepare("SELECT * FROM hexes WHERE campaign_id = ? AND q = ? AND r = ?")
+              .get(identity.campaignId, actualQ, actualR) as any;
+          }
+
+          actualConnection = null;
+          if (camp?.active_region_id) {
+            const fromKey = `${camp.active_region_id}:${currentLoc.layerId || "surface"}:${fromQ}:${fromR}`;
+            const actualKey = `${camp.active_region_id}:${currentLoc.layerId || "surface"}:${actualQ}:${actualR}`;
+            const connRow = db.db
+              .prepare(
+                "SELECT * FROM connections WHERE region_id = ? AND ((from_key = ? AND to_key = ?) OR (to_key = ? AND from_key = ?))",
+              )
+              .get(camp.active_region_id, fromKey, actualKey, fromKey, actualKey) as any;
+            if (connRow) {
+              actualConnection = connRow;
+            }
+          }
+          if (!actualConnection && actualHexRow.connections_json) {
+            const conns = JSON.parse(actualHexRow.connections_json);
+            const originHexRow = db.db
+              .prepare("SELECT id FROM hexes WHERE campaign_id = ? AND q = ? AND r = ?")
+              .get(identity.campaignId, fromQ, fromR) as any;
+            if (originHexRow) {
+              actualConnection = conns.find(
+                (c: any) =>
+                  (c.fromId === originHexRow.id && c.toId === actualHexRow.id) ||
+                  (c.toId === originHexRow.id && c.fromId === actualHexRow.id),
+              );
+            }
+          }
+        }
+
+        // 6. Cost calculation from actual entered hex
+        const actualHasRoad =
+          !!actualConnection &&
+          (actualConnection.kind === "road" || actualConnection.kind === "trail");
+        const actualCrossingMethod =
+          actualConnection?.crossing_method || actualConnection?.crossingMethod;
+        const calculatedActualWatches = calculateTravelWatches(
+          actualHexRow.biome || "Wilderness",
+          actualHasRoad,
+          actualCrossingMethod,
         );
         const watches =
-          travelConnection?.cost_watches ||
-          travelConnection?.costWatches ||
-          calculatedWatches;
+          actualConnection?.cost_watches ||
+          actualConnection?.costWatches ||
+          calculatedActualWatches;
 
-        // 6. Advance watch clock
+        // 7. Advance watch clock
         const clockResult = db.advanceWatch(identity.campaignId, watches);
 
-        // 7. Check Forced March if Night travel occurred
+        // 8. Check Forced March if Night travel occurred
         const fatigueResults =
           clockResult.watch === 1 || clockResult.watchesTraveledToday > 3
             ? db.evaluatePartyForcedMarch(identity.campaignId)
             : [];
 
-        // 8. Wilderness Encounter Check (1d6 -> 1 triggers encounter)
+        // 9. Wilderness Encounter Check for entered hex (1d6 -> 1 triggers encounter)
         let encounterTriggered = false;
         let encounterName = "";
         const encRoll = rollDie(6);
         if (encRoll === 1) {
           encounterTriggered = true;
-          const manifest = db.getZoneManifest(
-            camp.active_zone_id || "the_gloaming",
-          );
+          const zoneToUse =
+            actualHexRow.primary_zone || camp?.active_zone_id || "the_gloaming";
+          const manifest = db.getZoneManifest(zoneToUse);
           const table =
             manifest?.wanderingMonsterTable && manifest.wanderingMonsterTable.length > 0
               ? manifest.wanderingMonsterTable
@@ -1953,36 +2041,35 @@ export async function createAshServer(options: AshServerOptions = {}) {
           db.addEncounterWithMonsters(identity.campaignId, encounterName, [monster]);
         }
 
-        // 9. Update location and reveal target hex
+        // 10. Update location and reveal actual entered hex
         db.setPartyLocation(identity.campaignId, {
-          q: toQ,
-          r: toR,
+          q: actualQ,
+          r: actualR,
           layerId: currentLoc.layerId || "surface",
         });
 
-        // Chart the ground the party can step onto next, so the frontier stays one ring ahead of
-        // them and an outward march has a real destination instead of an invisible wall.
-        const charted = materializeNeighborhood(db, identity.campaignId, toQ, toR);
+        // Chart the ground the party can step onto next, so the frontier stays one ring ahead
+        const charted = materializeNeighborhood(db, identity.campaignId, actualQ, actualR);
 
         if (
-          targetHexRow.reveal_state === "unexplored" ||
-          targetHexRow.reveal_state === "rumored"
+          actualHexRow.reveal_state === "unexplored" ||
+          actualHexRow.reveal_state === "rumored"
         ) {
-          db.revealHex(identity.campaignId, targetHexRow.id, "scouted");
+          db.revealHex(identity.campaignId, actualHexRow.id, "scouted");
         }
 
         if (
-          targetHexRow.primary_zone &&
-          targetHexRow.primary_zone !== camp.active_zone_id
+          actualHexRow.primary_zone &&
+          actualHexRow.primary_zone !== camp?.active_zone_id
         ) {
-          db.setActiveZone(identity.campaignId, targetHexRow.primary_zone);
+          db.setActiveZone(identity.campaignId, actualHexRow.primary_zone);
         }
 
-        // 10. Log roll
+        // 11. Log roll (the party is NOT told the check failed)
         db.addRoll(identity.campaignId, {
           actor: actor(),
           kind: "exploration",
-          label: `Traveled to Hex ${targetHexRow.id} (${targetHexRow.name || targetHexRow.biome || "Wilderness"})`,
+          label: `Traveled to Hex ${actualHexRow.id} (${actualHexRow.name || actualHexRow.biome || "Wilderness"})`,
           dice: `${watches} watch${watches > 1 ? "es" : ""}`,
           total: watches,
           detail: `Mode: ${payload.mode} · Cost: ${watches} watch(es) · Day ${clockResult.day}, Watch ${clockResult.watch} (${clockResult.weather}) · ${
@@ -1999,8 +2086,21 @@ export async function createAshServer(options: AshServerOptions = {}) {
           clock: clockResult,
           fatigueResults,
           encounterTriggered,
-          newPartyLocation: { q: toQ, r: toR },
+          newPartyLocation: { q: actualQ, r: actualR },
           chartedHexIds: charted.map((h) => h.id),
+          navigation: {
+            checkRequired: navResult.checkRequired,
+            terrainClass: navResult.terrainClass,
+            dc: navResult.dc,
+            roll: navResult.roll,
+            total: navResult.total,
+            passed: navResult.passed,
+            intendedHexId: payload.toHexId,
+            actualHexId: actualHexRow.id,
+            drifted: navResult.drifted,
+            driftDirection: navResult.driftDirection,
+            driftIndex: navResult.driftIndex,
+          },
         };
       }),
     );

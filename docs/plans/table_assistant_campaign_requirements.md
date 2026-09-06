@@ -205,7 +205,7 @@ New sites now populate the exact d10 room-feature table and independently place 
 
 The room UI starts combat using the actual room creature/count. Room combat outcomes link back to their source room and victory does not automatically create room loot. A caller can record a reasoned table outcome, treasure discovery/access, and objective completion. Claims require recorded access and stable site/room reward identity. The old deed endpoint now also requires reaching its placed objective. Graph acknowledgements apply the existing role projection so undiscovered objectives are not exposed to player callers. Journey continuation and site entry reject unresolved encounters. This does not yet replace the legacy standalone combat/treasure generation flow.
 
-Travel's off-road INT/random-direction procedure remains the next travel work package. Existing day-boundary ration consumption remains in place. Do not describe navigation, geomorphs, or rich room content as finished because the new room/reward checks pass.
+Travel's off-road INT/random-direction procedure is implemented and verified (see below). Existing day-boundary ration consumption remains in place. Do not describe geomorphs or rich room content as finished because the new navigation/room/reward checks pass.
 
 ### Frontier expansion — implemented 2026-09-06
 
@@ -242,3 +242,20 @@ This is the persistent half of section 4's knowledge layers. Dating reported inf
 Verification: **120 tests in 18 files pass**, five consecutive full runs clean, including seven new frontier tests covering promotion fidelity against `region_hexes`, id stability, replay safety, the ten-hex reach in every direction, edge refusal, an outward socket march onto ground the initial map never contained, and landmark permanence against changed site occupancy. Client type checking and the production build pass. No browser or physical-table rehearsal was performed for this slice.
 
 A pre-existing flaky test was fixed in passing: the four-player end-to-end loop entered a site without clearing a wilderness encounter, which travel and camp raise on a 1-in-6, and an unresolved encounter correctly blocks site entry. It failed roughly one run in four. The block was right and the script was wrong, so the fix is in the test. Verified over ten consecutive runs.
+ 
+### Wilderness navigation procedure — implemented 2026-09-06
+
+The settled wilderness navigation procedure from Section 5 is now implemented:
+
+- **Road / trail travel** avoids the navigation check entirely.
+- **Off-road travel** runs `resolveWildernessNavigation` using the party's best INT modifier from the active roster.
+- Difficulty ladder keys directly from travel watch cost:
+  - Easy terrain (watch cost 1): no check in daylight/clear weather, raised to DC 9 in night travel (watch 4) or obscuring weather.
+  - Moderate terrain (watch cost 2): DC 9 in daylight/clear weather, raised to DC 15 in night travel or obscuring weather.
+  - Hard terrain (watch cost 3): DC 15 in daylight/clear weather, raised to DC 18 in night travel or obscuring weather.
+  - Both night and obscuring weather raise terrain difficulty by 2 steps (up to max DC 18 on the standard ASH ladder).
+- **Drift on failure**: uniformly chooses one of all six axial directions (`HEX_DIRECTIONS`), including the intended direction. The party is not told the check failed; public roll log reflects travel to whichever hex was entered.
+- **True cost & frontier integration**: travel time (watches), clock progression, forced march fatigue, and wilderness encounter checks are calculated and paid for the hex actually entered. If drift crosses the current frontier onto structural ground, `materializeHex` promotes the entered hex and `materializeNeighborhood` charts around it.
+- **Idempotency**: navigation outcome is preserved in the stored mutation receipt (`navigation: { checkRequired, dc, roll, total, passed, actualHexId, drifted, driftDirection, driftIndex }`), so retried actions never reroll direction.
+
+Verification: **130 tests in 19 files pass**, including 10 dedicated navigation tests in `tests/navigation.test.ts` covering DC calibrations, obscuring weather conditions, INT modifiers, 6-direction uniform drift, socket mutation execution, replay idempotency, and frontier promotion upon drift. Client type checking and production build pass cleanly.
