@@ -38,6 +38,7 @@ import type {
   RewardRecord,
   Role,
   RollRecord,
+  TablePlayerSummary,
   TavernEstablishment,
   TavernLead,
   WikiNote,
@@ -94,18 +95,20 @@ export class AshDatabase {
       CREATE TABLE IF NOT EXISTS campaigns (
         id INTEGER PRIMARY KEY, code TEXT NOT NULL UNIQUE, name TEXT NOT NULL, region_name TEXT NOT NULL,
         act INTEGER NOT NULL DEFAULT 1, current_phase TEXT NOT NULL DEFAULT 'sanctuary',
-        active_zone_id TEXT NOT NULL DEFAULT 'the_gloaming', pin_hash TEXT NOT NULL, host_token TEXT NOT NULL UNIQUE, created_at TEXT NOT NULL
+        active_zone_id TEXT NOT NULL DEFAULT 'the_gloaming', pin_hash TEXT NOT NULL, host_token TEXT NOT NULL UNIQUE,
+        started INTEGER NOT NULL DEFAULT 0, is_secret_path INTEGER NOT NULL DEFAULT 0, created_at TEXT NOT NULL
       );
       CREATE TABLE IF NOT EXISTS devices (
         token TEXT PRIMARY KEY, campaign_id INTEGER NOT NULL REFERENCES campaigns(id) ON DELETE CASCADE,
-        character_id INTEGER, created_at TEXT NOT NULL
+        character_id INTEGER, ready INTEGER NOT NULL DEFAULT 0, created_at TEXT NOT NULL
       );
       CREATE TABLE IF NOT EXISTS characters (
         id INTEGER PRIMARY KEY, campaign_id INTEGER NOT NULL REFERENCES campaigns(id) ON DELETE CASCADE,
         owner_token TEXT, name TEXT NOT NULL, ancestry TEXT NOT NULL, class_name TEXT NOT NULL, level INTEGER NOT NULL DEFAULT 1,
         hp INTEGER NOT NULL, max_hp INTEGER NOT NULL, ac INTEGER NOT NULL, gold INTEGER NOT NULL, gear_slots INTEGER NOT NULL,
         str INTEGER NOT NULL, dex INTEGER NOT NULL, con INTEGER NOT NULL, int INTEGER NOT NULL, wis INTEGER NOT NULL, cha INTEGER NOT NULL,
-        anchors_json TEXT NOT NULL, talents_json TEXT DEFAULT '[]', xp INTEGER NOT NULL DEFAULT 0, created_at TEXT NOT NULL
+        anchors_json TEXT NOT NULL, talents_json TEXT DEFAULT '[]', xp INTEGER NOT NULL DEFAULT 0,
+        roster_status TEXT NOT NULL DEFAULT 'active', generation_method TEXT, generation_dice_json TEXT, origin_zone_id TEXT, created_at TEXT NOT NULL
       );
       CREATE TABLE IF NOT EXISTS hexes (
         campaign_id INTEGER NOT NULL REFERENCES campaigns(id) ON DELETE CASCADE, id TEXT NOT NULL, ring INTEGER NOT NULL,
@@ -200,11 +203,18 @@ export class AshDatabase {
         id INTEGER PRIMARY KEY, campaign_id INTEGER NOT NULL REFERENCES campaigns(id) ON DELETE CASCADE,
         section TEXT NOT NULL, title TEXT NOT NULL, body TEXT NOT NULL, created_at TEXT NOT NULL
       );
+      CREATE TABLE IF NOT EXISTS xp_awards (
+        id INTEGER PRIMARY KEY, campaign_id INTEGER NOT NULL REFERENCES campaigns(id) ON DELETE CASCADE,
+        source_id TEXT NOT NULL, amount INTEGER NOT NULL, reason TEXT NOT NULL,
+        character_ids_json TEXT NOT NULL, created_at TEXT NOT NULL,
+        UNIQUE(campaign_id, source_id)
+      );
       CREATE INDEX IF NOT EXISTS idx_characters_campaign ON characters(campaign_id);
       CREATE INDEX IF NOT EXISTS idx_rolls_campaign_created ON rolls(campaign_id, created_at DESC);
       CREATE INDEX IF NOT EXISTS idx_rooms_campaign_sequence ON dungeon_rooms(campaign_id, sequence);
       CREATE INDEX IF NOT EXISTS idx_encounters_campaign_status ON encounters(campaign_id, status);
       CREATE INDEX IF NOT EXISTS idx_pressures_campaign_status ON campaign_pressures(campaign_id, status);
+      CREATE INDEX IF NOT EXISTS idx_xp_awards_campaign_source ON xp_awards(campaign_id, source_id);
       PRAGMA optimize;
     `);
 
@@ -258,6 +268,17 @@ export class AshDatabase {
     if (!campaignCols.some((c) => c.name === "revision")) {
       this.db.exec("ALTER TABLE campaigns ADD COLUMN revision INTEGER NOT NULL DEFAULT 1");
     }
+    if (!campaignCols.some((c) => c.name === "started")) {
+      this.db.exec("ALTER TABLE campaigns ADD COLUMN started INTEGER NOT NULL DEFAULT 0");
+    }
+    if (!campaignCols.some((c) => c.name === "is_secret_path")) {
+      this.db.exec("ALTER TABLE campaigns ADD COLUMN is_secret_path INTEGER NOT NULL DEFAULT 0");
+    }
+
+    const deviceCols = this.db.pragma("table_info(devices)") as Array<{ name: string }>;
+    if (!deviceCols.some((c) => c.name === "ready")) {
+      this.db.exec("ALTER TABLE devices ADD COLUMN ready INTEGER NOT NULL DEFAULT 0");
+    }
 
     const charCols = this.db.pragma("table_info(characters)") as Array<{ name: string }>;
     if (!charCols.some((c) => c.name === "talents_json")) {
@@ -289,6 +310,18 @@ export class AshDatabase {
     }
     if (!charCols.some((c) => c.name === "stabilized")) {
       this.db.exec("ALTER TABLE characters ADD COLUMN stabilized INTEGER NOT NULL DEFAULT 0");
+    }
+    if (!charCols.some((c) => c.name === "roster_status")) {
+      this.db.exec("ALTER TABLE characters ADD COLUMN roster_status TEXT NOT NULL DEFAULT 'active'");
+    }
+    if (!charCols.some((c) => c.name === "generation_method")) {
+      this.db.exec("ALTER TABLE characters ADD COLUMN generation_method TEXT");
+    }
+    if (!charCols.some((c) => c.name === "generation_dice_json")) {
+      this.db.exec("ALTER TABLE characters ADD COLUMN generation_dice_json TEXT");
+    }
+    if (!charCols.some((c) => c.name === "origin_zone_id")) {
+      this.db.exec("ALTER TABLE characters ADD COLUMN origin_zone_id TEXT");
     }
 
     this.db.exec(`
@@ -834,8 +867,13 @@ export class AshDatabase {
     return generateProceduralRegion(0, config);
   }
 
-  commitRegion(campaignId: number, world: GeneratedRegionWorld) {
-    this.saveGeneratedRegion(campaignId, world);
+  startCampaign(campaignId: number) {
+    const row = this.db.prepare("SELECT started FROM campaigns WHERE id = ?").get(campaignId) as { started: number } | undefined;
+    if (row && row.started === 1) {
+      return { started: true, alreadyStarted: true };
+    }
+    this.db.prepare("UPDATE campaigns SET started = 1, current_phase = 'sanctuary' WHERE id = ?").run(campaignId);
+    return { started: true, alreadyStarted: false };
   }
 
   createCampaign(
@@ -843,18 +881,26 @@ export class AshDatabase {
     regionName: string,
     pin: string,
     generationConfig?: RegionGenerationConfig,
+    pathSelection?: { mode?: "explicit" | "secret"; pathId?: string },
   ) {
     let code = campaignCode();
     while (this.db.prepare("SELECT 1 FROM campaigns WHERE code = ?").get(code))
       code = campaignCode();
     const hostToken = token();
+    const isSecretPath = pathSelection?.mode === "secret" ? 1 : 0;
 
     if (!generationConfig || (generationConfig as any).legacy === true) {
+      const defaultAP = {
+        pathId: "the_mind_below",
+        name: "The Mind Below",
+        progress: { reach: 0, awakening: 0, knowledge: 0 },
+        aquaticMethodsRevealed: [],
+      };
       const result = this.db
         .prepare(
-          "INSERT INTO campaigns (code,name,region_name,current_phase,active_zone_id,pin_hash,host_token,created_at) VALUES (?,?,?,?,?,?,?,?)",
+          "INSERT INTO campaigns (code,name,region_name,current_phase,active_zone_id,pin_hash,host_token,started,is_secret_path,adventure_path_json,created_at) VALUES (?,?,?,?,?,?,?,0,?,?,?)",
         )
-        .run(code, name, regionName, "sanctuary", "the_gloaming", hashPin(pin), hostToken, now());
+        .run(code, name, regionName, "sanctuary", "the_gloaming", hashPin(pin), hostToken, isSecretPath, JSON.stringify(defaultAP), now());
       const campaignId = Number(result.lastInsertRowid);
       const generatedHexes = generateHexMap({ campaignName: name, regionName, legacy: true });
       const insertHex = this.db.prepare(
@@ -879,7 +925,7 @@ export class AshDatabase {
           h.elevation,
         );
       }
-      return { code, hostToken, campaignId };
+      return { code, hostToken, campaignId, isSecretPath: Boolean(isSecretPath) };
     }
 
     const config = generationConfig;
@@ -898,9 +944,9 @@ export class AshDatabase {
     this.db.transaction(() => {
       const result = this.db
         .prepare(
-          "INSERT INTO campaigns (code,name,region_name,current_phase,active_zone_id,pin_hash,host_token,created_at) VALUES (?,?,?,?,?,?,?,?)",
+          "INSERT INTO campaigns (code,name,region_name,current_phase,active_zone_id,pin_hash,host_token,started,is_secret_path,created_at) VALUES (?,?,?,?,?,?,?,0,?,?)",
         )
-        .run(code, name, regionName, "sanctuary", primaryZone, hashPin(pin), hostToken, now());
+        .run(code, name, regionName, "sanctuary", primaryZone, hashPin(pin), hostToken, isSecretPath, now());
       campaignId = Number(result.lastInsertRowid);
 
       world.region.campaignId = campaignId;
@@ -1075,11 +1121,26 @@ export class AshDatabase {
     const finalAc = inventory.length > 0 ? calculateDerivedAc(inventory, abilityModifier(a.dex)).ac : input.ac;
     const finalGearSlots = calculateGearSlots({ className: input.className, abilities: { str: a.str, con: a.con } });
 
+    let rosterStatus = input.rosterStatus;
+    if (ownerToken) {
+      const owned = this.db
+        .prepare("SELECT id, roster_status FROM characters WHERE campaign_id = ? AND owner_token = ?")
+        .all(campaignId, ownerToken) as Array<{ id: number; roster_status: string }>;
+      if (owned.length >= 2) {
+        throw new Error("This player already owns the maximum of 2 characters");
+      }
+      if (!rosterStatus) {
+        rosterStatus = owned.length === 0 ? "active" : "reserve";
+      }
+    } else {
+      if (!rosterStatus) rosterStatus = "active";
+    }
+
     const result = this.db
       .prepare(
         `INSERT INTO characters
-      (campaign_id,owner_token,name,ancestry,class_name,level,hp,max_hp,ac,gold,gear_slots,str,dex,con,int,wis,cha,anchors_json,talents_json,xp,fatigue,class_id,inventory_json,spells_json,conditions_json,class_choices_json,death_strikes,stabilized,created_at)
-      VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
+      (campaign_id,owner_token,name,ancestry,class_name,level,hp,max_hp,ac,gold,gear_slots,str,dex,con,int,wis,cha,anchors_json,talents_json,xp,fatigue,class_id,inventory_json,spells_json,conditions_json,class_choices_json,death_strikes,stabilized,roster_status,generation_method,generation_dice_json,origin_zone_id,created_at)
+      VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
       )
       .run(
         campaignId,
@@ -1110,16 +1171,56 @@ export class AshDatabase {
         JSON.stringify(input.classChoices ?? {}),
         input.deathStrikes ?? 0,
         input.stabilized ? 1 : 0,
+        rosterStatus,
+        input.generationMethod ?? null,
+        input.generationDice ? JSON.stringify(input.generationDice) : null,
+        input.originZoneId ?? null,
         now(),
       );
     const id = Number(result.lastInsertRowid);
-    if (ownerToken)
+    if (ownerToken && rosterStatus === "active")
       this.db
         .prepare(
           "UPDATE devices SET character_id = ? WHERE token = ? AND campaign_id = ?",
         )
         .run(id, ownerToken, campaignId);
     return id;
+  }
+
+  swapActiveCharacter(campaignId: number, ownerToken: string, characterId: number) {
+    const target = this.db
+      .prepare("SELECT id, owner_token FROM characters WHERE id = ? AND campaign_id = ?")
+      .get(characterId, campaignId) as { id: number; owner_token: string } | undefined;
+    if (!target) throw new Error("Character not found");
+    if (target.owner_token !== ownerToken) {
+      throw new Error("You do not own this character");
+    }
+
+    const campaign = this.db.prepare("SELECT current_phase FROM campaigns WHERE id = ?").get(campaignId) as { current_phase: string } | undefined;
+    const activeCamp = this.db.prepare("SELECT 1 FROM activity_sessions WHERE campaign_id = ? AND kind IN ('camp', 'camp_night') AND status = 'open'").get(campaignId);
+    if (campaign?.current_phase !== "sanctuary" && !activeCamp) {
+      throw new Error("Roster swapping is only permitted in a haven sanctuary or during camp");
+    }
+
+    this.db.transaction(() => {
+      this.db
+        .prepare("UPDATE characters SET roster_status = 'reserve' WHERE campaign_id = ? AND owner_token = ?")
+        .run(campaignId, ownerToken);
+      this.db
+        .prepare("UPDATE characters SET roster_status = 'active' WHERE id = ?")
+        .run(characterId);
+      this.db
+        .prepare("UPDATE devices SET character_id = ? WHERE token = ? AND campaign_id = ?")
+        .run(characterId, ownerToken, campaignId);
+    })();
+
+    return { characterId, rosterStatus: "active" };
+  }
+
+  setDeviceReady(campaignId: number, token: string, ready: boolean) {
+    this.db
+      .prepare("UPDATE devices SET ready = ? WHERE token = ? AND campaign_id = ?")
+      .run(ready ? 1 : 0, token, campaignId);
   }
 
   updateCharacter(campaignId: number, character: Character) {
@@ -1443,6 +1544,33 @@ export class AshDatabase {
       .run(amount, characterId, campaignId);
   }
 
+  isXpAwarded(campaignId: number, sourceId: string): boolean {
+    const row = this.db
+      .prepare("SELECT 1 FROM xp_awards WHERE campaign_id = ? AND source_id = ?")
+      .get(campaignId, sourceId);
+    return Boolean(row);
+  }
+
+  recordXpAward(
+    campaignId: number,
+    sourceId: string,
+    amount: number,
+    reason: string,
+    characterIds: number[],
+  ): boolean {
+    try {
+      this.db
+        .prepare(
+          `INSERT INTO xp_awards (campaign_id, source_id, amount, reason, character_ids_json, created_at)
+           VALUES (?, ?, ?, ?, ?, ?)`,
+        )
+        .run(campaignId, sourceId, amount, reason, JSON.stringify(characterIds), now());
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
   revealHex(campaignId: number, id: string, revealState: string) {
     this.db
       .prepare(
@@ -1547,7 +1675,7 @@ export class AshDatabase {
     let rations = campaign.rations ?? 12;
 
     const chars = this.db
-      .prepare("SELECT id FROM characters WHERE campaign_id = ?")
+      .prepare("SELECT id FROM characters WHERE campaign_id = ? AND roster_status != 'reserve'")
       .all(campaignId) as { id: number }[];
     const partySize = Math.max(1, chars.length);
 
@@ -1584,7 +1712,7 @@ export class AshDatabase {
 
   evaluatePartyForcedMarch(campaignId: number, conDcBase: number = 12) {
     const characters = this.db
-      .prepare("SELECT * FROM characters WHERE campaign_id = ?")
+      .prepare("SELECT * FROM characters WHERE campaign_id = ? AND roster_status != 'reserve'")
       .all(campaignId) as Row[];
 
     return characters.map((c) => {
@@ -1991,6 +2119,39 @@ export class AshDatabase {
     const activeZone = this.getZoneManifest(activeZoneId);
     const availableZones = this.listZones();
 
+    const isSecretPath = Boolean(campaign.is_secret_path);
+    const started = Boolean(campaign.started);
+
+    const deviceRows = this.db
+      .prepare("SELECT token, ready, character_id FROM devices WHERE campaign_id = ?")
+      .all(campaignId) as Array<{ token: string; ready: number; character_id?: number }>;
+
+    let myReady = false;
+    let myCharId = characterId;
+    if (callerToken) {
+      const myDev = deviceRows.find((d) => d.token === callerToken);
+      myReady = Boolean(myDev?.ready);
+      if (myDev?.character_id != null) {
+        myCharId = myDev.character_id;
+      }
+    }
+
+    const tablePlayers: TablePlayerSummary[] = deviceRows.map((d) => {
+      const ownedChars = characters.filter((c) => c.ownerToken === d.token);
+      const activeChar = characters.find((c) => c.id === d.character_id);
+      return {
+        token: d.token,
+        ready: Boolean(d.ready),
+        characterCount: ownedChars.length,
+        activeCharacterName: activeChar?.name,
+      };
+    });
+
+    const totalPlayers = tablePlayers.length;
+    const readyPlayers = tablePlayers.filter((p) => p.ready).length;
+    const allReady = totalPlayers > 0 && readyPlayers === totalPlayers;
+    const tableReadiness = { totalPlayers, readyPlayers, allReady };
+
     let adventurePath: PublicAdventurePathSummary | null = null;
     if (campaign.adventure_path_json) {
       try {
@@ -2008,32 +2169,50 @@ export class AshDatabase {
           tells.push("Evidence confirms a coordinated mind-traffic heading toward the deep waterways.");
         }
 
-        adventurePath = {
-          pathId: rawAP.pathId,
-          name: rawAP.name,
-          activeSituation: rawAP.activeSituation
-            ? {
-                title: rawAP.activeSituation.title,
-                premise: rawAP.activeSituation.premise,
-                status: rawAP.activeSituation.status,
-                knownClues: rawAP.activeSituation.clues,
-              }
-            : null,
-          narrativeTells: tells,
-          revealedMethods: rawAP.aquaticMethodsRevealed ?? [],
-          ...(role === "host"
-            ? {
-                hostDetails: {
-                  startingZoneId: rawAP.startingZoneId,
-                  caveZoneId: rawAP.caveZoneId,
-                  endZoneId: rawAP.endZoneId,
-                  progress: { ...rawAP.progress },
-                  toll: [...rawAP.toll],
-                  resolvedDeeds: [...rawAP.resolvedDeeds],
-                },
-              }
-            : {}),
-        };
+        if (isSecretPath) {
+          adventurePath = {
+            pathId: "secret",
+            name: "Uncharted Omens",
+            isSecret: true,
+            narrativeTells: ["Strange omens stir the wilderness, their source yet hidden."],
+            revealedMethods: [],
+            activeSituation: rawAP.activeSituation
+              ? {
+                  title: "A Hidden Rumor in the Shadows",
+                  premise: "Local whispers point toward unusual disturbances requiring investigation.",
+                  status: rawAP.activeSituation.status,
+                  knownClues: rawAP.activeSituation.clues,
+                }
+              : null,
+          };
+        } else {
+          adventurePath = {
+            pathId: rawAP.pathId,
+            name: rawAP.name,
+            activeSituation: rawAP.activeSituation
+              ? {
+                  title: rawAP.activeSituation.title,
+                  premise: rawAP.activeSituation.premise,
+                  status: rawAP.activeSituation.status,
+                  knownClues: rawAP.activeSituation.clues,
+                }
+              : null,
+            narrativeTells: tells,
+            revealedMethods: rawAP.aquaticMethodsRevealed ?? [],
+            ...(role === "host"
+              ? {
+                  hostDetails: {
+                    startingZoneId: rawAP.startingZoneId,
+                    caveZoneId: rawAP.caveZoneId,
+                    endZoneId: rawAP.endZoneId,
+                    progress: { ...rawAP.progress },
+                    toll: [...rawAP.toll],
+                    resolvedDeeds: [...rawAP.resolvedDeeds],
+                  },
+                }
+              : {}),
+          };
+        }
       } catch {}
     }
 
@@ -2134,8 +2313,11 @@ export class AshDatabase {
         activeSession,
         activeDungeon,
         activeCombat,
+        started,
+        isSecretPath,
+        tableReadiness,
       },
-      me: { role, characterId, isCaller },
+      me: { role, characterId: myCharId, isCaller, ready: myReady, token: callerToken },
       characters,
       hexes,
       rooms,
@@ -2149,6 +2331,7 @@ export class AshDatabase {
       activeDungeon,
       activeCombat,
       rewards,
+      tablePlayers,
     };
   }
 }
@@ -2178,12 +2361,17 @@ function rowToCharacter(row: Row): Character {
     talents: row.talents_json ? JSON.parse(String(row.talents_json)) : [],
     xp: row.xp != null ? Number(row.xp) : 0,
     fatigue: row.fatigue != null ? Number(row.fatigue) : 0,
+    ownerToken: row.owner_token ? String(row.owner_token) : undefined,
     inventory: row.inventory_json ? JSON.parse(String(row.inventory_json)) : [],
     spells: row.spells_json ? JSON.parse(String(row.spells_json)) : [],
     conditions: row.conditions_json ? JSON.parse(String(row.conditions_json)) : [],
     classChoices: row.class_choices_json ? JSON.parse(String(row.class_choices_json)) : {},
     deathStrikes: row.death_strikes != null ? Number(row.death_strikes) : 0,
     stabilized: Boolean(row.stabilized),
+    rosterStatus: (row.roster_status ? String(row.roster_status) : "active") as "active" | "reserve",
+    generationMethod: (row.generation_method ? String(row.generation_method) : undefined) as any,
+    generationDice: row.generation_dice_json ? JSON.parse(String(row.generation_dice_json)) : undefined,
+    originZoneId: row.origin_zone_id ? String(row.origin_zone_id) : undefined,
   };
 }
 
@@ -2272,7 +2460,7 @@ function rowToHex(
   return result;
 }
 
-function rowToRoom(row: Row, role: Role = "player"): DungeonRoom {
+function rowToRoom(row: Row, _role: Role = "player"): DungeonRoom {
   return {
     id: Number(row.id),
     sequence: Number(row.sequence),
@@ -2280,7 +2468,7 @@ function rowToRoom(row: Row, role: Role = "player"): DungeonRoom {
     contents: String(row.contents),
     interaction: String(row.interaction),
     exits: Number(row.exits),
-    trap: role === "host" ? (row.trap_json ? JSON.parse(String(row.trap_json)) : undefined) : undefined,
+    trap: undefined,
     siteId: row.site_id ? String(row.site_id) : undefined,
     createdAt: String(row.created_at),
   };

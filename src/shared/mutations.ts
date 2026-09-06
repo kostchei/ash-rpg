@@ -6,6 +6,14 @@ export const RECEIPTED_ACTIONS = new Set([
   "dungeon:light_torch",
   "session:award_xp",
   "session:return_sanctuary",
+  "party:rest",
+  "expedition:camp",
+  "expedition:camp_night",
+  "site:enter",
+  "dungeon:move_room",
+  "treasure:allocate",
+  "combat:update_hp",
+  "combat:death_save",
 ]);
 
 /** Stable request identity, independent of object-key ordering or transport metadata. */

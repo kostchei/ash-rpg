@@ -14,13 +14,25 @@ An Adventure Path is therefore not a single Doom Clock. It consists of:
 
 The following engines are working foundations for ASH Adventure Paths. Each describes a different way for the world to progress, not merely a different final enemy.
 
+**Expanded procedures:** [Populating Adventure Path Engines](08_adventure_path_population.md) supplies generation order, three acts, at least two antagonist options, concrete requirements, opening situations, and outcomes for every engine below. These are authored design procedures; runtime eligibility must be verified separately.
+
+## Antagonists, Methods, and Three Acts
+
+Every engine supports a **three-act campaign across levels 1–10**. Acts use the engine's own units, with approximate content bands of levels 1–3, 4–7, and 8–10. Restoration states, legal steps, repeated manifestations, and arrival waves are developments within those three acts, not additional acts. An earned early victory remains possible.
+
+Choose the antagonist separately from the engine's method. Each engine has at least two options in the [population procedures](08_adventure_path_population.md#three-acts-multiple-antagonists), with different motives, dependencies, and means of opposition. Domains of Dread supplies many boss dossiers; displacement can concern Githyanki refugees, an orc portal migration in the shape of the Warcraft arrival scenario, or a resident ruler exploiting either. Invocation can serve fire, Nurgle-inspired plague, Orcus or other death cults, or magic and change.
+
+The nine outer-power entries are **methods**, not exclusive assignments of one method to one god. Orchestration, participation, conjunction, proliferation, and the other processes can serve different patrons. Choose one primary method to govern progression and the ending. A supporting method explains a dependency or operation; it does not add an unrelated second campaign clock.
+
+The new [Slumbering Catastrophe](#12-the-slumbering-catastrophe-preparation-and-awakening) covers an ancient red dragon, tarrasque, or other dormant destroyer: discover what wakes it, gain experience and effective weapons, and attempt the kill before full awakening and rampage.
+
 ## Advancement: Asymmetry First
 
 The model for path advancement is *Cthulhu Wars*, in which each faction earns its powers by completing a list of requirements written in its own idiom. The Black Goat spawns, the Yellow Sign captures, Cthulhu devours. No two lists are interchangeable, and no faction is playing the same game as its opponents.
 
 Adventure Paths work the same way. Three consequences follow, and they matter more than any shared vocabulary.
 
-**1. Each antagonist has its own Requirements.** Four to eight conditions, written in that antagonist's verbs, each granting one specific and permanent power. Not a track with numbered steps—a list completable in any order, where the order chosen shapes what the party eventually faces. The Titans' Release Deeds are the model. Every engine below now carries its own.
+**1. Each antagonist has its own Requirements.** Usually four to eight conditions, written in that antagonist's verbs, each granting one specific capability. Complete them in any order their physical or procedural prerequisites permit; the chosen order shapes what the party eventually faces. The Titans' Release Deeds are the model. The [population procedures](08_adventure_path_population.md) supply concrete requirements where the summaries below give only an outline. Completion remains in history even if a later deed disables its capability; distinguish an accomplished deed from a currently functioning power.
 
 **2. Each antagonist has its own win condition, and it is rarely "complete the list".** Tharizdun needs three Bonds broken in one region, not all eight. The Compact needs only to be the sole provider. The Witch King needs bodies and infrastructure and never needs to win a battle. Write the specific state of the world that ends the path in the antagonist's favour, and write how far short of the full list that state can be reached.
 
@@ -36,10 +48,10 @@ There is no standard path sheet, and a path that can be recorded on the same for
 | :----- | :---- | :-------------------------- |
 | **1. Captive Domain** | A rules reference, filled in by experiment | Writing the rulebook to a game nobody explained |
 | **2. Aboleth Savant** | A roster with a "last verified, by whom" column that goes stale | Running counter-intelligence on their own friends |
-| **3. Titans** | Five dials, moving independently, and one party | Allocating attention across prisons they cannot all defend |
+| **3. Titans** | Five restoration records, moving independently, and one party | Allocating attention across prisons they cannot all defend |
 | **4. Tharizdun** | The campaign record itself, defaced | Crossing out and rewriting their own earlier notes |
 | **5. Bane** | A statute book: decrees, dates, and what each authorises | Reading law to find out what is still legal |
-| **6A. Cthulhu** | A countdown that only falls, and a log of manifestations | Watching a price drop they cannot pay to raise |
+| **6A. Cthulhu** | Irreversible Preparations, a log of manifestations, and arrival routes that can be excluded | Learning why banishment does not undo preparation, and what can prevent arrival |
 | **6B. Nyarlathotep** | A script, face down, with an author column | Learning retroactively who completed which step |
 | **6C. Shub-Niggurath** | A census: mouths against land | Doing arithmetic a tax assessor would recognise |
 | **6D. Hastur** | An audience count and a cast list | Tracking who has been given a part |
@@ -54,8 +66,9 @@ There is no standard path sheet, and a path that can be recorded on the same for
 | **9. Apocalypse Cult** | A bill of materials | Reading a shopping list to predict a god |
 | **10. Eternal Cycle** | Two bars and the gap between them, drawn | Defending a shrinking middle they must keep measuring |
 | **11. Githyanki** | A provision ledger with a hard cap above it | Discovering that diplomacy is a granary problem |
+| **12. Slumbering Catastrophe** | Waking operations beside weapons, experience, and proven countermeasures | Deciding when preparation is sufficient to risk the hunt |
 
-Three of these are worked below in full. The rest carry their own record in their own section, and none of them share a form.
+Several records are worked below in detail. The [population companion](08_adventure_path_population.md) expands all twenty-one engines without forcing them to share a form.
 
 ### Two Things Are Universal
 
@@ -75,7 +88,7 @@ A measure the players cannot read is a Doom Clock in costume. Conceal one only w
 
 ### Acts in the Engine's Own Units
 
-A path is built for roughly ten levels and about three acts, but the acts are counted in whatever the engine actually runs on. Do not force every path into the same three level bands.
+A path is built for ten levels and exactly three campaign acts, but transitions follow whatever the engine actually runs on. Use the approximate level bands to budget content and threat, not to postpone a fulfilled condition or force a missing event.
 
 | Act shape           | Counted in                          | Engines that use it                          |
 | :------------------ | :---------------------------------- | :------------------------------------------- |
@@ -88,6 +101,7 @@ A path is built for roughly ten levels and about three acts, but the acts are co
 | **Wave**            | Arrivals, emergences, doublings     | Githyanki, Tsathoggua, Marut                 |
 | **Saturation**      | Share of a population reached       | Hastur, Aboleth Savant, Tcho-Tcho, Azathoth  |
 | **Attrition**       | Names left in the middle            | Eternal Cycle                                |
+| **Preparation race** | Waking deeds and acquired countermeasures | Slumbering Catastrophe                    |
 
 Whatever the units, budget content for the length. A ten-level path is not three big dungeons.
 
@@ -103,7 +117,7 @@ A **site** is somewhere the party go and return from with the ledger changed. A 
 
 Each engine states its own version of these, because the antagonists do not react to neglect in the same way at all. Some accelerate geometrically when unopposed; some barely move, because they were built entirely out of reactions; one or two are actively made worse by being fought. The general principles:
 
-**Ignoring.** Neglect is measured in what the party *spent* elsewhere—an expedition, a season, a refused summons—never in elapsed time or sessions ended. On a neglect tick an antagonist takes the cheapest Requirement available, not the most dramatic. Every tick also produces an offer, because a worsening world is full of vacancies: a desperate faction with a treasury, an abandoned strongpoint, cheap land, skilled refugees. The party who ignore the plague should get rich; that is the point of the choice. Three consecutive ticks converts the path into a **Background Transformation**—it completes offscreen, the region permanently becomes what the engine says it becomes, and that is simply the setting now. It may return one tier later with the neglect written into its history.
+**Ignoring.** Use each engine's actual triggers. Seasons and scheduled arrival waves follow their committed calendars; reactive operations need the triggering deed; the Sleeper's concealed accumulation does not produce generic warnings or compulsory offers. Otherwise, neglect means passing over an actionable opportunity: an expedition, a refused summons, or an abandoned intervention. An actor may then complete the cheapest eligible Requirement only if its resources, access, and prerequisites permit it. Consequences can create offers such as paid work, abandoned strongpoints, or scarce services. Three consecutive ignored opportunities may produce a **Background Transformation** if the engine's actual winning conditions can now be met. They do not grant missing resources or bypass an unbroken seal. The changed region can return in later play with that history intact.
 
 **Failing.** Losing ground re-frames a path; it does not end one. When the antagonist's win condition is actually met, the world is theirs and play continues inside it: resistance, exile, survival, emigration, collaboration, service. The next engine is built on the transformed region, usually one tier up. A campaign that can survive its own defeat is worth more than one that was never able to lose.
 
@@ -139,6 +153,7 @@ That pairing is the whole design. A goblin warren with an overpopulation mechani
 | **9. Apocalypse Cult** | Assembles a god from parts, and will substitute inferior ones | Needs the components, the sites, and the logistics to move them | Scorched earth, which in the fire variant is a delivery of fuel |
 | **10. Eternal Cycle** | Two absolutes, each able to remake the world | Neither can act without mortal proxies, and each escalation summons the other | Choosing the better side |
 | **11. Githyanki** | Desperate, disciplined, and materially capable | Need land and food; militancy is a response to conditions rather than a nature | Fortifying the border, which manufactures the war it fears |
+| **12. Slumbering Catastrophe** | Overwhelming force once its specific capabilities recover | Starts dormant, bound, or wounded; prepared instruments can exploit those conditions | Waiting to feel strong enough while an enabled waking operation finishes |
 
 ### Using the Table
 
@@ -233,7 +248,7 @@ They are not opposites, and the party should be shown both.
 
 | The captor wins when | The party win when |
 | :------------------- | :------------------ |
-| Every haven is Taken, or every surviving character carries three Marks. The domain then holds no prisoners—only residents—and needs nothing further. | The **Killing Condition** is assembled: the particular circumstance, weapon, true name, witness, or restored object that lets the captor die. Nothing else is required. |
+| Every haven is Taken, or every surviving character carries three Marks. The domain then holds no prisoners—only residents—and needs nothing further. | The **Killing Condition** is assembled and used to overthrow the captor, or an authored alternative resolves the captivity. Merely possessing a weapon or knowing a true name enables the attempt; it does not complete the confrontation. |
 
 The consequence is worth stating plainly at the table: **preventing the Terms is not winning, and losing them is not losing.** A party can hold every haven for nine levels and be no closer to leaving. A party can lose four havens, take six Marks between them, and end the path in a single night because they finally hold the one thing that works.
 
@@ -348,27 +363,29 @@ Several imprisoned Titans and several simultaneous Release Deeds create the camp
 
 ### Adventure Path Progression
 
-#### Act I — The Servants Move
+#### Act I — The Servants and the Map of Chains
 
 Giant clans, primordial beasts, and strange cults raid archives, tombs, temples, and ruins. Repeated symbols reveal that these are coordinated operations against an ancient prison system.
 
-The act ends when a Titan is successfully **Named** or the party discovers the map of prisons.
+Naming a Titan enables coherent action and opens the next movement within this act. It does not force the party to release one before they can investigate the prison map.
 
-#### Act II — The Map of Chains
+**The Map of Chains.**
 
 The party identifies several Titan prisons and learns that temples, mountains, cities, and natural laws form parts of their bindings. Gods and churches recruit the party while concealing uncomfortable parts of the original war.
 
-The act ends when the first Titan reaches **Stirring** and its partial manifestation permanently transforms a region.
+The act ends when the party has an actionable map of prisons and their dependencies. A Titan reaching **Stirring** can demonstrate those dependencies by transforming a region, but preventing that release does not block progression.
 
-#### Act III — The Gods' Crime
+#### Act II — The Gods' Crime and the Returning Powers
 
 The party discovers why the Titans seek revenge. Some are monsters, while others were betrayed because the new gods needed their bodies or powers. The heroes must decide which prisons to defend, which Titans could be negotiated with, and whether the existing divine order deserves preservation.
 
-#### Act IV — The Returning Powers
+**The Returning Powers.**
 
 Multiple Titans occupy different restoration states. One may possess an army but no weapon; another may walk the world while remaining bound by one chain; a third may be only a persuasive voice. The gods intervene openly and turn mortal territory into their battlefield.
 
-#### Act V — War of Succession
+The act ends when the party has selected and prepared a viable settlement, rebinding, release, or confrontation. Enemy restoration changes what that plan costs; it does not supply a mandatory success the party must allow.
+
+#### Act III — War of Succession
 
 The party gathers the means to rebind, kill, reconcile, or empower the returning Titans. The finale occurs at the original battlefield, celestial throne, or mechanism that transformed Titan bodies into the present world's laws.
 
@@ -614,11 +631,11 @@ Acts are counted in manifestations, not levels, though they land at roughly the 
 
 | Cycle | Roughly | Shape |
 | :---- | :------ | :---- |
-| **I — Dream and Cult** | Levels 1–3 | Ends with the first Awakening, which the party will not prevent. Survive it, divert it, or banish it, and lose a named place doing so. |
-| **II — Cheaper Return** | Levels 4–7 | The interval between Awakenings shortens. Ends when the party first push the requirement *back up* by inverting an anchor rather than smashing it. |
+| **I — Dream and Cult** | Levels 1–3 | Moves toward the first possible Awakening. Survive, divert, or banish it if it occurs; an earned early exclusion can prevent it. An actual manifestation permanently changes a named place. |
+| **II — Cheaper Return** | Levels 4–7 | The interval between possible Awakenings shortens as Preparations accumulate. Ends when the party can demonstrate a working exclusion, such as an inverted anchor, and plan how to close the remaining routes. |
 | **III — Exclusion** | Levels 8–10 | The last Awakening is fought while the party work on the geometry, not on him. Ends when arrival is closed or the intersection becomes permanent. |
 
-Every manifestation must permanently alter at least one location even when banished. That change is the Toll, and it is the only record the world keeps of a creature that cannot be hurt.
+Every manifestation must permanently alter at least one location even when banished. That change is the Toll. Completed Preparations stay completed; exclusion changes whether an arrival route works, not whether the cult learned its earlier lesson. The [executable ratchet procedure](08_adventure_path_population.md#6a-cthulhu-closing-the-coast) defines temporary preparations, scheduled conjunctions, and permanent exclusion separately.
 
 #### At the Table
 
@@ -708,9 +725,9 @@ This path is not tracked as a threat. It is tracked as a population problem, on 
 - **A brood at positive Pressure must vent before the season turns.** It vents in one of three ways: it sends a war-band out, it opens a new nursery, or it starves. It does not choose the noble option. It chooses the cheapest.
 - **A destroyed war-band is a successful vent.** Write the relief in the Pressure column in the party's favour, because that is who provided it. Eighty mouths left the warren and did not come back, and the warren will be healthier next spring than it has been in years.
 
-That last rule is the whole path, and it should never be explained. Let the party win, be thanked, and be paid. Around the third or fourth autumn somebody at the table will ask why the raids keep getting bigger, and the campaign begins.
+That last rule is the discovery at the heart of the path. Let the party win, be thanked, and be paid, while tally-sticks, food movements, and surviving witnesses make the underlying process discoverable. Once they obtain the census, explain its arithmetic plainly; do not postpone understanding until a prescribed number of raids.
 
-**What the party can actually do.**
+**What the party can actually do.** The census can be discovered and explained through evidence. Do not withhold arithmetic the party have earned simply to preserve a surprise.
 
 | Move | Effect | Cost |
 | :--- | :----- | :--- |
@@ -818,7 +835,7 @@ The party wins by finding and exhausting the hidden reserves before the synchron
 
 #### The Absence Ledger
 
-This path has no enemy tracker. There is no count of caches, no strength estimate, no map of the deep. There is only a list of what is gone.
+The party has no automatic enemy tracker, strength estimate, or map of the deep. Its initial record is only a list of what is gone. Hidden world state still fixes the caches, reserves, routes, and emergence conditions before they matter; discoveries can add actual facts to party knowledge. See the [population procedure](08_adventure_path_population.md#6f-tsathoggua-the-price-of-investigating-quiet).
 
 | Missing | Where last seen | When | Still being looked for? |
 | :------ | :-------------- | :--- | :---------------------- |
@@ -1142,7 +1159,10 @@ The cult may continue after losing a component by seeking an inferior substitute
 
 - **Fire:** Territory, industry, sacrifice, and destruction become fuel. Each blaze makes the next one easier to begin.
 - **Plague:** Disease, despair, fatalism, and the willing acceptance of decay sustain the invocation.
+- **Death:** An Orcus-style cult, a necromantic church, or another death patron assembles a vessel from stolen dead, funerary authority, and a binding rite. Specify which material or consent is actually necessary; corpses, memories, and souls are not interchangeable fuel.
 - **Magic and Change:** Secrets, betrayals, mutations, and interlocking schemes assemble a reality-altering design.
+
+Nurgle-inspired plague, fire incarnations, Orcus and other death cults, and change cults have separate antagonist dossiers in the [population procedures](08_adventure_path_population.md#9-apocalypse-cult-build-the-actual-manifestation). The bill of materials determines the resulting apocalypse. A plague whose main process is continuing conversion instead uses the Witch King engine; the patron's name alone does not choose the method.
 
 ### Transformation
 
@@ -1169,13 +1189,7 @@ Law can preserve a city while advancing universal stagnation. Chaos can overthro
 
 ### Persistent Footprint
 
-Use three related measures:
-
-- **Law Influence:** The degree to which the world is fixed, ordered, classified, and controlled.
-- **Chaos Influence:** The degree to which the world is mutable, unbounded, unstable, and transformed.
-- **War Intensity:** The destructive commitment of both sides, regardless of which currently holds the advantage.
-
-The danger lies at either extreme and in the escalation produced by their opposition.
+Use the worked path's **Law's Hold**, **Chaos's Hold**, and **twelve named things in the Middle**. Each accepted intervention can move a named thing into a pole's Hold; keep the deed and its cost on the struck list. War intensity is visible in matched interventions and their consequences, not a competing third progress track. The danger lies at either extreme and in the escalation produced by their opposition.
 
 ### Recurring Adventures
 
@@ -1198,6 +1212,8 @@ The party may restore a temporary Balance, introduce a third cosmic principle, b
 **World Process:** Survival pressure becomes a security dilemma between displaced newcomers and established societies.
 
 The Githyanki are not inherently the villains of this path. Their home is collapsing, and each new arrival increases the need for land, food, security, and political authority. Local hostility makes militarization appear necessary; visible militarization makes local hostility rational. Predatory leaders can exploit both reactions until refuge becomes conquest.
+
+This engine also supports **orc migration through a portal in the shape of the Warcraft arrival scenario**. A warlord or warlock may turn the need for a homeland into conquest; resident rulers may exploit fear to seize land or labor. Generate rival factions among newcomers and residents rather than making an entire people the antagonist. Choose why return is unavailable, who controls the portal, and whether its controller needs conquest. The [three-act procedure and antagonist options](08_adventure_path_population.md#11-githyanki-refugees-a-settlement-that-can-feed-itself) distinguish reception, continuing waves, and a durable settlement or conquest.
 
 ### Path Progression
 
@@ -1232,6 +1248,53 @@ Track pressures that can move independently:
 ### Transformation
 
 Possible conclusions include a shared homeland, peaceful settlement, partition, a repaired home plane, a new Githyanki conquest state, forced expulsion, or mutual destruction. Which ending is possible depends upon the material and political conditions created throughout the campaign, not solely upon the defeat of one leader.
+
+---
+
+## 12. The Slumbering Catastrophe: Preparation and Awakening
+
+**World Process:** A dormant destroyer regains its capabilities as specific operations disturb its sleep. The party gains experience, weapons, protection, and allies through expeditions, then chooses when to attempt the kill before full awakening permits a regional rampage.
+
+**Antagonists:** An **ancient red dragon** can recover its hoard, breath, and freedom of movement before pursuing revenge or dominion. A **tarrasque** wakes through physical or magical disturbance and follows its established appetites and movement behavior. An ancient war colossus is a further option with power cores and command beacons. Choose the dossier's true sleep condition, awakening triggers, defenses, and a possible killing method before generating the preparation sites.
+
+### Three Acts
+
+| Act | Approximate levels | Principal play |
+| :-- | :----------------- | :------------- |
+| **I — The Mountain Breathes** | 1–3 | Discover the sleeper and what wakes it; establish why ordinary attacks fail and identify the previous hunt's evidence |
+| **II — The Weapons of the Last Hunt** | 4–7 | Gain experience, obtain or forge effective weapons, test countermeasures, recruit support, and interrupt feasible waking operations |
+| **III — The Killing Expedition** | 8–10 | Strike the vulnerable sleeper using earned advantages, or intercept its actual rampage if it awakens first |
+
+Preparation can justify an earlier attempt. Full awakening changes the final expedition's circumstances; it neither instantly destroys the world nor invalidates acquired weapons. The creature's established threat does not scale upward just because the party gain levels.
+
+### Persistent Footprint
+
+Keep two related records:
+
+- **Awakening operations:** actors or committed natural events, sites, prerequisites, completion, recovered capabilities, and observable tells. Possible operations breach a seal, restore a furnace, return stolen strength, break a restraint, sound a calling, or open the exit.
+- **Preparation:** the party's actual experience and resources; known vulnerabilities; acquired and tested weapons; defensive equipment; allies and weapon crews; provisions; staging routes; and a validated finishing method.
+
+Dormant, Stirring, and Awake describe behavior, not extra acts. Full awakening and escape require the dossier's actual alertness, mobility, and exit conditions. A stopped mine or disrupted rite remains stopped until a plausible operation replaces it. Time elsewhere does not awaken a sealed creature by itself.
+
+### Recurring Adventures
+
+- Rescue miners before their excavation breaks the first seal.
+- Recover a lance, siege instrument, or account from a failed earlier hunt.
+- Locate and test a wound or weakness before risking the final expedition.
+- Obtain a scarce forging material without sacrificing an inhabited place.
+- Protect the smith, ritual specialist, or weapon crew from the waking faction.
+- Secure protection from breath, trampling, collapse, or the chosen creature's defenses.
+- Rebind a limb or close an exit to buy time for another expedition.
+- Provision an evacuation and move a heavy weapon into an interception position.
+- Strike before a known capability is restored, accepting the risk of an unfinished preparation.
+
+### The Two Conditions and Transformation
+
+The party's intended victory is **slaying the creature with an effective finishing method**. The dossier must make that achievable through discoverable preparations within this campaign. Permanent rebinding, banishment, or a sapient dragon's negotiated settlement can be chosen alternatives with explicit conditions; they do not replace the possibility of the hunt. A mindless tarrasque does not receive a negotiation route by default.
+
+The catastrophe prevails when its actual rampage destroys or captures the committed regional objectives and the surviving communities cannot sustain resistance. Waking merely makes that outcome possible. Movement, evacuation, and destruction occur at mapped places with real travel intervals. Early slaying leaves hoard claims, dangerous remains, surviving servants, and debts to those who supplied the expedition. Defeat leaves a ruined region and the possibility of another hunt. The Toll retains named settlements, crews, habitats, and evacuees lost during preparation or the rampage.
+
+The [full population procedure](08_adventure_path_population.md#12-slumbering-catastrophe-slay-it-before-the-rampage) specifies waking operations, dragon and tarrasque preparations, opening leads, encounter construction, and the resulting endings.
 
 ---
 

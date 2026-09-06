@@ -212,6 +212,7 @@ function Welcome({
   const [borderConnection, setBorderConnection] = useState<string>("surface");
   const [seed, setSeed] = useState("");
   const [season, setSeason] = useState<"spring" | "summer" | "autumn" | "winter">("autumn");
+  const [pathMode, setPathMode] = useState<"explicit" | "secret">("explicit");
   const [preview, setPreview] = useState<any>(null);
   const [previewLoading, setPreviewLoading] = useState(false);
   const [previewError, setPreviewError] = useState("");
@@ -276,6 +277,7 @@ function Welcome({
               regionName: form.regionName,
               pin: form.pin,
               generationConfig: buildGenerationConfig(),
+              pathSelection: { mode: pathMode },
             })
           : mode === "join"
             ? await post("/api/campaigns/join", { code: form.code })
@@ -513,6 +515,21 @@ function Welcome({
                     </div>
                   )}
                 </div>
+                <div className="field" style={{ marginTop: 12, marginBottom: 12 }}>
+                  <label>Adventure Path Selection</label>
+                  <select
+                    value={pathMode}
+                    onChange={(e) => setPathMode(e.target.value as "explicit" | "secret")}
+                  >
+                    <option value="explicit">The Mind Below (Authored Path)</option>
+                    <option value="secret">Secret / System Selection (Concealed Omens)</option>
+                  </select>
+                  <small style={{ display: "block", marginTop: 4, opacity: 0.75 }}>
+                    {pathMode === "secret"
+                      ? "The adventure path is chosen secretly by the system. Identity, true objectives, and narrative tells are concealed from players and table displays."
+                      : "Standard authored three-act campaign path."}
+                  </small>
+                </div>
               </div>
             </>
           )}
@@ -730,22 +747,38 @@ function Campaign({
         ))}
       </nav>
       <section className="main-content">
-        {tab === "sanctuary" && <SanctuaryView state={state} act={act} />}
-        {tab === "map" && <MapView state={state} act={act} />}
-        {tab === "dungeon" && <DungeonView state={state} act={act} />}
-        {tab === "combat" && <CombatView state={state} act={act} />}
-        {tab === "encounters" && <EncounterView state={state} act={act} />}
-        {tab === "party" && (
-          <PartyView
-            state={state}
-            act={act}
-            onRollAbility={(charId, ability) =>
-              setRollModalContext({ open: true, charId, ability, type: "check" })
-            }
-          />
+        {!state.campaign.started ? (
+          tab === "party" ? (
+            <PartyView
+              state={state}
+              act={act}
+              onRollAbility={(charId, ability) =>
+                setRollModalContext({ open: true, charId, ability, type: "check" })
+              }
+            />
+          ) : (
+            <LobbyView state={state} act={act} onOpenParty={() => setTab("party")} />
+          )
+        ) : (
+          <>
+            {tab === "sanctuary" && <SanctuaryView state={state} act={act} />}
+            {tab === "map" && <MapView state={state} act={act} />}
+            {tab === "dungeon" && <DungeonView state={state} act={act} />}
+            {tab === "combat" && <CombatView state={state} act={act} />}
+            {tab === "encounters" && <EncounterView state={state} act={act} />}
+            {tab === "party" && (
+              <PartyView
+                state={state}
+                act={act}
+                onRollAbility={(charId, ability) =>
+                  setRollModalContext({ open: true, charId, ability, type: "check" })
+                }
+              />
+            )}
+            {tab === "oracle" && <OracleView state={state} act={act} />}
+            {tab === "chronicle" && <ChronicleView state={state} act={act} />}
+          </>
         )}
-        {tab === "oracle" && <OracleView state={state} act={act} />}
-        {tab === "chronicle" && <ChronicleView state={state} act={act} />}
       </section>
 
       {showZoneModal && (
@@ -1245,6 +1278,209 @@ function TavernSessionCard({ state, act }: { state: CampaignState; act: Act }) {
         </div>
       )}
     </article>
+  );
+}
+
+function LobbyView({
+  state,
+  act,
+  onOpenParty,
+}: {
+  state: CampaignState;
+  act: Act;
+  onOpenParty: () => void;
+}) {
+  const isHost = state.me.role === "host";
+  const myToken = state.me.token;
+  const myOwned = state.characters.filter(
+    (c) => (c.ownerToken && c.ownerToken === myToken) || c.id === state.me.characterId,
+  );
+  const readiness = state.campaign.tableReadiness ?? {
+    totalPlayers: 0,
+    readyPlayers: 0,
+    allReady: false,
+  };
+  const isReady = Boolean(state.me.ready);
+
+  const toggleReady = () => {
+    act("table:ready", { ready: !isReady }, !isReady ? "Marked ready for expedition" : "Readiness cleared");
+  };
+
+  const startCampaign = () => {
+    act("campaign:start", {}, "Campaign started! Venturing into the Gloaming...");
+  };
+
+  return (
+    <div className="lobby-page" style={{ padding: "1.5rem", maxWidth: "960px", margin: "0 auto" }}>
+      <div className="lobby-banner" style={{ background: "rgba(255, 255, 255, 0.04)", border: "1px solid var(--line)", borderRadius: "8px", padding: "1.5rem", marginBottom: "1.5rem" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: "1rem" }}>
+          <div>
+            <div className="eyebrow">Table Preparation & Setup</div>
+            <h1 style={{ margin: "0.25rem 0" }}>{state.campaign.name}</h1>
+            <p style={{ margin: 0, color: "var(--muted)" }}>
+              Region: <b>{state.campaign.regionName}</b> · Phase: <b>Table Setup</b>
+            </p>
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+            <div className="code-chip" style={{ fontSize: "1.2rem", padding: "0.5rem 1rem" }}>
+              <span>JOIN CODE</span>
+              <b>{state.campaign.code}</b>
+            </div>
+          </div>
+        </div>
+
+        <div style={{ marginTop: "1rem", display: "flex", gap: "1.5rem", flexWrap: "wrap", alignItems: "center" }}>
+          <img
+            src={`/api/campaigns/${state.campaign.code}/qr`}
+            alt="Join QR Code"
+            style={{ width: "96px", height: "96px", borderRadius: "6px", border: "1px solid var(--line)" }}
+          />
+          <div style={{ flex: 1, minWidth: "240px" }}>
+            <div style={{ fontSize: "13px", fontWeight: 600, marginBottom: "4px" }}>PLAYER INVITATION LINK</div>
+            <div style={{ display: "flex", gap: "8px" }}>
+              <input
+                type="text"
+                readOnly
+                value={state.campaign.joinUrl}
+                style={{ flex: 1, padding: "6px 10px", fontSize: "13px", background: "rgba(0,0,0,0.2)", border: "1px solid var(--line)", borderRadius: "4px", color: "var(--ink)" }}
+              />
+              <button
+                type="button"
+                className="small-btn"
+                onClick={() => {
+                  navigator.clipboard.writeText(state.campaign.joinUrl);
+                }}
+              >
+                Copy
+              </button>
+            </div>
+            <small style={{ color: "var(--muted)", marginTop: "4px", display: "block" }}>
+              Each player can join on their phone or tablet and create up to two characters.
+            </small>
+          </div>
+        </div>
+      </div>
+
+      {/* Adventure Path Info */}
+      <div className="lobby-path-card" style={{ background: "rgba(79, 140, 201, 0.08)", border: "1px solid #4f8cc9", borderRadius: "8px", padding: "1.25rem", marginBottom: "1.5rem" }}>
+        <div className="eyebrow" style={{ color: "#4f8cc9" }}>
+          {state.campaign.isSecretPath ? "Secret Adventure Path Selection" : "Authored Adventure Path"}
+        </div>
+        <h3 style={{ margin: "0.25rem 0 0.5rem" }}>
+          {state.campaign.adventurePath?.name ?? "The Mind Below"}
+        </h3>
+        <p style={{ margin: 0, fontSize: "14px", color: "var(--ink)" }}>
+          {state.campaign.isSecretPath
+            ? "The true identity, master, and climactic destination of this adventure path have been chosen secretly by the table assistant. Spoiler details remain hidden until uncovered through exploration and rumors."
+            : "A multi-act campaign confronting sinister subterranean influences rising toward the surface."}
+        </p>
+      </div>
+
+      {/* Table Participants & Roster Readiness */}
+      <div className="lobby-participants" style={{ marginBottom: "1.5rem" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.75rem" }}>
+          <div>
+            <h3 style={{ margin: 0 }}>Company Roster & Readiness</h3>
+            <small style={{ color: "var(--muted)" }}>
+              {readiness.totalPlayers === 0
+                ? "No separate player devices joined yet"
+                : `${readiness.readyPlayers} of ${readiness.totalPlayers} player${readiness.totalPlayers === 1 ? "" : "s"} ready`}
+            </small>
+          </div>
+          <div style={{ display: "flex", gap: "8px" }}>
+            {state.me.role === "player" && (
+              <button
+                className={`small-btn ${isReady ? "primary" : ""}`}
+                onClick={toggleReady}
+              >
+                {isReady ? "✓ Ready (Click to toggle)" : "⏳ Mark Ready"}
+              </button>
+            )}
+            <button className="small-btn" onClick={onOpenParty}>
+              <Users size={14} /> Open Company Sheet
+            </button>
+          </div>
+        </div>
+
+        <div className="character-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "1rem" }}>
+          {state.characters.length === 0 ? (
+            <div style={{ gridColumn: "1 / -1", padding: "2rem", textAlign: "center", background: "rgba(255,255,255,0.02)", border: "1px dashed var(--line)", borderRadius: "8px" }}>
+              <p style={{ margin: "0 0 1rem", color: "var(--muted)" }}>No adventurers have stepped forward yet.</p>
+              <button className="primary" onClick={onOpenParty}>
+                <Plus size={16} /> Create First Character
+              </button>
+            </div>
+          ) : (
+            state.characters.map((c) => (
+              <article
+                key={c.id}
+                className="panel character-card"
+                style={{
+                  border: c.rosterStatus === "active" ? "1px solid var(--ember)" : "1px solid var(--line)",
+                  background: c.rosterStatus === "active" ? "rgba(217, 117, 56, 0.06)" : "rgba(255, 255, 255, 0.02)",
+                }}
+              >
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
+                  <span
+                    className="badge-tag"
+                    style={{
+                      background: c.rosterStatus === "active" ? "var(--ember)" : "var(--muted)",
+                      color: "#000",
+                      fontWeight: 700,
+                      fontSize: "11px",
+                    }}
+                  >
+                    {c.rosterStatus === "reserve" ? "RESERVE" : "ACTIVE"}
+                  </span>
+                  {c.generationMethod && (
+                    <span className="badge-tag" style={{ fontSize: "10px", opacity: 0.8 }}>
+                      {c.generationMethod === "unearthed_arcana" ? "UA METHOD" : "IRON MAN"}
+                    </span>
+                  )}
+                </div>
+                <h3 style={{ margin: "0 0 4px" }}>{c.name}</h3>
+                <p style={{ margin: "0 0 8px", fontSize: "13px", color: "var(--muted)" }}>
+                  Level {c.level} · {c.ancestry} {c.className}
+                  {c.originZoneId ? ` · Origin: ${c.originZoneId.replace(/_/g, " ")}` : ""}
+                </p>
+                <div style={{ display: "flex", gap: "12px", fontSize: "12px" }}>
+                  <span>HP: <b>{c.hp}/{c.maxHp}</b></span>
+                  <span>AC: <b>{c.ac}</b></span>
+                  <span>STR: <b>{c.abilities.str}</b></span>
+                  <span>DEX: <b>{c.abilities.dex}</b></span>
+                </div>
+              </article>
+            ))
+          )}
+        </div>
+      </div>
+
+      {/* Start Campaign Action */}
+      <div style={{ background: "rgba(255,255,255,0.03)", border: "1px solid var(--line)", borderRadius: "8px", padding: "1.25rem", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "1rem" }}>
+        <div>
+          <h4 style={{ margin: 0 }}>Start Expedition</h4>
+          <p style={{ margin: "4px 0 0", fontSize: "13px", color: "var(--muted)" }}>
+            {isHost
+              ? readiness.allReady || readiness.totalPlayers === 0
+                ? "All participating players are ready. Starting commits the campaign world and opens the Gloaming Sanctuary."
+                : `Waiting for ${readiness.totalPlayers - readiness.readyPlayers} player(s) to mark ready.`
+              : isReady
+                ? "You are marked ready. Waiting for host to start."
+                : "Mark yourself ready when your characters are created."}
+          </p>
+        </div>
+        {isHost && (
+          <button
+            className="primary"
+            style={{ padding: "0.75rem 1.5rem", fontSize: "15px", fontWeight: "bold" }}
+            onClick={startCampaign}
+            disabled={readiness.totalPlayers > 0 && !readiness.allReady}
+          >
+            Start Campaign
+          </button>
+        )}
+      </div>
+    </div>
   );
 }
 
@@ -2839,8 +3075,13 @@ function PartyView({
   act: Act;
   onRollAbility?: (charId: number, ability: string) => void;
 }) {
-  const own = state.characters.find((c) => c.id === state.me.characterId),
-    [creating, setCreating] = useState(state.me.role === "player" && !own);
+  const myToken = state.me.token;
+  const ownedCharacters = state.characters.filter(
+    (c) => (myToken && c.ownerToken === myToken) || c.id === state.me.characterId,
+  );
+  const canAddMore = state.me.role === "host" || ownedCharacters.length < 2;
+  const [creating, setCreating] = useState(state.me.role === "player" && ownedCharacters.length === 0);
+
   return (
     <div className="party-page">
       <Title
@@ -2849,70 +3090,209 @@ function PartyView({
         aside={`${state.characters.length} sworn member${state.characters.length === 1 ? "" : "s"}`}
       />
       {creating && (
-        <CharacterCreator act={act} done={() => setCreating(false)} />
+        <CharacterCreator
+          act={act}
+          done={() => setCreating(false)}
+          activeZoneId={state.campaign.activeZoneId}
+          availableZones={state.availableZones}
+          isReserve={ownedCharacters.length >= 1}
+        />
       )}
-      {!creating && (state.me.role === "host" || !own) && (
+      {!creating && canAddMore && (
         <button className="add-card" onClick={() => setCreating(true)}>
-          <Plus /> Add a character
+          <Plus /> {ownedCharacters.length === 1 ? "Add second character (Reserve)" : "Add a character"}
         </button>
       )}
       <div className="character-grid">
-        {state.characters.map((character) => (
-          <CharacterCard
-            key={character.id}
-            character={character}
-            canEdit={
-              state.me.role === "host" || state.me.characterId === character.id
-            }
-            act={act}
-            own={state.me.characterId === character.id}
-            onRollAbility={(ability) => onRollAbility?.(character.id, ability)}
-          />
-        ))}
+        {state.characters.map((character) => {
+          const isOwner = Boolean(
+            (myToken && character.ownerToken === myToken) || state.me.characterId === character.id,
+          );
+          const canEdit = state.me.role === "host" || isOwner;
+          const canSwap =
+            isOwner &&
+            character.rosterStatus === "reserve" &&
+            (state.campaign.phase === "sanctuary" ||
+              state.campaign.phase === "camp" ||
+              state.activeSession?.kind === "camp" ||
+              state.activeSession?.kind === "camp_night");
+
+          return (
+            <CharacterCard
+              key={character.id}
+              character={character}
+              canEdit={canEdit}
+              act={act}
+              own={isOwner}
+              canSwap={canSwap}
+              onSwap={() =>
+                act(
+                  "roster:select_active",
+                  { characterId: character.id },
+                  `Swapped active adventurer to ${character.name}`,
+                )
+              }
+              onRollAbility={(ability) => onRollAbility?.(character.id, ability)}
+            />
+          );
+        })}
       </div>
     </div>
   );
 }
 
-function CharacterCreator({ act, done }: { act: Act; done: () => void }) {
+function CharacterCreator({
+  act,
+  done,
+  activeZoneId,
+  availableZones,
+  isReserve,
+}: {
+  act: Act;
+  done: () => void;
+  activeZoneId?: string;
+  availableZones?: ZoneSummary[];
+  isReserve?: boolean;
+}) {
+  const [method, setMethod] = useState<"unearthed_arcana" | "iron_man">("unearthed_arcana");
   const [form, setForm] = useState({
-      name: "",
-      ancestry: ANCESTRIES[0] as string,
-      className: CLASSES[0].name as string,
-      abilities: { str: 10, dex: 10, con: 10, int: 10, wis: 10, cha: 10 },
-      anchors: { homeland: "", landmark: "", nemesis: "" },
-    }),
-    [busy, setBusy] = useState(false);
-  const roll = async () => {
-    const result = await act<{ scores: number[] }>("character:roll-abilities");
-    setForm({
-      ...form,
-      abilities: Object.fromEntries(
-        ABILITY_KEYS.map((key, i) => [key, result.scores[i]]),
-      ) as typeof form.abilities,
-    });
+    name: "",
+    ancestry: ANCESTRIES[0] as string,
+    className: CLASSES[0].name as string,
+    originZoneId: activeZoneId || "the_gloaming",
+    abilities: { str: 10, dex: 10, con: 10, int: 10, wis: 10, cha: 10 },
+    anchors: { homeland: "", landmark: "", nemesis: "" },
+  });
+  const [diceResults, setDiceResults] = useState<Record<string, number[]> | undefined>(undefined);
+  const [eligibleClasses, setEligibleClasses] = useState<string[]>([]);
+  const [hasRolled, setHasRolled] = useState(false);
+  const [busy, setBusy] = useState(false);
+
+  const rollUA = async (classChoice: string) => {
+    setBusy(true);
+    try {
+      const result = await act<{
+        scores: Record<string, number>;
+        dice: Record<string, number[]>;
+      }>("character:roll-ua", { className: classChoice });
+      setForm((prev) => ({
+        ...prev,
+        className: classChoice,
+        abilities: result.scores as typeof prev.abilities,
+      }));
+      setDiceResults(result.dice);
+      setHasRolled(true);
+    } finally {
+      setBusy(false);
+    }
   };
+
+  const rollIronMan = async () => {
+    setBusy(true);
+    try {
+      const result = await act<{
+        scores: Record<string, number>;
+        dice: Record<string, number[]>;
+        eligibleClasses: string[];
+      }>("character:roll-ironman", {});
+      setForm((prev) => {
+        const nextClass =
+          result.eligibleClasses.length > 0
+            ? result.eligibleClasses.includes(prev.className)
+              ? prev.className
+              : result.eligibleClasses[0]
+            : prev.className;
+        return {
+          ...prev,
+          abilities: result.scores as typeof prev.abilities,
+          className: nextClass,
+        };
+      });
+      setDiceResults(result.dice);
+      setEligibleClasses(result.eligibleClasses);
+      setHasRolled(true);
+    } finally {
+      setBusy(false);
+    }
+  };
+
   const submit = async (e: FormEvent) => {
     e.preventDefault();
     setBusy(true);
     try {
-      await act("character:create", form, `${form.name} joined the company`);
+      await act(
+        "character:create",
+        {
+          name: form.name,
+          ancestry: form.ancestry,
+          className: form.className,
+          abilities: form.abilities,
+          anchors: form.anchors,
+          originZoneId: form.originZoneId,
+          generationMethod: method,
+          generationDice: diceResults,
+        },
+        `${form.name} joined the company${isReserve ? " (Reserve)" : ""}`,
+      );
       done();
     } finally {
       setBusy(false);
     }
   };
+
   return (
     <form className="panel creator" onSubmit={submit}>
       <div className="creator-heading">
         <div>
-          <div className="eyebrow">Seven-step character flow</div>
+          <div className="eyebrow">
+            Authoritative Character Flow · {isReserve ? "Reserve Roster" : "Active Roster"}
+          </div>
           <h2>Call a new adventurer forward.</h2>
         </div>
-        <button type="button" onClick={roll}>
-          <Dices size={17} /> Roll 3d6 in order
-        </button>
+        <div style={{ display: "flex", gap: "8px" }}>
+          <button type="button" className="small-btn" onClick={done}>
+            Cancel
+          </button>
+        </div>
       </div>
+
+      {/* Generation Method Selector */}
+      <div style={{ marginBottom: "1rem", background: "rgba(0,0,0,0.2)", padding: "10px", borderRadius: "6px" }}>
+        <div style={{ fontSize: "12px", fontWeight: 700, marginBottom: "8px", textTransform: "uppercase", letterSpacing: "0.5px" }}>
+          Select Generation Method
+        </div>
+        <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+          <button
+            type="button"
+            className={method === "unearthed_arcana" ? "primary" : ""}
+            onClick={() => {
+              setMethod("unearthed_arcana");
+              setHasRolled(false);
+              setDiceResults(undefined);
+            }}
+          >
+            ✨ Unearthed Arcana (Method I)
+          </button>
+          <button
+            type="button"
+            className={method === "iron_man" ? "primary" : ""}
+            onClick={() => {
+              setMethod("iron_man");
+              setHasRolled(false);
+              setDiceResults(undefined);
+              setEligibleClasses([]);
+            }}
+          >
+            ⚔️ Iron Man (3d6 In Order)
+          </button>
+        </div>
+        <p style={{ margin: "8px 0 0", fontSize: "12px", color: "var(--muted)" }}>
+          {method === "unearthed_arcana"
+            ? "Choose class first. Abilities are rolled with class-specific Method I dice tables (e.g. 9d6 drop 6 for primary stats, ensuring viable heroic adventurers)."
+            : "Strict old-school challenge: 3d6 rolled in exact order (STR, DEX, CON, INT, WIS, CHA). Class choices are restricted to classes where you meet the Prime Requisite (≥ 9)."}
+        </p>
+      </div>
+
       <div className="creator-grid">
         <Field
           label="Character name"
@@ -2932,16 +3312,98 @@ function CharacterCreator({ act, done }: { act: Act; done: () => void }) {
         </label>
         <label>
           Class
+          {method === "iron_man" ? (
+            <select
+              value={form.className}
+              disabled={!hasRolled || eligibleClasses.length === 0}
+              onChange={(e) => setForm({ ...form, className: e.target.value })}
+            >
+              {!hasRolled ? (
+                <option>Roll 3d6 in order first...</option>
+              ) : (
+                eligibleClasses.map((c) => (
+                  <option key={c} value={c}>
+                    {c}
+                  </option>
+                ))
+              )}
+            </select>
+          ) : (
+            <select
+              value={form.className}
+              onChange={(e) => {
+                const next = e.target.value;
+                setForm({ ...form, className: next });
+                if (hasRolled) {
+                  rollUA(next);
+                }
+              }}
+            >
+              {CLASSES.map((c) => (
+                <option key={c.name} value={c.name}>
+                  {c.name}
+                </option>
+              ))}
+            </select>
+          )}
+        </label>
+        <label>
+          Origin Zone
           <select
-            value={form.className}
-            onChange={(e) => setForm({ ...form, className: e.target.value })}
+            value={form.originZoneId}
+            onChange={(e) => setForm({ ...form, originZoneId: e.target.value })}
           >
-            {CLASSES.map((c) => (
-              <option key={c.name}>{c.name}</option>
-            ))}
+            {availableZones && availableZones.length > 0 ? (
+              availableZones.map((z) => (
+                <option key={z.id} value={z.id}>
+                  {z.name} ({z.id})
+                </option>
+              ))
+            ) : (
+              <>
+                <option value="the_gloaming">The Gloaming (Sanctuary Haven)</option>
+                <option value="sunken_citadel">The Sunken Citadel</option>
+                <option value="deep_ways">The Deep Ways</option>
+              </>
+            )}
           </select>
         </label>
       </div>
+
+      <div style={{ margin: "1rem 0", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "1rem" }}>
+        <div>
+          {method === "unearthed_arcana" ? (
+            <button
+              type="button"
+              className="primary"
+              disabled={busy}
+              onClick={() => rollUA(form.className)}
+            >
+              <Dices size={16} /> Roll UA Method I for {form.className}
+            </button>
+          ) : (
+            <button
+              type="button"
+              className="primary"
+              disabled={busy}
+              onClick={rollIronMan}
+            >
+              <Dices size={16} /> Roll 3d6 Strictly In Order
+            </button>
+          )}
+        </div>
+        {hasRolled && diceResults && (
+          <div style={{ fontSize: "12px", color: "var(--muted)" }}>
+            Server-verified rolls accepted.
+            {method === "iron_man" && eligibleClasses.length > 0 && (
+              <span style={{ marginLeft: "8px", color: "var(--ink)" }}>
+                Eligible: <b>{eligibleClasses.join(", ")}</b>
+              </span>
+            )}
+          </div>
+        )}
+      </div>
+
       <div className="ability-editor">
         {ABILITY_KEYS.map((key) => (
           <label key={key}>
@@ -2950,6 +3412,7 @@ function CharacterCreator({ act, done }: { act: Act; done: () => void }) {
               type="number"
               min="3"
               max="20"
+              readOnly={hasRolled}
               value={form.abilities[key]}
               onChange={(e) =>
                 setForm({
@@ -2965,9 +3428,15 @@ function CharacterCreator({ act, done }: { act: Act; done: () => void }) {
               {mod(form.abilities[key]) >= 0 ? "+" : ""}
               {mod(form.abilities[key])}
             </span>
+            {diceResults && diceResults[key] && (
+              <small style={{ fontSize: "10px", color: "var(--muted)", display: "block" }}>
+                [{diceResults[key].join(",")}]
+              </small>
+            )}
           </label>
         ))}
       </div>
+
       <div className="anchor-grid">
         <Field
           label="Homeland truth"
@@ -2994,9 +3463,19 @@ function CharacterCreator({ act, done }: { act: Act; done: () => void }) {
           placeholder="Who or what follows you?"
         />
       </div>
-      <button className="primary" disabled={busy || !form.name}>
-        {busy ? "Recording…" : "Enter the campaign"}
-      </button>
+
+      <div style={{ marginTop: "1rem", display: "flex", gap: "10px", alignItems: "center" }}>
+        <button
+          className="primary"
+          disabled={busy || !form.name || (method === "iron_man" && !hasRolled)}
+        >
+          {busy
+            ? "Recording…"
+            : isReserve
+              ? `Enlist ${form.name || "Adventurer"} (Reserve)`
+              : `Enter Campaign as ${form.name || "Adventurer"} (Active)`}
+        </button>
+      </div>
     </form>
   );
 }
@@ -3007,12 +3486,16 @@ function CharacterCard({
   act,
   own,
   onRollAbility,
+  canSwap,
+  onSwap,
 }: {
   character: Character;
   canEdit: boolean;
   act: Act;
   own: boolean;
   onRollAbility?: (ability: string) => void;
+  canSwap?: boolean;
+  onSwap?: () => void;
 }) {
   const nextLevelXp = character.level * 10;
   const currentXp = character.xp ?? 0;
@@ -3029,13 +3512,30 @@ function CharacterCard({
     <article className={`panel character-card${own ? " own" : ""}`}>
       <div className="portrait-mark">{character.name[0]}</div>
       <div className="character-head">
-        <div className="eyebrow">
-          Level {character.level} · {character.ancestry}
+        <div className="eyebrow" style={{ display: "flex", gap: "6px", alignItems: "center", flexWrap: "wrap" }}>
+          <span>Level {character.level} · {character.ancestry}</span>
+          <span
+            className="badge-tag"
+            style={{
+              background: character.rosterStatus === "reserve" ? "var(--muted)" : "var(--ember)",
+              color: "#000",
+              fontWeight: 700,
+              fontSize: "10px",
+            }}
+          >
+            {character.rosterStatus === "reserve" ? "RESERVE" : "ACTIVE"}
+          </span>
+          {character.generationMethod && (
+            <span className="badge-tag" style={{ fontSize: "10px" }}>
+              {character.generationMethod === "unearthed_arcana" ? "UA Method I" : character.generationMethod === "iron_man" ? "Iron Man" : "Standard"}
+            </span>
+          )}
         </div>
         <h2>{character.name}</h2>
         <p>
           {character.className}
           {own ? " · your character" : ""}
+          {character.originZoneId ? ` · ${character.originZoneId.replace(/_/g, " ")}` : ""}
         </p>
       </div>
       <div className="vital-grid">
@@ -3057,6 +3557,18 @@ function CharacterCard({
           <b>{character.gold}</b>
         </div>
       </div>
+      {canSwap && onSwap && (
+        <div style={{ margin: "8px 0" }}>
+          <button
+            type="button"
+            className="primary small-btn"
+            style={{ width: "100%", padding: "6px 12px", background: "var(--ember)" }}
+            onClick={onSwap}
+          >
+            🔄 Swap to Active Roster
+          </button>
+        </div>
+      )}
       {canEdit && (
         <div className="hp-controls">
           <button
@@ -3369,8 +3881,13 @@ function CharacterCard({
       </div>
 
       <details className="card-drawer">
-        <summary>Cultural anchors</summary>
+        <summary>Cultural anchors & Origins</summary>
         <div className="drawer-body">
+          {character.originZoneId && (
+            <p>
+              <b>Origin Zone:</b> {character.originZoneId.replace(/_/g, " ")}
+            </p>
+          )}
           <p>
             <b>Homeland:</b> {character.anchors.homeland || "Unwritten"}
           </p>
@@ -3380,6 +3897,18 @@ function CharacterCard({
           <p>
             <b>Nemesis:</b> {character.anchors.nemesis || "Unwritten"}
           </p>
+          {character.generationDice && Object.keys(character.generationDice).length > 0 && (
+            <div style={{ marginTop: "6px" }}>
+              <b>Generation Dice:</b>
+              <div style={{ fontSize: "11px", color: "var(--muted)", marginTop: "2px" }}>
+                {Object.entries(character.generationDice).map(([stat, dice]) => (
+                  <span key={stat} style={{ marginRight: "8px", display: "inline-block" }}>
+                    {stat.toUpperCase()}: [{dice.join(", ")}]
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </details>
     </article>

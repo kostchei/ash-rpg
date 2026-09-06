@@ -107,6 +107,8 @@ nav:
       - "Emergent Campaign & Escalation": oracles/05_emergent_campaign_engine.md
       - "NPC & Demographics Engine": oracles/06_npc_generator.md
   - "Adventure Paths":
+      - "Adventure Path Engines": oracles/07_adventure_path_engines.md
+      - "Populating Adventure Path Engines": oracles/08_adventure_path_population.md
       - "Adventure Path 1: Domains of Dread": adventure_paths/01_domains_of_dread.md
       - "Adventure Path 2: The Mind Below": adventure_paths/02_the_mind_below.md
       - "Adventure Path 3: The Vanishing Middle": adventure_paths/03_the_vanishing_middle.md

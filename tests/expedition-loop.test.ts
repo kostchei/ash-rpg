@@ -236,7 +236,7 @@ describe("Complete Expedition Loop & Adventure Path Integration", () => {
   it("7. Adventure site delve: site entry binds rooms, deed resolution is idempotent and updates world state", async () => {
     // 7.1 Enter site
     const enterRes = await new Promise<any>((resolve) => {
-      hostSocket.emit("site:enter", { siteId: waterworksSiteId }, (ack: any) => resolve(ack));
+      hostSocket.emit("site:enter", { siteId: waterworksSiteId, ...mutation() }, (ack: any) => resolve(ack));
     });
     expect(enterRes.ok).toBe(true);
 
@@ -312,7 +312,7 @@ describe("Complete Expedition Loop & Adventure Path Integration", () => {
 
   it("8. Re-entering site preserves existing site rooms without duplication", async () => {
     const enterRes = await new Promise<any>((resolve) => {
-      hostSocket.emit("site:enter", { siteId: waterworksSiteId }, (ack: any) => resolve(ack));
+      hostSocket.emit("site:enter", { siteId: waterworksSiteId, ...mutation() }, (ack: any) => resolve(ack));
     });
     expect(enterRes.ok).toBe(true);
 
@@ -333,7 +333,7 @@ describe("Complete Expedition Loop & Adventure Path Integration", () => {
 
     // Attempting sanctuary rest while in the wild is rejected
     const wildRest = await new Promise<any>((resolve) => {
-      hostSocket.emit("party:rest", {}, (ack: any) => resolve(ack));
+      hostSocket.emit("party:rest", { ...mutation() }, (ack: any) => resolve(ack));
     });
     expect(wildRest.ok).toBe(false);
     expect(wildRest.error).toMatch(/sanctuary/i);
@@ -346,7 +346,7 @@ describe("Complete Expedition Loop & Adventure Path Integration", () => {
     // Earlier random travel may leave an encounter pending; resolve it before resting.
     server.db.db.prepare("UPDATE encounters SET status = 'resolved' WHERE campaign_id = 1").run();
     const havenRest = await new Promise<any>((resolve) => {
-      hostSocket.emit("party:rest", {}, (ack: any) => resolve(ack));
+      hostSocket.emit("party:rest", { ...mutation() }, (ack: any) => resolve(ack));
     });
     expect(havenRest.ok).toBe(true);
 
@@ -409,6 +409,7 @@ describe("Complete Expedition Loop & Adventure Path Integration", () => {
           tasks: [
             { characterId: char.id, task: "cook" },
           ],
+          ...mutation(),
         },
         (ack: any) => resolve(ack),
       );
@@ -553,7 +554,7 @@ describe("Complete Expedition Loop & Adventure Path Integration", () => {
     server.db.setPartyLocation(1, { q: Number(siteParts[2]), r: Number(siteParts[3]), layerId: "surface" });
 
     const enterDungeonRes = await new Promise<any>((resolve) => {
-      playerSocket.emit("site:enter", { siteId: waterworksSiteId }, (ack: any) => resolve(ack));
+      playerSocket.emit("site:enter", { siteId: waterworksSiteId, ...mutation() }, (ack: any) => resolve(ack));
     });
     expect(enterDungeonRes.ok).toBe(true);
 
@@ -567,7 +568,7 @@ describe("Complete Expedition Loop & Adventure Path Integration", () => {
 
     // Caller moves from room 1 to room 3 (open passage)
     const moveRes = await new Promise<any>((resolve) => {
-      playerSocket.emit("dungeon:move_room", { toRoomId: 3 }, (ack: any) => resolve(ack));
+      playerSocket.emit("dungeon:move_room", { toRoomId: 3, ...mutation() }, (ack: any) => resolve(ack));
     });
     expect(moveRes.ok).toBe(true);
     expect(moveRes.graph.currentRoomId).toBe(3);
@@ -626,7 +627,7 @@ describe("Complete Expedition Loop & Adventure Path Integration", () => {
     const dmgRes = await new Promise<any>((resolve) => {
       hostSocket.emit(
         "combat:update_hp",
-        { combatantId: pcCombatant.id, delta: -pcCombatant.currentHp },
+        { combatantId: pcCombatant.id, delta: -pcCombatant.currentHp, ...mutation() },
         (ack: any) => resolve(ack),
       );
     });
@@ -635,7 +636,7 @@ describe("Complete Expedition Loop & Adventure Path Integration", () => {
     const deathSaveRes = await new Promise<any>((resolve) => {
       hostSocket.emit(
         "combat:death_save",
-        { combatantId: pcCombatant.id, diceMode: "physical", physicalRoll: 18 },
+        { combatantId: pcCombatant.id, diceMode: "physical", physicalRoll: 18, ...mutation() },
         (ack: any) => resolve(ack),
       );
     });
@@ -646,7 +647,7 @@ describe("Complete Expedition Loop & Adventure Path Integration", () => {
     await new Promise<any>((resolve) => {
       hostSocket.emit(
         "combat:update_hp",
-        { combatantId: monsterCombatant.id, delta: -monsterCombatant.currentHp },
+        { combatantId: monsterCombatant.id, delta: -monsterCombatant.currentHp, ...mutation() },
         (ack: any) => resolve(ack),
       );
     });
@@ -664,7 +665,7 @@ describe("Complete Expedition Loop & Adventure Path Integration", () => {
     const splitCoinsRes = await new Promise<any>((resolve) => {
       playerSocket.emit(
         "treasure:allocate",
-        { rewardId, allocationType: "split_coins" },
+        { rewardId, allocationType: "split_coins", ...mutation() },
         (ack: any) => resolve(ack),
       );
     });

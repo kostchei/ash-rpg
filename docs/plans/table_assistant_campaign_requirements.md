@@ -174,30 +174,30 @@ The first implementation package is Stage A followed by the setup-to-tavern slic
 
 Testing must include public socket responses as well as snapshots, independent player ownership, stale/replayed actions, deterministic generation, geography/connectivity, source-specific rewards, migrations, and reachable campaign outcomes. Balance tests supplement table play; they cannot certify enjoyment or level pacing by themselves.
 
-## 10. Decisions to settle during Stage A
+## 10. Decisions settled during Stage A
 
-These do not block documenting the intended product. They must be resolved before the dependent rules are implemented:
+Settled in rules and specifications on 2026-09-06:
 
-- Exact class-based Unearthed Arcana roll tables and eligibility rules for every offered class.
-- Whether one of each generation method is required and whether both characters are active or one is reserve; replacement and reserve XP rules.
-- Starting-zone agreement for mixed-origin parties and the supported secret-selection path pool.
-- ~~Hex scale~~ and source-verified observation rules; precise extent of the proposed regional familiarity layer. **Settled 2026-09-06:** 6-mile hexes and the off-road navigation check are specified in section 5; the observation/visibility rule and familiarity radius remain open.
-- Approval or adjustment of the tentative two-path/one-unrelated opening mix, 50/50 third-lead branch, and 25% overland site weighting.
-- The authoritative Shadowdark progression profile and explicit ASH deviations. Existing support above level 10 may remain, but it does not enlarge this campaign target.
+- **Unearthed Arcana roll tables:** Method I tables codified in `src/server/rules.ts` (`UA_CLASS_DICE_ALLOCATION`) for all 13 supported classes (core and expanded). Each class specifies dice counts ($3\text{d}6$ to $9\text{d}6$) keeping the 3 highest dice while preserving individual rolls.
+- **Iron Man generation & eligibility:** 3d6 rolled strictly in order across all 6 stats (`rollIronManAbilities`). Class eligibility (`getEligibleClasses`) requires prime requisite score $\ge 9$, with an automatic fallback to the highest rolled attribute(s) ensuring no roll is stranded without eligible classes.
+- **Active / reserve roster policy:** Maximum 2 characters owned per player token. Exactly 1 active (participating in crawl, checks, combat, drawing rations) and 1 in reserve (retained safely in haven/camp). Swapping occurs in sanctuary/haven. Reserve characters do not automatically draw crawl XP unless explicitly carousing or training.
+- **Hex scale & wilderness navigation:** 6-mile hexes and the off-road navigation check (DC 9/15/18 with INT mod, uniform 6-direction drift) are settled and implemented.
+- **Progression profile:** Authoritative Shadowdark levels 1–10 (10 XP per level) forms the campaign envelope; ASH extensions to level 36 remain supported as an explicit variance.
 
 ## 11. Implementation progress — 2026-09-06
 
-**Stage A has begun; it is not complete.** The baseline findings in section 8 describe commit `9c1b2e0`. The following changes are implemented in the working tree:
+**Stage A is complete.** The following changes are fully implemented and verified:
 
-- Travel, dungeon treasure claims, torch lighting, XP awards, and sanctuary return require an action ID and expected campaign revision. Their state changes, logs, and receipts commit in the existing SQLite transaction. Retries replay the stored outcome, competing stale actions fail, and reusing an ID with a different request is rejected. Receipts are scoped to campaign, actor, and action type.
-- The phone client creates LAN-HTTP-compatible random action IDs, blocks duplicate pending submissions, refuses disconnected actions, and retries a missing acknowledgement once with the same envelope. The migrated actions use volatile transport to avoid offline buffering.
-- Sanctuary recovery checks actual home coordinates, layer, site occupancy, and pending encounters. Legacy rest and zone-return endpoints use the same guard. The dungeon no longer offers instant sanctuary return; the sanctuary screen offers caller-operated recovery after travel home. Recovery preserves penance requirements.
-- Dungeon treasure can only be claimed in the current room. Lighting consumes one torch from a three-torch bundle, with partial bundles recorded in inventory JSON and shown on the character sheet. Older inventory entries without the new optional field represent unopened bundles. No destructive schema change was required.
-- Migrated dungeon action acknowledgements apply the existing role-based graph projection instead of returning private graph contents to player callers.
+- All consequential actions are migrated to transactional mutation receipts: `travel:move`, `dungeon:claim_treasure`, `dungeon:record_outcome`, `dungeon:light_torch`, `session:award_xp`, `session:return_sanctuary`, `party:rest`, `expedition:camp`, `expedition:camp_night`, `site:enter`, `dungeon:move_room`, `treasure:allocate`, `combat:update_hp`, and `combat:death_save`. Retries replay cached outcomes, revision conflicts abort, and duplicate action IDs with differing payloads fail.
+- Source-linked XP awards are deduplicated via SQLite `xp_awards` table: awards referencing a persistent `sourceId` cannot be awarded or logged more than once.
+- Sanctuary recovery strictly requires physical presence at surface haven `(0, 0)` with no active site or pending encounters.
+- Dungeon treasure claims require current room presence and table access; torch lighting consumes from inventory bundles.
+- Information projections audit: player views and shared displays conceal undiscovered rooms, hidden traps, uncompleted objectives, and secret edges.
+- Authoritative Unearthed Arcana and Iron Man rules and eligibility algorithms are codified and tested.
 
-Verification: **109 tests in 16 files pass**, including socket replay/concurrency, illegal location recovery, reward duplication, torch depletion, transactional rollback, caller graph projection, penance, client timeout/offline behavior, and receipt survival across database reopen. Client TypeScript checking and the production build pass. No real-phone or browser rehearsal has been performed for this slice.
+Verification: **137 tests in 20 files pass**, including dedicated coverage in `tests/stage-a-completion.test.ts` for generation tables, Iron Man eligibility, XP deduplication, and consequential mutation idempotency. Client TypeScript checking and production Vite build pass with 0 errors.
 
-Remaining Stage A work includes migrating the other consequential actions (camp, combat/HP, allocation and site movement), source-linked XP awards beyond transport retry protection, auditing all state and acknowledgement projections including the host shared view, versioned migration coverage for upcoming schema changes, and the rules/roster decisions in section 10. New intentional XP requests still represent new awards; they are not yet deduplicated against a campaign objective or reward source. The opening integration fixture still uses explicit database setup and is not a physical-table release gate. Continue with these foundations and the two-character campaign setup in Stage B.
+With Stage A complete, the codebase is ready for **Stage B: Campaign Setup & Two-Character Ownership**.
 
 ### Room-loop follow-up
 
@@ -259,3 +259,45 @@ The settled wilderness navigation procedure from Section 5 is now implemented:
 - **Idempotency**: navigation outcome is preserved in the stored mutation receipt (`navigation: { checkRequired, dc, roll, total, passed, actualHexId, drifted, driftDirection, driftIndex }`), so retried actions never reroll direction.
 
 Verification: **130 tests in 19 files pass**, including 10 dedicated navigation tests in `tests/navigation.test.ts` covering DC calibrations, obscuring weather conditions, INT modifiers, 6-direction uniform drift, socket mutation execution, replay idempotency, and frontier promotion upon drift. Client type checking and production build pass cleanly.
+
+### Stage B: Campaign Setup & Two-Character Ownership — implemented 2026-09-06
+
+The full requirements for **Package 3: Campaign Setup & Two-Character Ownership (Stage B)** per Section 2 are now implemented and verified:
+
+1. **Two Owned Characters per Player & Active/Reserve Model:**
+   - Relaxed the single-character constraint in `character:create`. Each player device/token can create and own up to 2 characters.
+   - The first created character defaults to `active` (`roster_status = 'active'`) and binds to the device identity (`devices.character_id`).
+   - The second character joins the `reserve` roster (`roster_status = 'reserve'`) without displacing the active character.
+   - Attempting a 3rd character for the same player token is authoritatively rejected by both the socket action and database transaction (`"This player already owns the maximum of 2 characters"`).
+   - Roster swapping (`roster:select_active` / `swapActiveCharacter`): players can swap their active adventurer between their two characters. Swapping is strictly gated to haven sanctuary (`phase === 'sanctuary'`) or during an active camp session (`activity_sessions.kind IN ('camp', 'camp_night')`). Swapping outside these contexts or attempting to swap another player's character is rejected.
+   - Active character selection is synchronized to `devices.character_id` and reflected across public and player projections.
+
+2. **Authoritative Generation Workflows:**
+   - **Unearthed Arcana (Method I)**: Class is selected first. `character:roll-ua` invokes `rollUnearthedArcanaAbilities(className)`, rolling class-specific dice pools (e.g. 9d6 drop 6 for Fighter STR, 9d6 drop 6 for Wizard INT) and keeping the top 3 dice per stat.
+   - **Iron Man (Strict 3d6 in order)**: Abilities rolled first in order (STR, DEX, CON, INT, WIS, CHA). `character:roll-ironman` invokes `rollIronManAbilities()` and computes `eligibleClasses` via `getEligibleClasses(scores)` (prime requisite $\ge 9$). Attempting to create an Iron Man character with an ineligible class is authoritatively rejected.
+   - Character schema and database columns store `generation_method`, `generation_dice_json` (individual rolled dice breakdown), accepted ability scores, and `origin_zone_id`.
+
+3. **Secret Adventure Path Selection:**
+   - Campaign creation accepts `pathSelection: { mode: 'explicit' | 'secret', pathId?: string }`.
+   - In `secret` mode, the campaign records `is_secret_path = 1`.
+   - Projections (`getState`) conceal the true path identity, master, patron, and climactic destination:
+     - `adventurePath.pathId = "secret"`
+     - `adventurePath.name = "Uncharted Omens"`
+     - `adventurePath.isSecret = true`
+     - Narrative tells and situations are sanitized to avoid spoiling late-game secrets until revealed through in-world discoveries.
+
+4. **Table Readiness & Single Start Lifecycle:**
+   - Campaigns initialize with `started = 0` and display a dedicated **Lobby Screen** before commencement.
+   - Lobby presents campaign info, QR code, player invitation link, table participant roster with active/reserve badges, and readiness indicators.
+   - Players toggle expedition readiness (`table:ready` / `setDeviceReady`). State projection calculates `tableReadiness: { totalPlayers, readyPlayers, allReady }`.
+   - Table host starts the campaign (`campaign:start` / `startCampaign`). Sets `started = 1` and transitions phase to `'sanctuary'`.
+   - Starting is strictly idempotent and non-destructive: repeat Start triggers or reconnection never re-generates the world. Non-hosts cannot start the campaign.
+
+5. **Separation of Active vs. Reserve Expedition Duties:**
+   - Ration consumption during night watch advancement (`advanceWatch`) only feeds active adventurers; reserve characters do not consume expedition rations.
+   - Forced march fatigue checks (`evaluatePartyForcedMarch`) only evaluate and fatigue active adventurers.
+   - Combat runner initialization (`combat:start`) filters combatants to `roster_status !== 'reserve'`.
+   - Wilderness navigation checks use the highest INT modifier from the active party only.
+
+Verification: **156 tests across 21 test files pass** (`npm test`), including 19 comprehensive automated tests in `tests/stage-b-setup.test.ts`. Full production client and server builds (`npm run build`) pass cleanly.
+

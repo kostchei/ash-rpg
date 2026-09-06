@@ -113,6 +113,7 @@ export interface PublicAdventurePathSummary {
   } | null;
   narrativeTells: string[];
   revealedMethods: string[];
+  isSecret?: boolean;
   hostDetails?: {
     startingZoneId: string;
     caveZoneId: string;
@@ -174,7 +175,17 @@ export interface CampaignSummary {
   activeSession?: ActivitySession | null;
   activeDungeon?: DungeonGraphState | null;
   activeCombat?: CombatState | null;
+  started?: boolean;
+  isSecretPath?: boolean;
+  tableReadiness?: {
+    totalPlayers: number;
+    readyPlayers: number;
+    allReady: boolean;
+  };
 }
+
+export type AbilityKey = "str" | "dex" | "con" | "int" | "wis" | "cha";
+export type AbilityScores = Record<AbilityKey, number>;
 
 export interface Character {
   id: number;
@@ -187,7 +198,7 @@ export interface Character {
   ac: number;
   gold: number;
   gearSlots: number;
-  abilities: Record<"str" | "dex" | "con" | "int" | "wis" | "cha", number>;
+  abilities: AbilityScores;
   anchors: { homeland: string; landmark: string; nemesis: string };
   talents?: string[];
   xp?: number;
@@ -200,6 +211,10 @@ export interface Character {
   classChoices?: Record<string, any>;
   deathStrikes?: number;
   stabilized?: boolean;
+  rosterStatus?: "active" | "reserve";
+  generationMethod?: "unearthed_arcana" | "iron_man" | "standard";
+  generationDice?: Record<string, number[]>;
+  originZoneId?: string;
 }
 
 export interface PublicConnectionSummary {
@@ -432,9 +447,16 @@ export interface WikiNote {
   createdAt: string;
 }
 
+export interface TablePlayerSummary {
+  token: string;
+  ready: boolean;
+  characterCount: number;
+  activeCharacterName?: string;
+}
+
 export interface CampaignState {
   campaign: CampaignSummary;
-  me: { role: Role; characterId: number | null; isCaller?: boolean };
+  me: { role: Role; characterId: number | null; isCaller?: boolean; ready?: boolean; token?: string };
   characters: Character[];
   hexes: PublicHex[];
   rooms: DungeonRoom[];
@@ -448,6 +470,7 @@ export interface CampaignState {
   activeDungeon?: DungeonGraphState | null;
   activeCombat?: CombatState | null;
   rewards?: RewardRecord[];
+  tablePlayers?: TablePlayerSummary[];
 }
 
 export interface ItemDefinition {

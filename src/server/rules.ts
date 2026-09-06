@@ -1,8 +1,8 @@
 import { randomInt } from "node:crypto";
 import { readFileSync, existsSync } from "node:fs";
 import { resolve } from "node:path";
-import { ARCANE_MISHAPS, CLASSES, ITEMS, SPELLS } from "../shared/content.js";
-import type { Character, EncounterMonster, InventoryItem, SpellDefinition } from "../shared/types.js";
+import { ABILITY_KEYS, ARCANE_MISHAPS, CLASSES, ITEMS, SPELLS } from "../shared/content.js";
+import type { AbilityKey, AbilityScores, Character, EncounterMonster, InventoryItem, SpellDefinition } from "../shared/types.js";
 import { HEX_DIRECTIONS } from "./frontier.js";
 
 export type RandomSource = (maxExclusive: number) => number;
@@ -56,6 +56,118 @@ export const abilityModifier = (score: number) =>
 
 export function rollAbilities(rng: RandomSource = systemRandom) {
   return Array.from({ length: 6 }, () => rollDice("3d6", rng).total);
+}
+
+export const UA_CLASS_DICE_ALLOCATION: Record<string, Record<AbilityKey, number>> = {
+  Fighter: { str: 9, con: 8, dex: 7, int: 5, wis: 4, cha: 3 },
+  Thief: { dex: 9, cha: 8, int: 7, con: 6, str: 5, wis: 4 },
+  Priest: { wis: 9, cha: 8, con: 7, str: 6, int: 5, dex: 4 },
+  Wizard: { int: 9, wis: 7, dex: 6, con: 5, cha: 4, str: 3 },
+  Delver: { con: 8, dex: 8, str: 7, wis: 6, int: 5, cha: 4 },
+  "Ras-Godai": { dex: 9, int: 7, str: 6, con: 6, wis: 5, cha: 4 },
+  Druid: { wis: 9, cha: 8, con: 7, int: 6, dex: 5, str: 5 },
+  Alchemist: { int: 9, dex: 7, con: 6, wis: 6, cha: 5, str: 4 },
+  Sage: { int: 9, wis: 8, cha: 6, con: 5, dex: 5, str: 3 },
+  Monk: { dex: 8, wis: 8, str: 7, con: 7, int: 5, cha: 4 },
+  Bard: { cha: 9, dex: 8, int: 7, str: 6, con: 6, wis: 5 },
+  Duelist: { dex: 9, cha: 8, con: 7, str: 6, int: 5, wis: 4 },
+  Ranger: { str: 8, wis: 8, con: 7, dex: 7, int: 6, cha: 5 },
+};
+
+export function rollUnearthedArcanaAbilities(
+  className: string,
+  rng: RandomSource = systemRandom,
+): { scores: AbilityScores; dice: Record<AbilityKey, number[]> } {
+  const allocation = UA_CLASS_DICE_ALLOCATION[className] ?? {
+    str: 3,
+    dex: 3,
+    con: 3,
+    int: 3,
+    wis: 3,
+    cha: 3,
+  };
+  const scores: Partial<AbilityScores> = {};
+  const dice: Record<AbilityKey, number[]> = {
+    str: [],
+    dex: [],
+    con: [],
+    int: [],
+    wis: [],
+    cha: [],
+  };
+
+  for (const key of ABILITY_KEYS) {
+    const count = allocation[key] ?? 3;
+    const rolls = Array.from({ length: count }, () => rollDie(6, rng));
+    dice[key] = [...rolls];
+    const highest3 = [...rolls].sort((a, b) => b - a).slice(0, 3);
+    scores[key] = highest3.reduce((sum, val) => sum + val, 0);
+  }
+
+  return {
+    scores: scores as AbilityScores,
+    dice,
+  };
+}
+
+export function getEligibleClasses(scores: AbilityScores): string[] {
+  const eligible: string[] = [];
+
+  if (scores.str >= 9) eligible.push("Fighter");
+  if (scores.dex >= 9) eligible.push("Thief");
+  if (scores.wis >= 9) eligible.push("Priest");
+  if (scores.int >= 9) eligible.push("Wizard");
+  if (scores.con >= 9 || scores.str >= 9) eligible.push("Delver");
+  if (scores.dex >= 9) eligible.push("Ras-Godai");
+  if (scores.wis >= 9) eligible.push("Druid");
+  if (scores.int >= 9) eligible.push("Alchemist");
+  if (scores.int >= 9) eligible.push("Sage");
+  if (scores.dex >= 9 && scores.wis >= 9) eligible.push("Monk");
+  if (scores.cha >= 9) eligible.push("Bard");
+  if (scores.dex >= 9) eligible.push("Duelist");
+  if (scores.str >= 9 && scores.wis >= 9) eligible.push("Ranger");
+
+  if (eligible.length === 0) {
+    const highestVal = Math.max(...Object.values(scores));
+    const highestKeys = ABILITY_KEYS.filter((k) => scores[k] === highestVal);
+    if (highestKeys.includes("str")) eligible.push("Fighter", "Delver");
+    if (highestKeys.includes("dex")) eligible.push("Thief", "Ras-Godai", "Duelist");
+    if (highestKeys.includes("wis")) eligible.push("Priest", "Druid");
+    if (highestKeys.includes("int")) eligible.push("Wizard", "Alchemist", "Sage");
+    if (highestKeys.includes("con")) eligible.push("Delver");
+    if (highestKeys.includes("cha")) eligible.push("Bard");
+  }
+
+  return Array.from(new Set(eligible));
+}
+
+export function rollIronManAbilities(
+  rng: RandomSource = systemRandom,
+): { scores: AbilityScores; dice: Record<AbilityKey, number[]>; eligibleClasses: string[] } {
+  const scores: Partial<AbilityScores> = {};
+  const dice: Record<AbilityKey, number[]> = {
+    str: [],
+    dex: [],
+    con: [],
+    int: [],
+    wis: [],
+    cha: [],
+  };
+
+  for (const key of ABILITY_KEYS) {
+    const rolls = [rollDie(6, rng), rollDie(6, rng), rollDie(6, rng)];
+    dice[key] = rolls;
+    scores[key] = rolls.reduce((sum, val) => sum + val, 0);
+  }
+
+  const finalScores = scores as AbilityScores;
+  const eligibleClasses = getEligibleClasses(finalScores);
+
+  return {
+    scores: finalScores,
+    dice,
+    eligibleClasses,
+  };
 }
 
 const ORACLE_TARGETS = {
