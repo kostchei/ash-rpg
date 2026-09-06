@@ -9,14 +9,20 @@ import { resolve } from "node:path";
 import QRCode from "qrcode";
 import { Server as SocketServer, type Socket } from "socket.io";
 import { z } from "zod";
-import { ANCESTRIES, CLASSES } from "../shared/content.js";
+import { ANCESTRIES, CLASSES, ITEMS, SPELLS } from "../shared/content.js";
 import { BORDER_PAIRINGS, validateBorderPairing, ZONE_PROFILES } from "../shared/zone-profiles.js";
 import type {
+  ActivitySession,
   CampaignPhase,
+  Combatant,
+  CombatState,
+  DungeonGraphState,
   EncounterMonster,
   ExpeditionObjective,
+  InventoryItem,
   PublicConnectionSummary,
   RegionGenerationConfig,
+  RewardRecord,
   Role,
 } from "../shared/types.js";
 import { AshDatabase } from "./database.js";
@@ -27,14 +33,22 @@ import { generateSettlement } from "./generators/settlement.js";
 import {
   abilityModifier,
   binaryOracle,
+  calculateAttackBonus,
+  calculateBackstabBonus,
+  calculateCarriedSlots,
+  calculateDerivedAc,
+  calculateGearSlots,
   calculateTravelWatches,
   evaluateWatchFatigue,
   generateDungeonRoom,
   generateMonsterVariant,
+  generateTreasureReward,
   levelUpCharacter,
   loreTier,
   moraleRoll,
   reactionRoll,
+  resolveInitiativeRoll,
+  resolveSpellCast,
   rollAbilities,
   rollClassTalent,
   rollDice,
@@ -347,6 +361,7 @@ export async function createAshServer(options: AshServerOptions = {}) {
           identity.role,
           identity.characterId,
           `${baseUrl}/play?code=${identity.code}`,
+          identity.token,
         ),
       );
     }
@@ -362,6 +377,7 @@ export async function createAshServer(options: AshServerOptions = {}) {
         identity.role,
         identity.characterId,
         `${baseUrl}/play?code=${identity.code}`,
+        identity.token,
       ),
     );
 
@@ -390,8 +406,94 @@ export async function createAshServer(options: AshServerOptions = {}) {
       if (identity.role !== "host")
         throw new Error("Only the table host can do that");
     };
+    const callerOrHostOnly = () => {
+      if (identity.role === "host") return;
+      const callerToken = db.getCallerToken(identity.campaignId);
+      if (callerToken && callerToken === identity.token) return;
+      throw new Error("Only the designated Caller or Table Host can commit this action");
+    };
     const actor = () =>
       actorName(db, identity, `${baseUrl}/play?code=${identity.code}`);
+
+    socket.on(
+      "campaign:set_caller",
+      action((raw: unknown) => {
+        hostOnly();
+        const payload = z.object({ callerToken: z.string().nullable() }).parse(raw);
+        db.setCallerToken(identity.campaignId, payload.callerToken);
+        db.addRoll(identity.campaignId, {
+          actor: "Table",
+          kind: "campaign",
+          label: "Caller Designated",
+          dice: "—",
+          total: 0,
+          detail: payload.callerToken ? "A party member was designated as Caller." : "Caller designation revoked.",
+        });
+      }),
+    );
+
+    socket.on(
+      "host:correct",
+      action((raw: unknown) => {
+        hostOnly();
+        const payload = z
+          .object({
+            characterId: z.number().optional(),
+            hp: z.number().optional(),
+            rations: z.number().optional(),
+            day: z.number().optional(),
+            watch: z.number().min(1).max(4).optional(),
+            weather: z.string().optional(),
+            note: z.string().optional(),
+          })
+          .parse(raw);
+
+        if (payload.characterId !== undefined && payload.hp !== undefined) {
+          db.updateCharacterHp(identity.campaignId, payload.characterId, payload.hp);
+        }
+        if (
+          payload.rations !== undefined ||
+          payload.day !== undefined ||
+          payload.watch !== undefined ||
+          payload.weather !== undefined
+        ) {
+          const updates: string[] = [];
+          const values: any[] = [];
+          if (payload.rations !== undefined) {
+            updates.push("rations = ?");
+            values.push(payload.rations);
+          }
+          if (payload.day !== undefined) {
+            updates.push("day = ?");
+            values.push(payload.day);
+          }
+          if (payload.watch !== undefined) {
+            updates.push("watch = ?");
+            values.push(payload.watch);
+          }
+          if (payload.weather !== undefined) {
+            updates.push("weather = ?");
+            values.push(payload.weather);
+          }
+          if (updates.length > 0) {
+            values.push(identity.campaignId);
+            db.db
+              .prepare(`UPDATE campaigns SET ${updates.join(", ")}, revision = revision + 1 WHERE id = ?`)
+              .run(...values);
+          }
+        }
+        if (payload.note) {
+          db.addRoll(identity.campaignId, {
+            actor: "Host",
+            kind: "correction",
+            label: "Host Adjudication",
+            dice: "—",
+            total: 0,
+            detail: payload.note,
+          });
+        }
+      }),
+    );
 
     // --- Phase & Zone State Machine Events ---
 
@@ -867,6 +969,709 @@ export async function createAshServer(options: AshServerOptions = {}) {
       }),
     );
 
+    // --- Inventory & Equipment Management ---
+
+    socket.on(
+      "inventory:equip",
+      action((raw: unknown) => {
+        const payload = z.object({ characterId: z.number().int(), instanceId: z.string() }).parse(raw);
+        if (identity.role !== "host" && payload.characterId !== identity.characterId) {
+          throw new Error("You can only manage your own inventory");
+        }
+        const state = db.getState(identity.campaignId, "host", null, "");
+        const character = state.characters.find((c) => c.id === payload.characterId);
+        if (!character) throw new Error("Character not found");
+
+        const inv = [...(character.inventory ?? [])];
+        const itemIndex = inv.findIndex((i) => i.instanceId === payload.instanceId);
+        if (itemIndex === -1) throw new Error("Item not found in inventory");
+
+        const item = inv[itemIndex];
+        const itemDef = ITEMS.find((it) => it.id === item.itemId);
+        const kind = item.kind || itemDef?.kind;
+
+        if (kind === "armor") {
+          for (let i = 0; i < inv.length; i++) {
+            if (inv[i].kind === "armor" || ITEMS.find((it) => it.id === inv[i].itemId)?.kind === "armor") {
+              inv[i] = { ...inv[i], equipped: false };
+            }
+          }
+        }
+        if (kind === "shield") {
+          for (let i = 0; i < inv.length; i++) {
+            if (inv[i].kind === "shield" || ITEMS.find((it) => it.id === inv[i].itemId)?.kind === "shield") {
+              inv[i] = { ...inv[i], equipped: false };
+            }
+          }
+        }
+
+        inv[itemIndex] = { ...item, equipped: true };
+        const { ac } = calculateDerivedAc(inv, abilityModifier(character.abilities.dex));
+        db.updateCharacter(identity.campaignId, { ...character, inventory: inv, ac });
+      }),
+    );
+
+    socket.on(
+      "inventory:unequip",
+      action((raw: unknown) => {
+        const payload = z.object({ characterId: z.number().int(), instanceId: z.string() }).parse(raw);
+        if (identity.role !== "host" && payload.characterId !== identity.characterId) {
+          throw new Error("You can only manage your own inventory");
+        }
+        const state = db.getState(identity.campaignId, "host", null, "");
+        const character = state.characters.find((c) => c.id === payload.characterId);
+        if (!character) throw new Error("Character not found");
+
+        const inv = [...(character.inventory ?? [])];
+        const itemIndex = inv.findIndex((i) => i.instanceId === payload.instanceId);
+        if (itemIndex === -1) throw new Error("Item not found in inventory");
+
+        inv[itemIndex] = { ...inv[itemIndex], equipped: false };
+        const { ac } = calculateDerivedAc(inv, abilityModifier(character.abilities.dex));
+        db.updateCharacter(identity.campaignId, { ...character, inventory: inv, ac });
+      }),
+    );
+
+    socket.on(
+      "inventory:drop",
+      action((raw: unknown) => {
+        const payload = z.object({ characterId: z.number().int(), instanceId: z.string() }).parse(raw);
+        if (identity.role !== "host" && payload.characterId !== identity.characterId) {
+          throw new Error("You can only manage your own inventory");
+        }
+        const state = db.getState(identity.campaignId, "host", null, "");
+        const character = state.characters.find((c) => c.id === payload.characterId);
+        if (!character) throw new Error("Character not found");
+
+        const inv = (character.inventory ?? []).filter((i) => i.instanceId !== payload.instanceId);
+        const { ac } = calculateDerivedAc(inv, abilityModifier(character.abilities.dex));
+        db.updateCharacter(identity.campaignId, { ...character, inventory: inv, ac });
+      }),
+    );
+
+    socket.on(
+      "inventory:add",
+      action((raw: unknown) => {
+        const payload = z
+          .object({
+            characterId: z.number().int(),
+            itemId: z.string().min(1),
+            quantity: z.number().int().min(1).default(1),
+          })
+          .parse(raw);
+        if (identity.role !== "host" && payload.characterId !== identity.characterId) {
+          throw new Error("You can only add items to your own inventory");
+        }
+        const state = db.getState(identity.campaignId, "host", null, "");
+        const character = state.characters.find((c) => c.id === payload.characterId);
+        if (!character) throw new Error("Character not found");
+
+        const itemDef = ITEMS.find((it) => it.id === payload.itemId);
+        const newItem = {
+          instanceId: randomInt(100000, 999999).toString(),
+          itemId: payload.itemId,
+          name: itemDef?.name ?? payload.itemId,
+          kind: itemDef?.kind ?? "gear",
+          slots: itemDef?.slots ?? 1,
+          equipped: false,
+          quantity: payload.quantity,
+          damage: itemDef?.damage,
+          properties: itemDef?.properties,
+          baseAc: itemDef?.baseAc,
+          acBonus: itemDef?.acBonus,
+          maxDexMod: itemDef?.maxDexMod,
+        };
+
+        const inv = [...(character.inventory ?? []), newItem];
+        db.updateCharacter(identity.campaignId, { ...character, inventory: inv });
+      }),
+    );
+
+    // --- Dual-Mode Contextual Rolls ---
+
+    socket.on(
+      "roll:contextual",
+      action((raw: unknown) => {
+        const payload = z
+          .object({
+            characterId: z.number().int().optional(),
+            checkType: z.enum([
+              "ability",
+              "save",
+              "melee_attack",
+              "ranged_attack",
+              "damage",
+              "spellcast",
+              "backstab",
+              "turn_undead",
+              "custom",
+            ]),
+            ability: z.enum(["str", "dex", "con", "int", "wis", "cha"]).optional(),
+            dc: z.number().optional(),
+            advantageMode: z.enum(["normal", "advantage", "disadvantage"]).default("normal"),
+            diceMode: z.enum(["digital", "physical"]).default("digital"),
+            physicalRolls: z.array(z.number().int()).optional(),
+            spellId: z.string().optional(),
+            damageDice: z.string().optional(),
+            weaponItemId: z.string().optional(),
+            label: z.string().optional(),
+          })
+          .parse(raw);
+
+        const charId = payload.characterId ?? identity.characterId;
+        const state = db.getState(identity.campaignId, "host", null, "");
+        const character = charId ? state.characters.find((c) => c.id === charId) : undefined;
+        const actorNameStr = character ? character.name : actor();
+
+        let rolls: number[] = [];
+        let d20Result = 0;
+        let modifier = 0;
+        let total = 0;
+        let label = payload.label || payload.checkType.toUpperCase();
+        let diceExpr = "1d20";
+        let detail = "";
+
+        if (
+          ["ability", "save", "melee_attack", "ranged_attack", "spellcast", "backstab", "turn_undead", "custom"].includes(
+            payload.checkType,
+          )
+        ) {
+          if (payload.diceMode === "physical" && payload.physicalRolls && payload.physicalRolls.length > 0) {
+            rolls = payload.physicalRolls;
+          } else {
+            const count = payload.advantageMode === "normal" ? 1 : 2;
+            rolls = Array.from({ length: count }, () => rollDie(20));
+          }
+
+          if (payload.advantageMode === "advantage") {
+            d20Result = Math.max(...rolls);
+            diceExpr = `2d20 (adv) [${rolls.join(", ")}]`;
+          } else if (payload.advantageMode === "disadvantage") {
+            d20Result = Math.min(...rolls);
+            diceExpr = `2d20 (disadv) [${rolls.join(", ")}]`;
+          } else {
+            d20Result = rolls[0];
+            diceExpr = `1d20 [${d20Result}]`;
+          }
+        }
+
+        if (payload.checkType === "ability" || payload.checkType === "save") {
+          const ab = payload.ability || "str";
+          modifier = character ? abilityModifier(character.abilities[ab]) : 0;
+          total = d20Result + modifier;
+          label = `${actorNameStr}: ${ab.toUpperCase()} ${payload.checkType === "save" ? "Save" : "Check"}`;
+          detail = `${payload.diceMode === "physical" ? "(Physical) " : ""}${d20Result} + ${modifier} = ${total}`;
+          if (payload.dc !== undefined) {
+            detail += total >= payload.dc ? ` (DC ${payload.dc} Success)` : ` (DC ${payload.dc} Failure)`;
+          }
+        } else if (payload.checkType === "melee_attack" || payload.checkType === "ranged_attack") {
+          const weapon = character?.inventory?.find((i) => i.itemId === payload.weaponItemId || i.equipped);
+          const attackData =
+            character && weapon
+              ? calculateAttackBonus(character, weapon)
+              : {
+                  attackBonus: character
+                    ? abilityModifier(
+                        payload.checkType === "melee_attack" ? character.abilities.str : character.abilities.dex,
+                      )
+                    : 0,
+                  damageBonus: 0,
+                  damageDie: "1d6",
+                };
+
+          modifier = attackData.attackBonus;
+          total = d20Result + modifier;
+          const isNat20 = d20Result === 20;
+          const isNat1 = d20Result === 1;
+          label = `${actorNameStr}: ${payload.checkType === "melee_attack" ? "Melee" : "Ranged"} Attack (${weapon?.name ?? "Weapon"})`;
+          detail = `${payload.diceMode === "physical" ? "(Physical) " : ""}${d20Result} + ${modifier} = ${total}${
+            isNat20 ? " [CRITICAL HIT!]" : isNat1 ? " [CRITICAL MISS!]" : ""
+          }`;
+        } else if (payload.checkType === "backstab") {
+          const dexMod = character ? abilityModifier(character.abilities.dex) : 0;
+          modifier = dexMod + 2;
+          total = d20Result + modifier;
+          const backstabBonus = calculateBackstabBonus(character?.level ?? 1);
+          label = `${actorNameStr}: Backstab Attack`;
+          detail = `${payload.diceMode === "physical" ? "(Physical) " : ""}${d20Result} + ${modifier} = ${total}. Bonus damage on hit: ${backstabBonus.expression}`;
+        } else if (payload.checkType === "damage") {
+          const expr = payload.damageDice || "1d6";
+          if (payload.diceMode === "physical" && payload.physicalRolls && payload.physicalRolls.length > 0) {
+            const sum = payload.physicalRolls.reduce((a, b) => a + b, 0);
+            total = sum;
+            diceExpr = `${expr} (physical)`;
+            detail = `Physical roll: [${payload.physicalRolls.join(", ")}] = ${total}`;
+          } else {
+            const rolled = rollDice(expr);
+            total = rolled.total;
+            diceExpr = expr;
+            detail = `Rolled [${rolled.rolls.join(", ")}]${rolled.modifier ? ` + ${rolled.modifier}` : ""} = ${total}`;
+          }
+          label = `${actorNameStr}: Damage Roll`;
+        } else if (payload.checkType === "spellcast") {
+          const spell = SPELLS.find((s) => s.id === payload.spellId) ?? {
+            id: "spell",
+            name: "Spell",
+            tier: 1,
+            sphere: "arcane" as const,
+            range: "near" as const,
+            duration: "instant",
+            description: "",
+          };
+          const result = resolveSpellCast(
+            {
+              className: character?.className ?? "Wizard",
+              abilities: { int: character?.abilities.int ?? 10, wis: character?.abilities.wis ?? 10 },
+            },
+            spell,
+            d20Result,
+          );
+          total = result.total;
+          modifier = result.total - d20Result;
+          label = `${actorNameStr}: Cast ${spell.name} (Tier ${spell.tier})`;
+          detail = `${payload.diceMode === "physical" ? "(Physical) " : ""}Roll ${d20Result} + ${modifier} = ${total} vs DC ${result.dc}. ${
+            result.success ? "CAST SUCCESSFUL!" : "SPELL LOST UNTIL REST."
+          }`;
+          if (result.mishap) {
+            detail += ` [ARCANE MISHAP: ${result.mishap}]`;
+          }
+          if (result.penanceRequired) {
+            detail += ` [DIVINE PENANCE REQUIRED: Spell locked until penance.]`;
+          }
+
+          if (character && (!result.success || result.penanceRequired)) {
+            const spells = (character.spells ?? []).map((s) => {
+              if (s.spellId === spell.id) {
+                return {
+                  ...s,
+                  available: false,
+                  penanceRequired: result.penanceRequired,
+                };
+              }
+              return s;
+            });
+            db.updateCharacter(identity.campaignId, { ...character, spells });
+          }
+        } else if (payload.checkType === "turn_undead") {
+          const wisMod = character ? abilityModifier(character.abilities.wis) : 0;
+          modifier = wisMod;
+          total = d20Result + modifier;
+          label = `${actorNameStr}: Turn Undead`;
+          detail = `${payload.diceMode === "physical" ? "(Physical) " : ""}${d20Result} + ${modifier} = ${total}. Undead of HD <= result must check morale or flee!`;
+        } else {
+          total = d20Result;
+          detail = `${payload.diceMode === "physical" ? "(Physical) " : ""}Rolled ${d20Result}`;
+        }
+
+        db.addRoll(identity.campaignId, {
+          actor: actorNameStr,
+          kind: payload.checkType,
+          label,
+          dice: diceExpr,
+          total,
+          detail,
+        });
+
+        return { total, diceExpr, detail, label };
+      }),
+    );
+
+    socket.on(
+      "spells:restore",
+      action((raw: unknown) => {
+        const payload = z.object({ characterId: z.number().int() }).parse(raw);
+        if (identity.role !== "host" && payload.characterId !== identity.characterId) {
+          throw new Error("You can only restore spells for your own character");
+        }
+        const state = db.getState(identity.campaignId, "host", null, "");
+        const character = state.characters.find((c) => c.id === payload.characterId);
+        if (!character) throw new Error("Character not found");
+
+        const spells = (character.spells ?? []).map((s) => {
+          if (s.penanceRequired) return s;
+          return { ...s, available: true };
+        });
+        db.updateCharacter(identity.campaignId, { ...character, spells });
+        db.addRoll(identity.campaignId, {
+          actor: character.name,
+          kind: "spell",
+          label: "Spells Restored",
+          dice: "—",
+          total: 0,
+          detail: "Prepared spells refreshed through rest.",
+        });
+      }),
+    );
+
+    socket.on(
+      "priest:penance",
+      action((raw: unknown) => {
+        const payload = z.object({ characterId: z.number().int() }).parse(raw);
+        if (identity.role !== "host" && payload.characterId !== identity.characterId) {
+          throw new Error("You can only perform penance for your own character");
+        }
+        const state = db.getState(identity.campaignId, "host", null, "");
+        const character = state.characters.find((c) => c.id === payload.characterId);
+        if (!character) throw new Error("Character not found");
+
+        const spells = (character.spells ?? []).map((s) => ({
+          ...s,
+          available: true,
+          penanceRequired: false,
+        }));
+        db.updateCharacter(identity.campaignId, { ...character, spells });
+        db.addRoll(identity.campaignId, {
+          actor: character.name,
+          kind: "spell",
+          label: "Divine Penance Fulfilled",
+          dice: "—",
+          total: 0,
+          detail: "Through sacred fasting and prayer, holy favor is restored.",
+        });
+      }),
+    );
+
+    socket.on(
+      "character:choice",
+      action((raw: unknown) => {
+        const payload = z.object({ characterId: z.number().int(), choices: z.record(z.string(), z.any()) }).parse(raw);
+        if (identity.role !== "host" && payload.characterId !== identity.characterId) {
+          throw new Error("You can only configure your own character");
+        }
+        const state = db.getState(identity.campaignId, "host", null, "");
+        const character = state.characters.find((c) => c.id === payload.characterId);
+        if (!character) throw new Error("Character not found");
+
+        const classChoices = { ...(character.classChoices ?? {}), ...payload.choices };
+        db.updateCharacter(identity.campaignId, { ...character, classChoices });
+      }),
+    );
+
+    // --- Tavern & Camp Shared Sessions ---
+
+    socket.on(
+      "tavern:open",
+      action((raw: unknown) => {
+        callerOrHostOnly();
+        const sessionId = `tavern-${Date.now()}`;
+        const newSession: ActivitySession = {
+          id: sessionId,
+          campaignId: identity.campaignId,
+          kind: "tavern",
+          status: "open",
+          revision: 1,
+          choices: {},
+        };
+        db.saveActivitySession(identity.campaignId, newSession);
+        db.addRoll(identity.campaignId, {
+          actor: "Table",
+          kind: "tavern",
+          label: "Tavern Gathering Begun",
+          dice: "—",
+          total: 0,
+          detail: "The company gathers at the taproom. Choose your tavern activities.",
+        });
+        return { sessionId };
+      }),
+    );
+
+    socket.on(
+      "tavern:submit_choice",
+      action((raw: unknown) => {
+        const payload = z
+          .object({
+            characterId: z.number().int(),
+            activity: z.enum(["rest", "rumors", "carouse", "supplies"]),
+            costGp: z.number().int().min(0).default(0),
+            items: z.array(z.string()).optional(),
+          })
+          .parse(raw);
+
+        if (identity.role !== "host" && payload.characterId !== identity.characterId) {
+          throw new Error("You can only submit tavern choices for your own character");
+        }
+
+        const session = db.getActiveSession(identity.campaignId, "tavern");
+        if (!session || session.status !== "open") {
+          throw new Error("No active tavern session is open");
+        }
+
+        const state = db.getState(identity.campaignId, "host", null, "");
+        const character = state.characters.find((c) => c.id === payload.characterId);
+        if (!character) throw new Error("Character not found");
+
+        const updatedChoices = {
+          ...session.choices,
+          [String(payload.characterId)]: {
+            characterId: payload.characterId,
+            characterName: character.name,
+            activity: payload.activity,
+            costGp: payload.costGp,
+            details: { items: payload.items },
+          },
+        };
+
+        const updatedSession: ActivitySession = {
+          ...session,
+          revision: session.revision + 1,
+          choices: updatedChoices,
+        };
+        db.saveActivitySession(identity.campaignId, updatedSession);
+      }),
+    );
+
+    socket.on(
+      "tavern:resolve",
+      action((raw: unknown) => {
+        callerOrHostOnly();
+        const session = db.getActiveSession(identity.campaignId, "tavern");
+        if (!session || session.status !== "open") {
+          throw new Error("No open tavern session to resolve");
+        }
+
+        const state = db.getState(identity.campaignId, "host", null, "");
+        const logs: string[] = [];
+
+        db.db.transaction(() => {
+          for (const choice of Object.values(session.choices)) {
+            const char = state.characters.find((c) => c.id === choice.characterId);
+            if (!char) continue;
+
+            const cost = choice.costGp ?? 0;
+            const newGold = Math.max(0, char.gold - cost);
+            let newHp = char.hp;
+            let newXp = char.xp ?? 0;
+            let newInv = [...(char.inventory ?? [])];
+            let newSpells = [...(char.spells ?? [])];
+
+            if (choice.activity === "rest") {
+              newHp = Math.min(char.maxHp, char.hp + 1);
+              newSpells = newSpells.map((s) => (s.penanceRequired ? s : { ...s, available: true }));
+              logs.push(`${char.name}: Rested & recovered 1 HP and refreshed spells (-${cost} gp).`);
+            } else if (choice.activity === "carouse") {
+              newXp += 10;
+              logs.push(`${char.name}: Caroused late into the night, gaining 10 XP (-${cost} gp).`);
+            } else if (choice.activity === "supplies") {
+              const itemIds = choice.details?.items ?? [];
+              for (const itId of itemIds) {
+                const itDef = ITEMS.find((it) => it.id === itId);
+                newInv.push({
+                  instanceId: randomInt(100000, 999999).toString(),
+                  itemId: itId,
+                  name: itDef?.name ?? itId,
+                  kind: itDef?.kind ?? "gear",
+                  slots: itDef?.slots ?? 1,
+                  equipped: false,
+                  quantity: 1,
+                  baseAc: itDef?.baseAc,
+                  acBonus: itDef?.acBonus,
+                  damage: itDef?.damage,
+                });
+              }
+              logs.push(`${char.name}: Purchased expedition gear (-${cost} gp).`);
+            } else if (choice.activity === "rumors") {
+              logs.push(`${char.name}: Gathered rumors of the frontier.`);
+            }
+
+            db.updateCharacter(identity.campaignId, {
+              ...char,
+              gold: newGold,
+              hp: newHp,
+              xp: newXp,
+              inventory: newInv,
+              spells: newSpells,
+            });
+          }
+
+          const resolvedSession: ActivitySession = {
+            ...session,
+            status: "resolved",
+            resolvedAt: new Date().toISOString(),
+            result: { logs },
+          };
+          db.saveActivitySession(identity.campaignId, resolvedSession);
+
+          db.addRoll(identity.campaignId, {
+            actor: "Table",
+            kind: "tavern",
+            label: "Tavern Activities Concluded",
+            dice: "—",
+            total: 0,
+            detail: logs.length > 0 ? logs.join(" · ") : "The party departs the haven taproom.",
+          });
+        })();
+
+        return { session: db.getActiveSession(identity.campaignId) };
+      }),
+    );
+
+    socket.on(
+      "camp:open",
+      action((raw: unknown) => {
+        callerOrHostOnly();
+        const sessionId = `camp-${Date.now()}`;
+        const newSession: ActivitySession = {
+          id: sessionId,
+          campaignId: identity.campaignId,
+          kind: "camp",
+          status: "open",
+          revision: 1,
+          choices: {},
+        };
+        db.saveActivitySession(identity.campaignId, newSession);
+        db.addRoll(identity.campaignId, {
+          actor: "Table",
+          kind: "camp",
+          label: "Camp Pitching Commenced",
+          dice: "—",
+          total: 0,
+          detail: "The party pitches camp. Assign each adventurer to a watch, cooking, foraging, or rest duty.",
+        });
+        return { sessionId };
+      }),
+    );
+
+    socket.on(
+      "camp:submit_duty",
+      action((raw: unknown) => {
+        const payload = z
+          .object({
+            characterId: z.number().int(),
+            duty: z.enum(["watch", "cook", "forage", "rest"]),
+          })
+          .parse(raw);
+
+        if (identity.role !== "host" && payload.characterId !== identity.characterId) {
+          throw new Error("You can only choose camp duty for your own character");
+        }
+
+        const session = db.getActiveSession(identity.campaignId, "camp");
+        if (!session || session.status !== "open") {
+          throw new Error("No active camp session is open");
+        }
+
+        const state = db.getState(identity.campaignId, "host", null, "");
+        const character = state.characters.find((c) => c.id === payload.characterId);
+        if (!character) throw new Error("Character not found");
+
+        const updatedChoices = {
+          ...session.choices,
+          [String(payload.characterId)]: {
+            characterId: payload.characterId,
+            characterName: character.name,
+            activity: payload.duty,
+          },
+        };
+
+        const updatedSession: ActivitySession = {
+          ...session,
+          revision: session.revision + 1,
+          choices: updatedChoices,
+        };
+        db.saveActivitySession(identity.campaignId, updatedSession);
+      }),
+    );
+
+    socket.on(
+      "camp:resolve",
+      action((raw: unknown) => {
+        callerOrHostOnly();
+        const session = db.getActiveSession(identity.campaignId, "camp");
+        if (!session || session.status !== "open") {
+          throw new Error("No open camp session to resolve");
+        }
+
+        const state = db.getState(identity.campaignId, "host", null, "");
+        const choices = Object.values(session.choices);
+        const logs: string[] = [];
+
+        db.db.transaction(() => {
+          const clock = db.advanceWatch(identity.campaignId, 2);
+
+          const hasForager = choices.some((c) => c.activity === "forage");
+          const forageSuccess = hasForager && rollDie(20) >= 12;
+          const currentRations = Number(state.campaign.rations ?? 12);
+          let newRations = currentRations;
+
+          if (forageSuccess) {
+            logs.push("Foragers found wild game and fresh berries; party rations conserved.");
+          } else {
+            const consumed = Math.max(1, state.characters.length);
+            newRations = Math.max(0, currentRations - consumed);
+            db.db
+              .prepare("UPDATE campaigns SET rations = ? WHERE id = ?")
+              .run(newRations, identity.campaignId);
+            logs.push(`Party ate rations (${consumed} consumed, ${newRations} remaining).`);
+          }
+
+          let nightAmbush = false;
+          const hazardRoll = rollDie(6);
+          if (hazardRoll === 1) {
+            nightAmbush = true;
+            const hasWatcher = choices.some((c) => c.activity === "watch");
+            logs.push(
+              hasWatcher
+                ? "[ALERT: Night encounter! The watchman detected approaching danger before ambush.]"
+                : "[AMBUSH: Night encounter! No guards were posted!]",
+            );
+            const wandering = db.getMonstersForZone(state.campaign.activeZoneId ?? "the_gloaming");
+            const monster = wandering[0] ?? {
+              id: 0,
+              monsterKey: "wolf",
+              name: "Prowling Wolf",
+              currentHp: 8,
+              maxHp: 8,
+              loreTier: 0,
+              ac: 12,
+              morale: 7,
+              attacks: ["Bite +2 (1d6)"],
+              traits: [],
+              lore: [],
+            };
+            db.addEncounterWithMonsters(identity.campaignId, `Night Camp Attack: ${monster.name}`, [monster]);
+          } else {
+            logs.push("The camp was quiet and undisturbed under the stars.");
+          }
+
+          for (const char of state.characters) {
+            const charDuty = session.choices[String(char.id)]?.activity ?? "rest";
+            let hpHealed = 0;
+            if (charDuty === "rest" || !nightAmbush) {
+              hpHealed = rollDie(4);
+              const updatedHp = Math.min(char.maxHp, char.hp + hpHealed);
+              const refreshedSpells = (char.spells ?? []).map((s) => (s.penanceRequired ? s : { ...s, available: true }));
+              db.updateCharacter(identity.campaignId, {
+                ...char,
+                hp: updatedHp,
+                spells: refreshedSpells,
+                fatigue: 0,
+              });
+              logs.push(`${char.name}: Healed ${hpHealed} HP, refreshed spells, fatigue cleared.`);
+            }
+          }
+
+          const resolvedSession: ActivitySession = {
+            ...session,
+            status: "resolved",
+            resolvedAt: new Date().toISOString(),
+            result: { logs, nightAmbush, clock },
+          };
+          db.saveActivitySession(identity.campaignId, resolvedSession);
+
+          db.addRoll(identity.campaignId, {
+            actor: "Table",
+            kind: "camp",
+            label: `Camp Resolved (Day ${clock.day}, Watch ${clock.watch})`,
+            dice: "1d6 Hazard",
+            total: hazardRoll,
+            detail: logs.join(" · "),
+          });
+        })();
+
+        return { session: db.getActiveSession(identity.campaignId) };
+      }),
+    );
+
     socket.on(
       "hex:reveal",
       action((raw: unknown) => {
@@ -943,202 +1748,216 @@ export async function createAshServer(options: AshServerOptions = {}) {
           .object({
             toHexId: z.string().min(1),
             mode: z.enum(["foot", "cart", "boat", "climb"]).default("foot"),
+            actionId: z.string().optional(),
+            expectedRevision: z.number().optional(),
           })
           .parse(raw);
 
-        // 1. Authoritative origin from DB
-        const camp = db.db
-          .prepare(
-            "SELECT party_location_json, active_region_id, active_zone_id, day, watch, watches_traveled_today FROM campaigns WHERE id = ?",
-          )
-          .get(identity.campaignId) as any;
-        const currentLoc = camp?.party_location_json
-          ? JSON.parse(camp.party_location_json)
-          : { q: 0, r: 0, layerId: "surface" };
+        callerOrHostOnly();
 
-        // 2. Authoritative target hex from DB
-        const targetHexRow = db.db
-          .prepare("SELECT * FROM hexes WHERE campaign_id = ? AND id = ?")
-          .get(identity.campaignId, payload.toHexId) as any;
-        if (!targetHexRow) throw new Error(`Target hex ${payload.toHexId} not found`);
+        const actionId = payload.actionId ?? `travel:${payload.toHexId}:${Date.now()}`;
 
-        const fromQ = currentLoc.q;
-        const fromR = currentLoc.r;
-        const toQ = Number(targetHexRow.q);
-        const toR = Number(targetHexRow.r);
+        return db.executeMutation(
+          identity.campaignId,
+          identity.token,
+          actionId,
+          payload.expectedRevision,
+          () => {
+            // 1. Authoritative origin from DB
+            const camp = db.db
+              .prepare(
+                "SELECT party_location_json, active_region_id, active_zone_id, day, watch, watches_traveled_today FROM campaigns WHERE id = ?",
+              )
+              .get(identity.campaignId) as any;
+            const currentLoc = camp?.party_location_json
+              ? JSON.parse(camp.party_location_json)
+              : { q: 0, r: 0, layerId: "surface" };
 
-        // 3. Adjacency check
-        const axialDist =
-          (Math.abs(fromQ - toQ) +
-            Math.abs(fromQ + fromR - toQ - toR) +
-            Math.abs(fromR - toR)) /
-          2;
+            // 2. Authoritative target hex from DB
+            const targetHexRow = db.db
+              .prepare("SELECT * FROM hexes WHERE campaign_id = ? AND id = ?")
+              .get(identity.campaignId, payload.toHexId) as any;
+            if (!targetHexRow) throw new Error(`Target hex ${payload.toHexId} not found`);
 
-        let travelConnection: any = null;
-        if (camp?.active_region_id) {
-          const fromKey = `${camp.active_region_id}:${currentLoc.layerId || "surface"}:${fromQ}:${fromR}`;
-          const toKey = `${camp.active_region_id}:${currentLoc.layerId || "surface"}:${toQ}:${toR}`;
-          const connRow = db.db
-            .prepare(
-              "SELECT * FROM connections WHERE region_id = ? AND ((from_key = ? AND to_key = ?) OR (to_key = ? AND from_key = ?))",
-            )
-            .get(camp.active_region_id, fromKey, toKey, fromKey, toKey) as any;
-          if (connRow) {
-            travelConnection = connRow;
-          }
-        }
-        if (!travelConnection && targetHexRow.connections_json) {
-          const conns = JSON.parse(targetHexRow.connections_json);
-          const originHexRow = db.db
-            .prepare("SELECT id FROM hexes WHERE campaign_id = ? AND q = ? AND r = ?")
-            .get(identity.campaignId, fromQ, fromR) as any;
-          if (originHexRow) {
-            travelConnection = conns.find(
-              (c: any) =>
-                (c.fromId === originHexRow.id && c.toId === targetHexRow.id) ||
-                (c.toId === originHexRow.id && c.fromId === targetHexRow.id),
-            );
-          }
-        }
+            const fromQ = currentLoc.q;
+            const fromR = currentLoc.r;
+            const toQ = Number(targetHexRow.q);
+            const toR = Number(targetHexRow.r);
 
-        if (axialDist > 1 && !travelConnection) {
-          throw new Error(
-            `Cannot travel directly from (${fromQ}, ${fromR}) to non-adjacent hex ${payload.toHexId} at (${toQ}, ${toR}) without a connecting route`,
-          );
-        }
+            // 3. Adjacency check
+            const axialDist =
+              (Math.abs(fromQ - toQ) +
+                Math.abs(fromQ + fromR - toQ - toR) +
+                Math.abs(fromR - toR)) /
+              2;
 
-        // 4. Validate Travel Mode & Requirements
-        if (travelConnection) {
-          const connModes: string[] = travelConnection.modes_json
-            ? JSON.parse(travelConnection.modes_json)
-            : travelConnection.modes ?? ["foot"];
-          const connReqs: string[] = travelConnection.requirements_json
-            ? JSON.parse(travelConnection.requirements_json)
-            : travelConnection.requirements ?? [];
-
-          if (travelConnection.kind === "shaft" && payload.mode !== "climb") {
-            throw new Error("Ascending or descending a vertical shaft requires climbing mode and gear.");
-          }
-          if ((connReqs.includes("rope") || connReqs.includes("climbing_gear")) && payload.mode !== "climb") {
-            throw new Error("This passage requires climbing mode and gear.");
-          }
-          if (payload.mode === "boat") {
-            const isWaterway =
-              ["river", "sea_lane", "canal", "ferry", "voyage"].includes(travelConnection.kind) ||
-              targetHexRow.river;
-            if (!isWaterway) {
-              throw new Error("Boat travel requires a navigable waterway, canal, or sea lane.");
+            let travelConnection: any = null;
+            if (camp?.active_region_id) {
+              const fromKey = `${camp.active_region_id}:${currentLoc.layerId || "surface"}:${fromQ}:${fromR}`;
+              const toKey = `${camp.active_region_id}:${currentLoc.layerId || "surface"}:${toQ}:${toR}`;
+              const connRow = db.db
+                .prepare(
+                  "SELECT * FROM connections WHERE region_id = ? AND ((from_key = ? AND to_key = ?) OR (to_key = ? AND from_key = ?))",
+                )
+                .get(camp.active_region_id, fromKey, toKey, fromKey, toKey) as any;
+              if (connRow) {
+                travelConnection = connRow;
+              }
             }
-          }
-          if (payload.mode === "cart" && travelConnection.kind === "shaft") {
-            throw new Error("Carts cannot traverse vertical shafts.");
-          }
-        } else {
-          if (payload.mode === "boat" && !targetHexRow.river) {
-            throw new Error("Boat travel requires a navigable river or water feature.");
-          }
-        }
+            if (!travelConnection && targetHexRow.connections_json) {
+              const conns = JSON.parse(targetHexRow.connections_json);
+              const originHexRow = db.db
+                .prepare("SELECT id FROM hexes WHERE campaign_id = ? AND q = ? AND r = ?")
+                .get(identity.campaignId, fromQ, fromR) as any;
+              if (originHexRow) {
+                travelConnection = conns.find(
+                  (c: any) =>
+                    (c.fromId === originHexRow.id && c.toId === targetHexRow.id) ||
+                    (c.toId === originHexRow.id && c.fromId === targetHexRow.id),
+                );
+              }
+            }
 
-        // 5. Cost calculation from saved world truth
-        const hasRoad =
-          !!travelConnection &&
-          (travelConnection.kind === "road" || travelConnection.kind === "trail");
-        const crossingMethod =
-          travelConnection?.crossing_method || travelConnection?.crossingMethod;
-        const calculatedWatches = calculateTravelWatches(
-          targetHexRow.biome || "Wilderness",
-          hasRoad,
-          crossingMethod,
-        );
-        const watches =
-          travelConnection?.cost_watches ||
-          travelConnection?.costWatches ||
-          calculatedWatches;
+            if (axialDist > 1 && !travelConnection) {
+              throw new Error(
+                `Cannot travel directly from (${fromQ}, ${fromR}) to non-adjacent hex ${payload.toHexId} at (${toQ}, ${toR}) without a connecting route`,
+              );
+            }
 
-        // 6. Advance watch clock
-        const clockResult = db.advanceWatch(identity.campaignId, watches);
+            // 4. Validate Travel Mode & Requirements
+            if (travelConnection) {
+              const connModes: string[] = travelConnection.modes_json
+                ? JSON.parse(travelConnection.modes_json)
+                : travelConnection.modes ?? ["foot"];
+              const connReqs: string[] = travelConnection.requirements_json
+                ? JSON.parse(travelConnection.requirements_json)
+                : travelConnection.requirements ?? [];
 
-        // 7. Check Forced March if Night travel occurred
-        const fatigueResults =
-          clockResult.watch === 1 || clockResult.watchesTraveledToday > 3
-            ? db.evaluatePartyForcedMarch(identity.campaignId)
-            : [];
+              if (travelConnection.kind === "shaft" && payload.mode !== "climb") {
+                throw new Error("Ascending or descending a vertical shaft requires climbing mode and gear.");
+              }
+              if ((connReqs.includes("rope") || connReqs.includes("climbing_gear")) && payload.mode !== "climb") {
+                throw new Error("This passage requires climbing mode and gear.");
+              }
+              if (payload.mode === "boat") {
+                const isWaterway =
+                  ["river", "sea_lane", "canal", "ferry", "voyage"].includes(travelConnection.kind) ||
+                  targetHexRow.river;
+                if (!isWaterway) {
+                  throw new Error("Boat travel requires a navigable waterway, canal, or sea lane.");
+                }
+              }
+              if (payload.mode === "cart" && travelConnection.kind === "shaft") {
+                throw new Error("Carts cannot traverse vertical shafts.");
+              }
+            } else {
+              if (payload.mode === "boat" && !targetHexRow.river) {
+                throw new Error("Boat travel requires a navigable river or water feature.");
+              }
+            }
 
-        // 8. Wilderness Encounter Check (1d6 -> 1 triggers encounter)
-        let encounterTriggered = false;
-        let encounterName = "";
-        const encRoll = rollDie(6);
-        if (encRoll === 1) {
-          encounterTriggered = true;
-          const manifest = db.getZoneManifest(
-            camp.active_zone_id || "the_gloaming",
-          );
-          const table =
-            manifest?.wanderingMonsterTable && manifest.wanderingMonsterTable.length > 0
-              ? manifest.wanderingMonsterTable
-              : ["wolf", "bandit", "giant_spider"];
-          const monsterKey = table[randomInt(table.length)];
-          const monster = db.getMonster(monsterKey) ?? {
-            id: 0,
-            monsterKey,
-            name: monsterKey,
-            currentHp: 8,
-            maxHp: 8,
-            loreTier: 0,
-            ac: 12,
-            morale: 7,
-            attacks: ["Strike +2 (1d6)"],
-            traits: [],
-            lore: [],
-          };
-          encounterName = `Wilderness Encounter: ${monster.name}`;
-          db.addEncounterWithMonsters(identity.campaignId, encounterName, [monster]);
-        }
+            // 5. Cost calculation from saved world truth
+            const hasRoad =
+              !!travelConnection &&
+              (travelConnection.kind === "road" || travelConnection.kind === "trail");
+            const crossingMethod =
+              travelConnection?.crossing_method || travelConnection?.crossingMethod;
+            const calculatedWatches = calculateTravelWatches(
+              targetHexRow.biome || "Wilderness",
+              hasRoad,
+              crossingMethod,
+            );
+            const watches =
+              travelConnection?.cost_watches ||
+              travelConnection?.costWatches ||
+              calculatedWatches;
 
-        // 9. Update location and reveal target hex
-        db.setPartyLocation(identity.campaignId, {
-          q: toQ,
-          r: toR,
-          layerId: currentLoc.layerId || "surface",
-        });
+            // 6. Advance watch clock
+            const clockResult = db.advanceWatch(identity.campaignId, watches);
 
-        if (
-          targetHexRow.reveal_state === "unexplored" ||
-          targetHexRow.reveal_state === "rumored"
-        ) {
-          db.revealHex(identity.campaignId, targetHexRow.id, "scouted");
-        }
+            // 7. Check Forced March if Night travel occurred
+            const fatigueResults =
+              clockResult.watch === 1 || clockResult.watchesTraveledToday > 3
+                ? db.evaluatePartyForcedMarch(identity.campaignId)
+                : [];
 
-        if (
-          targetHexRow.primary_zone &&
-          targetHexRow.primary_zone !== camp.active_zone_id
-        ) {
-          db.setActiveZone(identity.campaignId, targetHexRow.primary_zone);
-        }
+            // 8. Wilderness Encounter Check (1d6 -> 1 triggers encounter)
+            let encounterTriggered = false;
+            let encounterName = "";
+            const encRoll = rollDie(6);
+            if (encRoll === 1) {
+              encounterTriggered = true;
+              const manifest = db.getZoneManifest(
+                camp.active_zone_id || "the_gloaming",
+              );
+              const table =
+                manifest?.wanderingMonsterTable && manifest.wanderingMonsterTable.length > 0
+                  ? manifest.wanderingMonsterTable
+                  : ["wolf", "bandit", "giant_spider"];
+              const monsterKey = table[randomInt(table.length)];
+              const monster = db.getMonster(monsterKey) ?? {
+                id: 0,
+                monsterKey,
+                name: monsterKey,
+                currentHp: 8,
+                maxHp: 8,
+                loreTier: 0,
+                ac: 12,
+                morale: 7,
+                attacks: ["Strike +2 (1d6)"],
+                traits: [],
+                lore: [],
+              };
+              encounterName = `Wilderness Encounter: ${monster.name}`;
+              db.addEncounterWithMonsters(identity.campaignId, encounterName, [monster]);
+            }
 
-        // 10. Log roll
-        db.addRoll(identity.campaignId, {
-          actor: actor(),
-          kind: "exploration",
-          label: `Traveled to Hex ${targetHexRow.id} (${targetHexRow.name || targetHexRow.biome || "Wilderness"})`,
-          dice: `${watches} watch${watches > 1 ? "es" : ""}`,
-          total: watches,
-          detail: `Mode: ${payload.mode} · Cost: ${watches} watch(es) · Day ${clockResult.day}, Watch ${clockResult.watch} (${clockResult.weather}) · ${
-            fatigueResults.length > 0
-              ? fatigueResults.some((f) => !f.passed)
-                ? `Forced march: fatigue incurred (${fatigueResults.filter((f) => !f.passed).map((f) => f.name).join(", ")})`
-                : "Forced march CON check passed"
-              : "Standard watch"
-          }${encounterTriggered ? ` · [INTERRUPTED: ${encounterName}]` : ""}`,
-        });
+            // 9. Update location and reveal target hex
+            db.setPartyLocation(identity.campaignId, {
+              q: toQ,
+              r: toR,
+              layerId: currentLoc.layerId || "surface",
+            });
 
-        return {
-          watches,
-          clock: clockResult,
-          fatigueResults,
-          encounterTriggered,
-          newPartyLocation: { q: toQ, r: toR },
-        };
+            if (
+              targetHexRow.reveal_state === "unexplored" ||
+              targetHexRow.reveal_state === "rumored"
+            ) {
+              db.revealHex(identity.campaignId, targetHexRow.id, "scouted");
+            }
+
+            if (
+              targetHexRow.primary_zone &&
+              targetHexRow.primary_zone !== camp.active_zone_id
+            ) {
+              db.setActiveZone(identity.campaignId, targetHexRow.primary_zone);
+            }
+
+            // 10. Log roll
+            db.addRoll(identity.campaignId, {
+              actor: actor(),
+              kind: "exploration",
+              label: `Traveled to Hex ${targetHexRow.id} (${targetHexRow.name || targetHexRow.biome || "Wilderness"})`,
+              dice: `${watches} watch${watches > 1 ? "es" : ""}`,
+              total: watches,
+              detail: `Mode: ${payload.mode} · Cost: ${watches} watch(es) · Day ${clockResult.day}, Watch ${clockResult.watch} (${clockResult.weather}) · ${
+                fatigueResults.length > 0
+                  ? fatigueResults.some((f) => !f.passed)
+                    ? `Forced march: fatigue incurred (${fatigueResults.filter((f) => !f.passed).map((f) => f.name).join(", ")})`
+                    : "Forced march CON check passed"
+                  : "Standard watch"
+              }${encounterTriggered ? ` · [INTERRUPTED: ${encounterName}]` : ""}`,
+            });
+
+            return {
+              watches,
+              clock: clockResult,
+              fatigueResults,
+              encounterTriggered,
+              newPartyLocation: { q: toQ, r: toR },
+            };
+          },
+        ).result;
       }),
     );
 
@@ -1655,6 +2474,7 @@ export async function createAshServer(options: AshServerOptions = {}) {
     socket.on(
       "site:enter",
       action((raw: unknown) => {
+        callerOrHostOnly();
         const payload = z.object({ siteId: z.string().min(1) }).parse(raw);
         const camp = db.db.prepare("SELECT * FROM campaigns WHERE id = ?").get(identity.campaignId) as any;
         const currentLoc = camp?.party_location_json ? JSON.parse(camp.party_location_json) : { q: 0, r: 0 };
@@ -1705,6 +2525,103 @@ export async function createAshServer(options: AshServerOptions = {}) {
           db.addRoom(identity.campaignId, room, site.id);
         }
 
+        const existingGraph = db.getDungeonGraph(identity.campaignId, site.id);
+        if (!existingGraph) {
+          const defaultGraph: DungeonGraphState = {
+            siteId: site.id,
+            campaignId: identity.campaignId,
+            currentRoomId: 1,
+            entryRoomId: 1,
+            explorationTurns: 0,
+            lightTurnsRemaining: 6,
+            nodes: [
+              {
+                id: 1,
+                title: "Entry Hall",
+                x: 100,
+                y: 200,
+                geometry: "Archway flanked by crumbling stone pillars.",
+                contents: "Damp flagstones with scattered remnants of ancient braziers.",
+                interaction: "Archway leads into darkness. Heavy stone doors guard the northern passage.",
+                explored: true,
+              },
+              {
+                id: 2,
+                title: "Guard Post",
+                x: 250,
+                y: 100,
+                geometry: "Rectangular vaulted armory with arrow slits.",
+                contents: "Broken weapon racks and discarded iron shields.",
+                interaction: "Iron rings set in the wall; sounds of scuttling echoing ahead.",
+                encounter: {
+                  monsterKey: "goblin",
+                  name: "Cave Goblins",
+                  count: 3,
+                  defeated: false,
+                },
+                explored: false,
+              },
+              {
+                id: 3,
+                title: "Crypt of the Forgotten",
+                x: 250,
+                y: 300,
+                geometry: "Low-ceilinged chamber lined with stone sarcophagi.",
+                contents: "Runic carvings warning against defilers. Dust hangs thick in the cold air.",
+                interaction: "Center sarcophagus bears an intricate copper latch.",
+                trap: {
+                  name: "Poison Needle Trap",
+                  trigger: "Opening the copper latch without key or disarm",
+                  effect: "Poison needle spring (1d6 damage, DC 12 CON save)",
+                  dc: 12,
+                  spotted: false,
+                  disarmed: false,
+                },
+                explored: false,
+              },
+              {
+                id: 4,
+                title: "Antechamber of Whispers",
+                x: 400,
+                y: 200,
+                geometry: "Hexagonal hall with an echoing domed ceiling.",
+                contents: "Carved bas-reliefs depicting ancient rites. Cold draft from below.",
+                interaction: "A concealed seam in the eastern stonework suggests a hidden portal.",
+                explored: false,
+              },
+              {
+                id: 5,
+                title: "Inner Sanctum & Vault",
+                x: 550,
+                y: 200,
+                geometry: "Colonnaded grand sanctum with a stepped dais.",
+                contents: "Gilded altar holding ancient offerings. Shadowy presence lurking in corners.",
+                interaction: "An iron chest rests upon the altar dais.",
+                encounter: {
+                  monsterKey: "cultist_leader",
+                  name: "Sanctum Warden",
+                  count: 1,
+                  defeated: false,
+                },
+                treasure: {
+                  coins: 150,
+                  items: ["ancient_signet_ring", "silver_dagger", "healing_draught"],
+                  claimed: false,
+                },
+                explored: false,
+              },
+            ],
+            edges: [
+              { fromRoomId: 1, toRoomId: 2, doorType: "wooden_door", state: "closed" },
+              { fromRoomId: 1, toRoomId: 3, doorType: "open", state: "open" },
+              { fromRoomId: 2, toRoomId: 4, doorType: "wooden_door", state: "locked" },
+              { fromRoomId: 3, toRoomId: 4, doorType: "open", state: "open" },
+              { fromRoomId: 4, toRoomId: 5, doorType: "secret", state: "closed" },
+            ],
+          };
+          db.saveDungeonGraph(identity.campaignId, defaultGraph);
+        }
+
         db.addRoll(identity.campaignId, {
           actor: actor(),
           kind: "exploration",
@@ -1715,6 +2632,953 @@ export async function createAshServer(options: AshServerOptions = {}) {
         });
 
         return { ok: true, activeSiteId: site.id };
+      }),
+    );
+
+    // --- M4: Dungeon Graph Exploration Handlers ---
+
+    socket.on(
+      "dungeon:move_room",
+      action((raw: unknown) => {
+        callerOrHostOnly();
+        const payload = z.object({ toRoomId: z.number().int() }).parse(raw);
+        const camp = db.db.prepare("SELECT * FROM campaigns WHERE id = ?").get(identity.campaignId) as any;
+        const siteId = camp?.active_site_id;
+        if (!siteId) throw new Error("No active dungeon site");
+
+        const graph = db.getDungeonGraph(identity.campaignId, siteId);
+        if (!graph) throw new Error("No dungeon graph found for this site");
+
+        const fromRoomId = graph.currentRoomId;
+        const toRoomId = payload.toRoomId;
+        if (fromRoomId === toRoomId) return { graph };
+
+        const edge = graph.edges.find(
+          (e) =>
+            (e.fromRoomId === fromRoomId && e.toRoomId === toRoomId) ||
+            (e.fromRoomId === toRoomId && e.toRoomId === fromRoomId),
+        );
+        if (!edge) {
+          throw new Error(`No passage connects room ${fromRoomId} to room ${toRoomId}`);
+        }
+
+        if (edge.state === "locked" || edge.state === "barred") {
+          throw new Error(`The door is ${edge.state}. You must unlock or force it first.`);
+        }
+        if (edge.doorType === "secret" && edge.state !== "open") {
+          throw new Error("You cannot pass through a secret wall without discovering and opening it first.");
+        }
+
+        const turns = graph.explorationTurns + 1;
+        const lightRemaining = Math.max(0, graph.lightTurnsRemaining - 1);
+
+        const targetNode = graph.nodes.find((n) => n.id === toRoomId);
+        if (targetNode) {
+          targetNode.explored = true;
+        }
+
+        const state = db.getState(identity.campaignId, "host", null, "");
+        const hasThief = state.characters.some((c) => c.className.toLowerCase().includes("thief"));
+        let trapDetectedMsg = "";
+        if (targetNode?.trap && !targetNode.trap.spotted && !targetNode.trap.disarmed) {
+          if (hasThief) {
+            targetNode.trap.spotted = true;
+            trapDetectedMsg = " [Thief passive trap sense spotted danger ahead!]";
+          }
+        }
+
+        let hazardMsg = "";
+        if (turns % 3 === 0) {
+          const tDie = rollDie(6);
+          if (tDie === 1) {
+            hazardMsg = " [Tension Die: 1! Wandering danger approaches!]";
+          }
+        }
+
+        let torchWarning = "";
+        if (lightRemaining === 0 && graph.lightTurnsRemaining > 0) {
+          torchWarning = " [TORCH EXTINGUISHED! The party is plunged into total darkness.]";
+        }
+
+        const updatedGraph: DungeonGraphState = {
+          ...graph,
+          currentRoomId: toRoomId,
+          explorationTurns: turns,
+          lightTurnsRemaining: lightRemaining,
+        };
+        db.saveDungeonGraph(identity.campaignId, updatedGraph);
+
+        db.addRoll(identity.campaignId, {
+          actor: actor(),
+          kind: "exploration",
+          label: `Party Moved to Room ${toRoomId}: ${targetNode?.title ?? "Chamber"}`,
+          dice: "1 Turn",
+          total: turns,
+          detail: `Turn ${turns} · Light remaining: ${lightRemaining} turns${trapDetectedMsg}${hazardMsg}${torchWarning}`,
+        });
+
+        return { graph: db.getDungeonGraph(identity.campaignId, siteId) };
+      }),
+    );
+
+    socket.on(
+      "dungeon:interact_door",
+      action((raw: unknown) => {
+        callerOrHostOnly();
+        const payload = z
+          .object({
+            fromRoomId: z.number().int(),
+            toRoomId: z.number().int(),
+            action: z.enum(["open", "close", "pick", "force", "search_secret"]),
+            characterId: z.number().int().optional(),
+            diceMode: z.enum(["digital", "physical"]).default("digital"),
+            physicalRoll: z.number().int().optional(),
+          })
+          .parse(raw);
+
+        const camp = db.db.prepare("SELECT * FROM campaigns WHERE id = ?").get(identity.campaignId) as any;
+        const siteId = camp?.active_site_id;
+        if (!siteId) throw new Error("No active dungeon site");
+
+        const graph = db.getDungeonGraph(identity.campaignId, siteId);
+        if (!graph) throw new Error("No dungeon graph found");
+
+        const edgeIndex = graph.edges.findIndex(
+          (e) =>
+            (e.fromRoomId === payload.fromRoomId && e.toRoomId === payload.toRoomId) ||
+            (e.fromRoomId === payload.toRoomId && e.toRoomId === payload.fromRoomId),
+        );
+        if (edgeIndex === -1) throw new Error("No door or connection found between specified rooms");
+
+        const edge = graph.edges[edgeIndex];
+        const state = db.getState(identity.campaignId, "host", null, "");
+        const char = payload.characterId ? state.characters.find((c) => c.id === payload.characterId) : undefined;
+        const charName = char?.name ?? actor();
+
+        let rollTotal = 0;
+        let detail = "";
+        let success = false;
+
+        if (payload.action === "open") {
+          if (edge.state === "locked" || edge.state === "barred") {
+            throw new Error(`Door is ${edge.state}. It must be picked or forced.`);
+          }
+          edge.state = "open";
+          detail = `${charName} opened the door.`;
+          success = true;
+        } else if (payload.action === "close") {
+          edge.state = "closed";
+          detail = `${charName} closed the door.`;
+          success = true;
+        } else if (payload.action === "pick") {
+          const dexMod = char ? abilityModifier(char.abilities.dex) : 0;
+          const isThief = char?.className.toLowerCase().includes("thief") ?? false;
+          const baseRoll =
+            payload.diceMode === "physical" && payload.physicalRoll !== undefined
+              ? payload.physicalRoll
+              : rollDie(20);
+          rollTotal = baseRoll + dexMod + (isThief ? 2 : 0);
+          success = rollTotal >= 12;
+          if (success) {
+            edge.state = "closed";
+            detail = `${charName} successfully picked the lock! (Roll: ${baseRoll} + ${dexMod + (isThief ? 2 : 0)} = ${rollTotal} vs DC 12)`;
+          } else {
+            detail = `${charName} failed to pick the lock. (Roll: ${baseRoll} + ${dexMod + (isThief ? 2 : 0)} = ${rollTotal} vs DC 12)`;
+          }
+        } else if (payload.action === "force") {
+          const strMod = char ? abilityModifier(char.abilities.str) : 0;
+          const isFighter = char?.className.toLowerCase().includes("fighter") ?? false;
+          const baseRoll =
+            payload.diceMode === "physical" && payload.physicalRoll !== undefined
+              ? payload.physicalRoll
+              : rollDie(20);
+          rollTotal = baseRoll + strMod + (isFighter ? 2 : 0);
+          success = rollTotal >= 14;
+          if (success) {
+            edge.state = "open";
+            detail = `${charName} smashed the door open! (Roll: ${baseRoll} + ${strMod + (isFighter ? 2 : 0)} = ${rollTotal} vs DC 14)`;
+          } else {
+            detail = `${charName} failed to force the door with a loud thud! (Roll: ${baseRoll} + ${strMod + (isFighter ? 2 : 0)} = ${rollTotal} vs DC 14). Tension rises!`;
+          }
+        } else if (payload.action === "search_secret") {
+          const intMod = char ? abilityModifier(char.abilities.int) : 0;
+          const baseRoll =
+            payload.diceMode === "physical" && payload.physicalRoll !== undefined
+              ? payload.physicalRoll
+              : rollDie(20);
+          rollTotal = baseRoll + intMod;
+          success = rollTotal >= 12;
+          if (success && edge.doorType === "secret") {
+            edge.state = "open";
+            detail = `${charName} found the hidden mechanism and opened the secret passage! (Roll: ${baseRoll} + ${intMod} = ${rollTotal} vs DC 12)`;
+          } else {
+            detail = `${charName} searched the stonework but found nothing unusual. (Roll: ${baseRoll} + ${intMod} = ${rollTotal} vs DC 12)`;
+          }
+        }
+
+        db.saveDungeonGraph(identity.campaignId, graph);
+        db.addRoll(identity.campaignId, {
+          actor: charName,
+          kind: "exploration",
+          label: `Door Interaction: ${payload.action.toUpperCase()}`,
+          dice: rollTotal ? "1d20" : "—",
+          total: rollTotal,
+          detail,
+        });
+
+        return { graph: db.getDungeonGraph(identity.campaignId, siteId), success };
+      }),
+    );
+
+    socket.on(
+      "dungeon:disarm_trap",
+      action((raw: unknown) => {
+        callerOrHostOnly();
+        const payload = z
+          .object({
+            roomId: z.number().int(),
+            characterId: z.number().int().optional(),
+            diceMode: z.enum(["digital", "physical"]).default("digital"),
+            physicalRoll: z.number().int().optional(),
+          })
+          .parse(raw);
+
+        const camp = db.db.prepare("SELECT * FROM campaigns WHERE id = ?").get(identity.campaignId) as any;
+        const siteId = camp?.active_site_id;
+        if (!siteId) throw new Error("No active dungeon site");
+
+        const graph = db.getDungeonGraph(identity.campaignId, siteId);
+        if (!graph) throw new Error("No dungeon graph found");
+
+        const node = graph.nodes.find((n) => n.id === payload.roomId);
+        if (!node || !node.trap) throw new Error("No trap found in this room");
+
+        const state = db.getState(identity.campaignId, "host", null, "");
+        const char = payload.characterId ? state.characters.find((c) => c.id === payload.characterId) : undefined;
+        const charName = char?.name ?? actor();
+
+        const dexMod = char ? abilityModifier(char.abilities.dex) : 0;
+        const isThief = char?.className.toLowerCase().includes("thief") ?? false;
+        const baseRoll =
+          payload.diceMode === "physical" && payload.physicalRoll !== undefined
+            ? payload.physicalRoll
+            : rollDie(20);
+        const total = baseRoll + dexMod + (isThief ? 2 : 0);
+        const success = total >= node.trap.dc;
+
+        let detail = "";
+        if (success) {
+          node.trap.disarmed = true;
+          node.trap.spotted = true;
+          detail = `${charName} carefully disabled the ${node.trap.name}! (Roll: ${baseRoll} + ${dexMod + (isThief ? 2 : 0)} = ${total} vs DC ${node.trap.dc})`;
+        } else {
+          node.trap.spotted = true;
+          const trapDmg = rollDie(6);
+          if (char) {
+            const newHp = Math.max(0, char.hp - trapDmg);
+            db.updateCharacter(identity.campaignId, { ...char, hp: newHp });
+          }
+          detail = `${charName} accidentally sprung the ${node.trap.name}! (Roll: ${total} vs DC ${node.trap.dc}) Dealing ${trapDmg} damage!`;
+        }
+
+        db.saveDungeonGraph(identity.campaignId, graph);
+        db.addRoll(identity.campaignId, {
+          actor: charName,
+          kind: "exploration",
+          label: `Disarm Trap: ${node.trap.name}`,
+          dice: "1d20",
+          total,
+          detail,
+        });
+
+        return { success, graph: db.getDungeonGraph(identity.campaignId, siteId) };
+      }),
+    );
+
+    socket.on(
+      "dungeon:claim_treasure",
+      action((raw: unknown) => {
+        callerOrHostOnly();
+        const payload = z.object({ roomId: z.number().int() }).parse(raw);
+        const camp = db.db.prepare("SELECT * FROM campaigns WHERE id = ?").get(identity.campaignId) as any;
+        const siteId = camp?.active_site_id;
+        if (!siteId) throw new Error("No active dungeon site");
+
+        const graph = db.getDungeonGraph(identity.campaignId, siteId);
+        if (!graph) throw new Error("No dungeon graph found");
+
+        const room = graph.nodes.find((n) => n.id === payload.roomId);
+        if (!room || !room.treasure) throw new Error("No treasure in this room");
+        if (room.treasure.claimed) throw new Error("Treasure already claimed");
+
+        room.treasure.claimed = true;
+        db.saveDungeonGraph(identity.campaignId, graph);
+
+        const reward: RewardRecord = {
+          id: `reward-${Date.now()}`,
+          campaignId: identity.campaignId,
+          sourceType: "dungeon_room",
+          sourceId: `room-${room.id}`,
+          coins: { gp: room.treasure.coins, sp: 0, cp: 0 },
+          items: [...room.treasure.items],
+          claimed: false,
+          allocations: {},
+        };
+        db.saveReward(identity.campaignId, reward);
+
+        db.addRoll(identity.campaignId, {
+          actor: actor(),
+          kind: "reward",
+          label: `Treasure Secured from ${room.title}`,
+          dice: "—",
+          total: room.treasure.coins,
+          detail: `Recovered ${room.treasure.coins} gp and [${room.treasure.items.join(", ")}]. Ready for allocation.`,
+        });
+
+        return { graph: db.getDungeonGraph(identity.campaignId, siteId), reward };
+      }),
+    );
+
+    socket.on(
+      "dungeon:light_torch",
+      action((raw: unknown) => {
+        callerOrHostOnly();
+        const camp = db.db.prepare("SELECT * FROM campaigns WHERE id = ?").get(identity.campaignId) as any;
+        const siteId = camp?.active_site_id;
+        if (!siteId) throw new Error("No active dungeon site");
+
+        const graph = db.getDungeonGraph(identity.campaignId, siteId);
+        if (!graph) throw new Error("No dungeon graph found");
+
+        graph.lightTurnsRemaining = 6;
+        db.saveDungeonGraph(identity.campaignId, graph);
+
+        db.addRoll(identity.campaignId, {
+          actor: actor(),
+          kind: "exploration",
+          label: "Torch Lit",
+          dice: "—",
+          total: 6,
+          detail: "A fresh torch was ignited. The corridor is brightly illuminated for 6 crawling turns.",
+        });
+
+        return { graph: db.getDungeonGraph(identity.campaignId, siteId) };
+      }),
+    );
+
+    // --- M5: Turn-Based Combat Runner Handlers ---
+
+    socket.on(
+      "combat:start",
+      action((raw: unknown) => {
+        callerOrHostOnly();
+        const payload = z
+          .object({
+            name: z.string().optional(),
+            encounterId: z.number().int().optional(),
+            monsters: z
+              .array(
+                z.object({
+                  name: z.string(),
+                  hp: z.number().int().min(1),
+                  ac: z.number().int(),
+                  morale: z.number().int().default(7),
+                }),
+              )
+              .optional(),
+          })
+          .parse(raw);
+
+        const state = db.getState(identity.campaignId, "host", null, "");
+        let encId = payload.encounterId;
+
+        if (!encId) {
+          const encMonsters = payload.monsters ?? [
+            { name: "Dungeon Prowler", hp: 10, ac: 12, morale: 7 },
+          ];
+          const newEnc = db.addEncounterWithMonsters(
+            identity.campaignId,
+            payload.name ?? "Dungeon Combat",
+            encMonsters.map((m, idx) => ({
+              id: idx + 1,
+              monsterKey: "custom",
+              name: m.name,
+              currentHp: m.hp,
+              maxHp: m.hp,
+              loreTier: 0,
+              ac: m.ac,
+              morale: m.morale,
+              attacks: ["Claw +2 (1d6)"],
+              traits: [],
+              lore: [],
+            })),
+          );
+          encId = newEnc;
+        }
+
+        const combatants: Combatant[] = [];
+
+        for (const c of state.characters) {
+          const init = resolveInitiativeRoll(abilityModifier(c.abilities.dex));
+          combatants.push({
+            id: `pc-${c.id}`,
+            name: c.name,
+            kind: "pc",
+            refId: c.id,
+            initiative: init.total,
+            ac: c.ac,
+            currentHp: c.hp,
+            maxHp: c.maxHp,
+            conditions: c.conditions ?? [],
+            deathStrikes: c.deathStrikes ?? 0,
+            stabilized: c.stabilized ?? false,
+          });
+        }
+
+        const freshState = db.getState(identity.campaignId, "host", null, "");
+        const activeEnc = freshState.encounters.find((e) => e.id === encId) ?? freshState.encounters.find((e) => e.status === "active");
+        if (activeEnc && activeEnc.monsters) {
+          for (const m of activeEnc.monsters) {
+            combatants.push({
+              id: `monster-${m.id}`,
+              name: m.name,
+              kind: "monster",
+              refId: m.id,
+              initiative: rollDie(20),
+              ac: m.ac ?? 12,
+              currentHp: m.currentHp,
+              maxHp: m.maxHp,
+              conditions: [],
+            });
+          }
+        }
+
+        combatants.sort((a, b) => b.initiative - a.initiative);
+
+        const combatState: CombatState = {
+          encounterId: encId!,
+          campaignId: identity.campaignId,
+          round: 1,
+          activeIndex: 0,
+          combatants,
+          status: "active",
+          moraleTriggerChecked: false,
+        };
+
+        db.saveCombatState(identity.campaignId, combatState);
+
+        db.addRoll(identity.campaignId, {
+          actor: "Table",
+          kind: "combat",
+          label: "Combat Initiated",
+          dice: "Initiative",
+          total: combatants[0]?.initiative ?? 0,
+          detail: `Turn order: ${combatants.map((c) => `${c.name} (${c.initiative})`).join(" > ")}`,
+        });
+
+        return { combat: combatState };
+      }),
+    );
+
+    socket.on(
+      "combat:next_turn",
+      action((raw: unknown) => {
+        callerOrHostOnly();
+        const combat = db.getCombatState(identity.campaignId);
+        if (!combat || combat.status !== "active") throw new Error("No active combat");
+
+        let nextIdx = combat.activeIndex + 1;
+        let nextRound = combat.round;
+        if (nextIdx >= combat.combatants.length) {
+          nextIdx = 0;
+          nextRound += 1;
+        }
+
+        const updated: CombatState = {
+          ...combat,
+          activeIndex: nextIdx,
+          round: nextRound,
+        };
+        db.saveCombatState(identity.campaignId, updated);
+
+        const currentCombatant = updated.combatants[nextIdx];
+        db.addRoll(identity.campaignId, {
+          actor: "Table",
+          kind: "combat",
+          label: `Round ${nextRound} · Active Turn: ${currentCombatant?.name ?? "Next"}`,
+          dice: "—",
+          total: nextRound,
+          detail: `${currentCombatant?.name ?? "Combatant"}'s turn to act.`,
+        });
+
+        return { combat: updated };
+      }),
+    );
+
+    socket.on(
+      "combat:update_hp",
+      action((raw: unknown) => {
+        const payload = z
+          .object({
+            combatantId: z.string(),
+            delta: z.number().int(),
+          })
+          .parse(raw);
+
+        const combat = db.getCombatState(identity.campaignId);
+        if (!combat || combat.status !== "active") throw new Error("No active combat");
+
+        const target = combat.combatants.find((c) => c.id === payload.combatantId);
+        if (!target) throw new Error("Combatant not found");
+
+        if (identity.role !== "host" && target.kind === "pc" && target.refId !== identity.characterId) {
+          callerOrHostOnly();
+        }
+
+        const prevHp = target.currentHp;
+        const newHp = Math.max(0, Math.min(target.maxHp, prevHp + payload.delta));
+        target.currentHp = newHp;
+
+        if (target.kind === "pc") {
+          if (newHp === 0 && !target.conditions.includes("dying")) {
+            target.conditions = [...target.conditions.filter((c) => c !== "conscious"), "dying", "unconscious"];
+            target.stabilized = false;
+          } else if (newHp > 0 && prevHp === 0) {
+            target.conditions = target.conditions.filter((c) => c !== "dying" && c !== "unconscious");
+            target.deathStrikes = 0;
+            target.stabilized = true;
+          }
+
+          const state = db.getState(identity.campaignId, "host", null, "");
+          const char = state.characters.find((c) => c.id === target.refId);
+          if (char) {
+            db.updateCharacter(identity.campaignId, {
+              ...char,
+              hp: newHp,
+              deathStrikes: target.deathStrikes,
+              stabilized: target.stabilized,
+              conditions: target.conditions,
+            });
+          }
+        } else if (target.kind === "monster") {
+          if (newHp === 0 && !target.conditions.includes("defeated")) {
+            target.conditions.push("defeated");
+          }
+        }
+
+        db.saveCombatState(identity.campaignId, combat);
+
+        db.addRoll(identity.campaignId, {
+          actor: actor(),
+          kind: "combat",
+          label: `${target.name} HP Update`,
+          dice: `${payload.delta >= 0 ? "+" : ""}${payload.delta}`,
+          total: newHp,
+          detail: `${target.name}: ${prevHp} -> ${newHp}/${target.maxHp} HP${newHp === 0 ? " [DOWN / DYING!]" : ""}`,
+        });
+
+        return { combat };
+      }),
+    );
+
+    socket.on(
+      "combat:death_save",
+      action((raw: unknown) => {
+        const payload = z
+          .object({
+            combatantId: z.string(),
+            diceMode: z.enum(["digital", "physical"]).default("digital"),
+            physicalRoll: z.number().int().optional(),
+          })
+          .parse(raw);
+
+        const combat = db.getCombatState(identity.campaignId);
+        if (!combat) throw new Error("No active combat");
+
+        const target = combat.combatants.find((c) => c.id === payload.combatantId);
+        if (!target || target.kind !== "pc") throw new Error("Invalid combatant for death save");
+
+        if (identity.role !== "host" && target.refId !== identity.characterId) {
+          throw new Error("You can only roll death saves for your own character");
+        }
+
+        if (target.currentHp > 0) throw new Error("Character is conscious, no death save needed");
+        if (target.stabilized) throw new Error("Character is already stabilized");
+        if (target.conditions.includes("dead")) throw new Error("Character is dead");
+
+        const state = db.getState(identity.campaignId, "host", null, "");
+        const char = state.characters.find((c) => c.id === target.refId);
+        if (!char) throw new Error("Character not found");
+        const conMod = abilityModifier(char.abilities.con);
+
+        const d20 =
+          payload.diceMode === "physical" && payload.physicalRoll !== undefined
+            ? payload.physicalRoll
+            : rollDie(20);
+        const total = d20 + conMod;
+
+        let detail = "";
+        if (d20 === 20) {
+          target.currentHp = 1;
+          target.conditions = target.conditions.filter((c) => c !== "dying" && c !== "unconscious");
+          target.deathStrikes = 0;
+          target.stabilized = true;
+          detail = `NATURAL 20! ${target.name} gasps for breath and awakens with 1 HP!`;
+        } else if (total >= 10) {
+          target.stabilized = true;
+          detail = `Roll ${d20} + ${conMod} = ${total} (>= 10): ${target.name} has stabilized!`;
+        } else {
+          const addedStrikes = d20 === 1 ? 2 : 1;
+          target.deathStrikes = (target.deathStrikes ?? 0) + addedStrikes;
+          if (target.deathStrikes >= 3) {
+            target.conditions = [...target.conditions.filter((c) => c !== "dying"), "dead"];
+            detail = `CRITICAL FAILURE! Roll ${d20} + ${conMod} = ${total}. Death strikes: ${target.deathStrikes}/3. ${target.name} has succumbed to their wounds and DIED.`;
+          } else {
+            detail = `Failed death save (Roll ${d20} + ${conMod} = ${total}). Death strikes: ${target.deathStrikes}/3.`;
+          }
+        }
+
+        db.updateCharacter(identity.campaignId, {
+          ...char,
+          hp: target.currentHp,
+          deathStrikes: target.deathStrikes,
+          stabilized: target.stabilized,
+          conditions: target.conditions,
+        });
+
+        db.saveCombatState(identity.campaignId, combat);
+        db.addRoll(identity.campaignId, {
+          actor: target.name,
+          kind: "save",
+          label: `${target.name}: Death Save`,
+          dice: "1d20",
+          total,
+          detail,
+        });
+
+        return { combat, target };
+      }),
+    );
+
+    socket.on(
+      "combat:morale_check",
+      action((raw: unknown) => {
+        callerOrHostOnly();
+        const payload = z.object({ moraleScore: z.number().int().default(7) }).parse(raw);
+        const combat = db.getCombatState(identity.campaignId);
+        if (!combat) throw new Error("No active combat");
+
+        const rollResult = moraleRoll(payload.moraleScore);
+        const passed = rollResult.total <= payload.moraleScore;
+        combat.moraleTriggerChecked = true;
+        db.saveCombatState(identity.campaignId, combat);
+
+        db.addRoll(identity.campaignId, {
+          actor: "Table",
+          kind: "morale",
+          label: `Monster Morale Check (Score: ${payload.moraleScore})`,
+          dice: "2d6",
+          total: rollResult.total,
+          detail: passed
+            ? "Monsters hold their ground and fight on!"
+            : "MONSTERS ROUT! The enemies break ranks and attempt to flee or surrender!",
+        });
+
+        return { rollResult, passed };
+      }),
+    );
+
+    socket.on(
+      "combat:end",
+      action((raw: unknown) => {
+        callerOrHostOnly();
+        const combat = db.getCombatState(identity.campaignId);
+        if (!combat) throw new Error("No active combat to end");
+
+        combat.status = "resolved";
+        db.saveCombatState(identity.campaignId, combat);
+
+        const livingMonsters = combat.combatants.filter(
+          (c) => c.kind === "monster" && !c.conditions.includes("defeated") && c.currentHp > 0,
+        );
+        const victory = livingMonsters.length === 0;
+
+        let rewardRecord: RewardRecord | null = null;
+        if (victory) {
+          const reward = generateTreasureReward(1);
+          rewardRecord = {
+            id: `reward-${Date.now()}`,
+            campaignId: identity.campaignId,
+            sourceType: "encounter",
+            sourceId: String(combat.encounterId),
+            coins: reward.coins,
+            items: reward.items,
+            claimed: false,
+            allocations: {},
+          };
+          db.saveReward(identity.campaignId, rewardRecord);
+
+          const camp = db.db.prepare("SELECT * FROM campaigns WHERE id = ?").get(identity.campaignId) as any;
+          if (camp?.active_site_id) {
+            const graph = db.getDungeonGraph(identity.campaignId, camp.active_site_id);
+            if (graph) {
+              const currentRoom = graph.nodes.find((n) => n.id === graph.currentRoomId);
+              if (currentRoom?.encounter) {
+                currentRoom.encounter.defeated = true;
+                db.saveDungeonGraph(identity.campaignId, graph);
+              }
+            }
+          }
+        }
+
+        db.addRoll(identity.campaignId, {
+          actor: "Table",
+          kind: "combat",
+          label: "Combat Resolved",
+          dice: "—",
+          total: 0,
+          detail: victory
+            ? "Enemies vanquished! Spoils of battle await allocation."
+            : "Combat concluded.",
+        });
+
+        return { combat, reward: rewardRecord };
+      }),
+    );
+
+    // --- M6: Treasure Allocation, Return & Session Recovery Handlers ---
+
+    socket.on(
+      "treasure:generate",
+      action((raw: unknown) => {
+        callerOrHostOnly();
+        const payload = z
+          .object({
+            sourceType: z.enum(["dungeon_room", "encounter", "situation_deed"]).default("dungeon_room"),
+            sourceId: z.string().default("manual"),
+            level: z.number().int().min(1).default(1),
+          })
+          .parse(raw);
+
+        const treasure = generateTreasureReward(payload.level);
+        const reward: RewardRecord = {
+          id: `reward-${Date.now()}`,
+          campaignId: identity.campaignId,
+          sourceType: payload.sourceType,
+          sourceId: payload.sourceId,
+          coins: { cp: 0, sp: treasure.coins.sp, gp: treasure.coins.gp },
+          items: treasure.items,
+          claimed: false,
+          allocations: {},
+        };
+        db.saveReward(identity.campaignId, reward);
+
+        db.addRoll(identity.campaignId, {
+          actor: "Table",
+          kind: "reward",
+          label: "Treasure Discovered",
+          dice: "—",
+          total: treasure.coins.gp ?? 0,
+          detail: `Found: ${treasure.coins.gp ?? 0} gp, ${treasure.coins.sp ?? 0} sp · Items: ${
+            treasure.items.length > 0 ? treasure.items.join(", ") : "None"
+          }`,
+        });
+
+        return { reward };
+      }),
+    );
+
+    socket.on(
+      "treasure:allocate",
+      action((raw: unknown) => {
+        callerOrHostOnly();
+        const payload = z
+          .object({
+            rewardId: z.string(),
+            allocationType: z.enum(["split_coins", "assign_item", "claim_all"]),
+            characterId: z.number().int().optional(),
+            itemIndex: z.number().int().optional(),
+          })
+          .parse(raw);
+
+        const rewards = db.getRewards(identity.campaignId);
+        const reward = rewards.find((r) => r.id === payload.rewardId);
+        if (!reward) throw new Error("Reward record not found");
+
+        const state = db.getState(identity.campaignId, "host", null, "");
+        const livingChars = state.characters.filter((c) => !c.conditions?.includes("dead"));
+
+        if (payload.allocationType === "split_coins") {
+          const totalGp =
+            (reward.coins.gp ?? 0) +
+            Math.floor((reward.coins.sp ?? 0) / 10) +
+            Math.floor((reward.coins.cp ?? 0) / 100);
+          const perChar = Math.floor(totalGp / Math.max(1, livingChars.length));
+          for (const char of livingChars) {
+            db.updateCharacter(identity.campaignId, {
+              ...char,
+              gold: char.gold + perChar,
+            });
+          }
+          reward.coins = { cp: 0, sp: 0, gp: 0 };
+          reward.allocations["coins"] = { target: "party" };
+          db.addRoll(identity.campaignId, {
+            actor: actor(),
+            kind: "reward",
+            label: "Coins Divided Evenly",
+            dice: "—",
+            total: perChar,
+            detail: `Each of ${livingChars.length} party members received ${perChar} gp.`,
+          });
+        } else if (payload.allocationType === "assign_item") {
+          if (payload.characterId === undefined || payload.itemIndex === undefined) {
+            throw new Error("Target character and item index required");
+          }
+          const char = livingChars.find((c) => c.id === payload.characterId);
+          if (!char) throw new Error("Character not found");
+
+          const itemName = reward.items[payload.itemIndex];
+          if (!itemName) throw new Error("Item not found in reward");
+
+          const itemDef = ITEMS.find(
+            (i) => i.id === itemName || i.name.toLowerCase() === itemName.toLowerCase(),
+          );
+          const itemSlots = itemDef?.slots ?? 1;
+          const currentSlots = calculateCarriedSlots(char.inventory ?? []);
+          const maxSlots = calculateGearSlots({
+            className: char.className,
+            abilities: { str: char.abilities.str, con: char.abilities.con },
+          });
+
+          if (currentSlots + itemSlots > maxSlots) {
+            throw new Error(
+              `${char.name} does not have enough gear slots (${currentSlots}/${maxSlots} carried)`,
+            );
+          }
+
+          const newItem: InventoryItem = {
+            instanceId: randomInt(100000, 999999).toString(),
+            itemId: itemDef?.id ?? itemName,
+            name: itemDef?.name ?? itemName,
+            kind: itemDef?.kind ?? "gear",
+            slots: itemSlots,
+            equipped: false,
+            quantity: 1,
+            baseAc: itemDef?.baseAc,
+            acBonus: itemDef?.acBonus,
+            damage: itemDef?.damage,
+          };
+
+          const inv = [...(char.inventory ?? []), newItem];
+          db.updateCharacter(identity.campaignId, { ...char, inventory: inv });
+
+          reward.items.splice(payload.itemIndex, 1);
+          reward.allocations[`item-${Date.now()}`] = { target: "character", characterId: char.id };
+
+          db.addRoll(identity.campaignId, {
+            actor: actor(),
+            kind: "reward",
+            label: `Loot Allocated: ${newItem.name}`,
+            dice: "—",
+            total: 0,
+            detail: `${newItem.name} assigned to ${char.name} (${currentSlots + itemSlots}/${maxSlots} slots).`,
+          });
+        }
+
+        if (
+          (reward.coins.gp ?? 0) === 0 &&
+          (reward.coins.sp ?? 0) === 0 &&
+          (reward.coins.cp ?? 0) === 0 &&
+          reward.items.length === 0
+        ) {
+          reward.claimed = true;
+        }
+
+        db.saveReward(identity.campaignId, reward);
+        return { reward };
+      }),
+    );
+
+    socket.on(
+      "session:award_xp",
+      action((raw: unknown) => {
+        callerOrHostOnly();
+        const payload = z
+          .object({
+            amount: z.number().int().min(1),
+            reason: z.string().default("Expedition Accomplishment"),
+            characterIds: z.array(z.number().int()).optional(),
+          })
+          .parse(raw);
+
+        const state = db.getState(identity.campaignId, "host", null, "");
+        const targets = payload.characterIds
+          ? state.characters.filter((c) => payload.characterIds!.includes(c.id))
+          : state.characters.filter((c) => !c.conditions?.includes("dead"));
+
+        for (const char of targets) {
+          const currentXp = char.xp ?? 0;
+          const newXp = currentXp + payload.amount;
+          db.updateCharacter(identity.campaignId, { ...char, xp: newXp });
+        }
+
+        db.addRoll(identity.campaignId, {
+          actor: "Table",
+          kind: "campaign",
+          label: `XP Awarded: +${payload.amount} XP`,
+          dice: "—",
+          total: payload.amount,
+          detail: `Awarded ${payload.amount} XP to ${targets.map((c) => c.name).join(", ")} (${payload.reason}).`,
+        });
+
+        return { awarded: true };
+      }),
+    );
+
+    socket.on(
+      "session:return_sanctuary",
+      action((raw: unknown) => {
+        callerOrHostOnly();
+        const state = db.getState(identity.campaignId, "host", null, "");
+
+        for (const char of state.characters) {
+          if (char.conditions?.includes("dead")) continue;
+          const refreshedSpells = (char.spells ?? []).map((s) => ({
+            ...s,
+            available: true,
+            penanceRequired: false,
+          }));
+          db.updateCharacter(identity.campaignId, {
+            ...char,
+            hp: char.maxHp,
+            fatigue: 0,
+            deathStrikes: 0,
+            stabilized: true,
+            conditions: [],
+            spells: refreshedSpells,
+          });
+        }
+
+        db.setCampaignPhase(identity.campaignId, "sanctuary");
+        db.setActiveSite(identity.campaignId, null);
+
+        const activeCombat = db.getCombatState(identity.campaignId);
+        if (activeCombat && activeCombat.status === "active") {
+          activeCombat.status = "resolved";
+          db.saveCombatState(identity.campaignId, activeCombat);
+        }
+
+        db.addRoll(identity.campaignId, {
+          actor: "Table",
+          kind: "campaign",
+          label: "Party Returned to Haven Sanctuary",
+          dice: "—",
+          total: 0,
+          detail:
+            "The expedition concludes. All living adventurers recover to full health, refresh spells, and clear fatigue in the warmth of the sanctuary.",
+        });
+
+        return { returned: true };
       }),
     );
 

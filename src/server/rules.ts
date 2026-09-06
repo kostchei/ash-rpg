@@ -1,8 +1,8 @@
 import { randomInt } from "node:crypto";
 import { readFileSync, existsSync } from "node:fs";
 import { resolve } from "node:path";
-import { CLASSES } from "../shared/content.js";
-import type { Character, EncounterMonster } from "../shared/types.js";
+import { ARCANE_MISHAPS, CLASSES, ITEMS, SPELLS } from "../shared/content.js";
+import type { Character, EncounterMonster, InventoryItem, SpellDefinition } from "../shared/types.js";
 
 export type RandomSource = (maxExclusive: number) => number;
 const systemRandom: RandomSource = (max) => randomInt(max);
@@ -601,3 +601,182 @@ export function levelUpCharacter(
     log,
   };
 }
+
+// -------------------------------------------------------------
+// Equipment, AC, Attack & Spell Rules
+// -------------------------------------------------------------
+
+export function calculateDerivedAc(inventory: InventoryItem[] = [], dexMod = 0): {
+  ac: number;
+  hasStealthDisadvantage: boolean;
+} {
+  const equippedArmor = inventory.find(
+    (i) => i.equipped && (i.kind === "armor" || i.baseAc !== undefined),
+  );
+  const equippedShield = inventory.find(
+    (i) => i.equipped && (i.kind === "shield" || (i.acBonus !== undefined && i.acBonus > 0)),
+  );
+
+  let baseAc = 10 + dexMod;
+  let hasStealthDisadvantage = false;
+
+  if (equippedArmor) {
+    const armorDef = ITEMS.find((it) => it.id === equippedArmor.itemId);
+    const base = equippedArmor.baseAc ?? armorDef?.baseAc ?? 11;
+    const maxDex = equippedArmor.maxDexMod ?? armorDef?.maxDexMod;
+    const effectiveDex = maxDex !== undefined ? Math.min(dexMod, maxDex) : dexMod;
+    baseAc = base + effectiveDex;
+
+    const props = equippedArmor.properties ?? armorDef?.properties ?? [];
+    if (props.includes("disadvantage_stealth")) {
+      hasStealthDisadvantage = true;
+    }
+  }
+
+  if (equippedShield) {
+    const shieldDef = ITEMS.find((it) => it.id === equippedShield.itemId);
+    const bonus = equippedShield.acBonus ?? shieldDef?.acBonus ?? 2;
+    baseAc += bonus;
+  }
+
+  return { ac: baseAc, hasStealthDisadvantage };
+}
+
+export function calculateGearSlots(character: {
+  className: string;
+  abilities: { str: number; con: number };
+}): number {
+  const base = 10 + abilityModifier(character.abilities.str);
+  const isFighter = character.className.toLowerCase() === "fighter";
+  const haulerBonus = isFighter ? Math.max(0, abilityModifier(character.abilities.con)) : 0;
+  return Math.max(1, base + haulerBonus);
+}
+
+export function calculateCarriedSlots(inventory: InventoryItem[] = []): number {
+  return inventory.reduce((sum, item) => sum + (item.slots ?? 1) * (item.quantity ?? 1), 0);
+}
+
+export function calculateAttackBonus(
+  character: {
+    level: number;
+    className: string;
+    abilities: { str: number; dex: number };
+    classChoices?: Record<string, any>;
+  },
+  weapon: InventoryItem,
+  isMastered = false,
+): { attackBonus: number; damageBonus: number; damageDie: string } {
+  const itemDef = ITEMS.find((it) => it.id === weapon.itemId);
+  const props = weapon.properties ?? itemDef?.properties ?? [];
+  const damageDie = weapon.damage ?? itemDef?.damage ?? "1d4";
+
+  const strMod = abilityModifier(character.abilities.str);
+  const dexMod = abilityModifier(character.abilities.dex);
+
+  const isRanged = props.includes("ranged");
+  const isFinesse = props.includes("finesse");
+
+  const statMod = isRanged ? dexMod : isFinesse ? Math.max(strMod, dexMod) : strMod;
+  let attackBonus = statMod;
+  let damageBonus = statMod;
+
+  const isFighter = character.className.toLowerCase() === "fighter";
+  const masteredChoice = character.classChoices?.masteredWeapon;
+  const isWeaponMastered = isMastered || (isFighter && (masteredChoice === weapon.itemId || isMastered));
+
+  if (isWeaponMastered) {
+    attackBonus += 1;
+    damageBonus += 1 + Math.floor(character.level / 3);
+  }
+
+  return { attackBonus, damageBonus, damageDie };
+}
+
+export function calculateBackstabBonus(level: number): { diceCount: number; expression: string } {
+  const diceCount = Math.max(1, Math.ceil(level / 2));
+  return { diceCount, expression: `+${diceCount}d6` };
+}
+
+export function resolveSpellCast(
+  character: {
+    className: string;
+    abilities: { int: number; wis: number };
+  },
+  spell: { tier: number; sphere?: string },
+  roll: number,
+  rng: RandomSource = systemRandom,
+): {
+  success: boolean;
+  roll: number;
+  total: number;
+  dc: number;
+  isNat1: boolean;
+  isNat20: boolean;
+  mishap?: string;
+  penanceRequired?: boolean;
+} {
+  const isArcane =
+    spell.sphere === "arcane" ||
+    character.className.toLowerCase() === "wizard" ||
+    character.className.toLowerCase() === "sage";
+  const abilityMod = isArcane
+    ? abilityModifier(character.abilities.int)
+    : abilityModifier(character.abilities.wis);
+
+  const dc = 10 + spell.tier;
+  const total = roll + abilityMod;
+  const isNat1 = roll === 1;
+  const isNat20 = roll === 20;
+  const success = isNat20 || (!isNat1 && total >= dc);
+
+  let mishap: string | undefined = undefined;
+  let penanceRequired = false;
+
+  if (isNat1) {
+    if (isArcane) {
+      const mishapRoll = rollDie(8, rng);
+      mishap = ARCANE_MISHAPS[mishapRoll - 1];
+    } else {
+      penanceRequired = true;
+    }
+  }
+
+  return {
+    success,
+    roll,
+    total,
+    dc,
+    isNat1,
+    isNat20,
+    mishap,
+    penanceRequired,
+  };
+}
+
+export function resolveInitiativeRoll(
+  dexMod: number,
+  rng: RandomSource = systemRandom,
+): { roll: number; total: number } {
+  const roll = rollDie(20, rng);
+  return { roll, total: roll + dexMod };
+}
+
+export function generateTreasureReward(
+  tier = 1,
+  rng: RandomSource = systemRandom,
+): {
+  coins: { gp: number; sp: number };
+  items: string[];
+} {
+  const gp = rollDie(6, rng) * 10 + rollDie(6, rng) * 5 * tier;
+  const sp = rollDie(6, rng) * 5;
+  const items: string[] = [];
+  if (rollDie(6, rng) >= 4) {
+    items.push(tier >= 2 ? "healing_salve" : "holy_water");
+  }
+  return {
+    coins: { gp, sp },
+    items,
+  };
+}
+

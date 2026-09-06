@@ -11,6 +11,11 @@ import {
   wildernessWatch,
   calculateTravelWatches,
   evaluateWatchFatigue,
+  calculateDerivedAc,
+  calculateGearSlots,
+  calculateAttackBonus,
+  calculateBackstabBonus,
+  resolveSpellCast,
 } from "../src/server/rules.js";
 
 function sequence(...values: number[]) {
@@ -114,5 +119,58 @@ describe("ASH rules engine", () => {
     const passedCheck = evaluateWatchFatigue(4, 0, 0, passRoll);
     expect(passedCheck.passed).toBe(true);
     expect(passedCheck.fatigueGained).toBe(false);
+  });
+
+  it("calculates derived AC from armor and shield", () => {
+    const unarmored = calculateDerivedAc([], 2);
+    expect(unarmored.ac).toBe(12);
+
+    const leatherAndShield = calculateDerivedAc([
+      { instanceId: "1", itemId: "leather_armor", name: "Leather", kind: "armor", slots: 1, baseAc: 11, equipped: true },
+      { instanceId: "2", itemId: "shield", name: "Shield", kind: "shield", slots: 1, acBonus: 2, equipped: true },
+    ], 2);
+    expect(leatherAndShield.ac).toBe(15);
+
+    const chainmail = calculateDerivedAc([
+      { instanceId: "3", itemId: "chainmail", name: "Chainmail", kind: "armor", slots: 2, baseAc: 13, maxDexMod: 2, properties: ["disadvantage_stealth"], equipped: true },
+    ], 3);
+    expect(chainmail.ac).toBe(15);
+    expect(chainmail.hasStealthDisadvantage).toBe(true);
+  });
+
+  it("calculates gear slots and weapon mastery bonuses", () => {
+    expect(calculateGearSlots({ className: "Fighter", abilities: { str: 14, con: 14 } })).toBe(14);
+    expect(calculateGearSlots({ className: "Thief", abilities: { str: 10, con: 12 } })).toBe(10);
+
+    expect(calculateBackstabBonus(1).expression).toBe("+1d6");
+    expect(calculateBackstabBonus(3).expression).toBe("+2d6");
+
+    const weapon = { instanceId: "w1", itemId: "longsword", name: "Longsword", kind: "weapon" as const, slots: 1, damage: "1d8", properties: ["versatile"] };
+    const attack = calculateAttackBonus({ level: 3, className: "Fighter", abilities: { str: 14, dex: 10 }, classChoices: { masteredWeapon: "longsword" } }, weapon);
+    expect(attack.attackBonus).toBe(3);
+    expect(attack.damageBonus).toBe(4);
+  });
+
+  it("resolves spellcasting checks with mishap on Wizard nat 1 and penance on Priest nat 1", () => {
+    const wizard = { className: "Wizard", abilities: { int: 16, wis: 10 } };
+    const spell = { tier: 1, sphere: "arcane" };
+
+    const successCast = resolveSpellCast(wizard, spell, 8);
+    expect(successCast.success).toBe(true);
+
+    const failCast = resolveSpellCast(wizard, spell, 7);
+    expect(failCast.success).toBe(false);
+
+    const mishapCast = resolveSpellCast(wizard, spell, 1, sequence(2));
+    expect(mishapCast.success).toBe(false);
+    expect(mishapCast.isNat1).toBe(true);
+    expect(mishapCast.mishap).toBeDefined();
+
+    const priest = { className: "Priest", abilities: { int: 10, wis: 16 } };
+    const divineSpell = { tier: 1, sphere: "divine" };
+    const penanceCast = resolveSpellCast(priest, divineSpell, 1);
+    expect(penanceCast.success).toBe(false);
+    expect(penanceCast.isNat1).toBe(true);
+    expect(penanceCast.penanceRequired).toBe(true);
   });
 });

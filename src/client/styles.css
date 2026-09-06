@@ -2167,3 +2167,148 @@ button:disabled {
   flex: 1;
 }
 
+/* --- Table Companion MVP: Caller & Subbar --- */
+.caller-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(217, 117, 56, 0.12);
+  border: 1px solid var(--ember);
+}
+.caller-chip.is-caller {
+  background: rgba(217, 117, 56, 0.25);
+  box-shadow: 0 0 10px rgba(217, 117, 56, 0.3);
+}
+.caller-badge-you {
+  background: var(--ember);
+  color: #000;
+  padding: 1px 6px;
+  border-radius: 10px;
+  font-size: 10px;
+  font-weight: 700;
+}
+.caller-select-dropdown {
+  background: var(--surface);
+  color: var(--ink);
+  border: 1px solid var(--line);
+  font-size: 11px;
+  padding: 2px 4px;
+  border-radius: 4px;
+}
+.loot-alert-btn {
+  background: linear-gradient(135deg, #d97538, #e5a93b);
+  color: #000;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  animation: pulse-glow 2s infinite alternate;
+}
+@keyframes pulse-glow {
+  from { box-shadow: 0 0 5px rgba(229, 169, 59, 0.4); }
+  to { box-shadow: 0 0 15px rgba(229, 169, 59, 0.9); }
+}
+
+/* --- Dungeon Delve Styles --- */
+.dungeon-status-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 12px 16px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.torch-meter {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+}
+.flame-lit {
+  color: var(--ember);
+  filter: drop-shadow(0 0 6px var(--ember));
+}
+.flame-out {
+  color: var(--muted);
+}
+.danger-tag {
+  background: var(--danger);
+  color: #fff;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 700;
+}
+.dungeon-actions {
+  display: flex;
+  gap: 8px;
+}
+.dungeon-map-container {
+  background: #0d0f0c;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  overflow: hidden;
+}
+.dungeon-svg-map {
+  width: 100%;
+  max-height: 400px;
+  display: block;
+}
+.party-ring-pulse {
+  animation: pulse-ring 2s infinite ease-in-out;
+}
+@keyframes pulse-ring {
+  0% { r: 32px; opacity: 0.8; }
+  50% { r: 38px; opacity: 0.3; }
+  100% { r: 32px; opacity: 0.8; }
+}
+.room-node:hover circle {
+  filter: brightness(1.2);
+}
+
+/* --- Combat Runner Styles --- */
+.combat-main {
+  min-height: 500px;
+}
+.initiative-track::-webkit-scrollbar {
+  height: 6px;
+}
+.initiative-track::-webkit-scrollbar-thumb {
+  background: var(--line);
+  border-radius: 3px;
+}
+.active-combatant {
+  box-shadow: 0 0 14px rgba(217, 117, 56, 0.4);
+}
+.danger-btn {
+  background: var(--danger) !important;
+  color: #fff !important;
+  border-color: var(--danger) !important;
+}
+
+/* --- Modal Backdrop & Windows --- */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 16px;
+}
+.modal-content {
+  max-height: 90vh;
+  overflow-y: auto;
+  width: 100%;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+}
+.ability-clickable:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 4px;
+}
+
+

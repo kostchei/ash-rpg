@@ -7,27 +7,35 @@ import {
   timingSafeEqual,
 } from "node:crypto";
 import Database from "better-sqlite3";
-import { HEX_DEFINITIONS, MONSTERS } from "../shared/content.js";
+import { HEX_DEFINITIONS, MONSTERS, STARTING_EQUIPMENT, SPELLS, ITEMS } from "../shared/content.js";
 import { generateHexMap } from "./generators/hex-map.js";
 import { generateProceduralRegion, type GeneratedRegionWorld } from "./generators/procedural-region.js";
 import { CUSTOM_MONSTER_TEMPLATES, resolveMonsterEntry } from "../shared/monster-aliases.js";
-import { abilityModifier } from "./rules.js";
+import { abilityModifier, calculateDerivedAc, calculateGearSlots } from "./rules.js";
 import type {
+  ActivitySession,
   AdventurePathRecord,
   CampaignPhase,
   CampaignPressure,
   CampaignState,
   Character,
+  CharacterSpell,
+  CombatState,
   CursedZoneId,
+  DungeonConnectionEdge,
+  DungeonGraphState,
   DungeonRoom,
+  DungeonRoomNode,
   Encounter,
   EncounterMonster,
   ExpeditionObjective,
+  InventoryItem,
   PublicAdventurePathSummary,
   PublicConnectionSummary,
   PublicHex,
   PublicSiteSummary,
   RegionGenerationConfig,
+  RewardRecord,
   Role,
   RollRecord,
   TavernEstablishment,
@@ -244,6 +252,12 @@ export class AshDatabase {
     if (!campaignCols.some((c) => c.name === "tavern_establishment_json")) {
       this.db.exec("ALTER TABLE campaigns ADD COLUMN tavern_establishment_json TEXT");
     }
+    if (!campaignCols.some((c) => c.name === "caller_token")) {
+      this.db.exec("ALTER TABLE campaigns ADD COLUMN caller_token TEXT");
+    }
+    if (!campaignCols.some((c) => c.name === "revision")) {
+      this.db.exec("ALTER TABLE campaigns ADD COLUMN revision INTEGER NOT NULL DEFAULT 1");
+    }
 
     const charCols = this.db.pragma("table_info(characters)") as Array<{ name: string }>;
     if (!charCols.some((c) => c.name === "talents_json")) {
@@ -255,6 +269,83 @@ export class AshDatabase {
     if (!charCols.some((c) => c.name === "fatigue")) {
       this.db.exec("ALTER TABLE characters ADD COLUMN fatigue INTEGER NOT NULL DEFAULT 0");
     }
+    if (!charCols.some((c) => c.name === "class_id")) {
+      this.db.exec("ALTER TABLE characters ADD COLUMN class_id TEXT NOT NULL DEFAULT 'fighter'");
+    }
+    if (!charCols.some((c) => c.name === "inventory_json")) {
+      this.db.exec("ALTER TABLE characters ADD COLUMN inventory_json TEXT NOT NULL DEFAULT '[]'");
+    }
+    if (!charCols.some((c) => c.name === "spells_json")) {
+      this.db.exec("ALTER TABLE characters ADD COLUMN spells_json TEXT NOT NULL DEFAULT '[]'");
+    }
+    if (!charCols.some((c) => c.name === "conditions_json")) {
+      this.db.exec("ALTER TABLE characters ADD COLUMN conditions_json TEXT NOT NULL DEFAULT '[]'");
+    }
+    if (!charCols.some((c) => c.name === "class_choices_json")) {
+      this.db.exec("ALTER TABLE characters ADD COLUMN class_choices_json TEXT NOT NULL DEFAULT '{}'");
+    }
+    if (!charCols.some((c) => c.name === "death_strikes")) {
+      this.db.exec("ALTER TABLE characters ADD COLUMN death_strikes INTEGER NOT NULL DEFAULT 0");
+    }
+    if (!charCols.some((c) => c.name === "stabilized")) {
+      this.db.exec("ALTER TABLE characters ADD COLUMN stabilized INTEGER NOT NULL DEFAULT 0");
+    }
+
+    this.db.exec(`
+      CREATE TABLE IF NOT EXISTS action_receipts (
+        id INTEGER PRIMARY KEY,
+        campaign_id INTEGER NOT NULL REFERENCES campaigns(id) ON DELETE CASCADE,
+        actor_token TEXT NOT NULL,
+        action_id TEXT NOT NULL,
+        expected_revision INTEGER,
+        result_json TEXT NOT NULL,
+        created_at TEXT NOT NULL,
+        UNIQUE(campaign_id, actor_token, action_id)
+      );
+      CREATE INDEX IF NOT EXISTS idx_action_receipts_lookup ON action_receipts(campaign_id, actor_token, action_id);
+
+      CREATE TABLE IF NOT EXISTS activity_sessions (
+        id TEXT PRIMARY KEY,
+        campaign_id INTEGER NOT NULL REFERENCES campaigns(id) ON DELETE CASCADE,
+        kind TEXT NOT NULL,
+        status TEXT NOT NULL DEFAULT 'open',
+        revision INTEGER NOT NULL DEFAULT 1,
+        choices_json TEXT NOT NULL DEFAULT '{}',
+        resolved_at TEXT,
+        result_json TEXT
+      );
+
+      CREATE TABLE IF NOT EXISTS dungeon_graphs (
+        site_id TEXT PRIMARY KEY,
+        campaign_id INTEGER NOT NULL REFERENCES campaigns(id) ON DELETE CASCADE,
+        current_room_id INTEGER NOT NULL,
+        entry_room_id INTEGER NOT NULL,
+        nodes_json TEXT NOT NULL,
+        edges_json TEXT NOT NULL,
+        exploration_turns INTEGER NOT NULL DEFAULT 0,
+        light_turns_remaining INTEGER NOT NULL DEFAULT 0
+      );
+
+      CREATE TABLE IF NOT EXISTS combat_states (
+        encounter_id INTEGER PRIMARY KEY REFERENCES encounters(id) ON DELETE CASCADE,
+        campaign_id INTEGER NOT NULL REFERENCES campaigns(id) ON DELETE CASCADE,
+        round INTEGER NOT NULL DEFAULT 1,
+        active_index INTEGER NOT NULL DEFAULT 0,
+        initiative_order_json TEXT NOT NULL,
+        conditions_json TEXT NOT NULL DEFAULT '{}',
+        status TEXT NOT NULL DEFAULT 'active'
+      );
+
+      CREATE TABLE IF NOT EXISTS rewards (
+        id TEXT PRIMARY KEY,
+        campaign_id INTEGER NOT NULL REFERENCES campaigns(id) ON DELETE CASCADE,
+        source_type TEXT NOT NULL,
+        source_id TEXT NOT NULL,
+        contents_json TEXT NOT NULL,
+        claimed INTEGER NOT NULL DEFAULT 0,
+        allocations_json TEXT NOT NULL DEFAULT '{}'
+      );
+    `);
 
     const roomCols = this.db.pragma("table_info(dungeon_rooms)") as Array<{ name: string }>;
     if (!roomCols.some((c) => c.name === "site_id")) {
@@ -910,11 +1001,58 @@ export class AshDatabase {
     input: Omit<Character, "id" | "ownerToken">,
   ) {
     const a = input.abilities;
+    const classId = input.classId || input.className.toLowerCase().replace(/[^a-z0-9_]/g, "");
+
+    const inventory: InventoryItem[] = input.inventory && input.inventory.length > 0
+      ? input.inventory
+      : (STARTING_EQUIPMENT[classId] ? STARTING_EQUIPMENT[classId].map((packItem) => {
+          const itemDef = ITEMS.find((it) => it.id === packItem.itemId);
+          return {
+            instanceId: randomBytes(8).toString("hex"),
+            itemId: packItem.itemId,
+            name: itemDef?.name ?? packItem.itemId,
+            kind: itemDef?.kind ?? "gear",
+            slots: itemDef?.slots ?? 1,
+            equipped: packItem.equipped ?? false,
+            quantity: packItem.quantity ?? 1,
+            damage: itemDef?.damage,
+            properties: itemDef?.properties,
+            baseAc: itemDef?.baseAc,
+            acBonus: itemDef?.acBonus,
+            maxDexMod: itemDef?.maxDexMod,
+          };
+        }) : []);
+
+    let spells: CharacterSpell[] = input.spells && input.spells.length > 0
+      ? input.spells
+      : [];
+
+    if (spells.length === 0) {
+      if (classId === "priest") {
+        spells = SPELLS.filter((s) => s.tier === 1 && s.sphere === "divine").slice(0, 2).map((s) => ({
+          spellId: s.id,
+          tier: s.tier,
+          available: true,
+          penanceRequired: false,
+        }));
+      } else if (classId === "wizard") {
+        spells = SPELLS.filter((s) => s.tier === 1 && s.sphere === "arcane").slice(0, 3).map((s) => ({
+          spellId: s.id,
+          tier: s.tier,
+          available: true,
+          penanceRequired: false,
+        }));
+      }
+    }
+
+    const finalAc = inventory.length > 0 ? calculateDerivedAc(inventory, abilityModifier(a.dex)).ac : input.ac;
+    const finalGearSlots = calculateGearSlots({ className: input.className, abilities: { str: a.str, con: a.con } });
+
     const result = this.db
       .prepare(
         `INSERT INTO characters
-      (campaign_id,owner_token,name,ancestry,class_name,level,hp,max_hp,ac,gold,gear_slots,str,dex,con,int,wis,cha,anchors_json,talents_json,xp,created_at)
-      VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
+      (campaign_id,owner_token,name,ancestry,class_name,level,hp,max_hp,ac,gold,gear_slots,str,dex,con,int,wis,cha,anchors_json,talents_json,xp,fatigue,class_id,inventory_json,spells_json,conditions_json,class_choices_json,death_strikes,stabilized,created_at)
+      VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
       )
       .run(
         campaignId,
@@ -922,21 +1060,29 @@ export class AshDatabase {
         input.name,
         input.ancestry,
         input.className,
-        input.level,
+        input.level ?? 1,
         input.hp,
         input.maxHp,
-        input.ac,
+        finalAc ?? input.ac ?? 10,
         input.gold,
-        input.gearSlots,
+        finalGearSlots,
         a.str,
         a.dex,
         a.con,
         a.int,
         a.wis,
         a.cha,
-        JSON.stringify(input.anchors),
+        JSON.stringify(input.anchors ?? []),
         JSON.stringify(input.talents ?? []),
         input.xp ?? 0,
+        input.fatigue ?? 0,
+        classId,
+        JSON.stringify(inventory),
+        JSON.stringify(spells),
+        JSON.stringify(input.conditions ?? []),
+        JSON.stringify(input.classChoices ?? {}),
+        input.deathStrikes ?? 0,
+        input.stabilized ? 1 : 0,
         now(),
       );
     const id = Number(result.lastInsertRowid);
@@ -951,11 +1097,14 @@ export class AshDatabase {
 
   updateCharacter(campaignId: number, character: Character) {
     const a = character.abilities;
+    const classId = character.classId || character.className.toLowerCase().replace(/[^a-z0-9_]/g, "");
     this.db
       .prepare(
         `UPDATE characters SET 
         name = ?, ancestry = ?, class_name = ?, level = ?, hp = ?, max_hp = ?, ac = ?, gold = ?, gear_slots = ?,
-        str = ?, dex = ?, con = ?, int = ?, wis = ?, cha = ?, anchors_json = ?, talents_json = ?, xp = ?
+        str = ?, dex = ?, con = ?, int = ?, wis = ?, cha = ?, anchors_json = ?, talents_json = ?, xp = ?,
+        fatigue = ?, class_id = ?, inventory_json = ?, spells_json = ?, conditions_json = ?, class_choices_json = ?,
+        death_strikes = ?, stabilized = ?
         WHERE id = ? AND campaign_id = ?`,
       )
       .run(
@@ -977,8 +1126,279 @@ export class AshDatabase {
         JSON.stringify(character.anchors),
         JSON.stringify(character.talents ?? []),
         character.xp ?? 0,
+        character.fatigue ?? 0,
+        classId,
+        JSON.stringify(character.inventory ?? []),
+        JSON.stringify(character.spells ?? []),
+        JSON.stringify(character.conditions ?? []),
+        JSON.stringify(character.classChoices ?? {}),
+        character.deathStrikes ?? 0,
+        character.stabilized ? 1 : 0,
         character.id,
         campaignId,
+      );
+  }
+
+  setCallerToken(campaignId: number, callerToken: string | null): void {
+    this.db
+      .prepare("UPDATE campaigns SET caller_token = ?, revision = revision + 1 WHERE id = ?")
+      .run(callerToken, campaignId);
+  }
+
+  getCallerToken(campaignId: number): string | null {
+    const row = this.db
+      .prepare("SELECT caller_token FROM campaigns WHERE id = ?")
+      .get(campaignId) as { caller_token: string | null } | undefined;
+    return row?.caller_token ?? null;
+  }
+
+  executeMutation<T>(
+    campaignId: number,
+    actorToken: string,
+    actionId: string,
+    expectedRevision: number | undefined,
+    mutate: () => T,
+  ): { result: T; revision: number } {
+    return this.db.transaction(() => {
+      // 1. Idempotency receipt check
+      const existingReceipt = this.db
+        .prepare(
+          "SELECT result_json, expected_revision FROM action_receipts WHERE campaign_id = ? AND actor_token = ? AND action_id = ?",
+        )
+        .get(campaignId, actorToken, actionId) as { result_json: string; expected_revision: number | null } | undefined;
+
+      if (existingReceipt) {
+        const campaignRow = this.db
+          .prepare("SELECT revision FROM campaigns WHERE id = ?")
+          .get(campaignId) as { revision: number } | undefined;
+        return {
+          result: JSON.parse(existingReceipt.result_json) as T,
+          revision: campaignRow?.revision ?? 1,
+        };
+      }
+
+      // 2. Revision check
+      const campaignRow = this.db
+        .prepare("SELECT revision FROM campaigns WHERE id = ?")
+        .get(campaignId) as { revision: number } | undefined;
+      const currentRevision = campaignRow?.revision ?? 1;
+
+      if (expectedRevision !== undefined && expectedRevision !== currentRevision) {
+        throw new Error(
+          `State revision conflict: expected revision ${expectedRevision} but current revision is ${currentRevision}`,
+        );
+      }
+
+      // 3. Perform mutation
+      const result = mutate();
+
+      // 4. Increment campaign revision
+      const newRevision = currentRevision + 1;
+      this.db
+        .prepare("UPDATE campaigns SET revision = ? WHERE id = ?")
+        .run(newRevision, campaignId);
+
+      // 5. Store action receipt
+      this.db
+        .prepare(
+          `INSERT INTO action_receipts (campaign_id, actor_token, action_id, expected_revision, result_json, created_at)
+           VALUES (?, ?, ?, ?, ?, ?)`,
+        )
+        .run(
+          campaignId,
+          actorToken,
+          actionId,
+          expectedRevision ?? null,
+          JSON.stringify(result ?? {}),
+          now(),
+        );
+
+      return { result, revision: newRevision };
+    })();
+  }
+
+  getActiveSession(campaignId: number, kind?: string): ActivitySession | null {
+    const row = kind
+      ? (this.db
+          .prepare("SELECT * FROM activity_sessions WHERE campaign_id = ? AND kind = ? AND status = 'open' ORDER BY rowid DESC LIMIT 1")
+          .get(campaignId, kind) as Row | undefined)
+      : (this.db
+          .prepare("SELECT * FROM activity_sessions WHERE campaign_id = ? AND status = 'open' ORDER BY rowid DESC LIMIT 1")
+          .get(campaignId) as Row | undefined);
+
+    if (!row) return null;
+    return {
+      id: String(row.id),
+      campaignId: Number(row.campaign_id),
+      kind: String(row.kind) as "tavern" | "camp",
+      status: String(row.status) as "open" | "resolved",
+      revision: Number(row.revision),
+      choices: row.choices_json ? JSON.parse(String(row.choices_json)) : {},
+      resolvedAt: row.resolved_at ? String(row.resolved_at) : undefined,
+      result: row.result_json ? JSON.parse(String(row.result_json)) : undefined,
+    };
+  }
+
+  saveActivitySession(campaignId: number, session: ActivitySession): void {
+    this.db
+      .prepare(
+        `INSERT INTO activity_sessions (id, campaign_id, kind, status, revision, choices_json, resolved_at, result_json)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+         ON CONFLICT(id) DO UPDATE SET
+           status = excluded.status,
+           revision = excluded.revision,
+           choices_json = excluded.choices_json,
+           resolved_at = excluded.resolved_at,
+           result_json = excluded.result_json`,
+      )
+      .run(
+        session.id,
+        campaignId,
+        session.kind,
+        session.status,
+        session.revision,
+        JSON.stringify(session.choices),
+        session.resolvedAt ?? null,
+        session.result ? JSON.stringify(session.result) : null,
+      );
+  }
+
+  getDungeonGraph(campaignId: number, siteId?: string): DungeonGraphState | null {
+    const targetSiteId = siteId || (this.db.prepare("SELECT active_site_id FROM campaigns WHERE id = ?").get(campaignId) as { active_site_id: string | null } | undefined)?.active_site_id;
+    if (!targetSiteId) return null;
+
+    const row = this.db
+      .prepare("SELECT * FROM dungeon_graphs WHERE campaign_id = ? AND site_id = ?")
+      .get(campaignId, targetSiteId) as Row | undefined;
+    if (!row) return null;
+
+    return {
+      siteId: String(row.site_id),
+      campaignId: Number(row.campaign_id),
+      currentRoomId: Number(row.current_room_id),
+      entryRoomId: Number(row.entry_room_id),
+      nodes: JSON.parse(String(row.nodes_json)),
+      edges: JSON.parse(String(row.edges_json)),
+      explorationTurns: Number(row.exploration_turns),
+      lightTurnsRemaining: Number(row.light_turns_remaining),
+    };
+  }
+
+  saveDungeonGraph(campaignId: number, graph: DungeonGraphState): void {
+    this.db
+      .prepare(
+        `INSERT INTO dungeon_graphs (site_id, campaign_id, current_room_id, entry_room_id, nodes_json, edges_json, exploration_turns, light_turns_remaining)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+         ON CONFLICT(site_id) DO UPDATE SET
+           current_room_id = excluded.current_room_id,
+           entry_room_id = excluded.entry_room_id,
+           nodes_json = excluded.nodes_json,
+           edges_json = excluded.edges_json,
+           exploration_turns = excluded.exploration_turns,
+           light_turns_remaining = excluded.light_turns_remaining`,
+      )
+      .run(
+        graph.siteId,
+        campaignId,
+        graph.currentRoomId,
+        graph.entryRoomId,
+        JSON.stringify(graph.nodes),
+        JSON.stringify(graph.edges),
+        graph.explorationTurns,
+        graph.lightTurnsRemaining,
+      );
+  }
+
+  getCombatState(campaignId: number, encounterId?: number): CombatState | null {
+    const row = encounterId
+      ? (this.db
+          .prepare("SELECT * FROM combat_states WHERE campaign_id = ? AND encounter_id = ?")
+          .get(campaignId, encounterId) as Row | undefined)
+      : (this.db
+          .prepare(
+            `SELECT cs.* FROM combat_states cs
+             JOIN encounters e ON cs.encounter_id = e.id
+             WHERE cs.campaign_id = ? AND cs.status = 'active'
+             ORDER BY cs.encounter_id DESC LIMIT 1`,
+          )
+          .get(campaignId) as Row | undefined);
+    if (!row) return null;
+
+    return {
+      encounterId: Number(row.encounter_id),
+      campaignId: Number(row.campaign_id),
+      round: Number(row.round),
+      activeIndex: Number(row.active_index),
+      combatants: JSON.parse(String(row.initiative_order_json)),
+      status: String(row.status) as "active" | "resolved",
+      moraleTriggerChecked: row.conditions_json ? JSON.parse(String(row.conditions_json)).moraleTriggerChecked : undefined,
+    };
+  }
+
+  saveCombatState(campaignId: number, combat: CombatState): void {
+    this.db
+      .prepare(
+        `INSERT INTO combat_states (encounter_id, campaign_id, round, active_index, initiative_order_json, conditions_json, status)
+         VALUES (?, ?, ?, ?, ?, ?, ?)
+         ON CONFLICT(encounter_id) DO UPDATE SET
+           round = excluded.round,
+           active_index = excluded.active_index,
+           initiative_order_json = excluded.initiative_order_json,
+           conditions_json = excluded.conditions_json,
+           status = excluded.status`,
+      )
+      .run(
+        combat.encounterId,
+        campaignId,
+        combat.round,
+        combat.activeIndex,
+        JSON.stringify(combat.combatants),
+        JSON.stringify({ moraleTriggerChecked: combat.moraleTriggerChecked }),
+        combat.status,
+      );
+  }
+
+  getRewards(campaignId: number, claimed?: boolean): RewardRecord[] {
+    const query = claimed !== undefined
+      ? "SELECT * FROM rewards WHERE campaign_id = ? AND claimed = ? ORDER BY rowid DESC"
+      : "SELECT * FROM rewards WHERE campaign_id = ? ORDER BY rowid DESC";
+    const rows = claimed !== undefined
+      ? (this.db.prepare(query).all(campaignId, claimed ? 1 : 0) as Row[])
+      : (this.db.prepare(query).all(campaignId) as Row[]);
+
+    return rows.map((r) => {
+      const contents = JSON.parse(String(r.contents_json));
+      return {
+        id: String(r.id),
+        campaignId: Number(r.campaign_id),
+        sourceType: String(r.source_type) as "dungeon_room" | "encounter" | "situation_deed",
+        sourceId: String(r.source_id),
+        coins: contents.coins ?? { cp: 0, sp: 0, gp: 0 },
+        items: contents.items ?? [],
+        claimed: Boolean(r.claimed),
+        allocations: JSON.parse(String(r.allocations_json)),
+      };
+    });
+  }
+
+  saveReward(campaignId: number, reward: RewardRecord): void {
+    this.db
+      .prepare(
+        `INSERT INTO rewards (id, campaign_id, source_type, source_id, contents_json, claimed, allocations_json)
+         VALUES (?, ?, ?, ?, ?, ?, ?)
+         ON CONFLICT(id) DO UPDATE SET
+           contents_json = excluded.contents_json,
+           claimed = excluded.claimed,
+           allocations_json = excluded.allocations_json`,
+      )
+      .run(
+        reward.id,
+        campaignId,
+        reward.sourceType,
+        reward.sourceId,
+        JSON.stringify({ coins: reward.coins, items: reward.items }),
+        reward.claimed ? 1 : 0,
+        JSON.stringify(reward.allocations),
       );
   }
 
@@ -1409,6 +1829,7 @@ export class AshDatabase {
     role: Role,
     characterId: number | null,
     joinUrl: string,
+    callerToken?: string,
   ): CampaignState {
     const campaign = this.db
       .prepare("SELECT * FROM campaigns WHERE id = ?")
@@ -1439,7 +1860,7 @@ export class AshDatabase {
               "SELECT * FROM dungeon_rooms WHERE campaign_id = ? ORDER BY sequence",
             )
             .all(campaignId) as Row[])
-    ).map(rowToRoom);
+    ).map((r) => rowToRoom(r, role));
     const encounterRows = this.db
       .prepare(
         "SELECT * FROM encounters WHERE campaign_id = ? ORDER BY id DESC",
@@ -1588,6 +2009,75 @@ export class AshDatabase {
       } catch {}
     }
 
+    const rawCallerToken = campaign.caller_token ? String(campaign.caller_token) : null;
+    let callerCharacterName: string | null = null;
+    if (rawCallerToken) {
+      if (rawCallerToken === campaign.host_token) {
+        callerCharacterName = "Table Host";
+      } else {
+        const callerCharRow = this.db
+          .prepare(
+            `SELECT c.name FROM characters c
+             JOIN devices d ON d.character_id = c.id
+             WHERE d.token = ? AND c.campaign_id = ?`,
+          )
+          .get(rawCallerToken, campaignId) as { name: string } | undefined;
+        callerCharacterName = callerCharRow?.name ?? "Party Caller";
+      }
+    }
+
+    const isCaller = role === "host" || (Boolean(rawCallerToken) && rawCallerToken === callerToken);
+    const revision = Number(campaign.revision ?? 1);
+
+    const activeSession = this.getActiveSession(campaignId);
+
+    let activeDungeon = this.getDungeonGraph(campaignId, activeSiteId);
+    if (activeDungeon && role !== "host") {
+      activeDungeon = {
+        ...activeDungeon,
+        nodes: activeDungeon.nodes.map((node) => {
+          if (node.explored || node.id === activeDungeon!.currentRoomId) {
+            return {
+              ...node,
+              trap: node.trap?.spotted || node.trap?.disarmed ? node.trap : undefined,
+            };
+          }
+          return {
+            id: node.id,
+            title: "Unknown Chamber",
+            x: node.x,
+            y: node.y,
+            geometry: "Unexplored",
+            contents: "Darkness and silence.",
+            interaction: "",
+            explored: false,
+          };
+        }),
+        edges: activeDungeon.edges.filter((edge) => {
+          if (edge.doorType === "secret" && edge.state !== "open") {
+            return false;
+          }
+          return true;
+        }),
+      };
+    }
+
+    const activeCombat = this.getCombatState(campaignId);
+    const rewards = this.getRewards(campaignId);
+
+    let tavernEstablishment: TavernEstablishment | null = campaign.tavern_establishment_json
+      ? JSON.parse(String(campaign.tavern_establishment_json))
+      : null;
+    if (tavernEstablishment && role !== "host") {
+      tavernEstablishment = {
+        ...tavernEstablishment,
+        leads: tavernEstablishment.leads.map((lead) => ({
+          ...lead,
+          accuracy: "distorted",
+        })),
+      };
+    }
+
     return {
       campaign: {
         id: campaignId,
@@ -1608,10 +2098,16 @@ export class AshDatabase {
         rations: Number(campaign.rations ?? 12),
         activeObjective: campaign.active_objective_json ? JSON.parse(String(campaign.active_objective_json)) : null,
         activeSiteId: activeSiteId ?? null,
-        tavernEstablishment: campaign.tavern_establishment_json ? JSON.parse(String(campaign.tavern_establishment_json)) : null,
+        tavernEstablishment,
         adventurePath,
+        callerToken: role === "host" ? rawCallerToken : null,
+        callerCharacterName,
+        revision,
+        activeSession,
+        activeDungeon,
+        activeCombat,
       },
-      me: { role, characterId },
+      me: { role, characterId, isCaller },
       characters,
       hexes,
       rooms,
@@ -1621,6 +2117,10 @@ export class AshDatabase {
       notes,
       activeZone,
       availableZones,
+      activeSession,
+      activeDungeon,
+      activeCombat,
+      rewards,
     };
   }
 }
@@ -1631,6 +2131,7 @@ function rowToCharacter(row: Row): Character {
     name: String(row.name),
     ancestry: String(row.ancestry),
     className: String(row.class_name),
+    classId: row.class_id ? String(row.class_id) : undefined,
     level: Number(row.level),
     hp: Number(row.hp),
     maxHp: Number(row.max_hp),
@@ -1649,6 +2150,12 @@ function rowToCharacter(row: Row): Character {
     talents: row.talents_json ? JSON.parse(String(row.talents_json)) : [],
     xp: row.xp != null ? Number(row.xp) : 0,
     fatigue: row.fatigue != null ? Number(row.fatigue) : 0,
+    inventory: row.inventory_json ? JSON.parse(String(row.inventory_json)) : [],
+    spells: row.spells_json ? JSON.parse(String(row.spells_json)) : [],
+    conditions: row.conditions_json ? JSON.parse(String(row.conditions_json)) : [],
+    classChoices: row.class_choices_json ? JSON.parse(String(row.class_choices_json)) : {},
+    deathStrikes: row.death_strikes != null ? Number(row.death_strikes) : 0,
+    stabilized: Boolean(row.stabilized),
   };
 }
 
@@ -1736,7 +2243,7 @@ function rowToHex(
   return result;
 }
 
-function rowToRoom(row: Row): DungeonRoom {
+function rowToRoom(row: Row, role: Role = "player"): DungeonRoom {
   return {
     id: Number(row.id),
     sequence: Number(row.sequence),
@@ -1744,7 +2251,7 @@ function rowToRoom(row: Row): DungeonRoom {
     contents: String(row.contents),
     interaction: String(row.interaction),
     exits: Number(row.exits),
-    trap: row.trap_json ? JSON.parse(String(row.trap_json)) : undefined,
+    trap: role === "host" ? (row.trap_json ? JSON.parse(String(row.trap_json)) : undefined) : undefined,
     siteId: row.site_id ? String(row.site_id) : undefined,
     createdAt: String(row.created_at),
   };

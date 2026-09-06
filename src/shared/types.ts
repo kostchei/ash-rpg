@@ -168,6 +168,12 @@ export interface CampaignSummary {
   activeSiteId?: string | null;
   tavernEstablishment?: TavernEstablishment | null;
   adventurePath?: PublicAdventurePathSummary | null;
+  callerToken?: string | null;
+  callerCharacterName?: string | null;
+  revision?: number;
+  activeSession?: ActivitySession | null;
+  activeDungeon?: DungeonGraphState | null;
+  activeCombat?: CombatState | null;
 }
 
 export interface Character {
@@ -187,6 +193,13 @@ export interface Character {
   xp?: number;
   fatigue?: number;
   ownerToken?: string;
+  classId?: string;
+  inventory?: InventoryItem[];
+  spells?: CharacterSpell[];
+  conditions?: string[];
+  classChoices?: Record<string, any>;
+  deathStrikes?: number;
+  stabilized?: boolean;
 }
 
 export interface PublicConnectionSummary {
@@ -421,7 +434,7 @@ export interface WikiNote {
 
 export interface CampaignState {
   campaign: CampaignSummary;
-  me: { role: Role; characterId: number | null };
+  me: { role: Role; characterId: number | null; isCaller?: boolean };
   characters: Character[];
   hexes: PublicHex[];
   rooms: DungeonRoom[];
@@ -431,6 +444,158 @@ export interface CampaignState {
   notes: WikiNote[];
   activeZone?: ZoneManifest;
   availableZones?: ZoneSummary[];
+  activeSession?: ActivitySession | null;
+  activeDungeon?: DungeonGraphState | null;
+  activeCombat?: CombatState | null;
+  rewards?: RewardRecord[];
+}
+
+export interface ItemDefinition {
+  id: string;
+  name: string;
+  kind: "weapon" | "armor" | "shield" | "gear" | "consumable" | "valuable";
+  costGp: number;
+  slots: number;
+  damage?: string;
+  properties?: string[];
+  baseAc?: number;
+  acBonus?: number;
+  maxDexMod?: number;
+  description?: string;
+}
+
+export interface InventoryItem {
+  instanceId: string;
+  itemId: string;
+  name: string;
+  kind: "weapon" | "armor" | "shield" | "gear" | "consumable" | "valuable";
+  slots: number;
+  equipped?: boolean;
+  quantity?: number;
+  damage?: string;
+  properties?: string[];
+  baseAc?: number;
+  acBonus?: number;
+  maxDexMod?: number;
+}
+
+export interface SpellDefinition {
+  id: string;
+  name: string;
+  tier: number;
+  sphere: "arcane" | "divine" | "primal";
+  range: "close" | "near" | "far" | "self" | "touch";
+  duration: string;
+  description: string;
+}
+
+export interface CharacterSpell {
+  spellId: string;
+  tier: number;
+  available: boolean;
+  penanceRequired?: boolean;
+}
+
+export interface ActivityChoice {
+  characterId: number;
+  characterName: string;
+  activity: string;
+  costGp?: number;
+  details?: Record<string, any>;
+}
+
+export interface ActivitySession {
+  id: string;
+  campaignId: number;
+  kind: "tavern" | "camp";
+  status: "open" | "resolved";
+  revision: number;
+  choices: Record<string, ActivityChoice>;
+  resolvedAt?: string;
+  result?: any;
+}
+
+export interface DungeonRoomNode {
+  id: number;
+  title: string;
+  x: number;
+  y: number;
+  geometry: string;
+  contents: string;
+  interaction: string;
+  trap?: {
+    name: string;
+    trigger: string;
+    effect: string;
+    dc: number;
+    spotted?: boolean;
+    disarmed?: boolean;
+  };
+  encounter?: {
+    monsterKey: string;
+    name: string;
+    count: number;
+    defeated?: boolean;
+  };
+  treasure?: {
+    coins: number;
+    items: string[];
+    claimed?: boolean;
+  };
+  explored: boolean;
+}
+
+export interface DungeonConnectionEdge {
+  fromRoomId: number;
+  toRoomId: number;
+  doorType: "open" | "wooden_door" | "iron_door" | "portcullis" | "secret";
+  state: "open" | "closed" | "locked" | "stuck" | "barred";
+}
+
+export interface DungeonGraphState {
+  siteId: string;
+  campaignId: number;
+  currentRoomId: number;
+  entryRoomId: number;
+  nodes: DungeonRoomNode[];
+  edges: DungeonConnectionEdge[];
+  explorationTurns: number;
+  lightTurnsRemaining: number;
+}
+
+export interface Combatant {
+  id: string;
+  name: string;
+  kind: "pc" | "monster";
+  refId: number;
+  initiative: number;
+  ac: number;
+  currentHp: number;
+  maxHp: number;
+  conditions: string[];
+  deathStrikes?: number;
+  stabilized?: boolean;
+}
+
+export interface CombatState {
+  encounterId: number;
+  campaignId: number;
+  round: number;
+  activeIndex: number;
+  combatants: Combatant[];
+  status: "active" | "resolved";
+  moraleTriggerChecked?: boolean;
+}
+
+export interface RewardRecord {
+  id: string;
+  campaignId: number;
+  sourceType: "dungeon_room" | "encounter" | "situation_deed";
+  sourceId: string;
+  coins: { cp?: number; sp?: number; gp?: number };
+  items: string[];
+  claimed: boolean;
+  allocations: Record<string, { target: "party" | "character"; characterId?: number }>;
 }
 
 export interface SessionIdentity {

@@ -30,28 +30,39 @@ import {
   Sparkles,
   Swords,
   Tent,
+  Unlock,
   Users,
   X,
 } from "lucide-react";
 import { io, type Socket } from "socket.io-client";
-import { ABILITY_KEYS, ANCESTRIES, CLASSES, MONSTERS } from "../shared/content";
+import { ABILITY_KEYS, ANCESTRIES, CLASSES, ITEMS, MONSTERS, SPELLS } from "../shared/content";
 import { BORDER_PAIRINGS, getBorderPairing, validateBorderPairing, ZONE_PROFILES } from "../shared/zone-profiles";
 import type {
+  ActivityChoice,
+  ActivitySession,
   CampaignState,
   Character,
+  CharacterSpell,
+  Combatant,
+  CombatState,
   CursedZoneId,
+  DungeonConnectionEdge,
+  DungeonGraphState,
+  DungeonRoomNode,
   EncounterMonster,
+  InventoryItem,
   MonsterCatalogEntry,
   NpcResult,
   PublicHex,
   RegionGenerationConfig,
+  RewardRecord,
   SessionIdentity,
   SettlementResult,
   ZoneManifest,
   ZoneSummary,
 } from "../shared/types";
 
-type Tab = "sanctuary" | "map" | "encounters" | "party" | "oracle" | "chronicle";
+type Tab = "sanctuary" | "map" | "dungeon" | "combat" | "encounters" | "party" | "oracle" | "chronicle";
 type Act = <T>(
   event: string,
   payload?: unknown,
@@ -226,7 +237,7 @@ function Welcome({
         mode: "border",
         zoneIds: [borderZoneA, borderZoneB],
         connection: (borderConnection as any) || "surface",
-        borderProfileId: pairing?.borderProfileId,
+        borderProfileId: pairing?.id,
       },
       seed: seed.trim() || undefined,
       season,
@@ -385,7 +396,7 @@ function Welcome({
                       <option value="city_of_masks">The City of Masks (Meridia Canals - CS6)</option>
                     </select>
                     <small style={{ display: "block", marginTop: 4, opacity: 0.75 }}>
-                      {ZONE_PROFILES[selectedZone]?.historicalPremise}
+                      {ZONE_PROFILES[selectedZone]?.theme}
                     </small>
                   </div>
                 ) : (
@@ -555,12 +566,23 @@ function Campaign({
   const [tab, setTab] = useState<Tab>(
     state.me.role === "player" && !state.me.characterId
       ? "party"
-      : state.campaign.phase === "sanctuary"
-        ? "sanctuary"
-        : "map",
+      : state.activeCombat && state.activeCombat.status === "active"
+        ? "combat"
+        : state.campaign.phase === "dungeon" || state.activeDungeon
+          ? "dungeon"
+          : state.campaign.phase === "sanctuary"
+            ? "sanctuary"
+            : "map",
   );
   const [menu, setMenu] = useState(false);
   const [showZoneModal, setShowZoneModal] = useState(false);
+  const [showLootModal, setShowLootModal] = useState(false);
+  const [rollModalContext, setRollModalContext] = useState<{
+    open: boolean;
+    charId?: number;
+    ability?: string;
+    type?: string;
+  } | null>(null);
   const [toast, setToast] = useState("");
   const emit = <T,>(event: string, payload: unknown = {}) =>
     new Promise<T>((resolve, reject) =>
@@ -591,9 +613,21 @@ function Campaign({
       throw reason;
     }
   };
-  const nav: [Tab, typeof Map, string][] = [
+
+  const hasDungeon = Boolean(
+    state.campaign.phase === "dungeon" ||
+    state.activeDungeon ||
+    state.campaign.activeDungeon,
+  );
+  const hasCombat = Boolean(
+    state.activeCombat && state.activeCombat.status === "active",
+  );
+
+  const nav: [Tab, any, string][] = [
     ["sanctuary", Castle, "Sanctuary"],
     ["map", Map, "Frontier"],
+    ...(hasDungeon ? [["dungeon", DoorOpen, "Dungeon"] as [Tab, any, string]] : []),
+    ...(hasCombat ? [["combat", Swords, "Combat"] as [Tab, any, string]] : []),
     ["encounters", Swords, "Encounters"],
     ["party", Users, "Party"],
     ["oracle", Dices, "Oracle"],
@@ -643,9 +677,11 @@ function Campaign({
         state={state}
         act={act}
         onOpenZone={() => setShowZoneModal(true)}
+        onOpenLoot={() => setShowLootModal(true)}
         onPhaseChange={(phase) => {
           if (phase === "sanctuary") setTab("sanctuary");
           if (phase === "hexcrawl") setTab("map");
+          if (phase === "dungeon") setTab("dungeon");
         }}
       />
 
@@ -671,8 +707,18 @@ function Campaign({
       <section className="main-content">
         {tab === "sanctuary" && <SanctuaryView state={state} act={act} />}
         {tab === "map" && <MapView state={state} act={act} />}
+        {tab === "dungeon" && <DungeonView state={state} act={act} />}
+        {tab === "combat" && <CombatView state={state} act={act} />}
         {tab === "encounters" && <EncounterView state={state} act={act} />}
-        {tab === "party" && <PartyView state={state} act={act} />}
+        {tab === "party" && (
+          <PartyView
+            state={state}
+            act={act}
+            onRollAbility={(charId, ability) =>
+              setRollModalContext({ open: true, charId, ability, type: "check" })
+            }
+          />
+        )}
         {tab === "oracle" && <OracleView state={state} act={act} />}
         {tab === "chronicle" && <ChronicleView state={state} act={act} />}
       </section>
@@ -685,6 +731,26 @@ function Campaign({
         />
       )}
 
+      {showLootModal && (
+        <TreasureModal
+          rewards={state.rewards ?? []}
+          characters={state.characters}
+          act={act}
+          onClose={() => setShowLootModal(false)}
+        />
+      )}
+
+      {rollModalContext?.open && (
+        <ContextualRollModal
+          characters={state.characters}
+          act={act}
+          initialCharId={rollModalContext.charId}
+          initialAbility={rollModalContext.ability}
+          initialType={rollModalContext.type}
+          onClose={() => setRollModalContext(null)}
+        />
+      )}
+
       {toast && <div className="toast">{toast}</div>}
     </div>
   );
@@ -694,11 +760,13 @@ function CampaignSubbar({
   state,
   act,
   onOpenZone,
+  onOpenLoot,
   onPhaseChange,
 }: {
   state: CampaignState;
   act: Act;
   onOpenZone: () => void;
+  onOpenLoot: () => void;
   onPhaseChange?: (phase: string) => void;
 }) {
   const phases = [
@@ -715,6 +783,12 @@ function CampaignSubbar({
   };
   const currentWatch = (state.campaign.watch ?? 1) as 1 | 2 | 3 | 4;
   const fatiguedChars = state.characters.filter((c) => (c.fatigue ?? 0) > 0);
+
+  const isCaller = Boolean(state.me.isCaller || state.me.role === "host");
+  const callerChar = state.characters.find(
+    (c) => c.ownerToken && c.ownerToken === state.campaign.callerToken
+  );
+  const unclaimedLoot = (state.rewards ?? []).filter((r) => !r.claimed);
 
   return (
     <div className="campaign-subbar">
@@ -752,6 +826,47 @@ function CampaignSubbar({
         </div>
       </div>
 
+      <div className="subbar-group caller-group">
+        <div className={`caller-chip ${isCaller ? "is-caller" : ""}`}>
+          <Users size={14} />
+          {isCaller ? (
+            <span className="caller-badge-you">CALLER (YOU)</span>
+          ) : (
+            <span style={{ fontSize: "11px" }}>
+              Caller: <b>{callerChar ? callerChar.name : state.campaign.callerToken ? "Assigned" : "Host"}</b>
+            </span>
+          )}
+          {state.me.role === "host" && (
+            <select
+              className="caller-select-dropdown"
+              value={state.campaign.callerToken ?? ""}
+              onChange={(e) =>
+                act(
+                  "campaign:set_caller",
+                  { callerToken: e.target.value || null },
+                  "Caller assigned",
+                )
+              }
+              title="Assign Authoritative Caller"
+            >
+              <option value="">Host Default</option>
+              {state.characters.map((c) => (
+                <option key={c.id} value={c.ownerToken ?? ""}>
+                  {c.name} ({c.className})
+                </option>
+              ))}
+            </select>
+          )}
+        </div>
+
+        {unclaimedLoot.length > 0 && (
+          <button className="small-btn loot-alert-btn" onClick={onOpenLoot} title="Treasure Awaiting Allocation">
+            <span>💰</span>
+            <span>Loot ({unclaimedLoot.length})</span>
+          </button>
+        )}
+      </div>
+
       <div className="subbar-group expedition-clock-widget">
         <div className="clock-chip" title="4-Watch Expedition Clock">
           <span className="clock-icon">⏳</span>
@@ -769,7 +884,7 @@ function CampaignSubbar({
           <span>{state.campaign.rations ?? 12} Rations</span>
         </div>
         {state.campaign.activeObjective && (
-          <div className="clock-chip objective-chip" title={state.campaign.activeObjective.claim || state.campaign.activeObjective.notes || ""}>
+          <div className="clock-chip objective-chip" title={state.campaign.activeObjective.notes || ""}>
             <span>🎯</span>
             <span className="objective-title">Obj: {state.campaign.activeObjective.title}</span>
           </div>
@@ -820,7 +935,7 @@ function ZoneDossierModal({
   };
 
   const returnSanctuary = async () => {
-    await act("zone:exit", {}, `Returned to ${state.activeZone?.havenDefaults?.name ?? "sanctuary"}`);
+    await act("zone:exit", {}, `Returned to ${state.activeZone?.name ?? "sanctuary"}`);
     onClose();
   };
 
@@ -945,6 +1060,164 @@ function ZoneDossierModal({
   );
 }
 
+function TavernSessionCard({ state, act }: { state: CampaignState; act: Act }) {
+  const session = state.activeSession?.kind === "tavern" ? state.activeSession : null;
+  const isCaller = Boolean(state.me.isCaller || state.me.role === "host");
+  const ownChar = state.characters.find((c) => c.id === state.me.characterId) ?? (state.me.role === "host" ? state.characters[0] : null);
+
+  const [selectedCharId, setSelectedCharId] = useState<number>(ownChar?.id ?? state.characters[0]?.id ?? 0);
+  const [activity, setActivity] = useState<"rest" | "rumors" | "carouse" | "supplies">("rest");
+  const [costGp, setCostGp] = useState<number>(1);
+  const [selectedItem, setSelectedItem] = useState<string>("torch");
+
+  useEffect(() => {
+    if (activity === "rest") setCostGp(1);
+    else if (activity === "carouse") setCostGp(5);
+    else if (activity === "rumors") setCostGp(0);
+    else if (activity === "supplies") {
+      const def = ITEMS.find((i) => i.id === selectedItem);
+      setCostGp(def?.costGp ?? 1);
+    }
+  }, [activity, selectedItem]);
+
+  const submitChoice = async () => {
+    if (!selectedCharId) return;
+    await act(
+      "tavern:submit_choice",
+      {
+        characterId: selectedCharId,
+        activity,
+        costGp,
+        items: activity === "supplies" ? [selectedItem] : undefined,
+      },
+      "Tavern activity submitted",
+    );
+  };
+
+  const resolveTavern = async () => {
+    await act("tavern:resolve", {}, "Tavern gathering concluded!");
+  };
+
+  const openTavern = async () => {
+    await act("tavern:open", {}, "Tavern gathering commenced!");
+  };
+
+  return (
+    <article className="sub-panel tavern-session-card full-width" style={{ border: "1px solid var(--ember)", marginBottom: "16px" }}>
+      <div className="sub-panel-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <div>
+          <div className="eyebrow">Downtime Gathering</div>
+          <h3>Haven Bastion Taproom Gathering</h3>
+        </div>
+        {(!session || session.status === "resolved") && isCaller && (
+          <button className="primary small-btn" onClick={openTavern}>
+            <Sparkles size={14} /> Open Tavern Gathering
+          </button>
+        )}
+      </div>
+
+      {session && session.status === "open" && (
+        <div style={{ marginTop: "12px" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
+            <span className="badge-tag" style={{ background: "var(--ember)", color: "#000", fontWeight: "bold" }}>
+              SESSION ACTIVE · GATHERING CHOICES
+            </span>
+            {isCaller && (
+              <button className="primary small-btn" onClick={resolveTavern}>
+                Conclude Gathering & Apply Results
+              </button>
+            )}
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "10px", margin: "12px 0" }}>
+            {state.characters.map((c) => {
+              const choice = session.choices[String(c.id)];
+              return (
+                <div
+                  key={c.id}
+                  style={{
+                    background: choice ? "rgba(217, 117, 56, 0.12)" : "rgba(255, 255, 255, 0.03)",
+                    border: choice ? "1px solid var(--ember)" : "1px dashed var(--line)",
+                    borderRadius: "6px",
+                    padding: "8px 12px",
+                  }}
+                >
+                  <div style={{ fontWeight: "bold", fontSize: "13px" }}>{c.name}</div>
+                  <div style={{ fontSize: "12px", color: choice ? "var(--ember)" : "var(--muted)", marginTop: "4px" }}>
+                    {choice ? (
+                      <span>
+                        ✓ {choice.activity.toUpperCase()}{choice.costGp ? ` (-${choice.costGp} GP)` : ""}
+                      </span>
+                    ) : (
+                      <span>Waiting for choice…</span>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          <div style={{ background: "rgba(0, 0, 0, 0.2)", borderRadius: "6px", padding: "12px", marginTop: "12px" }}>
+            <div className="eyebrow" style={{ marginBottom: "8px" }}>Choose Your Downtime Activity</div>
+            <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", alignItems: "center" }}>
+              {state.me.role === "host" && (
+                <select
+                  value={selectedCharId}
+                  onChange={(e) => setSelectedCharId(Number(e.target.value))}
+                  style={{ padding: "6px 8px", fontSize: "13px" }}
+                >
+                  {state.characters.map((c) => (
+                    <option key={c.id} value={c.id}>{c.name} ({c.gold} GP)</option>
+                  ))}
+                </select>
+              )}
+              <select
+                value={activity}
+                onChange={(e) => setActivity(e.target.value as any)}
+                style={{ padding: "6px 8px", fontSize: "13px" }}
+              >
+                <option value="rest">🛌 Rest & Recuperate (1 GP: +1 HP & Spells)</option>
+                <option value="carouse">🍺 Carouse (5 GP: +10 XP)</option>
+                <option value="supplies">🎒 Procure Supplies (Expedition Gear)</option>
+                <option value="rumors">📜 Rumor Gathering (Free)</option>
+              </select>
+
+              {activity === "supplies" && (
+                <select
+                  value={selectedItem}
+                  onChange={(e) => setSelectedItem(e.target.value)}
+                  style={{ padding: "6px 8px", fontSize: "13px" }}
+                >
+                  <option value="torch">Torch (1 GP, 1 slot)</option>
+                  <option value="iron_rations">Iron Rations (2 GP, 1 slot)</option>
+                  <option value="rope_hemp">Hemp Rope (1 GP, 1 slot)</option>
+                  <option value="lantern">Lantern (5 GP, 1 slot)</option>
+                  <option value="oil_flask">Flask of Oil (1 GP, 1 slot)</option>
+                </select>
+              )}
+
+              <button className="primary small-btn" onClick={submitChoice}>
+                Submit Activity ({costGp} GP)
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {session && session.status === "resolved" && session.result?.logs && (
+        <div style={{ marginTop: "10px", fontSize: "13px", color: "var(--muted)" }}>
+          <div className="eyebrow" style={{ marginBottom: "4px" }}>Last Gathering Resolution:</div>
+          <ul style={{ paddingLeft: "18px", margin: "0" }}>
+            {session.result.logs.map((log: string, idx: number) => (
+              <li key={idx}>{log}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </article>
+  );
+}
+
 function SanctuaryView({ state, act }: { state: CampaignState; act: Act }) {
   const [settlement, setSettlement] = useState<SettlementResult | null>(null);
   const [npc, setNpc] = useState<NpcResult | null>(null);
@@ -1044,6 +1317,9 @@ function SanctuaryView({ state, act }: { state: CampaignState; act: Act }) {
         </div>
 
         <div className="sanctuary-grid">
+          {/* Haven Bastion Taproom Downtime Session */}
+          <TavernSessionCard state={state} act={act} />
+
           {/* Haven Bastion Taproom & Grounded Leads */}
           {state.campaign.tavernEstablishment && (
             <article className="sub-panel tavern-establishment-card full-width">
@@ -1052,7 +1328,7 @@ function SanctuaryView({ state, act }: { state: CampaignState; act: Act }) {
                   <div className="eyebrow">Haven Bastion Taproom</div>
                   <h3>{state.campaign.tavernEstablishment.name}</h3>
                   <p className="tavern-submeta" style={{ margin: "4px 0 0", fontSize: "13px", color: "var(--muted)" }}>
-                    <b>Vibe:</b> {state.campaign.tavernEstablishment.vibe} · <b>Barkeep:</b> {state.campaign.tavernEstablishment.barkeepName} · <b>Patrons:</b> {state.campaign.tavernEstablishment.patronage}
+                    <b>Vibe:</b> {state.campaign.tavernEstablishment.vibe} · <b>Barkeep:</b> {state.campaign.tavernEstablishment.barkeep}
                   </p>
                 </div>
               </div>
@@ -1071,7 +1347,7 @@ function SanctuaryView({ state, act }: { state: CampaignState; act: Act }) {
                     )}
                   </div>
                   <h4 style={{ margin: "6px 0 2px", color: "var(--ember)" }}>{state.campaign.activeObjective.title}</h4>
-                  <p style={{ margin: "0 0 6px", fontSize: "13px" }}>{state.campaign.activeObjective.claim || state.campaign.activeObjective.notes}</p>
+                  <p style={{ margin: "0 0 6px", fontSize: "13px" }}>{state.campaign.activeObjective.notes || ""}</p>
                   <div style={{ display: "flex", gap: "16px", fontSize: "12px", color: "var(--muted)" }}>
                     {state.campaign.activeObjective.directionHint && (
                       <span><b>Heading:</b> {state.campaign.activeObjective.directionHint}</span>
@@ -1775,6 +2051,138 @@ function CampAllowanceModal({
   );
 }
 
+function CampSessionCard({ state, act }: { state: CampaignState; act: Act }) {
+  const session = state.activeSession?.kind === "camp" ? state.activeSession : null;
+  const isCaller = Boolean(state.me.isCaller || state.me.role === "host");
+  const ownChar = state.characters.find((c) => c.id === state.me.characterId) ?? (state.me.role === "host" ? state.characters[0] : null);
+
+  const [selectedCharId, setSelectedCharId] = useState<number>(ownChar?.id ?? state.characters[0]?.id ?? 0);
+  const [duty, setDuty] = useState<"watch" | "cook" | "forage" | "rest">("watch");
+
+  const submitDuty = async () => {
+    if (!selectedCharId) return;
+    await act(
+      "camp:submit_duty",
+      {
+        characterId: selectedCharId,
+        duty,
+      },
+      "Camp duty assigned",
+    );
+  };
+
+  const resolveCamp = async () => {
+    await act("camp:resolve", {}, "Camp duties resolved and night concluded!");
+  };
+
+  const openCamp = async () => {
+    await act("camp:open", {}, "Night camp pitched!");
+  };
+
+  if (!session && !isCaller) return null;
+
+  return (
+    <article className="sub-panel camp-session-card full-width" style={{ border: "1px solid var(--ember)", marginBottom: "16px" }}>
+      <div className="sub-panel-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <div>
+          <div className="eyebrow">Night Camp Routine</div>
+          <h3>Expedition Camp Routine</h3>
+        </div>
+        {(!session || session.status === "resolved") && isCaller && (
+          <button className="primary small-btn" onClick={openCamp}>
+            <Tent size={14} /> Pitch Night Camp
+          </button>
+        )}
+      </div>
+
+      {session && session.status === "open" && (
+        <div style={{ marginTop: "12px" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
+            <span className="badge-tag" style={{ background: "var(--ember)", color: "#000", fontWeight: "bold" }}>
+              CAMP PITCHED · ASSIGN DUTIES
+            </span>
+            {isCaller && (
+              <button className="primary small-btn" onClick={resolveCamp}>
+                Break Camp & Resolve Night
+              </button>
+            )}
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "10px", margin: "12px 0" }}>
+            {state.characters.map((c) => {
+              const choice = session.choices[String(c.id)];
+              return (
+                <div
+                  key={c.id}
+                  style={{
+                    background: choice ? "rgba(217, 117, 56, 0.12)" : "rgba(255, 255, 255, 0.03)",
+                    border: choice ? "1px solid var(--ember)" : "1px dashed var(--line)",
+                    borderRadius: "6px",
+                    padding: "8px 12px",
+                  }}
+                >
+                  <div style={{ fontWeight: "bold", fontSize: "13px" }}>{c.name}</div>
+                  <div style={{ fontSize: "12px", color: choice ? "var(--ember)" : "var(--muted)", marginTop: "4px" }}>
+                    {choice ? (
+                      <span>
+                        ✓ {choice.activity === "watch" ? "👁️ Sentry Watch" : choice.activity === "cook" ? "🍲 Camp Cook" : choice.activity === "forage" ? "🏹 Forager" : "🛌 Rest & Heal"}
+                      </span>
+                    ) : (
+                      <span>Awaiting duty…</span>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          <div style={{ background: "rgba(0, 0, 0, 0.2)", borderRadius: "6px", padding: "12px", marginTop: "12px" }}>
+            <div className="eyebrow" style={{ marginBottom: "8px" }}>Select Your Night Camp Duty</div>
+            <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", alignItems: "center" }}>
+              {state.me.role === "host" && (
+                <select
+                  value={selectedCharId}
+                  onChange={(e) => setSelectedCharId(Number(e.target.value))}
+                  style={{ padding: "6px 8px", fontSize: "13px" }}
+                >
+                  {state.characters.map((c) => (
+                    <option key={c.id} value={c.id}>{c.name}</option>
+                  ))}
+                </select>
+              )}
+              <select
+                value={duty}
+                onChange={(e) => setDuty(e.target.value as any)}
+                style={{ padding: "6px 8px", fontSize: "13px" }}
+              >
+                <option value="watch">👁️ Night Watch Sentry (Guards vs Ambush)</option>
+                <option value="cook">🍲 Camp Cook (Prepares rations)</option>
+                <option value="forage">🏹 Wild Foraging (Conserves rations on DC 12)</option>
+                <option value="rest">🛌 Bed Down & Rest (Heals 1d4 HP, recovers spells)</option>
+              </select>
+
+              <button className="primary small-btn" onClick={submitDuty}>
+                Confirm Camp Duty
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {session && session.status === "resolved" && session.result?.logs && (
+        <div style={{ marginTop: "10px", fontSize: "13px", color: "var(--muted)" }}>
+          <div className="eyebrow" style={{ marginBottom: "4px" }}>Last Night Camp Log:</div>
+          <ul style={{ paddingLeft: "18px", margin: "0" }}>
+            {session.result.logs.map((log: string, idx: number) => (
+              <li key={idx}>{log}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </article>
+  );
+}
+
 function MapView({ state, act }: { state: CampaignState; act: Act }) {
   const [selectedId, setSelectedId] = useState("00"),
     [biome, setBiome] = useState("forest"),
@@ -1801,6 +2209,8 @@ function MapView({ state, act }: { state: CampaignState; act: Act }) {
           title="The 19-hex frontier"
           aside={`${state.hexes.filter((h) => h.revealState !== "unexplored").length} / ${state.hexes.length} charted`}
         />
+
+        <CampSessionCard state={state} act={act} />
 
         {isAllowanceReached && !showCampPopup && (
           <div
@@ -2386,7 +2796,15 @@ function OracleView({ state, act }: { state: CampaignState; act: Act }) {
   );
 }
 
-function PartyView({ state, act }: { state: CampaignState; act: Act }) {
+function PartyView({
+  state,
+  act,
+  onRollAbility,
+}: {
+  state: CampaignState;
+  act: Act;
+  onRollAbility?: (charId: number, ability: string) => void;
+}) {
   const own = state.characters.find((c) => c.id === state.me.characterId),
     [creating, setCreating] = useState(state.me.role === "player" && !own);
   return (
@@ -2414,6 +2832,7 @@ function PartyView({ state, act }: { state: CampaignState; act: Act }) {
             }
             act={act}
             own={state.me.characterId === character.id}
+            onRollAbility={(ability) => onRollAbility?.(character.id, ability)}
           />
         ))}
       </div>
@@ -2553,16 +2972,24 @@ function CharacterCard({
   canEdit,
   act,
   own,
+  onRollAbility,
 }: {
   character: Character;
   canEdit: boolean;
   act: Act;
   own: boolean;
+  onRollAbility?: (ability: string) => void;
 }) {
   const nextLevelXp = character.level * 10;
   const currentXp = character.xp ?? 0;
   const canLevelUp = currentXp >= nextLevelXp && character.level < 36;
   const xpPercent = Math.min(100, Math.round((currentXp / nextLevelXp) * 100));
+
+  const carriedSlots = (character.inventory ?? []).reduce(
+    (sum, it) => sum + (it.slots ?? 1) * (it.quantity ?? 1),
+    0,
+  );
+  const isEncumbered = carriedSlots > character.gearSlots;
 
   return (
     <article className={`panel character-card${own ? " own" : ""}`}>
@@ -2686,7 +3113,13 @@ function CharacterCard({
 
       <div className="ability-row">
         {ABILITY_KEYS.map((key) => (
-          <div key={key}>
+          <div
+            key={key}
+            className="ability-clickable"
+            onClick={() => onRollAbility?.(key)}
+            title={`Click to roll ${labels[key]} check / save`}
+            style={{ cursor: "pointer" }}
+          >
             <span>{labels[key]}</span>
             <b>{character.abilities[key]}</b>
             <small>
@@ -2696,6 +3129,166 @@ function CharacterCard({
           </div>
         ))}
       </div>
+
+      {/* Equipment & Gear Drawer */}
+      <details className="card-drawer inventory-drawer">
+        <summary>
+          <Shield size={14} /> Equipment & Gear ({character.inventory?.length ?? 0})
+        </summary>
+        <div className="drawer-body">
+          {character.inventory && character.inventory.length > 0 ? (
+            <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+              {character.inventory.map((item) => (
+                <div
+                  key={item.instanceId}
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    background: "rgba(0, 0, 0, 0.15)",
+                    padding: "6px 10px",
+                    borderRadius: "4px",
+                    fontSize: "13px",
+                  }}
+                >
+                  <div>
+                    <b>{item.name}</b>
+                    {item.quantity && item.quantity > 1 ? ` (x${item.quantity})` : ""}
+                    <span style={{ fontSize: "11px", color: "var(--muted)", marginLeft: "6px" }}>
+                      [{item.slots} slot{item.slots > 1 ? "s" : ""}] {item.damage ? `· Dmg: ${item.damage}` : ""} {item.baseAc ? `· AC ${item.baseAc}` : ""}
+                    </span>
+                    {item.equipped && (
+                      <span className="badge-tag" style={{ marginLeft: "6px", fontSize: "10px" }}>EQUIPPED</span>
+                    )}
+                  </div>
+                  {canEdit && (
+                    <div style={{ display: "flex", gap: "6px" }}>
+                      {item.equipped ? (
+                        <button
+                          className="small-btn"
+                          onClick={() =>
+                            act(
+                              "inventory:unequip",
+                              { characterId: character.id, instanceId: item.instanceId },
+                              `Unequipped ${item.name}`,
+                            )
+                          }
+                        >
+                          Unequip
+                        </button>
+                      ) : (
+                        ["weapon", "armor", "shield"].includes(item.kind) && (
+                          <button
+                            className="small-btn primary"
+                            onClick={() =>
+                              act(
+                                "inventory:equip",
+                                { characterId: character.id, instanceId: item.instanceId },
+                                `Equipped ${item.name}`,
+                              )
+                            }
+                          >
+                            Equip
+                          </button>
+                        )
+                      )}
+                      <button
+                        className="small-btn"
+                        onClick={() =>
+                          act(
+                            "inventory:drop",
+                            { characterId: character.id, instanceId: item.instanceId },
+                            `Dropped ${item.name}`,
+                          )
+                        }
+                      >
+                        Drop
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="drawer-empty">No gear carried.</p>
+          )}
+        </div>
+      </details>
+
+      {/* Spells Drawer */}
+      {character.spells && character.spells.length > 0 && (
+        <details className="card-drawer spells-drawer">
+          <summary>
+            <Sparkles size={14} /> Prepared Spells ({character.spells.length})
+          </summary>
+          <div className="drawer-body">
+            <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+              {character.spells.map((s, idx) => {
+                const spellDef = SPELLS.find((sp) => sp.id === s.spellId);
+                return (
+                  <div
+                    key={idx}
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      background: "rgba(0, 0, 0, 0.15)",
+                      padding: "6px 10px",
+                      borderRadius: "4px",
+                      fontSize: "13px",
+                    }}
+                  >
+                    <div>
+                      <b>{spellDef?.name ?? s.spellId}</b>
+                      <span style={{ fontSize: "11px", color: "var(--muted)", marginLeft: "6px" }}>
+                        Tier {s.tier} · {spellDef?.sphere ?? "arcane"}
+                      </span>
+                      {s.penanceRequired ? (
+                        <span className="danger-tag" style={{ marginLeft: "6px" }}>PENANCE REQUIRED</span>
+                      ) : s.available ? (
+                        <span className="badge-tag" style={{ marginLeft: "6px" }}>READY</span>
+                      ) : (
+                        <span className="badge-tag" style={{ marginLeft: "6px", background: "var(--muted)" }}>EXPENDED</span>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {canEdit && (
+              <div style={{ display: "flex", gap: "8px", marginTop: "10px" }}>
+                <button
+                  className="small-btn primary"
+                  onClick={() =>
+                    act(
+                      "spells:restore",
+                      { characterId: character.id },
+                      "Prepared spells refreshed through rest",
+                    )
+                  }
+                >
+                  <RefreshCw size={12} /> Refresh Spells
+                </button>
+                {character.spells.some((s) => s.penanceRequired) && (
+                  <button
+                    className="small-btn danger-btn"
+                    onClick={() =>
+                      act(
+                        "priest:penance",
+                        { characterId: character.id },
+                        "Holy penance fulfilled",
+                      )
+                    }
+                  >
+                    Perform Divine Penance
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
+        </details>
+      )}
 
       {/* Class Talents Drawer */}
       <details className="card-drawer talents-drawer">
@@ -2733,10 +3326,11 @@ function CharacterCard({
         </div>
       </details>
 
-      <div className="gear-slot-chip">
+      <div className="gear-slot-chip" style={{ color: isEncumbered ? "var(--danger)" : undefined }}>
         <Shield size={14} />
         <span>
-          Gear Capacity: <b>{character.gearSlots} slots</b> (10 + STR mod)
+          Gear Capacity: <b>{carriedSlots} / {character.gearSlots} slots</b> (10 + STR mod)
+          {isEncumbered && " ⚠️ ENCUMBERED"}
         </span>
       </div>
 
@@ -2755,6 +3349,956 @@ function CharacterCard({
         </div>
       </details>
     </article>
+  );
+}
+
+function DungeonView({ state, act }: { state: CampaignState; act: Act }) {
+  const dungeon = state.activeDungeon;
+  const isCaller = Boolean(state.me.isCaller || state.me.role === "host");
+
+  const [selectedRoomId, setSelectedRoomId] = useState<number>(
+    dungeon?.currentRoomId ?? 1,
+  );
+
+  useEffect(() => {
+    if (dungeon?.currentRoomId) {
+      setSelectedRoomId(dungeon.currentRoomId);
+    }
+  }, [dungeon?.currentRoomId]);
+
+  if (!dungeon) {
+    return (
+      <div className="panel" style={{ textAlign: "center", padding: "40px 20px" }}>
+        <DoorOpen size={48} style={{ color: "var(--muted)", margin: "0 auto 16px" }} />
+        <h2>No Active Dungeon Delve</h2>
+        <p style={{ color: "var(--muted)" }}>
+          Select a discovered dungeon or ruin from the frontier map to delve into the depths.
+        </p>
+      </div>
+    );
+  }
+
+  const currentRoom = dungeon.nodes.find((n) => n.id === dungeon.currentRoomId) ?? dungeon.nodes[0];
+  const inspectedRoom = dungeon.nodes.find((n) => n.id === selectedRoomId) ?? currentRoom;
+
+  const currentEdges = dungeon.edges.filter(
+    (e) => e.fromRoomId === dungeon.currentRoomId || e.toRoomId === dungeon.currentRoomId,
+  );
+
+  const lightLit = dungeon.lightTurnsRemaining > 0;
+
+  const moveRoom = async (toRoomId: number) => {
+    await act("dungeon:move_room", { toRoomId }, `Party advanced to Room ${toRoomId}`);
+  };
+
+  const interactDoor = async (
+    fromRoomId: number,
+    toRoomId: number,
+    action: "open" | "close" | "pick" | "force" | "search_secret",
+  ) => {
+    await act(
+      "dungeon:interact_door",
+      { fromRoomId, toRoomId, action },
+      `Door action: ${action}`,
+    );
+  };
+
+  const disarmTrap = async (roomId: number) => {
+    const thief = state.characters.find((c) => c.className.toLowerCase().includes("thief")) ?? state.characters[0];
+    await act(
+      "dungeon:disarm_trap",
+      { roomId, characterId: thief.id },
+      "Thief attempted to disarm trap",
+    );
+  };
+
+  const claimTreasure = async (roomId: number) => {
+    await act("dungeon:claim_treasure", { roomId }, "Treasure chamber claimed!");
+  };
+
+  const lightTorch = async () => {
+    await act("dungeon:light_torch", {}, "New torch ignited (+6 light turns)");
+  };
+
+  const retreatSurface = async () => {
+    await act("site:exit", {}, "Party retreated to surface frontier");
+  };
+
+  const returnSanctuary = async () => {
+    await act("session:return_sanctuary", {}, "Party returned to Haven Sanctuary");
+  };
+
+  return (
+    <div className="surface-grid" style={{ gridTemplateColumns: "1fr", gap: "20px" }}>
+      <section className="panel">
+        <Title
+          eyebrow={`Site Delve · ${dungeon.siteId}`}
+          title={`Room ${currentRoom.id}: ${currentRoom.title}`}
+          aside={`Turn ${dungeon.explorationTurns}`}
+        />
+
+        <div className="dungeon-status-bar">
+          <div className="torch-meter">
+            <Flame size={20} className={lightLit ? "flame-lit" : "flame-out"} />
+            <div>
+              <b>Torch Light:</b> {dungeon.lightTurnsRemaining} / 6 turns
+              {!lightLit && (
+                <span className="danger-tag" style={{ marginLeft: "8px" }}>
+                  ⚠️ Pitch Darkness!
+                </span>
+              )}
+            </div>
+            <button className="small-btn primary" onClick={lightTorch}>
+              <Flame size={14} /> Light Torch
+            </button>
+          </div>
+
+          <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+            <span style={{ fontSize: "12px", color: "var(--muted)" }}>
+              {dungeon.explorationTurns} Turns Elapsed
+            </span>
+            <button className="small-btn" onClick={retreatSurface}>
+              Surface Exit
+            </button>
+            <button className="small-btn primary" onClick={returnSanctuary}>
+              Return to Sanctuary
+            </button>
+          </div>
+        </div>
+
+        {/* Interactive SVG Dungeon Map */}
+        <div className="dungeon-map-container" style={{ padding: "16px", marginBottom: "20px" }}>
+          <svg viewBox="0 0 680 320" className="dungeon-svg-map">
+            {/* Edges */}
+            {dungeon.edges.map((edge, idx) => {
+              const from = dungeon.nodes.find((n) => n.id === edge.fromRoomId);
+              const to = dungeon.nodes.find((n) => n.id === edge.toRoomId);
+              if (!from || !to) return null;
+              const isLocked = edge.state === "locked" || edge.state === "barred";
+              const isSecret = edge.doorType === "secret";
+              const isOpen = edge.state === "open";
+              const midX = (from.x + to.x) / 2;
+              const midY = (from.y + to.y) / 2;
+
+              return (
+                <g key={idx}>
+                  <line
+                    x1={from.x}
+                    y1={from.y}
+                    x2={to.x}
+                    y2={to.y}
+                    stroke={isSecret ? "#9d4edd" : isLocked ? "var(--danger)" : "var(--line)"}
+                    strokeWidth={isSecret ? 3 : 4}
+                    strokeDasharray={!isOpen ? "6,4" : undefined}
+                  />
+                  <circle
+                    cx={midX}
+                    cy={midY}
+                    r={8}
+                    fill={isOpen ? "#388e3c" : isLocked ? "var(--danger)" : "#e5a93b"}
+                    stroke="#000"
+                    strokeWidth={1.5}
+                  />
+                </g>
+              );
+            })}
+
+            {/* Nodes */}
+            {dungeon.nodes.map((node) => {
+              const isCurrent = node.id === dungeon.currentRoomId;
+              const isInspected = node.id === inspectedRoom.id;
+              return (
+                <g
+                  key={node.id}
+                  className="room-node"
+                  onClick={() => setSelectedRoomId(node.id)}
+                  style={{ cursor: "pointer" }}
+                >
+                  {isCurrent && (
+                    <circle
+                      cx={node.x}
+                      cy={node.y}
+                      r={34}
+                      fill="none"
+                      stroke="var(--ember)"
+                      strokeWidth={3}
+                      className="party-ring-pulse"
+                    />
+                  )}
+                  <circle
+                    cx={node.x}
+                    cy={node.y}
+                    r={26}
+                    fill={isCurrent ? "rgba(217, 117, 56, 0.4)" : node.explored ? "#262b28" : "#141715"}
+                    stroke={isInspected ? "#fff" : isCurrent ? "var(--ember)" : node.explored ? "var(--line)" : "#333"}
+                    strokeWidth={isInspected ? 3 : isCurrent ? 2.5 : 1.5}
+                  />
+                  <text
+                    x={node.x}
+                    y={node.y + 4}
+                    textAnchor="middle"
+                    fill="#fff"
+                    fontSize={12}
+                    fontWeight="bold"
+                  >
+                    {node.id}
+                  </text>
+                  <text
+                    x={node.x}
+                    y={node.y + 42}
+                    textAnchor="middle"
+                    fill={isCurrent ? "var(--ember)" : "var(--muted)"}
+                    fontSize={11}
+                    fontWeight={isCurrent ? "bold" : "normal"}
+                  >
+                    {node.title.length > 15 ? node.title.slice(0, 13) + "…" : node.title}
+                  </text>
+                </g>
+              );
+            })}
+          </svg>
+        </div>
+
+        {/* Current & Inspected Room Details */}
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: "20px" }}>
+          <div className="sub-panel" style={{ background: "var(--surface)", border: "1px solid var(--line)", borderRadius: "6px", padding: "16px" }}>
+            <div className="eyebrow">
+              {inspectedRoom.id === dungeon.currentRoomId ? "Current Chamber Exploration" : `Inspecting Room ${inspectedRoom.id}`}
+            </div>
+            <h3>{inspectedRoom.title}</h3>
+            <p style={{ margin: "8px 0", color: "var(--ink)", fontSize: "14px" }}>
+              <b>Geometry:</b> {inspectedRoom.geometry}
+            </p>
+            <p style={{ margin: "8px 0", color: "var(--ink)", fontSize: "14px" }}>
+              <b>Contents:</b> {inspectedRoom.contents}
+            </p>
+            <p style={{ margin: "8px 0", color: "var(--muted)", fontSize: "13px" }}>
+              <b>Feature:</b> {inspectedRoom.interaction}
+            </p>
+
+            {/* Trap in Current Room */}
+            {inspectedRoom.trap && inspectedRoom.trap.spotted && (
+              <div
+                style={{
+                  background: inspectedRoom.trap.disarmed ? "rgba(56, 142, 60, 0.15)" : "rgba(192, 57, 43, 0.15)",
+                  border: `1px solid ${inspectedRoom.trap.disarmed ? "#388e3c" : "#c0392b"}`,
+                  borderRadius: "6px",
+                  padding: "10px",
+                  margin: "12px 0",
+                }}
+              >
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <span style={{ fontWeight: "bold", fontSize: "13px" }}>
+                    ⚠️ Trap: {inspectedRoom.trap.name}
+                  </span>
+                  {inspectedRoom.trap.disarmed ? (
+                    <span className="badge-tag" style={{ background: "#388e3c", color: "#fff" }}>✓ DISARMED</span>
+                  ) : (
+                    <button
+                      className="small-btn danger-btn"
+                      onClick={() => disarmTrap(inspectedRoom.id)}
+                    >
+                      Disarm Trap (DC {inspectedRoom.trap.dc})
+                    </button>
+                  )}
+                </div>
+                <div style={{ fontSize: "12px", marginTop: "4px", color: "var(--muted)" }}>
+                  Trigger: {inspectedRoom.trap.trigger} · Effect: {inspectedRoom.trap.effect}
+                </div>
+              </div>
+            )}
+
+            {/* Encounter in Current Room */}
+            {inspectedRoom.encounter && (
+              <div
+                style={{
+                  background: inspectedRoom.encounter.defeated ? "rgba(255, 255, 255, 0.04)" : "rgba(217, 117, 56, 0.15)",
+                  border: "1px solid var(--ember)",
+                  borderRadius: "6px",
+                  padding: "10px",
+                  margin: "12px 0",
+                }}
+              >
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <div>
+                    <b>⚔️ Hostile Threats:</b> {inspectedRoom.encounter.count}x {inspectedRoom.encounter.name}
+                  </div>
+                  {inspectedRoom.encounter.defeated ? (
+                    <span className="badge-tag">DEFEATED</span>
+                  ) : (
+                    <button
+                      className="small-btn primary"
+                      onClick={() => act("combat:start", {})}
+                    >
+                      Engage in Combat
+                    </button>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Treasure in Current Room */}
+            {inspectedRoom.treasure && (
+              <div
+                style={{
+                  background: inspectedRoom.treasure.claimed ? "rgba(255, 255, 255, 0.04)" : "rgba(229, 169, 59, 0.15)",
+                  border: "1px solid #e5a93b",
+                  borderRadius: "6px",
+                  padding: "10px",
+                  margin: "12px 0",
+                }}
+              >
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <div>
+                    <b>💰 Chamber Spoils:</b> {inspectedRoom.treasure.coins} GP
+                    {inspectedRoom.treasure.items?.length > 0 && ` · Items: ${inspectedRoom.treasure.items.join(", ")}`}
+                  </div>
+                  {inspectedRoom.treasure.claimed ? (
+                    <span className="badge-tag">SECURED</span>
+                  ) : (
+                    <button
+                      className="small-btn primary"
+                      onClick={() => claimTreasure(inspectedRoom.id)}
+                    >
+                      Claim & Loot
+                    </button>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Connected Doors & Passages */}
+          <div className="sub-panel" style={{ background: "var(--surface)", border: "1px solid var(--line)", borderRadius: "6px", padding: "16px" }}>
+            <div className="eyebrow">Passages & Portals from Room {dungeon.currentRoomId}</div>
+            <h3>Connecting Thresholds</h3>
+            <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginTop: "12px" }}>
+              {currentEdges.map((edge, idx) => {
+                const targetRoomId = edge.fromRoomId === dungeon.currentRoomId ? edge.toRoomId : edge.fromRoomId;
+                const targetNode = dungeon.nodes.find((n) => n.id === targetRoomId);
+                const isOpen = edge.state === "open";
+                const isLocked = edge.state === "locked" || edge.state === "barred";
+                const isSecret = edge.doorType === "secret";
+
+                return (
+                  <div
+                    key={idx}
+                    style={{
+                      background: "rgba(0, 0, 0, 0.2)",
+                      border: "1px solid var(--line)",
+                      borderRadius: "6px",
+                      padding: "12px",
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: "8px",
+                    }}
+                  >
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                      <div>
+                        <b>Door to Room {targetRoomId}:</b> {targetNode?.title ?? `Room ${targetRoomId}`}
+                        <div style={{ fontSize: "11px", color: "var(--muted)", textTransform: "uppercase" }}>
+                          Type: {edge.doorType} · State: {edge.state}
+                        </div>
+                      </div>
+                      <span
+                        className="badge-tag"
+                        style={{
+                          background: isOpen ? "#388e3c" : isLocked ? "var(--danger)" : "#e5a93b",
+                          color: "#fff",
+                        }}
+                      >
+                        {edge.state.toUpperCase()}
+                      </span>
+                    </div>
+
+                    <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
+                      {isOpen ? (
+                        <button
+                          className="primary small-btn"
+                          disabled={!isCaller}
+                          title={isCaller ? "" : "Only the designated Caller or Host can move the party"}
+                          onClick={() => moveRoom(targetRoomId)}
+                        >
+                          <Footprints size={14} /> Move Party into Room {targetRoomId}
+                        </button>
+                      ) : (
+                        <>
+                          {edge.state === "closed" && (
+                            <button
+                              className="small-btn primary"
+                              onClick={() => interactDoor(edge.fromRoomId, edge.toRoomId, "open")}
+                            >
+                              <DoorOpen size={14} /> Open Door
+                            </button>
+                          )}
+                          {isLocked && (
+                            <>
+                              <button
+                                className="small-btn"
+                                onClick={() => interactDoor(edge.fromRoomId, edge.toRoomId, "pick")}
+                              >
+                                <Unlock size={14} /> Pick Lock (Thief DEX)
+                              </button>
+                              <button
+                                className="small-btn"
+                                onClick={() => interactDoor(edge.fromRoomId, edge.toRoomId, "force")}
+                              >
+                                Force Door (STR)
+                              </button>
+                            </>
+                          )}
+                          {isSecret && (
+                            <button
+                              className="small-btn"
+                              onClick={() => interactDoor(edge.fromRoomId, edge.toRoomId, "search_secret")}
+                            >
+                              <Search size={14} /> Search Secret Passage (INT)
+                            </button>
+                          )}
+                        </>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+}
+
+function CombatView({ state, act }: { state: CampaignState; act: Act }) {
+  const combat = state.activeCombat;
+  if (!combat || combat.status !== "active") {
+    return (
+      <div className="panel" style={{ textAlign: "center", padding: "40px 20px" }}>
+        <Swords size={48} style={{ color: "var(--muted)", margin: "0 auto 16px" }} />
+        <h2>No Combat Encounter Active</h2>
+        <p style={{ color: "var(--muted)" }}>
+          Combat commences when the party encounters hostile threats in the wilderness or dungeon.
+        </p>
+      </div>
+    );
+  }
+
+  const activeCombatant = combat.combatants[combat.activeIndex] ?? combat.combatants[0];
+
+  const nextTurn = async () => {
+    await act("combat:next_turn", {}, "Advanced to next turn");
+  };
+
+  const deathSave = async (combatantId: string) => {
+    await act("combat:death_save", { combatantId }, "Death save resolved");
+  };
+
+  const moraleCheck = async () => {
+    await act("combat:morale_check", {}, "Monster morale checked");
+  };
+
+  const endCombat = async (victor: "party" | "monsters" | "fled") => {
+    await act("combat:end", { victor }, `Combat concluded: ${victor}`);
+  };
+
+  const adjustHp = async (combatantId: string, currentHp: number, delta: number) => {
+    const nextHp = currentHp + delta;
+    await act("combat:update_hp", { combatantId, currentHp: nextHp });
+  };
+
+  return (
+    <div className="surface-grid" style={{ gridTemplateColumns: "1fr", gap: "20px" }}>
+      <section className="panel combat-main">
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "12px", marginBottom: "16px" }}>
+          <div>
+            <div className="eyebrow">Tactical Encounter Runner · Round {combat.round}</div>
+            <h2>Turn: {activeCombatant?.name ?? "Ready"} ({activeCombatant?.kind === "pc" ? "Adventurer" : "Threat"})</h2>
+          </div>
+
+          <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+            <button className="primary" onClick={nextTurn}>
+              <ChevronRight size={16} /> Next Turn
+            </button>
+            <button className="small-btn" onClick={moraleCheck} title="Check 2d6 vs monster morale score">
+              <Skull size={14} /> Morale Check
+            </button>
+            <button className="small-btn danger-btn" onClick={() => endCombat("party")}>
+              Party Victory
+            </button>
+            <button className="small-btn" onClick={() => endCombat("fled")}>
+              Fled Encounter
+            </button>
+          </div>
+        </div>
+
+        {/* Initiative Track */}
+        <div className="initiative-track" style={{ display: "flex", gap: "10px", overflowX: "auto", padding: "8px 0 16px", marginBottom: "16px" }}>
+          {combat.combatants.map((c, idx) => {
+            const isActive = idx === combat.activeIndex;
+            return (
+              <div
+                key={c.id}
+                className={`combatant-pill ${isActive ? "active-combatant" : ""}`}
+                style={{
+                  flex: "0 0 auto",
+                  padding: "8px 14px",
+                  borderRadius: "6px",
+                  background: isActive ? "rgba(217, 117, 56, 0.25)" : "var(--surface)",
+                  border: isActive ? "2px solid var(--ember)" : "1px solid var(--line)",
+                  minWidth: "120px",
+                }}
+              >
+                <div style={{ display: "flex", justifyContent: "space-between", fontSize: "11px", color: "var(--muted)" }}>
+                  <span>INIT {c.initiative}</span>
+                  <span style={{ textTransform: "uppercase" }}>{c.kind}</span>
+                </div>
+                <div style={{ fontWeight: "bold", fontSize: "14px", marginTop: "2px" }}>
+                  {c.name}
+                </div>
+                <div style={{ fontSize: "12px", marginTop: "4px", color: c.currentHp <= 0 ? "var(--danger)" : "var(--ink)" }}>
+                  HP: {c.currentHp} / {c.maxHp}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Combatant Cards Grid */}
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "16px" }}>
+          {combat.combatants.map((c) => {
+            const isDeadOrDying = c.currentHp <= 0;
+            const hpPct = Math.max(0, Math.min(100, Math.round((c.currentHp / c.maxHp) * 100)));
+
+            return (
+              <div
+                key={c.id}
+                className="panel"
+                style={{
+                  background: "var(--surface)",
+                  border: c.id === activeCombatant?.id ? "2px solid var(--ember)" : "1px solid var(--line)",
+                  borderRadius: "6px",
+                  padding: "16px",
+                }}
+              >
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                  <div>
+                    <span className="badge-tag" style={{ fontSize: "10px" }}>
+                      {c.kind === "pc" ? "ADVENTURER" : "MONSTER"}
+                    </span>
+                    <h3 style={{ margin: "4px 0" }}>{c.name}</h3>
+                  </div>
+                  <div style={{ textAlign: "right", fontSize: "13px" }}>
+                    <div><b>AC:</b> {c.ac}</div>
+                    <div style={{ color: "var(--muted)" }}><b>Init:</b> {c.initiative}</div>
+                  </div>
+                </div>
+
+                {/* HP Meter */}
+                <div style={{ margin: "12px 0 8px" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", fontSize: "12px", marginBottom: "4px" }}>
+                    <span>Hit Points</span>
+                    <b>{c.currentHp} / {c.maxHp}</b>
+                  </div>
+                  <div style={{ height: "6px", background: "rgba(0, 0, 0, 0.3)", borderRadius: "3px", overflow: "hidden" }}>
+                    <div
+                      style={{
+                        height: "100%",
+                        width: `${hpPct}%`,
+                        background: c.currentHp <= 0 ? "var(--danger)" : hpPct < 30 ? "#e5a93b" : "#388e3c",
+                        transition: "width 0.2s ease",
+                      }}
+                    />
+                  </div>
+                </div>
+
+                {/* HP Quick Modifiers */}
+                <div style={{ display: "flex", gap: "6px", alignItems: "center", marginBottom: "12px" }}>
+                  <button className="small-btn" onClick={() => adjustHp(c.id, c.currentHp, -5)}>-5</button>
+                  <button className="small-btn" onClick={() => adjustHp(c.id, c.currentHp, -1)}>-1</button>
+                  <span style={{ fontSize: "11px", color: "var(--muted)", flex: 1, textAlign: "center" }}>Adjust HP</span>
+                  <button className="small-btn" onClick={() => adjustHp(c.id, c.currentHp, 1)}>+1</button>
+                  <button className="small-btn" onClick={() => adjustHp(c.id, c.currentHp, 5)}>+5</button>
+                </div>
+
+                {/* Dying / Death Saves for PCs */}
+                {c.kind === "pc" && isDeadOrDying && (
+                  <div
+                    style={{
+                      background: c.stabilized ? "rgba(56, 142, 60, 0.15)" : "rgba(192, 57, 43, 0.15)",
+                      border: `1px solid ${c.stabilized ? "#388e3c" : "#c0392b"}`,
+                      borderRadius: "6px",
+                      padding: "10px",
+                      margin: "8px 0",
+                    }}
+                  >
+                    {c.stabilized ? (
+                      <div style={{ fontSize: "12px", color: "#4caf50", fontWeight: "bold" }}>
+                        ✓ Stabilized (Unconscious at 0 HP)
+                      </div>
+                    ) : (
+                      <div>
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "6px" }}>
+                          <span style={{ fontWeight: "bold", fontSize: "12px", color: "var(--danger)" }}>
+                            💀 DYING: Death Strikes {c.deathStrikes ?? 0} / 3
+                          </span>
+                        </div>
+                        <button
+                          className="danger-btn small-btn wide"
+                          onClick={() => deathSave(c.id)}
+                        >
+                          Roll Death Save (DC 10 CON)
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </section>
+    </div>
+  );
+}
+
+function TreasureModal({
+  rewards,
+  characters,
+  act,
+  onClose,
+}: {
+  rewards: RewardRecord[];
+  characters: Character[];
+  act: Act;
+  onClose: () => void;
+}) {
+  const unclaimed = rewards.filter((r) => !r.claimed);
+  const [selectedCharIds, setSelectedCharIds] = useState<Record<string, number>>({});
+
+  return (
+    <div className="modal-backdrop">
+      <div className="panel modal-content" style={{ maxWidth: "600px" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
+          <Title eyebrow="Expedition Spoils" title="Treasure Allocation" />
+          <button className="icon-button" onClick={onClose}><X size={20} /></button>
+        </div>
+
+        {unclaimed.length === 0 ? (
+          <div style={{ padding: "20px 0", textAlign: "center", color: "var(--muted)" }}>
+            <p>All expedition spoils and rewards have been claimed and allocated.</p>
+          </div>
+        ) : (
+          <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+            {unclaimed.map((reward) => {
+              const totalCoins = (reward.coins.gp ?? 0) + (reward.coins.sp ?? 0) / 10 + (reward.coins.cp ?? 0) / 100;
+              const hasCoins = totalCoins > 0;
+              const hasItems = reward.items && reward.items.length > 0;
+
+              return (
+                <div
+                  key={reward.id}
+                  style={{
+                    background: "rgba(217, 117, 56, 0.08)",
+                    border: "1px solid var(--ember)",
+                    borderRadius: "6px",
+                    padding: "16px",
+                  }}
+                >
+                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px" }}>
+                    <span className="badge-tag" style={{ background: "var(--ember)", color: "#000", fontWeight: "bold" }}>
+                      SOURCE: {reward.sourceType.replace("_", " ").toUpperCase()}
+                    </span>
+                  </div>
+
+                  {hasCoins && (
+                    <div style={{ marginBottom: "12px" }}>
+                      <div style={{ fontSize: "14px", marginBottom: "6px" }}>
+                        🪙 <b>Coins:</b> {reward.coins.gp ?? 0} GP {reward.coins.sp ? `· ${reward.coins.sp} SP` : ""} {reward.coins.cp ? `· ${reward.coins.cp} CP` : ""}
+                      </div>
+                      <button
+                        className="small-btn primary"
+                        onClick={() =>
+                          act(
+                            "treasure:allocate",
+                            { rewardId: reward.id, allocation: { target: "party" } },
+                            "Coins divided equally among the party",
+                          )
+                        }
+                      >
+                        Divide Coins Evenly (Party)
+                      </button>
+                    </div>
+                  )}
+
+                  {hasItems && (
+                    <div>
+                      <div style={{ fontSize: "14px", marginBottom: "6px" }}>
+                        🎒 <b>Items & Relics:</b>
+                      </div>
+                      <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                        {reward.items.map((itId, idx) => {
+                          const itDef = ITEMS.find((i) => i.id === itId);
+                          const itName = itDef?.name ?? itId;
+                          const itSlots = itDef?.slots ?? 1;
+                          const targetCharId = selectedCharIds[`${reward.id}:${idx}`] ?? characters[0]?.id;
+                          const targetChar = characters.find((c) => c.id === targetCharId);
+                          const carried = (targetChar?.inventory ?? []).reduce(
+                            (s, it) => s + (it.slots ?? 1) * (it.quantity ?? 1),
+                            0,
+                          );
+                          const capacity = targetChar?.gearSlots ?? 10;
+                          const willEncumber = carried + itSlots > capacity;
+
+                          return (
+                            <div
+                              key={idx}
+                              style={{
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "space-between",
+                                gap: "8px",
+                                background: "rgba(0, 0, 0, 0.2)",
+                                padding: "8px 12px",
+                                borderRadius: "4px",
+                                flexWrap: "wrap",
+                              }}
+                            >
+                              <div>
+                                <b>{itName}</b> <small style={{ color: "var(--muted)" }}>({itSlots} slot{itSlots > 1 ? "s" : ""})</small>
+                                {willEncumber && (
+                                  <div style={{ color: "var(--danger)", fontSize: "11px", marginTop: "2px" }}>
+                                    ⚠️ Will encumber {targetChar?.name} ({carried + itSlots}/{capacity} slots)
+                                  </div>
+                                )}
+                              </div>
+                              <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+                                <select
+                                  value={targetCharId}
+                                  onChange={(e) =>
+                                    setSelectedCharIds({
+                                      ...selectedCharIds,
+                                      [`${reward.id}:${idx}`]: Number(e.target.value),
+                                    })
+                                  }
+                                  style={{ padding: "4px 8px", fontSize: "12px" }}
+                                >
+                                  {characters.map((c) => {
+                                    const cCarried = (c.inventory ?? []).reduce(
+                                      (s, it) => s + (it.slots ?? 1) * (it.quantity ?? 1),
+                                      0,
+                                    );
+                                    return (
+                                      <option key={c.id} value={c.id}>
+                                        {c.name} ({cCarried}/{c.gearSlots} slots)
+                                      </option>
+                                    );
+                                  })}
+                                </select>
+                                <button
+                                  className="small-btn primary"
+                                  onClick={() =>
+                                    act(
+                                      "treasure:allocate",
+                                      {
+                                        rewardId: reward.id,
+                                        allocation: {
+                                          target: "character",
+                                          characterId: targetCharId,
+                                          itemId: itId,
+                                        },
+                                      },
+                                      `${itName} allocated to ${targetChar?.name}`,
+                                    )
+                                  }
+                                >
+                                  Assign
+                                </button>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+        <div style={{ marginTop: "20px", display: "flex", justifyContent: "flex-end" }}>
+          <button onClick={onClose}>Close</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ContextualRollModal({
+  characters,
+  act,
+  onClose,
+  initialCharId,
+  initialAbility,
+  initialType,
+}: {
+  characters: Character[];
+  act: Act;
+  onClose: () => void;
+  initialCharId?: number;
+  initialAbility?: string;
+  initialType?: string;
+}) {
+  const [characterId, setCharacterId] = useState<number>(
+    initialCharId ?? characters[0]?.id ?? 0,
+  );
+  const [type, setType] = useState<"check" | "save" | "attack" | "spell">(
+    (initialType as any) ?? "check",
+  );
+  const [ability, setAbility] = useState<"str" | "dex" | "con" | "int" | "wis" | "cha">(
+    (initialAbility as any) ?? "str",
+  );
+  const [mode, setMode] = useState<"digital" | "physical">("digital");
+  const [advantage, setAdvantage] = useState<"normal" | "advantage" | "disadvantage">("normal");
+  const [physicalValue, setPhysicalValue] = useState<number>(10);
+  const [dc, setDc] = useState<string>("12");
+
+  const activeChar = characters.find((c) => c.id === characterId) ?? characters[0];
+
+  const submitRoll = async (e: FormEvent) => {
+    e.preventDefault();
+    await act(
+      "roll:contextual",
+      {
+        characterId,
+        type,
+        ability,
+        mode,
+        physicalValue: mode === "physical" ? physicalValue : undefined,
+        advantage,
+        dc: dc ? Number(dc) : undefined,
+      },
+      "Roll cast to table",
+    );
+    onClose();
+  };
+
+  return (
+    <div className="modal-backdrop">
+      <div className="panel modal-content" style={{ maxWidth: "480px" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
+          <Title eyebrow="Contextual Dice Roller" title="Roll Check / Save" />
+          <button className="icon-button" onClick={onClose}><X size={20} /></button>
+        </div>
+
+        <form onSubmit={submitRoll} style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+          <label>
+            <span style={{ fontSize: "12px", color: "var(--muted)" }}>Adventurer:</span>
+            <select
+              value={characterId}
+              onChange={(e) => setCharacterId(Number(e.target.value))}
+              style={{ width: "100%", marginTop: "4px" }}
+            >
+              {characters.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.name} ({c.className} Lvl {c.level})
+                </option>
+              ))}
+            </select>
+          </label>
+
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
+            <label>
+              <span style={{ fontSize: "12px", color: "var(--muted)" }}>Roll Context:</span>
+              <select
+                value={type}
+                onChange={(e) => setType(e.target.value as any)}
+                style={{ width: "100%", marginTop: "4px" }}
+              >
+                <option value="check">Ability Check</option>
+                <option value="save">Saving Throw</option>
+                <option value="attack">Attack Roll</option>
+                <option value="spell">Spellcasting Check</option>
+              </select>
+            </label>
+
+            <label>
+              <span style={{ fontSize: "12px", color: "var(--muted)" }}>Ability:</span>
+              <select
+                value={ability}
+                onChange={(e) => setAbility(e.target.value as any)}
+                style={{ width: "100%", marginTop: "4px" }}
+              >
+                {ABILITY_KEYS.map((k) => (
+                  <option key={k} value={k}>
+                    {labels[k]} ({activeChar?.abilities[k] ?? 10})
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
+            <label>
+              <span style={{ fontSize: "12px", color: "var(--muted)" }}>Dice Source:</span>
+              <select
+                value={mode}
+                onChange={(e) => setMode(e.target.value as any)}
+                style={{ width: "100%", marginTop: "4px" }}
+              >
+                <option value="digital">🎲 Digital PRNG</option>
+                <option value="physical">✋ Physical Table Dice</option>
+              </select>
+            </label>
+
+            <label>
+              <span style={{ fontSize: "12px", color: "var(--muted)" }}>Advantage / Disadv:</span>
+              <select
+                value={advantage}
+                onChange={(e) => setAdvantage(e.target.value as any)}
+                style={{ width: "100%", marginTop: "4px" }}
+              >
+                <option value="normal">Normal Roll</option>
+                <option value="advantage">Advantage (Take Higher)</option>
+                <option value="disadvantage">Disadvantage (Take Lower)</option>
+              </select>
+            </label>
+          </div>
+
+          {mode === "physical" && (
+            <label>
+              <span style={{ fontSize: "12px", color: "var(--muted)" }}>Physical d20 Result Rolled:</span>
+              <input
+                type="number"
+                min={1}
+                max={20}
+                value={physicalValue}
+                onChange={(e) => setPhysicalValue(Number(e.target.value))}
+                style={{ width: "100%", marginTop: "4px" }}
+                required
+              />
+            </label>
+          )}
+
+          <label>
+            <span style={{ fontSize: "12px", color: "var(--muted)" }}>Target DC / AC (optional):</span>
+            <input
+              type="number"
+              min={1}
+              max={30}
+              value={dc}
+              onChange={(e) => setDc(e.target.value)}
+              style={{ width: "100%", marginTop: "4px" }}
+            />
+          </label>
+
+          <div style={{ marginTop: "12px", display: "flex", justifyContent: "flex-end", gap: "8px" }}>
+            <button type="button" onClick={onClose}>Cancel</button>
+            <button type="submit" className="primary">Roll & Announce</button>
+          </div>
+        </form>
+      </div>
+    </div>
   );
 }
 
@@ -3438,7 +4982,7 @@ function PressureBoard({ state, act }: { state: CampaignState; act: Act }) {
                 },
                 "Complication saved to session notes",
               );
-              setToast("Saved to chronicle notes");
+              setComplication(null);
             }}
           >
             <BookOpen size={13} /> Save to Chronicle Notes

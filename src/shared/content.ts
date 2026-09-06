@@ -1,3 +1,5 @@
+import type { ItemDefinition, SpellDefinition } from "./types.js";
+
 export const ABILITY_KEYS = ["str", "dex", "con", "int", "wis", "cha"] as const;
 
 export const ANCESTRIES = [
@@ -35,16 +37,22 @@ export interface TalentEntry {
 }
 
 export interface ClassInfo {
+  id: string;
   name: string;
   hitDie: number;
   weapons?: readonly string[];
   armor?: readonly string[];
+  spellcasting?: {
+    ability: "int" | "wis" | "cha";
+    type: "arcane" | "divine" | "primal";
+  };
   level1Features?: readonly ClassFeature[];
   talentTable?: readonly TalentEntry[];
 }
 
 export const CLASSES: readonly ClassInfo[] = [
   {
+    id: "fighter",
     name: "Fighter",
     hitDie: 8,
     weapons: ["All weapons"],
@@ -63,6 +71,7 @@ export const CLASSES: readonly ClassInfo[] = [
     ],
   },
   {
+    id: "thief",
     name: "Thief",
     hitDie: 6,
     weapons: ["Club", "Crossbow", "Dagger", "Shortbow", "Shortsword"],
@@ -81,10 +90,15 @@ export const CLASSES: readonly ClassInfo[] = [
     ],
   },
   {
+    id: "priest",
     name: "Priest",
     hitDie: 6,
     weapons: ["Club", "Crossbow", "Dagger", "Mace", "Staff", "Warhammer"],
     armor: ["All armor", "Shields"],
+    spellcasting: {
+      ability: "wis",
+      type: "divine",
+    },
     level1Features: [
       { name: "Divine Spellcasting", description: "Cast divine miracles using Wisdom vs DC 10 + Tier." },
       { name: "Turn Undead", description: "Rebuke undead with holy authority." },
@@ -98,23 +112,29 @@ export const CLASSES: readonly ClassInfo[] = [
     ],
   },
   {
+    id: "wizard",
     name: "Wizard",
     hitDie: 4,
     weapons: ["Dagger", "Staff"],
     armor: ["None"],
+    spellcasting: {
+      ability: "int",
+      type: "arcane",
+    },
     level1Features: [
       { name: "Arcane Spellcasting", description: "Cast arcane formulas using Intelligence vs DC 10 + Tier." },
       { name: "Spellbook", description: "Begins with 3 Tier 1 spells inscribed." },
     ],
     talentTable: [
-      { roll: "2", min: 2, max: 2, effect: "Choose one wizard spell you know; cast it with Advantage." },
+      { roll: "2", min: 2, max: 2, effect: "Learn one additional wizard spell of any tier you can cast." },
       { roll: "3-6", min: 3, max: 6, effect: "+1 to arcane spellcasting checks." },
       { roll: "7-9", min: 7, max: 9, effect: "+2 to Intelligence or Wisdom stat." },
-      { roll: "10-11", min: 10, max: 11, effect: "Learn one additional spell of any tier you can cast." },
+      { roll: "10-11", min: 10, max: 11, effect: "Modify one known spell to cast at Far range or learn 1 spell." },
       { roll: "12", min: 12, max: 12, effect: "Choose any talent or gain +2 points to distribute among stats." },
     ],
   },
   {
+    id: "delver",
     name: "Delver",
     hitDie: 6,
     weapons: ["Club", "Crossbow", "Dagger", "Shortbow", "Shortsword", "Spear", "Staff", "Whip"],
@@ -132,6 +152,7 @@ export const CLASSES: readonly ClassInfo[] = [
     ],
   },
   {
+    id: "ras_godai",
     name: "Ras-Godai",
     hitDie: 6,
     weapons: ["Blowgun", "Dagger", "Garrote", "Shortbow", "Shortsword", "Shuriken"],
@@ -149,10 +170,15 @@ export const CLASSES: readonly ClassInfo[] = [
     ],
   },
   {
+    id: "druid",
     name: "Druid",
     hitDie: 6,
     weapons: ["Club", "Dagger", "Scimitar", "Sickle", "Sling", "Spear", "Staff"],
     armor: ["Leather armor", "Wooden shields"],
+    spellcasting: {
+      ability: "wis",
+      type: "primal",
+    },
     level1Features: [
       { name: "Wild Shape", description: "Transform into beast form 1/day per level." },
       { name: "Primal Spellcasting", description: "Cast nature spells with Wisdom." },
@@ -166,6 +192,7 @@ export const CLASSES: readonly ClassInfo[] = [
     ],
   },
   {
+    id: "alchemist",
     name: "Alchemist",
     hitDie: 6,
     weapons: ["Club", "Crossbow", "Dagger", "Sling", "Staff"],
@@ -183,10 +210,15 @@ export const CLASSES: readonly ClassInfo[] = [
     ],
   },
   {
+    id: "sage",
     name: "Sage",
     hitDie: 4,
     weapons: ["Dagger", "Staff"],
     armor: ["None"],
+    spellcasting: {
+      ability: "int",
+      type: "arcane",
+    },
     level1Features: [
       { name: "Encyclopedic Lore", description: "Advantage on monster/history lore checks." },
       { name: "Scroll Savant", description: "Cast scrolls of any tradition without failure." },
@@ -200,6 +232,7 @@ export const CLASSES: readonly ClassInfo[] = [
     ],
   },
   {
+    id: "monk",
     name: "Monk",
     hitDie: 6,
     weapons: ["Club", "Dagger", "Staff"],
@@ -217,10 +250,15 @@ export const CLASSES: readonly ClassInfo[] = [
     ],
   },
   {
+    id: "bard",
     name: "Bard",
     hitDie: 6,
     weapons: ["Club", "Crossbow", "Dagger", "Shortbow", "Shortsword", "Spear", "Staff"],
     armor: ["Leather armor", "Chainmail", "Shields"],
+    spellcasting: {
+      ability: "cha",
+      type: "arcane",
+    },
     level1Features: [
       { name: "Bardic Inspiration", description: "Grant ally +1d6 to next check or attack." },
     ],
@@ -233,6 +271,7 @@ export const CLASSES: readonly ClassInfo[] = [
     ],
   },
   {
+    id: "duelist",
     name: "Duelist",
     hitDie: 8,
     weapons: ["Crossbow", "Dagger", "Rapier", "Shortsword"],
@@ -249,6 +288,7 @@ export const CLASSES: readonly ClassInfo[] = [
     ],
   },
   {
+    id: "ranger",
     name: "Ranger",
     hitDie: 8,
     weapons: ["Dagger", "Longbow", "Longsword", "Shortbow", "Shortsword", "Spear", "Staff"],
@@ -265,6 +305,193 @@ export const CLASSES: readonly ClassInfo[] = [
       { roll: "12", min: 12, max: 12, effect: "Choose any talent or gain +2 points to distribute among stats." },
     ],
   },
+] as const;
+
+export const ITEMS: readonly ItemDefinition[] = [
+  // Weapons
+  { id: "dagger", name: "Dagger", kind: "weapon" as const, costGp: 2, slots: 1, damage: "1d4", properties: ["finesse", "thrown"], description: "Light concealable blade." },
+  { id: "shortsword", name: "Shortsword", kind: "weapon" as const, costGp: 6, slots: 1, damage: "1d6", properties: ["finesse", "light"], description: "Quick, balanced blade." },
+  { id: "longsword", name: "Longsword", kind: "weapon" as const, costGp: 10, slots: 1, damage: "1d8", properties: ["versatile"], description: "Classic one-handed blade (1d10 two-handed)." },
+  { id: "greatsword", name: "Greatsword", kind: "weapon" as const, costGp: 15, slots: 2, damage: "1d12", properties: ["heavy", "two-handed"], description: "Massive two-handed greatsword." },
+  { id: "mace", name: "Mace", kind: "weapon" as const, costGp: 8, slots: 1, damage: "1d6", properties: ["bludgeoning"], description: "Heavy fluted mace (+1 vs skeletons/armor)." },
+  { id: "warhammer", name: "Warhammer", kind: "weapon" as const, costGp: 12, slots: 1, damage: "1d8", properties: ["bludgeoning", "versatile"], description: "Forged crushing hammer (1d10 two-handed)." },
+  { id: "spear", name: "Spear", kind: "weapon" as const, costGp: 3, slots: 1, damage: "1d6", properties: ["reach", "thrown"], description: "Long ash spear with iron tip." },
+  { id: "polearm", name: "Polearm", kind: "weapon" as const, costGp: 12, slots: 2, damage: "1d10", properties: ["heavy", "reach", "two-handed"], description: "Halberd or billhook with extended reach." },
+  { id: "shortbow", name: "Shortbow", kind: "weapon" as const, costGp: 12, slots: 1, damage: "1d6", properties: ["ranged", "two-handed"], description: "Light recurve hunting bow (Far range)." },
+  { id: "longbow", name: "Longbow", kind: "weapon" as const, costGp: 25, slots: 2, damage: "1d8", properties: ["ranged", "heavy", "two-handed"], description: "Tall yew war bow (Far range)." },
+  { id: "light_crossbow", name: "Light Crossbow", kind: "weapon" as const, costGp: 16, slots: 1, damage: "1d6", properties: ["ranged", "loading"], description: "Spanned crossbow (Far range, loading)." },
+  { id: "heavy_crossbow", name: "Heavy Crossbow", kind: "weapon" as const, costGp: 30, slots: 2, damage: "1d10", properties: ["ranged", "heavy", "loading"], description: "Steel windlass crossbow (Far range, heavy, loading)." },
+  { id: "staff", name: "Staff", kind: "weapon" as const, costGp: 1, slots: 1, damage: "1d4", properties: ["versatile"], description: "Hardened walking quarterstaff." },
+  { id: "club", name: "Club", kind: "weapon" as const, costGp: 1, slots: 1, damage: "1d4", properties: ["bludgeoning"], description: "Simple stout cudgel." },
+
+  // Armor & Shields
+  { id: "leather_armor", name: "Leather Armor", kind: "armor" as const, costGp: 10, slots: 1, baseAc: 11, properties: ["stealth_allowed"], description: "AC 11 + DEX mod. Stealth allowed." },
+  { id: "chainmail", name: "Chainmail", kind: "armor" as const, costGp: 40, slots: 2, baseAc: 13, maxDexMod: 2, properties: ["disadvantage_stealth"], description: "AC 13 + DEX mod (max +2). Disadvantage on Stealth." },
+  { id: "plate_armor", name: "Plate Armor", kind: "armor" as const, costGp: 100, slots: 3, baseAc: 15, maxDexMod: 1, properties: ["disadvantage_stealth", "disadvantage_swim"], description: "AC 15 + DEX mod (max +1). Disadvantage on Stealth and Swimming." },
+  { id: "shield", name: "Shield", kind: "shield" as const, costGp: 10, slots: 1, acBonus: 2, properties: ["shield"], description: "+2 AC. Requires one free hand." },
+
+  // Gear & Supplies
+  { id: "torches", name: "Torch Bundle (3)", kind: "gear" as const, costGp: 1, slots: 1, description: "Sheds light in Near radius for 6 Crawling Turns." },
+  { id: "lantern_oil", name: "Lantern & Oil Flask", kind: "gear" as const, costGp: 10, slots: 1, description: "Sheds light in Far radius; burns 3 hours." },
+  { id: "oil_flask", name: "Oil Flask", kind: "consumable" as const, costGp: 1, slots: 1, description: "Fuel for lantern or throwable fire hazard." },
+  { id: "rations", name: "Iron Rations (3 Days)", kind: "consumable" as const, costGp: 3, slots: 1, description: "Preserved hardtack and dried meat (prevents starvation)." },
+  { id: "rope_hook", name: "Hemp Rope (50 ft) & Hook", kind: "gear" as const, costGp: 2, slots: 1, description: "Advantage on climbing checks." },
+  { id: "thieves_tools", name: "Thieves' Tools", kind: "gear" as const, costGp: 25, slots: 1, description: "Required to pick locks and disarm mechanical traps." },
+  { id: "iron_spikes", name: "Iron Spikes & Hammer (10)", kind: "gear" as const, costGp: 2, slots: 1, description: "Wedge dungeon doors shut or secure pitons." },
+  { id: "healing_salve", name: "Healing Salve (3 uses)", kind: "consumable" as const, costGp: 10, slots: 1, description: "Restores 1d4 HP during rest." },
+  { id: "holy_water", name: "Holy Water (Flask)", kind: "consumable" as const, costGp: 25, slots: 1, description: "2d6 radiant damage to undead/fiends." },
+  { id: "spellbook", name: "Spellbook", kind: "gear" as const, costGp: 25, slots: 1, description: "Inscribed with wizard formulas; required for arcane casting." },
+  { id: "holy_symbol", name: "Holy Symbol", kind: "gear" as const, costGp: 5, slots: 0, description: "Divine focus required for miracles and turning undead." },
+  { id: "arrows", name: "Arrows (Quiver of 20)", kind: "gear" as const, costGp: 1, slots: 1, description: "Ammunition for bows." },
+  { id: "bolts", name: "Crossbow Bolts (Case of 20)", kind: "gear" as const, costGp: 1, slots: 1, description: "Ammunition for crossbows." },
+] as const;
+
+export const STARTING_EQUIPMENT: Record<string, Array<{ itemId: string; equipped?: boolean; quantity?: number }>> = {
+  fighter: [
+    { itemId: "longsword", equipped: true },
+    { itemId: "chainmail", equipped: true },
+    { itemId: "shield", equipped: true },
+    { itemId: "rations", quantity: 1 },
+    { itemId: "torches", quantity: 1 },
+  ],
+  thief: [
+    { itemId: "leather_armor", equipped: true },
+    { itemId: "shortsword", equipped: true },
+    { itemId: "dagger", equipped: false },
+    { itemId: "thieves_tools", equipped: false },
+    { itemId: "rope_hook", equipped: false },
+    { itemId: "rations", quantity: 1 },
+  ],
+  priest: [
+    { itemId: "chainmail", equipped: true },
+    { itemId: "warhammer", equipped: true },
+    { itemId: "shield", equipped: true },
+    { itemId: "holy_symbol", equipped: false },
+    { itemId: "holy_water", quantity: 1 },
+    { itemId: "rations", quantity: 1 },
+  ],
+  wizard: [
+    { itemId: "staff", equipped: true },
+    { itemId: "dagger", equipped: false },
+    { itemId: "spellbook", equipped: false },
+    { itemId: "lantern_oil", equipped: false },
+    { itemId: "rations", quantity: 1 },
+  ],
+};
+
+export const SPELLS: readonly SpellDefinition[] = [
+  // Tier 1
+  {
+    id: "magic_missile",
+    name: "Magic Missile",
+    tier: 1,
+    sphere: "arcane" as const,
+    range: "far" as const,
+    duration: "instant",
+    description: "Automatically hits target for 1d4 + INT mod force damage.",
+  },
+  {
+    id: "shield_of_faith",
+    name: "Shield of Faith",
+    tier: 1,
+    sphere: "divine" as const,
+    range: "close" as const,
+    duration: "5 rounds",
+    description: "Grants +2 bonus to target's Armor Class.",
+  },
+  {
+    id: "cure_wounds",
+    name: "Cure Wounds",
+    tier: 1,
+    sphere: "divine" as const,
+    range: "close" as const,
+    duration: "instant",
+    description: "Touched living creature regains 1d8 + WIS mod Hit Points.",
+  },
+  {
+    id: "light",
+    name: "Light",
+    tier: 1,
+    sphere: "arcane" as const,
+    range: "near" as const,
+    duration: "1 hour",
+    description: "Shines bright light in Near radius.",
+  },
+  {
+    id: "sleep",
+    name: "Sleep",
+    tier: 1,
+    sphere: "arcane" as const,
+    range: "near" as const,
+    duration: "10 rounds",
+    description: "Up to 2d6 HD of creatures in Near radius fall into deep slumber.",
+  },
+  {
+    id: "entangle",
+    name: "Entangle",
+    tier: 1,
+    sphere: "primal" as const,
+    range: "near" as const,
+    duration: "5 rounds",
+    description: "Vines burst from ground; targets must pass STR check or be immobilized.",
+  },
+  // Tier 2
+  {
+    id: "scorching_ray",
+    name: "Scorching Ray",
+    tier: 2,
+    sphere: "arcane" as const,
+    range: "far" as const,
+    duration: "instant",
+    description: "Fires 2 fiery rays dealing 2d6 fire damage each on ranged spell hits.",
+  },
+  {
+    id: "hold_person",
+    name: "Hold Person",
+    tier: 2,
+    sphere: "divine" as const,
+    range: "near" as const,
+    duration: "5 rounds",
+    description: "Humanoid target must pass WIS save or be paralyzed.",
+  },
+  {
+    id: "lesser_restoration",
+    name: "Lesser Restoration",
+    tier: 2,
+    sphere: "divine" as const,
+    range: "close" as const,
+    duration: "instant",
+    description: "Cures target of one poison, paralysis, or blinding condition.",
+  },
+  {
+    id: "invisibility",
+    name: "Invisibility",
+    tier: 2,
+    sphere: "arcane" as const,
+    range: "close" as const,
+    duration: "10 mins",
+    description: "Target is completely invisible until attacking or casting a spell.",
+  },
+  {
+    id: "barkskin",
+    name: "Barkskin",
+    tier: 2,
+    sphere: "primal" as const,
+    range: "self" as const,
+    duration: "10 mins",
+    description: "Caster's natural AC becomes 16 regardless of armor worn.",
+  },
+] as const;
+
+export const ARCANE_MISHAPS = [
+  "Arcane Backlash: Caster takes 1d6 damage per Spell Tier directly to Hit Points.",
+  "Planar Bleed: A hostile minor shadow imp or planar voidling spawns adjacent to the caster.",
+  "Spell Inversion: The spell affects the nearest ally or the caster instead of the intended target.",
+  "Sensory Shock: Caster is blinded and deafened for 1d4 rounds.",
+  "Eldritch Stigma: Caster’s skin turns translucent or glowing runes burn into flesh for 24 hours.",
+  "Dead Magic Pocket: No spells can be cast in the current chamber/zone for 10 minutes.",
+  "Memory Scourge: Caster forgets all spells of that tier until they complete a full rest in sanctuary.",
+  "Cataclysmic Rift: Shockwave deals 2d8 force damage within Near radius and blows out all torches.",
 ] as const;
 
 export const HEX_DEFINITIONS = [

@@ -412,4 +412,259 @@ describe("Complete Expedition Loop & Adventure Path Integration", () => {
     const charAfter = server.db.getState(1, "host", null, "").characters[0];
     expect(charAfter.fatigue).toBe(0);
   });
+
+  it("13. Full 4-Player Table Companion MVP End-to-End Loop", async () => {
+    // 1. Create 4 core characters: Fighter, Thief, Priest, Wizard
+    const fighterId = server.db.addCharacter(1, null, {
+      name: "Valerius",
+      ancestry: "Human",
+      className: "Fighter",
+      abilities: { str: 16, dex: 12, con: 14, int: 9, wis: 10, cha: 11 },
+      hp: 12,
+      maxHp: 12,
+      gold: 50,
+      inventory: [],
+      notes: "Frontline vanguard",
+    });
+    const thiefId = server.db.addCharacter(1, null, {
+      name: "Lyra",
+      ancestry: "Human",
+      className: "Thief",
+      abilities: { str: 10, dex: 16, con: 12, int: 14, wis: 10, cha: 13 },
+      hp: 8,
+      maxHp: 8,
+      gold: 50,
+      inventory: [],
+      notes: "Scout and lockpicker",
+    });
+    const priestId = server.db.addCharacter(1, null, {
+      name: "Brother Alden",
+      ancestry: "Human",
+      className: "Priest",
+      abilities: { str: 12, dex: 10, con: 13, int: 10, wis: 16, cha: 14 },
+      hp: 9,
+      maxHp: 9,
+      gold: 50,
+      inventory: [],
+      notes: "Devout healer",
+    });
+    const wizardId = server.db.addCharacter(1, null, {
+      name: "Morwen",
+      ancestry: "Human",
+      className: "Wizard",
+      abilities: { str: 9, dex: 13, con: 11, int: 17, wis: 14, cha: 10 },
+      hp: 6,
+      maxHp: 6,
+      gold: 50,
+      inventory: [],
+      notes: "Arcane scholar",
+    });
+
+    const initChars = server.db.getState(1, "host", null, "").characters;
+    const fighter = initChars.find((c) => c.id === fighterId)!;
+    const thief = initChars.find((c) => c.id === thiefId)!;
+    const priest = initChars.find((c) => c.id === priestId)!;
+    const wizard = initChars.find((c) => c.id === wizardId)!;
+
+    expect(fighter.inventory && fighter.inventory.length).toBeGreaterThan(0);
+    expect(fighter.ac).toBeGreaterThanOrEqual(14); // Chainmail + Shield
+    expect(wizard.spells && wizard.spells.length).toBeGreaterThan(0);
+    expect(priest.spells && priest.spells.length).toBeGreaterThan(0);
+
+    // 2. Host designates Lyra (Thief) as party Caller
+    const setCallerRes = await new Promise<any>((resolve) => {
+      hostSocket.emit("campaign:set_caller", { callerToken: playerToken }, (ack: any) => resolve(ack));
+    });
+    expect(setCallerRes.ok).toBe(true);
+
+    const callerState = server.db.getState(1, "player", null, "", playerToken);
+    expect(callerState.me.isCaller).toBe(true);
+
+    // 3. Tavern Gathering Session
+    const openTavernRes = await new Promise<any>((resolve) => {
+      playerSocket.emit("tavern:open", {}, (ack: any) => resolve(ack));
+    });
+    expect(openTavernRes.ok).toBe(true);
+
+    await new Promise<any>((resolve) => {
+      hostSocket.emit(
+        "tavern:submit_choice",
+        { characterId: fighter.id, activity: "carouse", costGp: 10 },
+        (ack: any) => resolve(ack),
+      );
+    });
+    await new Promise<any>((resolve) => {
+      playerSocket.emit(
+        "tavern:submit_choice",
+        { characterId: thief.id, activity: "supplies", costGp: 5, items: ["torch", "rope_50ft"] },
+        (ack: any) => resolve(ack),
+      );
+    });
+
+    const resolveTavernRes = await new Promise<any>((resolve) => {
+      playerSocket.emit("tavern:resolve", {}, (ack: any) => resolve(ack));
+    });
+    expect(resolveTavernRes.ok).toBe(true);
+
+    const postTavernState = server.db.getState(1, "host", null, "");
+    const carousedFighter = postTavernState.characters.find((c) => c.id === fighter.id)!;
+    expect(carousedFighter.gold).toBe(40);
+    expect(carousedFighter.xp).toBe(10);
+
+    // 4. Camp Session
+    const openCampRes = await new Promise<any>((resolve) => {
+      playerSocket.emit("camp:open", {}, (ack: any) => resolve(ack));
+    });
+    expect(openCampRes.ok).toBe(true);
+
+    await new Promise<any>((resolve) => {
+      hostSocket.emit("camp:submit_duty", { characterId: fighter.id, duty: "watch" }, (ack: any) => resolve(ack));
+    });
+    await new Promise<any>((resolve) => {
+      playerSocket.emit("camp:submit_duty", { characterId: thief.id, duty: "forage" }, (ack: any) => resolve(ack));
+    });
+
+    const resolveCampRes = await new Promise<any>((resolve) => {
+      playerSocket.emit("camp:resolve", {}, (ack: any) => resolve(ack));
+    });
+    expect(resolveCampRes.ok).toBe(true);
+
+    // 5. Enter Site & Explore Dungeon Graph
+    // Move party to waterworks site coordinates
+    const site = server.db.db.prepare("SELECT * FROM sites WHERE id = ?").get(waterworksSiteId) as any;
+    const siteParts = site.canonical_key.split(":");
+    server.db.setPartyLocation(1, { q: Number(siteParts[2]), r: Number(siteParts[3]), layerId: "surface" });
+
+    const enterDungeonRes = await new Promise<any>((resolve) => {
+      playerSocket.emit("site:enter", { siteId: waterworksSiteId }, (ack: any) => resolve(ack));
+    });
+    expect(enterDungeonRes.ok).toBe(true);
+
+    const hostDungeonState = server.db.getState(1, "host", null, "");
+    expect(hostDungeonState.activeDungeon).toBeDefined();
+    expect(hostDungeonState.activeDungeon!.nodes.length).toBe(5);
+    expect(hostDungeonState.activeDungeon!.edges.some((e) => e.doorType === "secret")).toBe(true);
+
+    const playerDungeonState = server.db.getState(1, "player", null, playerToken);
+    expect(playerDungeonState.activeDungeon!.edges.some((e) => e.doorType === "secret")).toBe(false);
+
+    // Caller moves from room 1 to room 3 (open passage)
+    const moveRes = await new Promise<any>((resolve) => {
+      playerSocket.emit("dungeon:move_room", { toRoomId: 3 }, (ack: any) => resolve(ack));
+    });
+    expect(moveRes.ok).toBe(true);
+    expect(moveRes.graph.currentRoomId).toBe(3);
+    expect(moveRes.graph.explorationTurns).toBe(1);
+    expect(moveRes.graph.lightTurnsRemaining).toBe(5);
+
+    // Thief disarms trap in room 3
+    const disarmRes = await new Promise<any>((resolve) => {
+      playerSocket.emit(
+        "dungeon:disarm_trap",
+        { roomId: 3, characterId: thief.id, diceMode: "digital" },
+        (ack: any) => resolve(ack),
+      );
+    });
+    expect(disarmRes.ok).toBe(true);
+
+    // Caller lights torch
+    const torchRes = await new Promise<any>((resolve) => {
+      playerSocket.emit("dungeon:light_torch", {}, (ack: any) => resolve(ack));
+    });
+    expect(torchRes.ok).toBe(true);
+    expect(torchRes.graph.lightTurnsRemaining).toBe(6);
+
+    // 6. Combat Runner
+    const startCombatRes = await new Promise<any>((resolve) => {
+      playerSocket.emit(
+        "combat:start",
+        {
+          name: "Sarcophagus Guardians",
+          monsters: [{ name: "Skeletal Guardian", hp: 8, ac: 13, morale: 7 }],
+        },
+        (ack: any) => resolve(ack),
+      );
+    });
+    expect(startCombatRes.ok).toBe(true);
+    expect(startCombatRes.combat.combatants.length).toBeGreaterThan(0);
+    expect(startCombatRes.combat.status).toBe("active");
+
+    const nextTurnRes = await new Promise<any>((resolve) => {
+      playerSocket.emit("combat:next_turn", {}, (ack: any) => resolve(ack));
+    });
+    expect(nextTurnRes.ok).toBe(true);
+
+    const moraleRes = await new Promise<any>((resolve) => {
+      playerSocket.emit("combat:morale_check", { moraleScore: 7 }, (ack: any) => resolve(ack));
+    });
+    expect(moraleRes.ok).toBe(true);
+
+    const pcCombatant = startCombatRes.combat.combatants.find((c: any) => c.kind === "pc");
+    const dmgRes = await new Promise<any>((resolve) => {
+      hostSocket.emit(
+        "combat:update_hp",
+        { combatantId: pcCombatant.id, delta: -pcCombatant.currentHp },
+        (ack: any) => resolve(ack),
+      );
+    });
+    expect(dmgRes.ok).toBe(true);
+
+    const deathSaveRes = await new Promise<any>((resolve) => {
+      hostSocket.emit(
+        "combat:death_save",
+        { combatantId: pcCombatant.id, diceMode: "physical", physicalRoll: 18 },
+        (ack: any) => resolve(ack),
+      );
+    });
+    expect(deathSaveRes.ok).toBe(true);
+    expect(deathSaveRes.target.stabilized).toBe(true);
+
+    const monsterCombatant = startCombatRes.combat.combatants.find((c: any) => c.kind === "monster");
+    await new Promise<any>((resolve) => {
+      hostSocket.emit(
+        "combat:update_hp",
+        { combatantId: monsterCombatant.id, delta: -monsterCombatant.currentHp },
+        (ack: any) => resolve(ack),
+      );
+    });
+
+    const endCombatRes = await new Promise<any>((resolve) => {
+      playerSocket.emit("combat:end", {}, (ack: any) => resolve(ack));
+    });
+    expect(endCombatRes.ok).toBe(true);
+    expect(endCombatRes.combat.status).toBe("resolved");
+    expect(endCombatRes.reward).toBeDefined();
+
+    // 7. Treasure Allocation & Return Sanctuary
+    const rewardId = endCombatRes.reward.id;
+
+    const splitCoinsRes = await new Promise<any>((resolve) => {
+      playerSocket.emit(
+        "treasure:allocate",
+        { rewardId, allocationType: "split_coins" },
+        (ack: any) => resolve(ack),
+      );
+    });
+    expect(splitCoinsRes.ok).toBe(true);
+
+    const awardXpRes = await new Promise<any>((resolve) => {
+      playerSocket.emit(
+        "session:award_xp",
+        { amount: 50, reason: "Defeating Sarcophagus Guardians" },
+        (ack: any) => resolve(ack),
+      );
+    });
+    expect(awardXpRes.ok).toBe(true);
+
+    const returnSanctuaryRes = await new Promise<any>((resolve) => {
+      playerSocket.emit("session:return_sanctuary", {}, (ack: any) => resolve(ack));
+    });
+    expect(returnSanctuaryRes.ok).toBe(true);
+
+    const sanctuaryState = server.db.getState(1, "host", null, "");
+    expect(sanctuaryState.campaign.phase).toBe("sanctuary");
+    const recoveredFighter = sanctuaryState.characters.find((c) => c.id === fighter.id)!;
+    expect(recoveredFighter.hp).toBe(recoveredFighter.maxHp);
+    expect(recoveredFighter.conditions).toEqual([]);
+  });
 });
