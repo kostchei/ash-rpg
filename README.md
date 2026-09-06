@@ -14,7 +14,9 @@ By blending the deep flavor and crunch of **1st Edition AD&D** with the streamli
 
 ## The next playable release: a companion for the physical table
 
-ASH's immediate goal is a complete, repeatable expedition played by several people together in real life. One computer hosts the campaign; players use phones to view characters, choose activities, roll or record dice, and operate shared exploration. Conversation, fictional decisions, unusual rulings, and miniature positioning remain at the table.
+ASH is an assistant for **one to six people playing solo or cooperatively at a physical table**. One computer hosts the campaign; players use phones to view characters, choose activities, roll or record dice, and operate shared exploration. Conversation, fictional decisions, unusual rulings, and miniature positioning remain at the table.
+
+The complete product target is two characters per player using class-first Unearthed Arcana and stats-first Iron Man generation, a chosen or secretly rolled adventure path, a party-informed town and tavern with three leads, regional knowledge distinct from current discoveries, and clickable adventure-site maps. Paths span **three acts with sufficient material for Shadowdark levels 1–10**. The [current requirements and delivery plan](docs/plans/table_assistant_campaign_requirements.md) define this scope, reference-system findings, known implementation gaps, and acceptance gates. The opening-expedition milestone below is only the first playable slice.
 
 The first release is complete when four players can join, create a Fighter, Thief, Priest, and Wizard, choose tavern activities, follow a generated lead, travel and camp, explore a dungeon, resolve combat, divide treasure, return home, and resume the saved campaign next session.
 
@@ -37,7 +39,7 @@ The first release is complete when four players can join, create a Fighter, Thie
 
 The current implementation provides campaign hosting and persistence, live phone synchronization, character statistics and progression, procedural hex travel, tavern leads, camping resolution, site entry, room generation, monster generation, and HP tracking. These are foundations, not a claim that the complete release flow has been verified.
 
-The principal remaining work is playable class actions and spells, inventory and contextual rolls, persistent individual tavern/camp choices, shared-action coordination, a connected dungeon map, initiative, and treasure allocation. Dungeon generation currently produces chamber records rather than a traversable room graph. Existing path integration also needs reusable situation and outcome handling.
+Commit `9c1b2e0` adds class actions and spells, equipment and contextual rolls, persisted tavern/camp sessions, caller support, dungeon graphs, combat turns, and reward allocation. Automated tests, client type checking, and the production build pass. Full physical-table play remains unverified; setup, secret path selection, regional knowledge, type-specific site maps, three-act content, and several resource/location/retry invariants still need work. See the current plan's assessment for details.
 
 Build in four stages: **playable party → playable expedition → playable adventure → complete session**. Keep one party marker on each exploration map and use the rules' Close/Near/Far distances for table combat. Additional classes, individual tactical tokens, automatic monster turns, exhaustive spell automation, and additional path templates can follow the first complete session.
 

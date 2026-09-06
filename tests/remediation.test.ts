@@ -448,7 +448,7 @@ describe("Remediation Verification (R1-R7 and G1-G6)", () => {
 
       // 1. Test travel:move
       const moveRes = await new Promise<any>((resolve) => {
-        socket.emit("travel:move", { toHexId: "01", mode: "foot" }, (ack: any) => resolve(ack));
+        socket.emit("travel:move", { toHexId: "01", mode: "foot", actionId: "movement-test", expectedRevision: 1 }, (ack: any) => resolve(ack));
       });
       expect(moveRes.ok).toBe(true);
       expect(moveRes.watches).toBeGreaterThanOrEqual(1);
@@ -462,7 +462,8 @@ describe("Remediation Verification (R1-R7 and G1-G6)", () => {
       const exitRes = await new Promise<any>((resolve) => {
         socket.emit("zone:exit", {}, (ack: any) => resolve(ack));
       });
-      expect(exitRes.ok).toBe(true);
+      expect(exitRes.ok).toBe(false);
+      expect(exitRes.error).toMatch(/Travel back to the haven/);
 
       socket.disconnect();
     });

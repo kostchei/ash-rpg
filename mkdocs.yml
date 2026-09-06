@@ -75,6 +75,7 @@ markdown_extensions:
 nav:
   - "Home": index.md
   - "Table Companion": table_companion.md
+  - "Campaign Requirements & Plan": plans/table_assistant_campaign_requirements.md
   - "Implementation Plan": plans/table_companion_mvp.md
   - "Player's Handbook":
       - "Overview & Core Mechanics": rules/01_system_overview.md

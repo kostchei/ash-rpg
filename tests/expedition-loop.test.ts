@@ -14,6 +14,9 @@ describe("Complete Expedition Loop & Adventure Path Integration", () => {
   let playerToken: string;
   let waterworksSiteId: string;
   let waterworksHexId: string;
+  let sequence = 0;
+  const mutation = () => ({ actionId: `expedition-${++sequence}`,
+    expectedRevision: server.db.getState(1, "host", null, "").campaign.revision });
 
   beforeAll(async () => {
     server = await createAshServer({
@@ -117,7 +120,7 @@ describe("Complete Expedition Loop & Adventure Path Integration", () => {
     const invalidJump = await new Promise<any>((resolve) => {
       hostSocket.emit(
         "travel:move",
-        { toHexId: "15", mode: "foot" },
+        { toHexId: "15", mode: "foot", ...mutation() },
         (ack: any) => resolve(ack),
       );
     });
@@ -152,7 +155,7 @@ describe("Complete Expedition Loop & Adventure Path Integration", () => {
     const step1 = await new Promise<any>((resolve) => {
       hostSocket.emit(
         "travel:move",
-        { toHexId: "01", mode: "foot" },
+        { toHexId: "01", mode: "foot", ...mutation() },
         (ack: any) => resolve(ack),
       );
     });
@@ -167,10 +170,11 @@ describe("Complete Expedition Loop & Adventure Path Integration", () => {
     server.db.db.prepare("UPDATE campaigns SET watch = 4 WHERE id = 1").run();
 
     // Night travel triggers forced march CON check
+    server.db.db.prepare("UPDATE encounters SET status = 'resolved' WHERE campaign_id = 1").run();
     const nightMove = await new Promise<any>((resolve) => {
       hostSocket.emit(
         "travel:move",
-        { toHexId: "00", mode: "foot" },
+        { toHexId: "00", mode: "foot", ...mutation() },
         (ack: any) => resolve(ack),
       );
     });
@@ -182,6 +186,7 @@ describe("Complete Expedition Loop & Adventure Path Integration", () => {
 
   it("5. Wilderness evasion: tactical retreat resolves active encounter", async () => {
     // Manually trigger an active encounter
+    server.db.db.prepare("UPDATE encounters SET status = 'resolved' WHERE campaign_id = 1").run();
     server.db.addEncounterWithMonsters(1, "Ambush by Dire Wolves", [
       {
         id: 0,
@@ -252,6 +257,10 @@ describe("Complete Expedition Loop & Adventure Path Integration", () => {
     expect(state.rooms.every((r) => r.siteId === waterworksSiteId)).toBe(true);
 
     // 7.3 Resolve deed: rescue_surveyor (first time)
+    // Isolate deed processing by placing this fixture in the generated objective room.
+    const objectiveGraph = server.db.getDungeonGraph(1)!;
+    objectiveGraph.currentRoomId = objectiveGraph.nodes.find((node) => node.objective?.deedId === "rescue_surveyor")!.id;
+    server.db.saveDungeonGraph(1, objectiveGraph);
     const deedRes1 = await new Promise<any>((resolve) => {
       hostSocket.emit(
         "site:resolve_deed",
@@ -334,6 +343,8 @@ describe("Complete Expedition Loop & Adventure Path Integration", () => {
     server.db.setCampaignPhase(1, "sanctuary");
 
     // Now resting in sanctuary succeeds
+    // Earlier random travel may leave an encounter pending; resolve it before resting.
+    server.db.db.prepare("UPDATE encounters SET status = 'resolved' WHERE campaign_id = 1").run();
     const havenRest = await new Promise<any>((resolve) => {
       hostSocket.emit("party:rest", {}, (ack: any) => resolve(ack));
     });
@@ -555,9 +566,15 @@ describe("Complete Expedition Loop & Adventure Path Integration", () => {
     expect(moveRes.ok).toBe(true);
     expect(moveRes.graph.currentRoomId).toBe(3);
     expect(moveRes.graph.explorationTurns).toBe(1);
-    expect(moveRes.graph.lightTurnsRemaining).toBe(5);
+    expect(moveRes.graph.lightTurnsRemaining).toBe(0); // no free light on site entry
 
     // Thief disarms trap in room 3
+    // Fix the trap fixture explicitly; new sites use rolled room features.
+    const trapGraph = server.db.getDungeonGraph(1)!;
+    trapGraph.nodes.find((node) => node.id === 3)!.trap = {
+      name: "Fixture needle", trigger: "latch", effect: "needle", dc: 12, spotted: true,
+    };
+    server.db.saveDungeonGraph(1, trapGraph);
     const disarmRes = await new Promise<any>((resolve) => {
       playerSocket.emit(
         "dungeon:disarm_trap",
@@ -569,7 +586,7 @@ describe("Complete Expedition Loop & Adventure Path Integration", () => {
 
     // Caller lights torch
     const torchRes = await new Promise<any>((resolve) => {
-      playerSocket.emit("dungeon:light_torch", {}, (ack: any) => resolve(ack));
+      playerSocket.emit("dungeon:light_torch", mutation(), (ack: any) => resolve(ack));
     });
     expect(torchRes.ok).toBe(true);
     expect(torchRes.graph.lightTurnsRemaining).toBe(6);
@@ -650,14 +667,20 @@ describe("Complete Expedition Loop & Adventure Path Integration", () => {
     const awardXpRes = await new Promise<any>((resolve) => {
       playerSocket.emit(
         "session:award_xp",
-        { amount: 50, reason: "Defeating Sarcophagus Guardians" },
+        { amount: 50, reason: "Defeating Sarcophagus Guardians", ...mutation() },
         (ack: any) => resolve(ack),
       );
     });
     expect(awardXpRes.ok).toBe(true);
 
+    // This integration fixture sets up the return location; it is not a travel rehearsal.
+    server.db.setActiveSite(1, null);
+    server.db.setPartyLocation(1, { q: 0, r: 0, layerId: "surface" });
+    for (const encounter of server.db.getState(1, "host", null, "").encounters) {
+      server.db.db.prepare("UPDATE encounters SET status = 'resolved' WHERE id = ?").run(encounter.id);
+    }
     const returnSanctuaryRes = await new Promise<any>((resolve) => {
-      playerSocket.emit("session:return_sanctuary", {}, (ack: any) => resolve(ack));
+      playerSocket.emit("session:return_sanctuary", mutation(), (ack: any) => resolve(ack));
     });
     expect(returnSanctuaryRes.ok).toBe(true);
 

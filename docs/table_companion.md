@@ -18,6 +18,10 @@ The next release targets a complete in-person expedition with four core classes,
 - Campaign notes and an append-only live resolution feed.
 - A LAN join URL and QR code for phone access.
 
+## Product direction and verification
+
+ASH is a solo/cooperative assistant for one to six people at a physical table. The full target includes two characters per player, chosen or secretly rolled adventure paths, a party-informed starting tavern, layered regional knowledge, clickable site maps, and three acts spanning levels 1–10. See the [current requirements, implementation assessment, and delivery plan](plans/table_assistant_campaign_requirements.md). The feature list above is an older foundation summary; it is not a full release certification.
+
 ## Run at the table
 
 Install Node.js 22 or later, then run:

@@ -169,4 +169,17 @@ describe("M0: Multiplayer Mutations & Authority", () => {
     expect(res2.result.count).toBe(1);
     expect(executionCount).toBe(1); // Not executed again!
   });
+
+  it("preserves action receipts across database restart", () => {
+    const { campaignId, hostToken } = db.createCampaign("Restart", "Borderlands", "1234", {
+      selection: { mode: "single", zoneId: "the_gloaming" }, legacy: true,
+    });
+    const first = db.executeMutation(campaignId, hostToken, "persisted-action", undefined, () => ({ rolled: 17 }));
+    db.close();
+    db = new AshDatabase(dbPath);
+    const replay = db.executeMutation(campaignId, hostToken, "persisted-action", 0, () => {
+      throw new Error("A replay must not execute after restart");
+    });
+    expect(replay).toEqual(first);
+  });
 });

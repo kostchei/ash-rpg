@@ -465,6 +465,8 @@ export interface ItemDefinition {
 }
 
 export interface InventoryItem {
+  /** Torches left in the currently opened bundle; absent means an unopened bundle of three. */
+  remainingTorches?: number;
   instanceId: string;
   itemId: string;
   name: string;
@@ -516,6 +518,10 @@ export interface ActivitySession {
 }
 
 export interface DungeonRoomNode {
+  feature?: "empty" | "trap" | "minor_hazard" | "solo_monster" | "npc" | "monster_mob" | "major_hazard" | "treasure" | "boss_monster";
+  featureRoll?: number;
+  resolution?: { outcome: string; notes: string };
+  objective?: { title: string; deedId?: string; completed: boolean; notes?: string };
   id: number;
   title: string;
   x: number;
@@ -532,12 +538,14 @@ export interface DungeonRoomNode {
     disarmed?: boolean;
   };
   encounter?: {
+    encounterId?: number;
     monsterKey: string;
     name: string;
     count: number;
     defeated?: boolean;
   };
   treasure?: {
+    access?: { method: string; notes: string };
     coins: number;
     items: string[];
     claimed?: boolean;

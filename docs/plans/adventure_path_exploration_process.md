@@ -1,6 +1,6 @@
 # Shared adventure-path and exploration process
 
-Status: **agreed design direction; runtime integration remains to be implemented.**
+Status: **agreed design direction; runtime integration is partial.** The [table assistant campaign requirements](table_assistant_campaign_requirements.md) define the current setup, three-act level 1–10 target, site maps, and delivery sequence. The process below supplies the shared path/world relationship; pathless exploration remains an extension rather than a substitute for the requested campaign flow.
 
 The adventure path creates connected rumors, NPCs, encounters, and adventure sites. Taverns, travel through the hex map, and investigation of those sites let the party discover and affect them. The consequences of play change the saved world and create further opportunities.
 

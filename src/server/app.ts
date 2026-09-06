@@ -1,4 +1,5 @@
 import express from "express";
+import { mutationPayloadKey, RECEIPTED_ACTIONS } from "../shared/mutations.js";
 import { randomInt } from "node:crypto";
 import {
   createServer as createHttpServer,
@@ -26,6 +27,7 @@ import type {
   Role,
 } from "../shared/types.js";
 import { AshDatabase } from "./database.js";
+import { populateSiteRooms, requireTreasureAccess } from "./room-features.js";
 import { generateCampaignComplication } from "./generators/campaign.js";
 import { AQUATIC_METHODS, evaluateAquaticAccess } from "./generators/mind-below.js";
 import { generateNpc } from "./generators/npc.js";
@@ -394,7 +396,11 @@ export async function createAshServer(options: AshServerOptions = {}) {
         try {
           const result = await handler(payload);
           await broadcast(identity.campaignId);
-          ack?.({ ok: true, ...result });
+          const visibleResult = result && "graph" in result
+            ? { ...result, graph: db.getState(identity.campaignId, identity.role,
+                identity.characterId, "", identity.token).activeDungeon }
+            : result;
+          ack?.({ ok: true, ...visibleResult });
         } catch (error) {
           ack?.({
             ok: false,
@@ -411,6 +417,52 @@ export async function createAshServer(options: AshServerOptions = {}) {
       const callerToken = db.getCallerToken(identity.campaignId);
       if (callerToken && callerToken === identity.token) return;
       throw new Error("Only the designated Caller or Table Host can commit this action");
+    };
+    // Synchronous handlers commit state, log, and receipt together, before broadcast.
+    const mutationAction = (
+      event: string,
+      handler: (payload: unknown) => Record<string, unknown>,
+    ) => action((raw: unknown) => {
+      callerOrHostOnly();
+      if (!RECEIPTED_ACTIONS.has(event)) throw new Error("Unknown mutation action");
+      const envelope = z.object({
+        actionId: z.string().min(1).max(160),
+        expectedRevision: z.number().int().nonnegative(),
+      }).parse(raw);
+      const payloadKey = mutationPayloadKey(raw as Record<string, unknown>);
+      const receipt = db.executeMutation(
+        identity.campaignId, identity.token, `${event}:${envelope.actionId}`,
+        envelope.expectedRevision, () => ({ payloadKey, outcome: handler(raw) }),
+      );
+      if (receipt.result.payloadKey !== payloadKey) {
+        throw new Error("Action ID was already used for a different request");
+      }
+      const result = { ...receipt.result.outcome, revision: receipt.revision };
+      // Stored outcomes can contain private generation details.
+      if ("graph" in result) {
+        return { ...result, graph: db.getState(identity.campaignId,
+          identity.role, identity.characterId, "", identity.token).activeDungeon };
+      }
+      return result;
+    });
+    const requireHaven = () => {
+      const state = db.getState(identity.campaignId, "host", null, "");
+      const loc = state.campaign.partyLocation;
+      const home = state.campaign.homeLocation ?? { q: 0, r: 0, layerId: "surface" };
+      if (!loc || loc.q !== home.q || loc.r !== home.r ||
+          (loc.layerId ?? "surface") !== (home.layerId ?? "surface") || state.campaign.activeSiteId) {
+        throw new Error("Travel back to the haven on the surface before sanctuary recovery.");
+      }
+      if (state.activeCombat?.status === "active" ||
+          state.encounters.some((encounter) => encounter.status === "active")) {
+        throw new Error("Resolve the active encounter before sanctuary recovery.");
+      }
+    };
+    const requireEncounterResolved = () => {
+      const state = db.getState(identity.campaignId, "host", null, "");
+      if (state.activeCombat?.status === "active" || state.encounters.some((encounter) => encounter.status === "active")) {
+        throw new Error("Resolve or evade the current encounter before continuing the journey");
+      }
     };
     const actor = () =>
       actorName(db, identity, `${baseUrl}/play?code=${identity.code}`);
@@ -539,6 +591,7 @@ export async function createAshServer(options: AshServerOptions = {}) {
       "zone:exit",
       action((_raw: unknown) => {
         hostOnly();
+        requireHaven();
         const state = db.getState(
           identity.campaignId,
           identity.role,
@@ -704,11 +757,7 @@ export async function createAshServer(options: AshServerOptions = {}) {
           identity.characterId,
           "",
         );
-        const loc = state.campaign.partyLocation ?? { q: 0, r: 0 };
-        const isSanctuary = state.campaign.phase === "sanctuary" || (loc.q === 0 && loc.r === 0);
-        if (!isSanctuary) {
-          throw new Error("Cannot take full sanctuary rest in the wild. Pitch camp or return to haven.");
-        }
+        requireHaven();
 
         for (const c of state.characters) {
           db.updateCharacterHp(identity.campaignId, c.id, c.maxHp);
@@ -1743,221 +1792,210 @@ export async function createAshServer(options: AshServerOptions = {}) {
 
     socket.on(
       "travel:move",
-      action((raw: unknown) => {
+      mutationAction("travel:move", (raw: unknown) => {
+        requireEncounterResolved();
         const payload = z
           .object({
             toHexId: z.string().min(1),
             mode: z.enum(["foot", "cart", "boat", "climb"]).default("foot"),
-            actionId: z.string().optional(),
-            expectedRevision: z.number().optional(),
           })
           .parse(raw);
 
         callerOrHostOnly();
 
-        const actionId = payload.actionId ?? `travel:${payload.toHexId}:${Date.now()}`;
+        // 1. Authoritative origin from DB
+        const camp = db.db
+          .prepare(
+            "SELECT party_location_json, active_region_id, active_zone_id, day, watch, watches_traveled_today FROM campaigns WHERE id = ?",
+          )
+          .get(identity.campaignId) as any;
+        const currentLoc = camp?.party_location_json
+          ? JSON.parse(camp.party_location_json)
+          : { q: 0, r: 0, layerId: "surface" };
 
-        return db.executeMutation(
-          identity.campaignId,
-          identity.token,
-          actionId,
-          payload.expectedRevision,
-          () => {
-            // 1. Authoritative origin from DB
-            const camp = db.db
-              .prepare(
-                "SELECT party_location_json, active_region_id, active_zone_id, day, watch, watches_traveled_today FROM campaigns WHERE id = ?",
-              )
-              .get(identity.campaignId) as any;
-            const currentLoc = camp?.party_location_json
-              ? JSON.parse(camp.party_location_json)
-              : { q: 0, r: 0, layerId: "surface" };
+        // 2. Authoritative target hex from DB
+        const targetHexRow = db.db
+          .prepare("SELECT * FROM hexes WHERE campaign_id = ? AND id = ?")
+          .get(identity.campaignId, payload.toHexId) as any;
+        if (!targetHexRow) throw new Error(`Target hex ${payload.toHexId} not found`);
 
-            // 2. Authoritative target hex from DB
-            const targetHexRow = db.db
-              .prepare("SELECT * FROM hexes WHERE campaign_id = ? AND id = ?")
-              .get(identity.campaignId, payload.toHexId) as any;
-            if (!targetHexRow) throw new Error(`Target hex ${payload.toHexId} not found`);
+        const fromQ = currentLoc.q;
+        const fromR = currentLoc.r;
+        const toQ = Number(targetHexRow.q);
+        const toR = Number(targetHexRow.r);
 
-            const fromQ = currentLoc.q;
-            const fromR = currentLoc.r;
-            const toQ = Number(targetHexRow.q);
-            const toR = Number(targetHexRow.r);
+        // 3. Adjacency check
+        const axialDist =
+          (Math.abs(fromQ - toQ) +
+            Math.abs(fromQ + fromR - toQ - toR) +
+            Math.abs(fromR - toR)) /
+          2;
 
-            // 3. Adjacency check
-            const axialDist =
-              (Math.abs(fromQ - toQ) +
-                Math.abs(fromQ + fromR - toQ - toR) +
-                Math.abs(fromR - toR)) /
-              2;
-
-            let travelConnection: any = null;
-            if (camp?.active_region_id) {
-              const fromKey = `${camp.active_region_id}:${currentLoc.layerId || "surface"}:${fromQ}:${fromR}`;
-              const toKey = `${camp.active_region_id}:${currentLoc.layerId || "surface"}:${toQ}:${toR}`;
-              const connRow = db.db
-                .prepare(
-                  "SELECT * FROM connections WHERE region_id = ? AND ((from_key = ? AND to_key = ?) OR (to_key = ? AND from_key = ?))",
-                )
-                .get(camp.active_region_id, fromKey, toKey, fromKey, toKey) as any;
-              if (connRow) {
-                travelConnection = connRow;
-              }
-            }
-            if (!travelConnection && targetHexRow.connections_json) {
-              const conns = JSON.parse(targetHexRow.connections_json);
-              const originHexRow = db.db
-                .prepare("SELECT id FROM hexes WHERE campaign_id = ? AND q = ? AND r = ?")
-                .get(identity.campaignId, fromQ, fromR) as any;
-              if (originHexRow) {
-                travelConnection = conns.find(
-                  (c: any) =>
-                    (c.fromId === originHexRow.id && c.toId === targetHexRow.id) ||
-                    (c.toId === originHexRow.id && c.fromId === targetHexRow.id),
-                );
-              }
-            }
-
-            if (axialDist > 1 && !travelConnection) {
-              throw new Error(
-                `Cannot travel directly from (${fromQ}, ${fromR}) to non-adjacent hex ${payload.toHexId} at (${toQ}, ${toR}) without a connecting route`,
-              );
-            }
-
-            // 4. Validate Travel Mode & Requirements
-            if (travelConnection) {
-              const connModes: string[] = travelConnection.modes_json
-                ? JSON.parse(travelConnection.modes_json)
-                : travelConnection.modes ?? ["foot"];
-              const connReqs: string[] = travelConnection.requirements_json
-                ? JSON.parse(travelConnection.requirements_json)
-                : travelConnection.requirements ?? [];
-
-              if (travelConnection.kind === "shaft" && payload.mode !== "climb") {
-                throw new Error("Ascending or descending a vertical shaft requires climbing mode and gear.");
-              }
-              if ((connReqs.includes("rope") || connReqs.includes("climbing_gear")) && payload.mode !== "climb") {
-                throw new Error("This passage requires climbing mode and gear.");
-              }
-              if (payload.mode === "boat") {
-                const isWaterway =
-                  ["river", "sea_lane", "canal", "ferry", "voyage"].includes(travelConnection.kind) ||
-                  targetHexRow.river;
-                if (!isWaterway) {
-                  throw new Error("Boat travel requires a navigable waterway, canal, or sea lane.");
-                }
-              }
-              if (payload.mode === "cart" && travelConnection.kind === "shaft") {
-                throw new Error("Carts cannot traverse vertical shafts.");
-              }
-            } else {
-              if (payload.mode === "boat" && !targetHexRow.river) {
-                throw new Error("Boat travel requires a navigable river or water feature.");
-              }
-            }
-
-            // 5. Cost calculation from saved world truth
-            const hasRoad =
-              !!travelConnection &&
-              (travelConnection.kind === "road" || travelConnection.kind === "trail");
-            const crossingMethod =
-              travelConnection?.crossing_method || travelConnection?.crossingMethod;
-            const calculatedWatches = calculateTravelWatches(
-              targetHexRow.biome || "Wilderness",
-              hasRoad,
-              crossingMethod,
+        let travelConnection: any = null;
+        if (camp?.active_region_id) {
+          const fromKey = `${camp.active_region_id}:${currentLoc.layerId || "surface"}:${fromQ}:${fromR}`;
+          const toKey = `${camp.active_region_id}:${currentLoc.layerId || "surface"}:${toQ}:${toR}`;
+          const connRow = db.db
+            .prepare(
+              "SELECT * FROM connections WHERE region_id = ? AND ((from_key = ? AND to_key = ?) OR (to_key = ? AND from_key = ?))",
+            )
+            .get(camp.active_region_id, fromKey, toKey, fromKey, toKey) as any;
+          if (connRow) {
+            travelConnection = connRow;
+          }
+        }
+        if (!travelConnection && targetHexRow.connections_json) {
+          const conns = JSON.parse(targetHexRow.connections_json);
+          const originHexRow = db.db
+            .prepare("SELECT id FROM hexes WHERE campaign_id = ? AND q = ? AND r = ?")
+            .get(identity.campaignId, fromQ, fromR) as any;
+          if (originHexRow) {
+            travelConnection = conns.find(
+              (c: any) =>
+                (c.fromId === originHexRow.id && c.toId === targetHexRow.id) ||
+                (c.toId === originHexRow.id && c.fromId === targetHexRow.id),
             );
-            const watches =
-              travelConnection?.cost_watches ||
-              travelConnection?.costWatches ||
-              calculatedWatches;
+          }
+        }
 
-            // 6. Advance watch clock
-            const clockResult = db.advanceWatch(identity.campaignId, watches);
+        if (axialDist > 1 && !travelConnection) {
+          throw new Error(
+            `Cannot travel directly from (${fromQ}, ${fromR}) to non-adjacent hex ${payload.toHexId} at (${toQ}, ${toR}) without a connecting route`,
+          );
+        }
 
-            // 7. Check Forced March if Night travel occurred
-            const fatigueResults =
-              clockResult.watch === 1 || clockResult.watchesTraveledToday > 3
-                ? db.evaluatePartyForcedMarch(identity.campaignId)
-                : [];
+        // 4. Validate Travel Mode & Requirements
+        if (travelConnection) {
+          const connModes: string[] = travelConnection.modes_json
+            ? JSON.parse(travelConnection.modes_json)
+            : travelConnection.modes ?? ["foot"];
+          const connReqs: string[] = travelConnection.requirements_json
+            ? JSON.parse(travelConnection.requirements_json)
+            : travelConnection.requirements ?? [];
 
-            // 8. Wilderness Encounter Check (1d6 -> 1 triggers encounter)
-            let encounterTriggered = false;
-            let encounterName = "";
-            const encRoll = rollDie(6);
-            if (encRoll === 1) {
-              encounterTriggered = true;
-              const manifest = db.getZoneManifest(
-                camp.active_zone_id || "the_gloaming",
-              );
-              const table =
-                manifest?.wanderingMonsterTable && manifest.wanderingMonsterTable.length > 0
-                  ? manifest.wanderingMonsterTable
-                  : ["wolf", "bandit", "giant_spider"];
-              const monsterKey = table[randomInt(table.length)];
-              const monster = db.getMonster(monsterKey) ?? {
-                id: 0,
-                monsterKey,
-                name: monsterKey,
-                currentHp: 8,
-                maxHp: 8,
-                loreTier: 0,
-                ac: 12,
-                morale: 7,
-                attacks: ["Strike +2 (1d6)"],
-                traits: [],
-                lore: [],
-              };
-              encounterName = `Wilderness Encounter: ${monster.name}`;
-              db.addEncounterWithMonsters(identity.campaignId, encounterName, [monster]);
+          if (travelConnection.kind === "shaft" && payload.mode !== "climb") {
+            throw new Error("Ascending or descending a vertical shaft requires climbing mode and gear.");
+          }
+          if ((connReqs.includes("rope") || connReqs.includes("climbing_gear")) && payload.mode !== "climb") {
+            throw new Error("This passage requires climbing mode and gear.");
+          }
+          if (payload.mode === "boat") {
+            const isWaterway =
+              ["river", "sea_lane", "canal", "ferry", "voyage"].includes(travelConnection.kind) ||
+              targetHexRow.river;
+            if (!isWaterway) {
+              throw new Error("Boat travel requires a navigable waterway, canal, or sea lane.");
             }
+          }
+          if (payload.mode === "cart" && travelConnection.kind === "shaft") {
+            throw new Error("Carts cannot traverse vertical shafts.");
+          }
+        } else {
+          if (payload.mode === "boat" && !targetHexRow.river) {
+            throw new Error("Boat travel requires a navigable river or water feature.");
+          }
+        }
 
-            // 9. Update location and reveal target hex
-            db.setPartyLocation(identity.campaignId, {
-              q: toQ,
-              r: toR,
-              layerId: currentLoc.layerId || "surface",
-            });
+        // 5. Cost calculation from saved world truth
+        const hasRoad =
+          !!travelConnection &&
+          (travelConnection.kind === "road" || travelConnection.kind === "trail");
+        const crossingMethod =
+          travelConnection?.crossing_method || travelConnection?.crossingMethod;
+        const calculatedWatches = calculateTravelWatches(
+          targetHexRow.biome || "Wilderness",
+          hasRoad,
+          crossingMethod,
+        );
+        const watches =
+          travelConnection?.cost_watches ||
+          travelConnection?.costWatches ||
+          calculatedWatches;
 
-            if (
-              targetHexRow.reveal_state === "unexplored" ||
-              targetHexRow.reveal_state === "rumored"
-            ) {
-              db.revealHex(identity.campaignId, targetHexRow.id, "scouted");
-            }
+        // 6. Advance watch clock
+        const clockResult = db.advanceWatch(identity.campaignId, watches);
 
-            if (
-              targetHexRow.primary_zone &&
-              targetHexRow.primary_zone !== camp.active_zone_id
-            ) {
-              db.setActiveZone(identity.campaignId, targetHexRow.primary_zone);
-            }
+        // 7. Check Forced March if Night travel occurred
+        const fatigueResults =
+          clockResult.watch === 1 || clockResult.watchesTraveledToday > 3
+            ? db.evaluatePartyForcedMarch(identity.campaignId)
+            : [];
 
-            // 10. Log roll
-            db.addRoll(identity.campaignId, {
-              actor: actor(),
-              kind: "exploration",
-              label: `Traveled to Hex ${targetHexRow.id} (${targetHexRow.name || targetHexRow.biome || "Wilderness"})`,
-              dice: `${watches} watch${watches > 1 ? "es" : ""}`,
-              total: watches,
-              detail: `Mode: ${payload.mode} · Cost: ${watches} watch(es) · Day ${clockResult.day}, Watch ${clockResult.watch} (${clockResult.weather}) · ${
-                fatigueResults.length > 0
-                  ? fatigueResults.some((f) => !f.passed)
-                    ? `Forced march: fatigue incurred (${fatigueResults.filter((f) => !f.passed).map((f) => f.name).join(", ")})`
-                    : "Forced march CON check passed"
-                  : "Standard watch"
-              }${encounterTriggered ? ` · [INTERRUPTED: ${encounterName}]` : ""}`,
-            });
+        // 8. Wilderness Encounter Check (1d6 -> 1 triggers encounter)
+        let encounterTriggered = false;
+        let encounterName = "";
+        const encRoll = rollDie(6);
+        if (encRoll === 1) {
+          encounterTriggered = true;
+          const manifest = db.getZoneManifest(
+            camp.active_zone_id || "the_gloaming",
+          );
+          const table =
+            manifest?.wanderingMonsterTable && manifest.wanderingMonsterTable.length > 0
+              ? manifest.wanderingMonsterTable
+              : ["wolf", "bandit", "giant_spider"];
+          const monsterKey = table[randomInt(table.length)];
+          const monster = db.getMonster(monsterKey) ?? {
+            id: 0,
+            monsterKey,
+            name: monsterKey,
+            currentHp: 8,
+            maxHp: 8,
+            loreTier: 0,
+            ac: 12,
+            morale: 7,
+            attacks: ["Strike +2 (1d6)"],
+            traits: [],
+            lore: [],
+          };
+          encounterName = `Wilderness Encounter: ${monster.name}`;
+          db.addEncounterWithMonsters(identity.campaignId, encounterName, [monster]);
+        }
 
-            return {
-              watches,
-              clock: clockResult,
-              fatigueResults,
-              encounterTriggered,
-              newPartyLocation: { q: toQ, r: toR },
-            };
-          },
-        ).result;
+        // 9. Update location and reveal target hex
+        db.setPartyLocation(identity.campaignId, {
+          q: toQ,
+          r: toR,
+          layerId: currentLoc.layerId || "surface",
+        });
+
+        if (
+          targetHexRow.reveal_state === "unexplored" ||
+          targetHexRow.reveal_state === "rumored"
+        ) {
+          db.revealHex(identity.campaignId, targetHexRow.id, "scouted");
+        }
+
+        if (
+          targetHexRow.primary_zone &&
+          targetHexRow.primary_zone !== camp.active_zone_id
+        ) {
+          db.setActiveZone(identity.campaignId, targetHexRow.primary_zone);
+        }
+
+        // 10. Log roll
+        db.addRoll(identity.campaignId, {
+          actor: actor(),
+          kind: "exploration",
+          label: `Traveled to Hex ${targetHexRow.id} (${targetHexRow.name || targetHexRow.biome || "Wilderness"})`,
+          dice: `${watches} watch${watches > 1 ? "es" : ""}`,
+          total: watches,
+          detail: `Mode: ${payload.mode} · Cost: ${watches} watch(es) · Day ${clockResult.day}, Watch ${clockResult.watch} (${clockResult.weather}) · ${
+            fatigueResults.length > 0
+              ? fatigueResults.some((f) => !f.passed)
+                ? `Forced march: fatigue incurred (${fatigueResults.filter((f) => !f.passed).map((f) => f.name).join(", ")})`
+                : "Forced march CON check passed"
+              : "Standard watch"
+          }${encounterTriggered ? ` · [INTERRUPTED: ${encounterName}]` : ""}`,
+        });
+
+        return {
+          watches,
+          clock: clockResult,
+          fatigueResults,
+          encounterTriggered,
+          newPartyLocation: { q: toQ, r: toR },
+        };
       }),
     );
 
@@ -2475,6 +2513,7 @@ export async function createAshServer(options: AshServerOptions = {}) {
       "site:enter",
       action((raw: unknown) => {
         callerOrHostOnly();
+        requireEncounterResolved();
         const payload = z.object({ siteId: z.string().min(1) }).parse(raw);
         const camp = db.db.prepare("SELECT * FROM campaigns WHERE id = ?").get(identity.campaignId) as any;
         const currentLoc = camp?.party_location_json ? JSON.parse(camp.party_location_json) : { q: 0, r: 0 };
@@ -2533,84 +2572,13 @@ export async function createAshServer(options: AshServerOptions = {}) {
             currentRoomId: 1,
             entryRoomId: 1,
             explorationTurns: 0,
-            lightTurnsRemaining: 6,
+            lightTurnsRemaining: 0,
             nodes: [
-              {
-                id: 1,
-                title: "Entry Hall",
-                x: 100,
-                y: 200,
-                geometry: "Archway flanked by crumbling stone pillars.",
-                contents: "Damp flagstones with scattered remnants of ancient braziers.",
-                interaction: "Archway leads into darkness. Heavy stone doors guard the northern passage.",
-                explored: true,
-              },
-              {
-                id: 2,
-                title: "Guard Post",
-                x: 250,
-                y: 100,
-                geometry: "Rectangular vaulted armory with arrow slits.",
-                contents: "Broken weapon racks and discarded iron shields.",
-                interaction: "Iron rings set in the wall; sounds of scuttling echoing ahead.",
-                encounter: {
-                  monsterKey: "goblin",
-                  name: "Cave Goblins",
-                  count: 3,
-                  defeated: false,
-                },
-                explored: false,
-              },
-              {
-                id: 3,
-                title: "Crypt of the Forgotten",
-                x: 250,
-                y: 300,
-                geometry: "Low-ceilinged chamber lined with stone sarcophagi.",
-                contents: "Runic carvings warning against defilers. Dust hangs thick in the cold air.",
-                interaction: "Center sarcophagus bears an intricate copper latch.",
-                trap: {
-                  name: "Poison Needle Trap",
-                  trigger: "Opening the copper latch without key or disarm",
-                  effect: "Poison needle spring (1d6 damage, DC 12 CON save)",
-                  dc: 12,
-                  spotted: false,
-                  disarmed: false,
-                },
-                explored: false,
-              },
-              {
-                id: 4,
-                title: "Antechamber of Whispers",
-                x: 400,
-                y: 200,
-                geometry: "Hexagonal hall with an echoing domed ceiling.",
-                contents: "Carved bas-reliefs depicting ancient rites. Cold draft from below.",
-                interaction: "A concealed seam in the eastern stonework suggests a hidden portal.",
-                explored: false,
-              },
-              {
-                id: 5,
-                title: "Inner Sanctum & Vault",
-                x: 550,
-                y: 200,
-                geometry: "Colonnaded grand sanctum with a stepped dais.",
-                contents: "Gilded altar holding ancient offerings. Shadowy presence lurking in corners.",
-                interaction: "An iron chest rests upon the altar dais.",
-                encounter: {
-                  monsterKey: "cultist_leader",
-                  name: "Sanctum Warden",
-                  count: 1,
-                  defeated: false,
-                },
-                treasure: {
-                  coins: 150,
-                  items: ["ancient_signet_ring", "silver_dagger", "healing_draught"],
-                  claimed: false,
-                },
-                explored: false,
-              },
-            ],
+              [100, 200], [250, 100], [250, 300], [400, 200], [550, 200],
+            ].map(([x, y], index) => ({
+              id: index + 1, title: `Area ${index + 1}`, x, y,
+              geometry: `Area within ${site.name}`, contents: "", interaction: "", explored: index === 0,
+            })),
             edges: [
               { fromRoomId: 1, toRoomId: 2, doorType: "wooden_door", state: "closed" },
               { fromRoomId: 1, toRoomId: 3, doorType: "open", state: "open" },
@@ -2619,7 +2587,33 @@ export async function createAshServer(options: AshServerOptions = {}) {
               { fromRoomId: 4, toRoomId: 5, doorType: "secret", state: "closed" },
             ],
           };
+          // Secret access is optional; the objective must have an ordinary route.
+          defaultGraph.edges.push({ fromRoomId: 3, toRoomId: 5, doorType: "wooden_door", state: "closed" });
+          const path = db.getAdventurePath(identity.campaignId);
+          const situation = path?.activeSituation?.siteId === site.id ? path?.activeSituation : undefined;
+          const objective = db.getState(identity.campaignId, "host", null, "").campaign.activeObjective;
+          const keys = db.getZoneManifest(camp.active_zone_id || "the_gloaming")?.wanderingMonsterTable ?? [];
+          populateSiteRooms(defaultGraph, {
+            roll: rollDie,
+            monster: (feature) => {
+              const key = feature === "boss_monster" && keys.length
+                ? [...keys].sort((a, b) => (db.getMonster(b)?.maxHp ?? 0) - (db.getMonster(a)?.maxHp ?? 0))[0]
+                : keys.length ? keys[randomInt(keys.length)] : "goblin";
+              return { key, name: db.getMonster(key)?.name ?? key };
+            },
+            treasure: () => {
+              const reward = generateTreasureReward(1);
+              return { coins: reward.coins.gp + reward.coins.sp / 10, items: reward.items };
+            },
+            objective: { title: situation?.title ??
+              (objective?.targetSiteId === site.id ? objective?.title : undefined) ?? `Investigate ${site.name}`,
+              deedId: situation?.requiredDeed },
+          });
           db.saveDungeonGraph(identity.campaignId, defaultGraph);
+        } else {
+          // Re-enter through the entrance, keeping discoveries and outcomes intact.
+          existingGraph.currentRoomId = existingGraph.entryRoomId;
+          db.saveDungeonGraph(identity.campaignId, existingGraph);
         }
 
         db.addRoll(identity.campaignId, {
@@ -2641,6 +2635,7 @@ export async function createAshServer(options: AshServerOptions = {}) {
       "dungeon:move_room",
       action((raw: unknown) => {
         callerOrHostOnly();
+        if (db.getCombatState(identity.campaignId)?.status === "active") throw new Error("Resolve combat before moving rooms");
         const payload = z.object({ toRoomId: z.number().int() }).parse(raw);
         const camp = db.db.prepare("SELECT * FROM campaigns WHERE id = ?").get(identity.campaignId) as any;
         const siteId = camp?.active_site_id;
@@ -2896,8 +2891,55 @@ export async function createAshServer(options: AshServerOptions = {}) {
     );
 
     socket.on(
+      "dungeon:record_outcome",
+      mutationAction("dungeon:record_outcome", (raw: unknown) => {
+        const payload = z.object({
+          roomId: z.number().int(),
+          outcome: z.enum(["defeated", "negotiated", "avoided", "disarmed", "overcame", "searched"]),
+          notes: z.string().trim().min(5).max(1000),
+          treasureAccessible: z.boolean().default(false),
+          treasureFound: z.boolean().default(false),
+          objectiveCompleted: z.boolean().default(false),
+        }).parse(raw);
+        const graph = db.getDungeonGraph(identity.campaignId);
+        const room = graph?.nodes.find((node) => node.id === payload.roomId);
+        if (!graph || !room || graph.currentRoomId !== room.id) throw new Error("Enter the room before recording its outcome");
+        if (db.getCombatState(identity.campaignId)?.status === "active") {
+          throw new Error("Conclude combat before recording the room's outcome");
+        }
+        if (payload.objectiveCompleted && !room.objective) throw new Error("The objective is not in this room");
+        if (payload.treasureFound && !room.treasure) {
+          const reward = generateTreasureReward(1);
+          room.treasure = { coins: reward.coins.gp, items: reward.items, claimed: false };
+        }
+        if (payload.treasureAccessible) {
+          if (!room.treasure) throw new Error("No treasure has been found here");
+          if (room.treasure.claimed) throw new Error("Treasure already claimed");
+          // The caller records an actual table ruling, including noncombat access.
+          room.treasure.access = { method: payload.outcome, notes: payload.notes };
+        }
+        room.resolution = { outcome: payload.outcome, notes: payload.notes };
+        if (room.encounter && payload.outcome === "defeated") room.encounter.defeated = true;
+        if (room.trap && payload.outcome === "disarmed") room.trap.disarmed = true;
+        if (payload.objectiveCompleted && room.objective && !room.objective.completed) {
+          room.objective.completed = true;
+          room.objective.notes = payload.notes;
+          if (room.objective.deedId) {
+            db.resolveAdventurePathDeed(identity.campaignId, room.objective.deedId, 1, payload.notes);
+            db.updateSiteState(graph.siteId, `Objective completed: ${payload.notes}`);
+          }
+        }
+        db.saveDungeonGraph(identity.campaignId, graph);
+        db.addRoll(identity.campaignId, { actor: actor(), kind: "exploration",
+          label: `Room ${room.id}: ${payload.outcome}`, dice: "Table ruling", total: 0,
+          detail: `${payload.notes}${payload.treasureAccessible ? " · Treasure discovered and accessible." : ""}${payload.objectiveCompleted ? " · Objective completed." : ""}` });
+        return { graph };
+      }),
+    );
+
+    socket.on(
       "dungeon:claim_treasure",
-      action((raw: unknown) => {
+      mutationAction("dungeon:claim_treasure", (raw: unknown) => {
         callerOrHostOnly();
         const payload = z.object({ roomId: z.number().int() }).parse(raw);
         const camp = db.db.prepare("SELECT * FROM campaigns WHERE id = ?").get(identity.campaignId) as any;
@@ -2908,17 +2950,18 @@ export async function createAshServer(options: AshServerOptions = {}) {
         if (!graph) throw new Error("No dungeon graph found");
 
         const room = graph.nodes.find((n) => n.id === payload.roomId);
+        if (graph.currentRoomId !== payload.roomId) throw new Error("Enter the room before claiming its treasure");
         if (!room || !room.treasure) throw new Error("No treasure in this room");
-        if (room.treasure.claimed) throw new Error("Treasure already claimed");
+        requireTreasureAccess(room);
 
         room.treasure.claimed = true;
         db.saveDungeonGraph(identity.campaignId, graph);
 
         const reward: RewardRecord = {
-          id: `reward-${Date.now()}`,
+          id: `reward-room-${identity.campaignId}-${siteId}-${room.id}`,
           campaignId: identity.campaignId,
           sourceType: "dungeon_room",
-          sourceId: `room-${room.id}`,
+          sourceId: `${siteId}:room-${room.id}`,
           coins: { gp: room.treasure.coins, sp: 0, cp: 0 },
           items: [...room.treasure.items],
           claimed: false,
@@ -2941,7 +2984,7 @@ export async function createAshServer(options: AshServerOptions = {}) {
 
     socket.on(
       "dungeon:light_torch",
-      action((raw: unknown) => {
+      mutationAction("dungeon:light_torch", (raw: unknown) => {
         callerOrHostOnly();
         const camp = db.db.prepare("SELECT * FROM campaigns WHERE id = ?").get(identity.campaignId) as any;
         const siteId = camp?.active_site_id;
@@ -2949,6 +2992,21 @@ export async function createAshServer(options: AshServerOptions = {}) {
 
         const graph = db.getDungeonGraph(identity.campaignId, siteId);
         if (!graph) throw new Error("No dungeon graph found");
+
+        const state = db.getState(identity.campaignId, "host", null, "");
+        const bearer = state.characters.find((c) => !c.conditions?.includes("dead") &&
+          c.inventory?.some((item) => item.itemId === "torches" && (item.quantity ?? 1) > 0));
+        if (!bearer) throw new Error("The party has no torches remaining");
+        const inventory = structuredClone(bearer.inventory ?? []);
+        const index = inventory.findIndex((item) => item.itemId === "torches" && (item.quantity ?? 1) > 0);
+        const bundle = inventory[index];
+        const remaining = (bundle.remainingTorches ?? 3) - 1;
+        if (remaining > 0) bundle.remainingTorches = remaining;
+        else if ((bundle.quantity ?? 1) > 1) {
+          bundle.quantity = (bundle.quantity ?? 1) - 1;
+          delete bundle.remainingTorches;
+        } else inventory.splice(index, 1);
+        db.updateCharacter(identity.campaignId, { ...bearer, inventory });
 
         graph.lightTurnsRemaining = 6;
         db.saveDungeonGraph(identity.campaignId, graph);
@@ -2974,6 +3032,7 @@ export async function createAshServer(options: AshServerOptions = {}) {
         callerOrHostOnly();
         const payload = z
           .object({
+            roomId: z.number().int().optional(),
             name: z.string().optional(),
             encounterId: z.number().int().optional(),
             monsters: z
@@ -2991,6 +3050,25 @@ export async function createAshServer(options: AshServerOptions = {}) {
 
         const state = db.getState(identity.campaignId, "host", null, "");
         let encId = payload.encounterId;
+        if (state.activeCombat?.status === "active") throw new Error("Combat is already active");
+        if (payload.roomId !== undefined) {
+          const graph = db.getDungeonGraph(identity.campaignId);
+          const room = graph?.nodes.find((node) => node.id === payload.roomId);
+          if (!graph || graph.currentRoomId !== payload.roomId || !room?.encounter) {
+            throw new Error("Enter the occupied room before engaging its encounter");
+          }
+          if (room.encounter.defeated || room.resolution) throw new Error("This room encounter has already been resolved");
+          const monster = db.getMonster(room.encounter.monsterKey);
+          if (!monster) throw new Error("Room creature needs a supported bestiary entry before combat");
+          encId = room.encounter.encounterId;
+          if (!encId) {
+            encId = db.addEncounterWithMonsters(identity.campaignId, room.encounter.name,
+              Array.from({ length: room.encounter.count }, () => ({ ...monster })));
+            room.encounter.encounterId = encId;
+            db.saveDungeonGraph(identity.campaignId, graph);
+          }
+        }
+
 
         if (!encId) {
           const encMonsters = payload.monsters ?? [
@@ -3295,6 +3373,12 @@ export async function createAshServer(options: AshServerOptions = {}) {
         const combat = db.getCombatState(identity.campaignId);
         if (!combat) throw new Error("No active combat to end");
 
+        if (combat.status === "resolved") {
+          return { combat, reward: db.getRewards(identity.campaignId).find((reward) =>
+            reward.sourceType === "encounter" && reward.sourceId === String(combat.encounterId)) ?? null };
+        }
+        const sourceGraph = db.getDungeonGraph(identity.campaignId);
+        const sourceRoom = sourceGraph?.nodes.find((room) => room.encounter?.encounterId === combat.encounterId);
         combat.status = "resolved";
         db.saveCombatState(identity.campaignId, combat);
 
@@ -3303,8 +3387,9 @@ export async function createAshServer(options: AshServerOptions = {}) {
         );
         const victory = livingMonsters.length === 0;
 
-        let rewardRecord: RewardRecord | null = null;
-        if (victory) {
+        let rewardRecord: RewardRecord | null = db.getRewards(identity.campaignId).find((reward) =>
+          reward.sourceType === "encounter" && reward.sourceId === String(combat.encounterId)) ?? null;
+        if (victory && !sourceRoom && !rewardRecord) {
           const reward = generateTreasureReward(1);
           rewardRecord = {
             id: `reward-${Date.now()}`,
@@ -3318,18 +3403,14 @@ export async function createAshServer(options: AshServerOptions = {}) {
           };
           db.saveReward(identity.campaignId, rewardRecord);
 
-          const camp = db.db.prepare("SELECT * FROM campaigns WHERE id = ?").get(identity.campaignId) as any;
-          if (camp?.active_site_id) {
-            const graph = db.getDungeonGraph(identity.campaignId, camp.active_site_id);
-            if (graph) {
-              const currentRoom = graph.nodes.find((n) => n.id === graph.currentRoomId);
-              if (currentRoom?.encounter) {
-                currentRoom.encounter.defeated = true;
-                db.saveDungeonGraph(identity.campaignId, graph);
-              }
-            }
-          }
         }
+        if (victory && sourceRoom?.encounter && sourceGraph) {
+          sourceRoom.encounter.defeated = true;
+          sourceRoom.resolution = { outcome: "defeated", notes: "Room opponents defeated in combat; search and secure any treasure separately." };
+          db.saveDungeonGraph(identity.campaignId, sourceGraph);
+        }
+        db.db.prepare("UPDATE encounters SET status = 'resolved' WHERE campaign_id = ? AND id = ?")
+          .run(identity.campaignId, combat.encounterId);
 
         db.addRoll(identity.campaignId, {
           actor: "Table",
@@ -3338,7 +3419,7 @@ export async function createAshServer(options: AshServerOptions = {}) {
           dice: "—",
           total: 0,
           detail: victory
-            ? "Enemies vanquished! Spoils of battle await allocation."
+            ? sourceRoom ? "Room opponents defeated. Determine whether treasure is present and accessible at the table." : "Enemies vanquished! Spoils of battle await allocation."
             : "Combat concluded.",
         });
 
@@ -3501,7 +3582,7 @@ export async function createAshServer(options: AshServerOptions = {}) {
 
     socket.on(
       "session:award_xp",
-      action((raw: unknown) => {
+      mutationAction("session:award_xp", (raw: unknown) => {
         callerOrHostOnly();
         const payload = z
           .object({
@@ -3537,16 +3618,16 @@ export async function createAshServer(options: AshServerOptions = {}) {
 
     socket.on(
       "session:return_sanctuary",
-      action((raw: unknown) => {
+      mutationAction("session:return_sanctuary", (raw: unknown) => {
         callerOrHostOnly();
+        requireHaven();
         const state = db.getState(identity.campaignId, "host", null, "");
 
         for (const char of state.characters) {
           if (char.conditions?.includes("dead")) continue;
           const refreshedSpells = (char.spells ?? []).map((s) => ({
             ...s,
-            available: true,
-            penanceRequired: false,
+            available: !s.penanceRequired,
           }));
           db.updateCharacter(identity.campaignId, {
             ...char,
@@ -3559,6 +3640,7 @@ export async function createAshServer(options: AshServerOptions = {}) {
           });
         }
 
+        db.resupplyPartyRations(identity.campaignId, 12);
         db.setCampaignPhase(identity.campaignId, "sanctuary");
         db.setActiveSite(identity.campaignId, null);
 
@@ -3585,6 +3667,7 @@ export async function createAshServer(options: AshServerOptions = {}) {
     socket.on(
       "site:resolve_deed",
       action((raw: unknown) => {
+        callerOrHostOnly();
         const payload = z
           .object({
             siteId: z.string().min(1),
@@ -3599,6 +3682,12 @@ export async function createAshServer(options: AshServerOptions = {}) {
           throw new Error(`Party is not currently inside site ${payload.siteId}`);
         }
 
+        const graph = db.getDungeonGraph(identity.campaignId, payload.siteId);
+        const objectiveRoom = graph?.nodes.find((room) => room.objective?.deedId === payload.deed);
+        if (graph?.nodes.some((room) => room.objective) &&
+            (!objectiveRoom || objectiveRoom.id !== graph.currentRoomId)) {
+          throw new Error("Reach the site's objective before resolving its deed");
+        }
         const res = db.resolveAdventurePathDeed(
           identity.campaignId,
           payload.deed,
@@ -3607,6 +3696,11 @@ export async function createAshServer(options: AshServerOptions = {}) {
         );
 
         db.updateSiteState(payload.siteId, `Deed Resolved: ${payload.deed}`);
+        if (objectiveRoom?.objective && graph) {
+          objectiveRoom.objective.completed = true;
+          objectiveRoom.objective.notes = payload.details;
+          db.saveDungeonGraph(identity.campaignId, graph);
+        }
 
         db.addRoll(identity.campaignId, {
           actor: actor(),

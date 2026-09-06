@@ -1,4 +1,6 @@
-import { useEffect, useMemo, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
+import { RECEIPTED_ACTIONS } from "../shared/mutations";
+import { createActionId, sendMutation } from "./mutations";
 import { FrontierMap } from "./FrontierMap";
 import {
   AlertTriangle,
@@ -584,6 +586,9 @@ function Campaign({
     type?: string;
   } | null>(null);
   const [toast, setToast] = useState("");
+  const pendingActions = useRef(new Set<string>());
+  const revision = useRef(state.campaign.revision ?? 0);
+  revision.current = Math.max(revision.current, state.campaign.revision ?? 0);
   const emit = <T,>(event: string, payload: unknown = {}) =>
     new Promise<T>((resolve, reject) =>
       socket.emit(
@@ -600,8 +605,25 @@ function Campaign({
     payload: unknown = {},
     success?: string,
   ) => {
+    const receipted = RECEIPTED_ACTIONS.has(event);
+    const pendingKey = `${event}:${JSON.stringify(payload)}`;
+    let ownsPending = false;
     try {
-      const result = await emit<T>(event, payload);
+      if (!socket.connected) throw new Error("Reconnect before taking an action.");
+      if (pendingActions.current.has(pendingKey)) throw new Error("This action is still pending.");
+      pendingActions.current.add(pendingKey);
+      ownsPending = true;
+      const request = receipted ? {
+        ...(payload as Record<string, unknown>),
+        actionId: createActionId(),
+        expectedRevision: revision.current,
+      } : payload;
+      const result = receipted
+        ? await sendMutation<T>(socket, event, request)
+        : await emit<T>(event, payload);
+      if (receipted && typeof (result as { revision?: number }).revision === "number") {
+        revision.current = Math.max(revision.current, (result as { revision: number }).revision);
+      }
       if (success) {
         setToast(success);
         setTimeout(() => setToast(""), 2400);
@@ -611,6 +633,8 @@ function Campaign({
       setToast(reason instanceof Error ? reason.message : "Action failed");
       setTimeout(() => setToast(""), 3500);
       throw reason;
+    } finally {
+      if (ownsPending) pendingActions.current.delete(pendingKey);
     }
   };
 
@@ -1050,7 +1074,12 @@ function ZoneDossierModal({
                 <button className="primary" onClick={switchZone}>
                   Travel to Zone
                 </button>
-                <button onClick={returnSanctuary}>Return to Sanctuary</button>
+                <button onClick={returnSanctuary}
+                  disabled={state.campaign.partyLocation?.q !== (state.campaign.homeLocation?.q ?? 0) ||
+                    state.campaign.partyLocation?.r !== (state.campaign.homeLocation?.r ?? 0) ||
+                    (state.campaign.partyLocation?.layerId ?? "surface") !== (state.campaign.homeLocation?.layerId ?? "surface") ||
+                    Boolean(state.campaign.activeSiteId)}
+                  title="Travel to the haven before returning to sanctuary">Return to Sanctuary</button>
               </div>
             </div>
           )}
@@ -1304,11 +1333,15 @@ function SanctuaryView({ state, act }: { state: CampaignState; act: Act }) {
             Procure supplies, hire retainers, carouse for rumors, and consult the
             city oracle.
           </p>
-          {state.me.role === "host" && (
+          {(state.me.role === "host" || state.me.isCaller) && (
             <button
+              disabled={state.campaign.partyLocation?.q !== (state.campaign.homeLocation?.q ?? 0) ||
+                state.campaign.partyLocation?.r !== (state.campaign.homeLocation?.r ?? 0) ||
+                (state.campaign.partyLocation?.layerId ?? "surface") !== (state.campaign.homeLocation?.layerId ?? "surface") ||
+                Boolean(state.campaign.activeSiteId)}
               className="primary rest-btn"
               onClick={() =>
-                act("party:rest", {}, "Party fully rested and healed")
+                act("session:return_sanctuary", {}, "Party recovered at the haven")
               }
             >
               <Heart size={16} /> Full Party Rest & Recovery
@@ -3152,7 +3185,7 @@ function CharacterCard({
                   }}
                 >
                   <div>
-                    <b>{item.name}</b>
+                    <b>{item.name}{item.itemId === "torches" ? ` (${((item.quantity ?? 1) - 1) * 3 + (item.remainingTorches ?? 3)} torches left)` : ""}</b>
                     {item.quantity && item.quantity > 1 ? ` (x${item.quantity})` : ""}
                     <span style={{ fontSize: "11px", color: "var(--muted)", marginLeft: "6px" }}>
                       [{item.slots} slot{item.slots > 1 ? "s" : ""}] {item.damage ? `· Dmg: ${item.damage}` : ""} {item.baseAc ? `· AC ${item.baseAc}` : ""}
@@ -3355,6 +3388,11 @@ function CharacterCard({
 function DungeonView({ state, act }: { state: CampaignState; act: Act }) {
   const dungeon = state.activeDungeon;
   const isCaller = Boolean(state.me.isCaller || state.me.role === "host");
+  const [outcome, setOutcome] = useState("searched");
+  const [outcomeNotes, setOutcomeNotes] = useState("");
+  const [treasureFound, setTreasureFound] = useState(false);
+  const [treasureAccessible, setTreasureAccessible] = useState(false);
+  const [objectiveCompleted, setObjectiveCompleted] = useState(false);
 
   const [selectedRoomId, setSelectedRoomId] = useState<number>(
     dungeon?.currentRoomId ?? 1,
@@ -3363,6 +3401,10 @@ function DungeonView({ state, act }: { state: CampaignState; act: Act }) {
   useEffect(() => {
     if (dungeon?.currentRoomId) {
       setSelectedRoomId(dungeon.currentRoomId);
+      setOutcomeNotes("");
+      setTreasureFound(false);
+      setTreasureAccessible(false);
+      setObjectiveCompleted(false);
     }
   }, [dungeon?.currentRoomId]);
 
@@ -3424,9 +3466,6 @@ function DungeonView({ state, act }: { state: CampaignState; act: Act }) {
     await act("site:exit", {}, "Party retreated to surface frontier");
   };
 
-  const returnSanctuary = async () => {
-    await act("session:return_sanctuary", {}, "Party returned to Haven Sanctuary");
-  };
 
   return (
     <div className="surface-grid" style={{ gridTemplateColumns: "1fr", gap: "20px" }}>
@@ -3460,9 +3499,7 @@ function DungeonView({ state, act }: { state: CampaignState; act: Act }) {
             <button className="small-btn" onClick={retreatSurface}>
               Surface Exit
             </button>
-            <button className="small-btn primary" onClick={returnSanctuary}>
-              Return to Sanctuary
-            </button>
+            <span className="muted">Exit the site, then travel home to recover.</span>
           </div>
         </div>
 
@@ -3621,14 +3658,15 @@ function DungeonView({ state, act }: { state: CampaignState; act: Act }) {
               >
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                   <div>
-                    <b>⚔️ Hostile Threats:</b> {inspectedRoom.encounter.count}x {inspectedRoom.encounter.name}
+                    <b>Creatures:</b> {inspectedRoom.encounter.count}x {inspectedRoom.encounter.name}
                   </div>
                   {inspectedRoom.encounter.defeated ? (
                     <span className="badge-tag">DEFEATED</span>
                   ) : (
                     <button
                       className="small-btn primary"
-                      onClick={() => act("combat:start", {})}
+                      disabled={!isCaller || inspectedRoom.id !== dungeon.currentRoomId || Boolean(inspectedRoom.resolution)}
+                      onClick={() => act("combat:start", { roomId: inspectedRoom.id })}
                     >
                       Engage in Combat
                     </button>
@@ -3658,6 +3696,8 @@ function DungeonView({ state, act }: { state: CampaignState; act: Act }) {
                   ) : (
                     <button
                       className="small-btn primary"
+                      disabled={!isCaller || inspectedRoom.id !== dungeon.currentRoomId || !inspectedRoom.treasure.access}
+                      title="Record discovery and access before claiming treasure"
                       onClick={() => claimTreasure(inspectedRoom.id)}
                     >
                       Claim & Loot
@@ -3667,6 +3707,41 @@ function DungeonView({ state, act }: { state: CampaignState; act: Act }) {
               </div>
             )}
           </div>
+
+          {inspectedRoom.id === dungeon.currentRoomId && (
+            <section className="sub-panel">
+              <h3>Resolve this area at the table</h3>
+              {inspectedRoom.feature && <p>Room feature: {inspectedRoom.feature.replaceAll("_", " ")}</p>}
+              {inspectedRoom.objective && <p><b>Objective:</b> {inspectedRoom.objective.title}
+                {inspectedRoom.objective.completed ? " — completed" : ""}</p>}
+              {inspectedRoom.resolution && <p>Recorded: {inspectedRoom.resolution.outcome} — {inspectedRoom.resolution.notes}</p>}
+              <p>Record what happened, including how guards, traps, locks, or hazards were dealt with or bypassed. Entering or winning a fight does not automatically secure treasure.</p>
+              {isCaller && <form onSubmit={async (event) => {
+                event.preventDefault();
+                await act("dungeon:record_outcome", { roomId: inspectedRoom.id, outcome,
+                  notes: outcomeNotes, treasureFound, treasureAccessible, objectiveCompleted }, "Room outcome recorded");
+                setOutcomeNotes("");
+                setTreasureFound(false);
+                setTreasureAccessible(false);
+                setObjectiveCompleted(false);
+              }}>
+                <label>Outcome<select value={outcome} onChange={(event) => setOutcome(event.target.value)}>
+                  <option value="searched">Searched</option><option value="defeated">Defeated</option>
+                  <option value="negotiated">Negotiated</option><option value="avoided">Avoided / bypassed</option>
+                  <option value="disarmed">Disarmed</option><option value="overcame">Overcame hazard</option>
+                </select></label>
+                <label>What happened?<textarea required minLength={5} maxLength={1000} value={outcomeNotes}
+                  onChange={(event) => setOutcomeNotes(event.target.value)} /></label>
+                {!inspectedRoom.treasure && <label><input type="checkbox" checked={treasureFound}
+                  onChange={(event) => setTreasureFound(event.target.checked)} />The table found treasure here; generate its contents</label>}
+                {!inspectedRoom.treasure?.claimed && <label><input type="checkbox" checked={treasureAccessible}
+                  onChange={(event) => setTreasureAccessible(event.target.checked)} />Treasure was discovered and made accessible by this approach</label>}
+                {inspectedRoom.objective && !inspectedRoom.objective.completed && <label><input type="checkbox"
+                  checked={objectiveCompleted} onChange={(event) => setObjectiveCompleted(event.target.checked)} />The site objective was accomplished</label>}
+                <button type="submit" disabled={outcomeNotes.trim().length < 5}>Record table outcome</button>
+              </form>}
+            </section>
+          )}
 
           {/* Connected Doors & Passages */}
           <div className="sub-panel" style={{ background: "var(--surface)", border: "1px solid var(--line)", borderRadius: "6px", padding: "16px" }}>
