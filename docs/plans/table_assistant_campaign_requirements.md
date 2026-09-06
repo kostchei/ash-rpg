@@ -114,7 +114,7 @@ Zone ecology and path factions jointly constrain monsters, trap mechanisms, and 
 
 ## 6. Three acts and levels 1–10
 
-Every supported full path needs an authored campaign premise, goal, opposition, three connected acts, transitions, multiple clue routes, consequences, and valid endings. Prefer distinct zones between acts when the fiction supports them; a zone transition needs a route and reason. Act advancement follows changed circumstances and achieved requirements, with level bands used for preparation rather than automatic story gates.
+Every supported full path needs an authored campaign premise, goal, opposition, three connected acts, transitions, multiple clue routes, consequences, and valid endings. **Each act must occupy a different persistent zone**, selected explicitly or randomly from compatible unused zones; a zone transition needs a feasible route and fictional reason. Backtracking remains possible. Act advancement follows changed circumstances and achieved requirements, with level bands used for preparation rather than automatic story gates. The [XP mathematics and path-site generation plan](path_sites_xp_and_zones.md) specifies advancement costs, proposed site/act story bonuses, constrained random zone selection, adapter coverage for every engine, and implementation gates.
 
 | Act | Proposed level envelope | Content and transition |
 | --- | --- | --- |
@@ -124,9 +124,11 @@ Every supported full path needs an authored campaign premise, goal, opposition, 
 
 **Content sufficiency must be measured, not inferred from three act headings.** Build an XP/reward ledger for each path and supported active-roster size. Verify the actual level thresholds, treasure XP, carousing, sharing, replacement-character treatment, and ASH variances against the chosen rules profile. The publisher describes Shadowdark advancement as rewarding treasure and carousing rather than monster kills ([official overview](https://www.thearcanelibrary.com/blogs/shadowdark-blog/all-about-shadowdark-rpg)); do not budget the path as a sequence of mandatory fights.
 
+**General monsters have a 50% chance of real treasure per encounter group**, including ordinary dungeon inhabitants. Roll once per persistent group, never per creature, and preserve negative outcomes across search, combat, and revisits. Authored caches/hoards use explicitly separate policies and unique sources. XP sufficiency must account for drop probability, quality, discovery/access, and reset losses. The [functional-code engineering plan](path_campaign_engineering.md) specifies implementation packages and verification.
+
 For each level transition, calculate required XP minus carried progress, then map it to attainable reward opportunities under those rules. Audit plausible branches, missed treasure, peaceful solutions, casualties, and optional excursions. Proposed planning headroom: supply about 25–50% more attainable opportunities than the minimum route requires, then calibrate through play. Do not count mutually exclusive rewards twice. Choose site counts from this audit rather than claim an arbitrary number of dungeons guarantees level 10.
 
-Characters should have enough opportunities to reach level 10 by campaign success, with level-10 play available before the ending. Clever early success remains valid; the system must not forbid victory solely because the party is below the expected level. Shortfalls should yield appropriate additional opportunities, not respawned treasure or forced grinding. A complete three-act authored path and a reusable path contract precede declaring other path templates supported.
+Characters should have enough opportunities to reach level 10 by campaign success. **Entering the final boss encounter at level 9 is acceptable**; earned finale treasure, boons, and site/act completion XP can contribute to reaching level 10 afterward. Level-10 play before the ending is optional. Clever early success remains valid; the system must not forbid victory solely because the party is below the expected level. Shortfalls should yield appropriate additional opportunities, not respawned treasure or forced grinding. A complete three-act authored path and a reusable path contract precede declaring other path templates supported.
 
 ## 7. Reference systems inspected
 
@@ -300,4 +302,3 @@ The full requirements for **Package 3: Campaign Setup & Two-Character Ownership 
    - Wilderness navigation checks use the highest INT modifier from the active party only.
 
 Verification: **156 tests across 21 test files pass** (`npm test`), including 19 comprehensive automated tests in `tests/stage-b-setup.test.ts`. Full production client and server builds (`npm run build`) pass cleanly.
-

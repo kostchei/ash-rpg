@@ -105,6 +105,8 @@ A path is built for ten levels and exactly three campaign acts, but transitions 
 
 Whatever the units, budget content for the length. A ten-level path is not three big dungeons.
 
+Each act now requires a different persistent zone, optionally chosen randomly from compatible unused zones. The [XP mathematics and site-generation plan](../plans/path_sites_xp_and_zones.md) governs reward sufficiency and generation across every engine. The site counts below are initial content estimates, not evidence that a path supplies enough XP; audit reachable branches, story bonuses, reset losses, and progression through campaign success. Level 9 at the final boss is acceptable, with finale rewards able to contribute toward level 10.
+
 | Act | Sites | Set-piece events | Standing problems |
 | :-- | :---- | :--------------- | :---------------- |
 | I   | 6–8   | 3                | 2–3               |

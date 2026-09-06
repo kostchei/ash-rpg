@@ -8,6 +8,8 @@ This process applies across adventure paths. Each path retains its own world pro
 
 ## 1. Responsibilities
 
+The [XP and three-zone site-generation plan](path_sites_xp_and_zones.md) defines the campaign preparation layer: three distinct act zones, optionally selected randomly, path-derived site objectives, and a branch-aware reward ledger. Apply it before detailed site population.
+
 | Part | Responsibility |
 | --- | --- |
 | Adventure path | Defines what is happening, who is involved, what they want, the evidence they leave, opportunities for intervention, and how outcomes change the campaign. |
