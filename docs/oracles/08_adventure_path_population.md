@@ -1,6 +1,8 @@
 # Populating Adventure Path Engines
 
-Status: **expanded campaign design; not a statement of runtime support.** This companion to [Adventure Path Engines](07_adventure_path_engines.md) turns all twenty-one engines, including the nine outer-power methods, Marut variant, and Slumbering Catastrophe, into procedures for generating connected campaign content. Every engine has three acts and at least two possible antagonists. The three standalone paths remain their detailed authored sources. Use the [shared exploration process](../plans/adventure_path_exploration_process.md) to carry this content through taverns, travel, sites, and consequences.
+Status: **expanded campaign design; not a statement of runtime support.** This companion to [Adventure Path Engines](07_adventure_path_engines.md) turns all twenty-two engines, including the nine outer-power methods, Marut variant, Slumbering Catastrophe, and Stolen Dawn, into procedures for generating connected campaign content. Every engine has three acts and at least two possible antagonists. The four standalone paths remain their detailed authored sources; the nine outer-power engines additionally use the [player mechanics companion](09_outer_power_player_mechanics.md). Use the [shared exploration process](../plans/adventure_path_exploration_process.md) to carry this content through taverns, travel, sites, and consequences.
+
+**Continuing quests:** [Objectives, clues, and replenishing leads](11_objectives_clues_and_lead_spawning.md) defines the minimum two path opportunities plus one unrelated lead, saved d6 replenishment, field and tavern discovery, and per-engine objective recipes. This is a design contract pending runtime integration.
 
 ## From an Engine to a Saved Campaign
 
@@ -171,8 +173,8 @@ These deeds feed the authored tracks; do not replace the tracks with a second nu
 | Act | Work and transition |
 | :-- | :------------------ |
 | I — Signs of Return | Identify preparations and face the first possible arrival or prevent it through earned exclusion |
-| II — The Cheaper Return | Discover why banishment changes no preparation and construct effective exclusion works |
-| III — Close the Arrival | Seal or redirect every route sustaining the permanent intersection |
+| II — The Cheaper Return | Use earned banishment intervals; discover exclusion and source binding |
+| III — Close the Arrival | Complete coastal exclusion or bind the submerged source |
 
 **Generate.** Map three coastal communities, a dreamer refuge, a submerged research site, two terrestrial anchors, and the city's conjunction. Set the next astronomical opportunity and commit what can trigger an Awakening before play. Place the six existing Preparations as expeditions, gatherings, measurements, or rites with named operators.
 
@@ -180,32 +182,31 @@ These deeds feed the authored tracks; do not replace the tracks with a second nu
 
 **Make the ratchet executable.** Keep completed Preparations as irreversible knowledge and infrastructure history. Record `six minus completed preparations` as the remaining preparation burden. At a committed conjunction, surviving cult operators can temporarily supply the missing preparations through named resources; list those resources before the event. At zero, the permanent intersection needs no new calling. Exclusion works change whether an arrival route is usable, not whether an old Preparation happened. Thus banishment never reverses the ratchet, while anchor inversion can still make future arrival impossible.
 
-**Develop and resolve.** Dream and Cult moves toward a first possible manifestation; it is not forced if the party close arrival first. Cheaper Return contrasts evacuation with geometry expeditions. Exclusion requires work at the connected anchors while manifestations or cult forces interfere. Each actual manifestation changes a named coastal place. A body defeated buys immediate safety; a sealed conjunction wins the campaign condition. Neglect completes only feasible Preparations and lets scheduled opportunities occur. Permanent intersection creates an inland refugee campaign. An early exclusion leaves dangerous calling knowledge and communities whose livelihoods depend on who controls it.
+**Three acts:** discover contact and first-arrival conditions → exploit a banishment interval and test protection → execute either permanent remedy. Source binding remains possible before a manifestation; arrival is never mandatory.
 
-## 6B. Nyarlathotep — A Script That Can Be Broken
+**Player procedure.** Apply the [approved player mechanics](09_outer_power_player_mechanics.md#6a-cthulhu--dream-contact-and-safe-recovery), including the benefit/price record, monster objectives, independent clue routes, and actual remedy completion events. Seed at least one recurring choice in the opening expedition and make it consequential by the third. Provide both remedies for every antagonist variant; adapt its dependency and rite rather than simply changing the name.
 
-**Antagonist options.** **Nyarlathotep** acts through masks and apparently contradictory patrons. A **conspiracy of oracle-priests** engineers fulfillment of a manufactured prophecy to enthrone its chosen ruler. A **Tzeentch-inspired schemer** arranges victories and betrayals to transfer magical authority into a prepared vessel. The latter two can have fallible communication and rival conspirators; the common constraint is a committed design that real third options can break.
+**Success A — Coastal exclusion:** complete permanent exclusion works at every committed arrival site and discharge the active intersection. **Success B — Source binding:** reach the submerged source and complete its binding through one declared conjunction interval, preventing projection through otherwise intact arrival sites. Neither requires the other. Both end this incursion; killing the manifestation alone does not.
 
-| Act | Work and transition |
-| :-- | :------------------ |
-| I — Useful Commissions | Take meaningful work and find verifiable discrepancies among patrons |
-| II — The Common Script | Reconstruct dependencies and identify which apparent victories serve them |
-| III — Refuse the Part | Create and defend an outcome that prevents the committed design from completing |
+**Failure/neglect:** feasible preparations and conjunctions proceed. Enemy victory requires an actually sustained permanent intersection; a completed source binding or exclusion prevents it even if every preparation is in history. A banished body cannot reappear before the saved re-entry condition. Early success leaves calling knowledge, saved dreamers, and coastal recovery. Lost communities remain in the Toll.
 
-**Generate.** Commit a hidden six-step design and its dependencies, three masks, two genuinely opposed factions, a finale site, and a goal requiring a particular voluntary act. Give every mask a mundane identity trail and one verifiable contradiction. Write the author of each completed step in the script; the party may never perform some of them.
 
-| Requirement | Deed and capability |
-| :---------- | :------------------ |
-| Earn a commission | A mask is trusted with a named task; it can redirect that institution's resources |
-| Separate witnesses | Two witnesses are persuaded to accuse each other; their combined account is suppressed |
-| Remove the keeper | A specified keeper leaves the seal unguarded; its site becomes accessible |
-| Move the prize | A relic reaches the finale site; the design gains its required instrument |
-| Reconcile the wrong pair | Two prepared offices unite under the prescribed oath; their powers can be combined |
-| Accept the role | The designated participant freely performs the committed final act; the design takes effect |
+## 6B. Nyarlathotep — Whose Authority?
 
-**Opening pair.** A charitable patron wants a stolen reliquary recovered from a reformer. The reformer independently asks for a missing witness to be protected at an old tollhouse. Both requests address real harm. Comparing receipts, witness recollections, and the reliquary's earlier route reveals the shared intermediary.
+**Antagonist options.** **Nyarlathotep** uses fallible masks to acquire real authority. A **conspiracy of oracle-priests** uses mandates to enthrone its chosen ruler. A **Tzeentch-inspired schemer** transfers magical authority into a prepared vessel. For each, specify the three actual mandates, voluntary acceptance, and a concrete mask-binding substitute suited to its nature.
 
-**Develop and resolve.** Act I earns trust and uncovers discrepancies. Act II reconstructs dependencies and reconciles intended enemies. Act III protects an indispensable dependency or substitutes a result that makes the final act fail. A clever refusal works if it breaks the committed design; do not invent another mask to make it secretly count. The enemy wins only if the actual dependency chain and voluntary final act occur. If ignored, masks recruit other agents only where those agents could perform the step. If exposed early, the party inherit betrayed clients and competing obligations. The Toll names genuine victims, even when the deception has been understood.
+**Generate.** Create three masks, two genuinely opposed institutions, one incarnation site, and three indispensable local mandates: custody of a relic, authority over the site, and an invitation from its recognised keeper. Name the issuer, scope, beneficiaries, evidence, expiry or revocation procedure, and means of impersonation for each. The incarnation requires all three active mandates and a voluntary acceptance at its site. The masks must actually acquire them.
+
+**Three acts:** useful commissions and discrepancies → trace who authorised what → revoke authority or trap the embodied mask. At least two witnesses/documents independently reveal each essential mandate; a maker's record and former host independently reveal the trapping condition.
+
+**Opening pair.** A charitable patron requests a public accusation against a reformer in return for rescuing a companion. The reformer independently asks the party to protect a witness at a tollhouse. Both address real harm; neither exhausts the party's available choices. Receipts and independent testimony reveal who benefits.
+
+**Player procedure.** Apply the [approved player mechanics](09_outer_power_player_mechanics.md#6b-nyarlathotep--endorsements-and-divided-interests), including the benefit/price record, monster objectives, independent clue routes, and actual remedy completion events. Seed at least one recurring choice in the opening expedition and make it consequential by the third. Provide both remedies for every antagonist variant; adapt its dependency and rite rather than simply changing the name.
+
+**Success A — Revoke the incarnation:** expose the common beneficiary to the actual issuers, revoke the three mandates, and complete a public severance at the site; its old endorsements can no longer sustain this incarnation. **Success B — Bind the mask:** use the discovered true designation and prepared vessel to trap and banish the local incarnation during its acceptance, even if the institutions still believe its public identities. Collecting the designation alone is insufficient.
+
+**Failure/neglect:** masks can employ other willing agents with access; they cannot treat every refusal as consent. Enemy victory occurs when the three mandates and voluntary acceptance realise the committed seizure of authority before either remedy. Early exposure or banishment leaves betrayed clients, genuine accusations, and offices requiring legitimate successors.
+
 
 ## 6C. Shub-Niggurath — Feeding the Network
 
@@ -229,7 +230,14 @@ These deeds feed the authored tracks; do not replace the tracks with a second nu
 
 **Opening pair.** Defend a farm from a hungry war-band, or recover a missing livestock counter from a feeding cavern. The raid is an immediate danger worth stopping; the counter holds evidence explaining why killing raiders does not stop reproduction. Give the census through tally-sticks, observable food movements, and a captured quartermaster.
 
-**Develop and resolve.** First season establishes raids and their rewards. The next exposes the connected census. The final phase requires holding cuts or stopping births at their source. At each season, add births, pool connected capacity, and resolve positive pressure by a feasible raid, new nursery, or starvation. Food destruction raises pressure and can redirect violence; it is not automatic progress. The network wins when every regional food refuge is within its sustained feeding territory and the Mother Gate can replace losses. The party wins by ending forced reproduction and isolating surviving sources so communities remain viable without repeated culling. Rescue captives before isolation where possible. Early success leaves dependent survivors and damaged farmland; failure creates a living territory rather than an endlessly respawning dungeon.
+**Three acts:** save communities and discover useful gifts → provision, cure, or isolate dependencies → sever or stabilise reproduction.
+
+**Player procedure.** Apply the [approved player mechanics](09_outer_power_player_mechanics.md#6c-shub-niggurath--gifts-with-appetites), including the benefit/price record, monster objectives, independent clue routes, and actual remedy completion events. Seed at least one recurring choice in the opening expedition and make it consequential by the third. Provide both remedies for every antagonist variant; adapt its dependency and rite rather than simply changing the name.
+
+**Success A — Sever propagation:** disable the Mother Gate and every independent forced-propagation source so no compulsory expansion remains possible. **Success B — Bound the ecology:** replace each divine reproductive dependency with the demonstrated regulator, supply its bounded population, and complete one full birth/feeding cycle without tribute or compelled propagation. The sources can remain alive under B. Neither requires killing transformed civilians or curing every voluntary gift.
+
+**Failure/neglect:** advance births and consumption on their declared schedule. The enemy prevails when every food refuge is in its sustained feeding territory and forced replacement remains operative; a stabilised ecology cannot satisfy that predicate. Preserve rescued people, accepted transformations, famine losses, and damaged land in the aftermath.
+
 
 ## 6D. Hastur — The Audience Must Choose
 
@@ -253,7 +261,14 @@ These deeds feed the authored tracks; do not replace the tracks with a second nu
 
 **Opening pair.** A family asks why an acclaimed singer no longer answers to her name; a shrine keeper needs help after a festival replaces the annual remembrance. The singer's letters, discarded drafts, and witnesses to rehearsals reveal the bargain. A separate troupe can offer satisfying art and belonging without the work's price.
 
-**Develop and resolve.** Fashion makes the benefits credible. Casting reveals what roles displace in ordinary life. The final act tests whether the party can restore a performer, reclaim a venue, persuade an audience to leave, or stage a counter-performance. Killing a performer may create a replacement audition; destroying a book does not erase performances already learned. The enemy wins only with the required participation; permanent victory removes an indispensable condition and restores a viable social alternative. Neglect spreads through actual invitations and bookings, not exposure alone. An early victory leaves a cultural vacuum and sponsors seeking their investment back. The Toll includes surrendered identities and desecrated meanings, even if the city survives.
+**Three acts:** discover desirable privileges → recover personal identities and role terms → dissolve participation or perform restoration.
+
+**Player procedure.** Apply the [approved player mechanics](09_outer_power_player_mechanics.md#6d-hastur--roles-recognition-and-audiences), including the benefit/price record, monster objectives, independent clue routes, and actual remedy completion events. Seed at least one recurring choice in the opening expedition and make it consequential by the third. Provide both remedies for every antagonist variant; adapt its dependency and rite rather than simply changing the name.
+
+**Success A — Dissolve the cast:** enable an indispensable participant to withdraw and complete that role's dissolution rite at its originating venue, so a replacement audition cannot restore it. **Success B — Counter-performance:** recover the original names and rite and complete a willing counter-performance that restores all linked venues and cancels the work's claims, even with its cast still assembled. Neither is merely burning a book or murdering a performer.
+
+**Failure/neglect:** real invitations and bookings spread the work. The enemy wins only when the intact required cast, consenting audience, and prepared venue complete the finale before dissolution/restoration. Lost identities and damaged relationships remain in the Toll; early victory leaves a cultural and civic inheritance.
+
 
 ## 6E. Yog-Sothoth — A Published Geometry
 
@@ -277,31 +292,31 @@ These deeds feed the authored tracks; do not replace the tracks with a second nu
 
 **Opening pair.** Retrieve a child whose pantry opens into another town, or investigate a courier who delivers letters before they are written. A threshold inscription, the courier's route book, and a failed cult diagram reveal portions of the same fixed graph.
 
-**Develop and resolve.** Impossible Doors establishes individual edges. Gate Economy lets the party exploit and map the network. Conjunction becomes a sequencing problem across multiple sites. Never require simultaneous split-party actions that a solo character cannot perform: provide timed mechanisms, recruited operators, or sequential isolation. Closing an edge redirects exactly as recorded; it cannot arbitrarily strengthen whichever enemy is convenient. The enemy wins when the invocation circuit and activation condition are both complete. The party wins by permanently isolating a required junction, replacing the geometry, or safely discharging the circuit. An unattended cult can activate only keyed, reachable nodes in legal order. Early closure strands travelers and trading communities whose rescue forms the inheritance; erased routes remain part of the Toll.
+**Three acts:** prove impossible routes → exploit and carry connections → cut or redirect the circuit.
 
-## 6F. Tsathoggua — The Price of Investigating Quiet
+**Player procedure.** Apply the [approved player mechanics](09_outer_power_player_mechanics.md#6e-yog-sothoth--the-map-as-equipment), including the benefit/price record, monster objectives, independent clue routes, and actual remedy completion events. Seed at least one recurring choice in the opening expedition and make it consequential by the third. Provide both remedies for every antagonist variant; adapt its dependency and rite rather than simply changing the name.
 
-**Antagonist options.** **Tsathoggua's tribute cult** accumulates stores and sleeping servants underground. A **buried serpent monarch** collects labor and provisions for a simultaneous reconquest through ancient tunnels. An **underworld merchant-prince** buys disappearances and warehouses bound creatures until several cities can be seized together. Their stores and reasons for waiting differ; all commit hidden preparation before the silence is interpreted.
+**Success A — Cut and seal:** isolate an indispensable junction, safely discharge its stored power, and permanently seal its circuit function. **Success B — Complete into containment:** key the verified uninhabited destination, redirect the required edges, complete the conjunction there, and close the return connection. B can succeed with all original junctions intact. Both leave unrelated routes available according to the resulting graph.
 
-| Act | Work and transition |
-| :-- | :------------------ |
-| I — Absences | Follow modest missing-person and missing-cargo cases without public signs of escalation |
-| II — What Is Stored | Investigate caches, recover people, and disrupt prepared approaches |
-| III — The Sudden Turn | Preempt the committed emergence or break the supplied occupation that results |
+**Failure/neglect:** only reachable, keyed nodes can activate in legal order. The enemy wins through its committed circuit and destination; a completed containment route does not count as hostile success. Stranded travellers, disrupted trade, and erased passages remain real aftermath.
 
-**Generate.** Keep the player record as the existing Absence Ledger. Commit the sealed multiplier of three to eight, the emergence condition, caches, target sites, and routes in hidden world state. The absence of a public enemy tracker does not mean the generator invents the reserves at emergence. Define the multiplier's unit as equivalent reserve capacity per recorded absence unit; list people, livestock, and supplies separately so twenty barrels do not become twenty captives.
 
-| Requirement | Hidden deed and capability |
-| :---------- | :------------------------- |
-| Store the tribute | A named missing load reaches a cache; its specific food, labor, or ritual use becomes available |
-| Prepare an approach | A completed tunnel reaches a target; one emergence route opens |
-| Bed a brood | A supplied force enters dormancy; it joins the committed reserve |
-| Compromise a threshold | A keeper prepares entry or removes a guard; a target can be taken from within |
-| Wake together | The committed cache and route conditions are met; supplied broods emerge at their recorded targets |
+## 6F. Tsathoggua — What Does Rest Cost?
 
-**Opening pair.** A drover's sister offers a modest payment to search a last-known campsite. Separately, a salt merchant needs a vanished cart found near an abandoned mine. Neither source knows there is a shared threat. Mundane tracks, storage receipts, and rescued captives can establish past movements without forecasting the emergence.
+**Antagonist options.** **Tsathoggua's tribute cult** stores supplies and servants underground. A **buried serpent monarch** prepares reconquest through real tunnels and vassal agreements. An **underworld merchant-prince** warehouses bound creatures under transferable contracts. Generate their actual stores, upkeep, targets, finite responses, and enforceable severance methods; no sealed multiplier supplies missing assets.
 
-**Develop and resolve.** Absences justify unrewarding searches; cache expeditions reveal local facts; deeper interventions can recover stores or force particular broods awake early. Both remove that reserve from the synchronized action once, and remain true regardless of the multiplier. Do not add escalating dreams or a warning on every neglected season. The enemy wins by taking and supplying its committed set of surface strongpoints in the emergence; the party wins by exhausting the necessary stores or denying its approaches before that condition can occur. After emergence, those same sites become occupied objectives. Early success leaves rescued people, abandoned property, and little public belief in how much was prevented.
+**Generate.** Create three caches, their provisioned broods, tunnels, target strongpoints, and three tribute agreements sustaining the local incursion. Record every stored creature and load, capacity and upkeep, and the emergence requirements. Each discovered cache gives its actual contents and useful evidence about another asset. A receipt and a rescued worker independently reveal each essential supply dependency; a former signatory and a sanctuary archive reveal the severance rite.
+
+**Three acts:** investigate absences and convenient offers → map reserves and build independent rest → preempt emergence or sever its tribute.
+
+**Opening pair.** A drover's sister pays for a missing-person search; a salt merchant needs a vanished cart recovered. A nearby hospice offers guarded rest at a stated delivery price. Ordinary independent shelter remains available through provisioning, and successful searches earn normal rewards.
+
+**Player procedure.** Apply the [approved player mechanics](09_outer_power_player_mechanics.md#6f-tsathoggua--rest-deferred-prices-and-preserved-strength), including the benefit/price record, monster objectives, independent clue routes, and actual remedy completion events. Seed at least one recurring choice in the opening expedition and make it consequential by the third. Provide both remedies for every antagonist variant; adapt its dependency and rite rather than simply changing the name.
+
+**Success A — Exhaust the emergence:** destroy or recover the indispensable stored assets and collapse the dedicated conduits, leaving no legal operation capable of supplying the committed occupation. **Success B — End the claim:** release the pledged servants, cancel all three sustaining tribute agreements, and complete the severance rite, expelling the incursion even with physical caches intact. The agreements cannot be renewed by simply appointing another collector after severance.
+
+**Failure/neglect:** actual deliveries and tunnel work proceed; shortages limit the broods. Enemy victory requires taking and supplying the named strongpoints, not merely revealing hidden numbers. Independent shelters, rescued people, unpaid mundane debts, and lost property persist after early victory.
+
 
 ## 6G. Ithaqua — Spend the Thaw
 
@@ -311,9 +326,9 @@ These deeds feed the authored tracks; do not replace the tracks with a second nu
 | :-- | :------------------ |
 | I — First Winter | Establish the nine-week thaw, supply dependencies, and the first reachable anchors |
 | II — The Short Thaw | Allocate six weeks among removal, rescue, and maintained winter routes |
-| III — The Last Open Season | Use the three-week window and preserved routes to prevent permanent winter |
+| III — The Last Open Season | Use the three-week window or prepared winter access to end transmission or drain and sever replenishment |
 
-**Generate.** Map three settlements, four glacial anchors, food stores, winter shelters, and routes with outward and return travel times. Use the existing nine-, six-, and three-week thaw windows. Count expeditions and work in weeks; do not quietly convert those windows into ordinary travel watches. Specify which routes need a maintained shelter to remain usable beyond thaw.
+**Generate.** Map three settlements, four glacial anchors, food stores, winter shelters, and routes with outward and return travel times. Use the existing nine-, six-, and three-week thaw windows. Count expedition durations in weeks on the almanac while resolving actual travel and camp time normally; do not silently shorten the windows or journey distances. Specify which routes need a maintained shelter to remain usable beyond thaw.
 
 | Requirement | Deed and capability |
 | :---------- | :------------------ |
@@ -325,7 +340,14 @@ These deeds feed the authored tracks; do not replace the tracks with a second nu
 
 **Opening pair.** Deliver grain before the low pass closes, or retrieve an almanac and its keeper from a watchhouse near the first anchor. Weather records, melt marks, and the keeper's calculations establish the shortening season.
 
-**Develop and resolve.** The three winters remain the acts. Each thaw offers competing anchor, rescue, and provisioning expeditions whose return journeys fit the actual calendar or require an explicit overwinter plan. During hibernation, direct anchor attacks are unavailable; settlement work and declared discharge lures remain possible. A triggered offensive spends the banked reserve once, all of it, including a provoked discharge into an empty valley. It cannot spend that reserve again later. The party wins when the banking and transmission system can no longer suppress a returning thaw. Neglect uses the calendar exactly. Early recovery leaves food debts and communities beyond repair; failure moves surviving people into the remaining shelters and makes reopening a route the next campaign.
+**Three acts:** provision and map the first winter → spend the short thaw or earn winter access → destroy transmission or exploit a full discharge.
+
+**Player procedure.** Apply the [approved player mechanics](09_outer_power_player_mechanics.md#6g-ithaqua--warmth-hauling-and-exceptional-access), including the benefit/price record, monster objectives, independent clue routes, and actual remedy completion events. Seed at least one recurring choice in the opening expedition and make it consequential by the third. Provide both remedies for every antagonist variant; adapt its dependency and rite rather than simply changing the name.
+
+**Success A — End transmission:** destroy all functioning banking/transmission anchors and sever their connection so the system cannot suppress the returning thaw. **Success B — Drain and sever:** lure the whole reserve into the prepared sink and permanently sever the replenishment source during its declared exposed interval. B may leave the anchors intact but inert. Neither simple endurance nor a discharge without permanent severance wins.
+
+**Failure/neglect:** reserve grows only at committed dates from functioning sources. Permanent winter requires sustained closure of every thaw route and an operative source; a fulfilled remedy prevents it. Food debts, lost homes, and people left outside shelters remain in the Toll. Early success changes remaining expeditions into recovery work.
+
 
 ## 6H. Tcho-Tcho Compact — Replace What People Need
 
@@ -349,9 +371,16 @@ These deeds feed the authored tracks; do not replace the tracks with a second nu
 
 **Opening pair.** A village asks the party to escort its only effective physician, who belongs to the Compact. Elsewhere, a former member needs protection while opening an independent clinic. The physician saves real lives; the dissident knows what the next contract renewal will cost. Patient records, chapter accounts, and a past recipient of the patron's bargain corroborate the price.
 
-**Develop and resolve.** Mutual Aid establishes dependence. Parallel Institutions asks the party to finance, protect, and staff alternatives or help chapters defect with their expertise intact. Cult Polity tests whether communities can refuse tribute without losing essential services. The Compact wins when it is the sole viable provider of all five services across the baseline region and can collect its contract. The party wins when alternatives remain operational, chapters cannot enforce collective payment, and the patron's claim is broken or renegotiated. An abandoned clinic changes control only when a chapter actually replaces it. Killing the doctor can increase dependence elsewhere. Early victory leaves an ordinary public-service system to sustain and past tribute that cannot be refunded.
+**Three acts:** establish real benefits and costs → deliver alternatives or prepare chapter defection → terminate collection through either route below.
 
-## 6I. Azathoth — The Spell Log Becomes Evidence
+**Player procedure.** Apply the [approved player mechanics](09_outer_power_player_mechanics.md#6h-tcho-tcho-compact--the-material-ability-to-refuse), including the benefit/price record, monster objectives, independent clue routes, and actual remedy completion events. Seed at least one recurring choice in the opening expedition and make it consequential by the third. Provide both remedies for every antagonist variant; adapt its dependency and rite rather than simply changing the name.
+
+**Success A — Independent provision:** replace all five services with operational independent providers, survive the next scheduled collection without losing essential care, and execute the contract's termination procedure so collective tribute is unenforceable. **Success B — Collective defection:** obtain all chapters' valid withdrawal, transfer necessary tools and mundane expertise to their communities, and perform the shared severance rite. B keeps the former chapter providers rather than requiring competing institutions; patron-only benefits have known substitutes before withdrawal. Killing the patron's local avatar is not required by either route.
+
+**Failure/neglect:** the Compact prevails only as sole viable provider across the baseline region with enforceable collection. A successfully severed cooperative does not count as Compact dominance. A closed alternative changes control only when someone actually replaces it. Past tribute, service debts, and institutions to maintain form the inheritance.
+
+
+## 6I. Azathoth — Useful Power Has an External Cost
 
 **Antagonist options.** **Azathoth's resonant cult** makes the world perceptible to mindless annihilation. **The Choir Beyond Silence**, an original outer intelligence, erases incompatible physical laws by imposing its perfect harmonic. A **mage-engine sovereign** captures spellwork to overwrite reality with a constructed order. Each uses a distinct capture rule and final pattern; there is no retroactive power to count any spell as the needed fuel.
 
@@ -361,7 +390,7 @@ These deeds feed the authored tracks; do not replace the tracks with a second nu
 | II — Failing Laws | Map resonators and obtain or build the stabilizing counter-pattern |
 | III — Retune the World | Prevent the completed resonance or move the world outside its capture geometry |
 
-**Generate.** Place four resonators, their audible or visible capture boundaries, three harmonic categories, and a counter-pattern with mundane as well as magical repair methods. Declare which spell effects feed which harmonic and what event counts: one resolved casting inside a functioning capture zone, not every target or damage die. Cultists can supply qualifying castings too; a party without spellcasters does not disable the whole plot.
+**Generate.** Place four resonators, their audible or visible capture boundaries, three harmonic categories, and a counter-pattern with mundane as well as magical repair methods. Declare which spell effects and useful devices feed each harmonic: one resolved casting or qualifying activation inside a functioning capture zone, not every target or damage die. Include a public utility and grounding methods. Cultists and ordinary device users supply qualifying events too; a party without spellcasters still faces the incursion.
 
 | Requirement | Deed and capability |
 | :---------- | :------------------ |
@@ -371,9 +400,16 @@ These deeds feed the authored tracks; do not replace the tracks with a second nu
 | Displace the stabilizer | The existing counter-pattern loses a named component; one physical law fails in a declared area |
 | Complete resonance | All four linked resonators sound during the chosen conjunction while the counter-pattern is incomplete; the world becomes exposed |
 
-**Opening pair.** Investigate a healing bell that rings whenever a spell is cast nearby, or rescue quarry workers whose falling stones have stopped obeying gravity. The party's dated spell log, the bell keeper's records, and a cult tuning sheet allow the same correlation. Show the harmless capture response before a casting can complete a catastrophic sequence.
+**Opening pair.** Investigate a healing bell that rings at qualifying spell or furnace activations, or rescue quarry workers whose falling stones have stopped obeying gravity. The dated spell/device log, bell keeper's records, and a cult tuning sheet allow the same correlation. Show the harmless capture response before any previously unknown casting or device activation can complete a catastrophic sequence.
 
-**Develop and resolve.** Impossible Music identifies collection. Local Instability makes repairs and rescue compete with easy magical solutions. The final phase disconnects the network or restores the counter-pattern during celestial drift. Do not retroactively classify an inconvenient spell as a missing note. Casting elsewhere remains ordinary magic. The enemy condition is the specified linked performance, not an arbitrary spell total. The party can retune instruments, isolate their connections, or restore stable separation; there is no combat victory over Azathoth. Unopposed cult performances use the same rules. An early repair leaves useful but hazardous machinery; failed physics and people lost within it remain the Toll.
+**Three acts:** correlate useful power with emissions → choose, ground, or replace hazardous utilities → disconnect or stabilise through the conjunction.
+
+**Player procedure.** Apply the [approved player mechanics](09_outer_power_player_mechanics.md#6i-azathoth--useful-power-and-its-external-cost), including the benefit/price record, monster objectives, independent clue routes, and actual remedy completion events. Seed at least one recurring choice in the opening expedition and make it consequential by the third. Provide both remedies for every antagonist variant; adapt its dependency and rite rather than simply changing the name.
+
+**Success A — Disconnect and discharge:** isolate every collector from the invocation network and safely discharge its stored harmonics, leaving the local invocation circuit inoperable. **Success B — Restore separation:** complete the counter-pattern and sustain it throughout the committed conjunction, permanently excluding this resonance from the region even with collectors intact. Neither requires defeating Azathoth in combat. The finale can be a repair/defence operation under changing physical conditions.
+
+**Failure/neglect:** enemy castings and utility activations supply only their declared harmonics. Hostile success requires all four linked collectors sounding the required pattern during conjunction with separation incomplete. No arbitrary spell total substitutes for that predicate. Early success leaves useful machinery, stewardship choices, and the Toll of people lost to failed physical laws.
+
 
 ## 7. Angels — A Case with Standing
 
@@ -588,6 +624,20 @@ Before full awakening, the approach can reach a vulnerable body while servants, 
 
 **If ignored:** enabled operations and committed natural events proceed using their resources and dates. If no operation can finish, the creature remains asleep; another adventure does not wake it by fiat. **If slain early:** heirs, hoard claimants, displaced servants, dangerous remains, and the people who financed the weapon create the inheritance. Keep the achievement intact. **The Toll:** settlements lost, crews killed, habitat sacrificed for materials, binding oaths accepted, and those left outside an evacuation remain named facts after victory.
 
+## 13. The Stolen Dawn — Three Remedies for a Sustained Catastrophe
+
+Use the [full path dossier](../adventure_paths/04_the_stolen_dawn.md). Choose the Pale Regent and its unique renewal mount or the Mourning Queen and her irreplaceable casting instrument. Commit personal vulnerabilities, renewal schedule, and permanent-disable conditions before placing clues.
+
+**Generate.** Create Hearthhaven and nearby communities, the adjoining outer wilderness, and buried Veyr. Use exactly two Cursed Scroll profiles: Isles of Andrik for Acts I and II, Morzomotha & Karst Deeps for Act III. Town and wilderness are distinct territories on one persistent surface region. Generate supplies, physical routes, two underground approaches, the renewal site, Dawn Engine machinery, and independent evidence for all three remedies.
+
+**Three acts.** Keep the Hearths (town and nearby, levels 1–3); Cross the White Country (wilderness, 4–7); Bring Back the Morning (underground, 8–10). Budget sites and rewards for each normal branch, while allowing earned victory before the final act.
+
+**Opening pair.** Rescue fuel cutters at the eastern shelter or recover the sky-watch keeper's observation plates. An ordinary fishing inheritance dispute supplies the third lead. Reveal credible evidence for at least two remedies in Act I and all three before commitment to a final expedition.
+
+**Develop and resolve.** The party wins by defeating the sovereign, permanently disabling its indispensable renewal means, **or** commissioning the Dawn Engine through one complete night with its self-sustaining regulator intact. These are separately sufficient outcomes. Temporary interruption does not equal permanent cessation. Neither nonlethal route secretly requires the sovereign's death. Concrete retaliation can be diverted or defeated without changing the success rule.
+
+**Neglect and inheritance.** Renewals follow the committed schedule; provisions are consumed on elapsed days; operations require resources and routes. Failure is the loss or submission of all authored communities with no supplied independent refuge, while renewal remains possible and no player success has occurred. Early success ends winter immediately; subsequent expeditions concern reconstruction, salvage, or stewardship. Keep the Toll and prevent duplicate victory rewards. Runtime eligibility remains unimplemented.
+
 ## Review a Populated Engine Before Play
 
 For each generated campaign, verify the following with its own record:
@@ -600,5 +650,6 @@ For each generated campaign, verify the following with its own record:
 - A failed or ignored situation produces the recorded consequence and a plausible next opportunity; it does not force a predetermined act transition.
 - Repeated discoveries and deeds do not duplicate rewards or consequences. A return visit preserves people, ownership, damage, and knowledge.
 - The chosen ending can be evaluated from saved facts. Secret selection changes disclosure, not those facts or the rules after a choice.
+- At least two player success conditions are independently sufficient and executable; completing either can win while the other remains false. Multiple prerequisites to one compulsory ending do not qualify. Audit older dossiers against this requirement without claiming they already comply.
 
 These are documentation and future generation acceptance criteria. Runtime support must be verified independently; having an entry here does not make an engine eligible for the application's path selector.

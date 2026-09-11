@@ -93,6 +93,9 @@ export interface TavernLead {
   accuracy: "true" | "distorted" | "false";
   isPathLead?: boolean;
   isFollowUp?: boolean;
+  /** Rolled once on generation; withheld from players until the destination is entered. */
+  destinationOutcome?: "active" | "false" | "empty";
+  arrivalDiscovery?: string;
 }
 
 export interface TavernEstablishment {
@@ -101,6 +104,9 @@ export interface TavernEstablishment {
   barkeep: string;
   leads: TavernLead[];
 }
+
+export * from "./path-contracts.js";
+import type { ActZoneAssignment, CampaignActPlan, TreasureQuality } from "./path-contracts.js";
 
 export interface PublicAdventurePathSummary {
   pathId: string;
@@ -121,6 +127,7 @@ export interface PublicAdventurePathSummary {
     progress: { reach: number; awakening: number; knowledge: number; access: number };
     toll: string[];
     resolvedDeeds: string[];
+    actZones?: ActZoneAssignment[];
   };
 }
 
@@ -130,6 +137,7 @@ export interface AdventurePathRecord {
   startingZoneId: string;
   caveZoneId: string;
   endZoneId: string;
+  actPlan?: CampaignActPlan;
   progress: { reach: number; awakening: number; knowledge: number; access: number };
   installations: string[];
   resolvedDeeds: string[];
@@ -541,10 +549,12 @@ export interface ActivitySession {
 }
 
 export interface DungeonRoomNode {
+  clues?: { id: string; text: string; objectiveId: string }[];
   feature?: "empty" | "trap" | "minor_hazard" | "solo_monster" | "npc" | "monster_mob" | "major_hazard" | "treasure" | "boss_monster";
   featureRoll?: number;
   resolution?: { outcome: string; notes: string };
-  objective?: { title: string; deedId?: string; completed: boolean; notes?: string };
+  objective?: { title: string; deedId?: string; completed: boolean; notes?: string;
+    generated?: import("./site-objectives.js").GeneratedSiteObjective };
   id: number;
   title: string;
   x: number;
@@ -577,6 +587,7 @@ export interface DungeonRoomNode {
 }
 
 export interface DungeonConnectionEdge {
+  transition?: "stairs" | "nearby_path";
   fromRoomId: number;
   toRoomId: number;
   doorType: "open" | "wooden_door" | "iron_door" | "portcullis" | "secret";
@@ -584,6 +595,11 @@ export interface DungeonConnectionEdge {
 }
 
 export interface DungeonGraphState {
+  siteStructure?: {
+    roll?: number;
+    objectiveMode?: "similar" | "different";
+    sections: { id: number; size: "small" | "medium" | "large"; roomIds: number[]; entryRoomId: number; endRoomId: number }[];
+  };
   siteId: string;
   campaignId: number;
   currentRoomId: number;
@@ -621,12 +637,24 @@ export interface CombatState {
 export interface RewardRecord {
   id: string;
   campaignId: number;
-  sourceType: "dungeon_room" | "encounter" | "situation_deed";
+  sourceType:
+    | "dungeon_room"
+    | "encounter"
+    | "situation_deed"
+    | "encounter_group"
+    | "authored_cache"
+    | "story_objective"
+    | "story_act"
+    | "boss_hoard"
+    | "legacy";
   sourceId: string;
   coins: { cp?: number; sp?: number; gp?: number };
   items: string[];
   claimed: boolean;
   allocations: Record<string, { target: "party" | "character"; characterId?: number }>;
+  quality?: TreasureQuality;
+  xpValue?: number;
+  groupId?: string;
 }
 
 export interface SessionIdentity {

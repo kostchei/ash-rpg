@@ -6,7 +6,7 @@ import type { AbilityKey, AbilityScores, Character, EncounterMonster, InventoryI
 import { HEX_DIRECTIONS } from "./frontier.js";
 
 export type RandomSource = (maxExclusive: number) => number;
-const systemRandom: RandomSource = (max) => randomInt(max);
+export const systemRandom: RandomSource = (max) => randomInt(max);
 
 export function rollDie(
   sides: number,
@@ -880,6 +880,7 @@ export function levelUpCharacter(
   const updatedCharacter: Character = {
     ...character,
     level: newLevel,
+    xp: 0,
     maxHp: newMaxHp,
     hp: character.hp + gainedHp,
     talents: updatedTalents,

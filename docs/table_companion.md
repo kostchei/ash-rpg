@@ -2,7 +2,16 @@
 
 The Table Companion is the local-first campaign application for running ASH without a dedicated Dungeon Master. One computer hosts the campaign, a shared display shows the party state, and players join from phones over the same network.
 
-The next release targets a complete in-person expedition with four core classes, individual phone activity choices, connected dungeon exploration, initiative, and treasure allocation. See the [product scope](../README.md#the-next-playable-release-a-companion-for-the-physical-table) and [engineering plan](plans/table_companion_mvp.md). The implemented foundations below do not imply that this complete release flow has passed a multiplayer playtest.
+The next release targets a complete in-person expedition with four core classes, individual phone activity choices, connected dungeon exploration, initiative, and treasure allocation. See the [Minimal Table Companion Specification](plans/minimal_table_companion_specification.md) for the core physical-table philosophy, information fog of war, and Shadowdark initiative rules. The [engineering plan](plans/table_companion_mvp.md) details historical implementation gates.
+
+## Core Design Principles
+
+1. **Dice Belong on the Table:** No automated "roll to hit" or damage roll buttons. The companion provides instant target numbers (+To-Hit, AC, DC, Saves) for physical dice rolling.
+2. **Information Fog of War:** Monster AC is unknown (`?`) until tested; monster HP uses narrative states (`Unharmed` -> `Bloodied (<50%)`) rather than spoilers; traps only show sensory tells until investigated; NPC reactions require interaction.
+3. **Shadowdark Initiative:** Clockwise table-seating rotation started by a single group DEX check; monsters take their turn on the GM's position.
+4. **Physical Widgets & Leverage:** Campaign-progressing items exist in character inventories; sites offer environmental and tactical leverage to weaken threats.
+5. **Session-to-Session Ledger:** Seamless tracking of current HP, gold, conditions, light duration, and carried relics.
+6. **Searchable Codex:** Instant lookup for conditions, spells, gear, and core OSR procedures.
 
 ## What is implemented
 

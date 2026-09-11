@@ -22,7 +22,7 @@ Every engine supports a **three-act campaign across levels 1–10**. Acts use th
 
 Choose the antagonist separately from the engine's method. Each engine has at least two options in the [population procedures](08_adventure_path_population.md#three-acts-multiple-antagonists), with different motives, dependencies, and means of opposition. Domains of Dread supplies many boss dossiers; displacement can concern Githyanki refugees, an orc portal migration in the shape of the Warcraft arrival scenario, or a resident ruler exploiting either. Invocation can serve fire, Nurgle-inspired plague, Orcus or other death cults, or magic and change.
 
-The nine outer-power entries are **methods**, not exclusive assignments of one method to one god. Orchestration, participation, conjunction, proliferation, and the other processes can serve different patrons. Choose one primary method to govern progression and the ending. A supporting method explains a dependency or operation; it does not add an unrelated second campaign clock.
+The nine outer-power entries are **methods**, not exclusive assignments of one method to one god. Mandates, participation, conjunction, proliferation, and the other processes can serve different patrons. Choose one primary method to govern progression and the ending. A supporting method explains a dependency or operation; it does not add an unrelated second campaign clock.
 
 The new [Slumbering Catastrophe](#12-the-slumbering-catastrophe-preparation-and-awakening) covers an ancient red dragon, tarrasque, or other dormant destroyer: discover what wakes it, gain experience and effective weapons, and attempt the kill before full awakening and rampage.
 
@@ -30,7 +30,7 @@ The new [Slumbering Catastrophe](#12-the-slumbering-catastrophe-preparation-and-
 
 The model for path advancement is *Cthulhu Wars*, in which each faction earns its powers by completing a list of requirements written in its own idiom. The Black Goat spawns, the Yellow Sign captures, Cthulhu devours. No two lists are interchangeable, and no faction is playing the same game as its opponents.
 
-Adventure Paths work the same way. Three consequences follow, and they matter more than any shared vocabulary.
+Adventure Paths work the same way. Four consequences follow, and they matter more than any shared vocabulary.
 
 **1. Each antagonist has its own Requirements.** Usually four to eight conditions, written in that antagonist's verbs, each granting one specific capability. Complete them in any order their physical or procedural prerequisites permit; the chosen order shapes what the party eventually faces. The Titans' Release Deeds are the model. The [population procedures](08_adventure_path_population.md) supply concrete requirements where the summaries below give only an outline. Completion remains in history even if a later deed disables its capability; distinguish an accomplished deed from a currently functioning power.
 
@@ -39,6 +39,8 @@ Adventure Paths work the same way. Three consequences follow, and they matter mo
 **3. The party's win condition is not the mirror of it.** This is what makes a path a story rather than a tug of war. The party do not win by preventing every Requirement, and preventing all of them is usually not a victory at all. They win by achieving their own condition, which is a different kind of thing: assembling a circumstance, providing a service, obtaining a verdict, restoring one distinction, making arrival permanently expensive. In several engines the party can allow the antagonist most of its list and still win; in several others they can deny the entire list and still be nowhere.
 
 Write both conditions on the same page, in different columns, and let the players see that the two columns do not describe the same contest.
+
+**4. Each path must offer more than one independently sufficient player success condition.** This is an authoring requirement for new paths and an audit requirement for existing ones, not a claim that every current dossier already satisfies it. Write at least two executable ways to resolve the central problem, each with discoverable evidence, feasible access, an actual completion event, and a distinct consequence. They are alternatives joined by **OR**, not mandatory components joined by AND. Different weapons for the same compulsory boss kill do not meet this requirement. A valid early success remains a success; later acts can concern its inheritance. [The Stolen Dawn](../adventure_paths/04_the_stolen_dawn.md) develops three independent victories: defeat the caster, permanently disable renewal, or establish a counteracting power.
 
 ### Each Engine Keeps a Different Record
 
@@ -51,15 +53,15 @@ There is no standard path sheet, and a path that can be recorded on the same for
 | **3. Titans** | Five restoration records, moving independently, and one party | Allocating attention across prisons they cannot all defend |
 | **4. Tharizdun** | The campaign record itself, defaced | Crossing out and rewriting their own earlier notes |
 | **5. Bane** | A statute book: decrees, dates, and what each authorises | Reading law to find out what is still legal |
-| **6A. Cthulhu** | Irreversible Preparations, a log of manifestations, and arrival routes that can be excluded | Learning why banishment does not undo preparation, and what can prevent arrival |
-| **6B. Nyarlathotep** | A script, face down, with an author column | Learning retroactively who completed which step |
-| **6C. Shub-Niggurath** | A census: mouths against land | Doing arithmetic a tax assessor would recognise |
-| **6D. Hastur** | An audience count and a cast list | Tracking who has been given a part |
-| **6E. Yog-Sothoth** | A network diagram with degrees marked | Solving a published puzzle on paper between sessions |
-| **6F. Tsathoggua** | An absence ledger, and nothing else | Reading a shadow and never seeing the object |
-| **6G. Ithaqua** | An almanac: weeks of thaw, and what is reachable in them | Planning a year's expeditions around a shortening season |
-| **6H. Tcho-Tcho Compact** | A services table by settlement | Auditing who provides medicine, justice, protection, trade, travel |
-| **6I. Azathoth** | The party's own spell log | Discovering their character sheets are the tracker |
+| **6A. Cthulhu** | Preparations, dream connections, warded refuges, and arrival routes | Trading safe sleep for information and using earned reprieves |
+| **6B. Nyarlathotep** | Endorsements, issuers, evidence, and active mandates | Deciding whose request deserves their name |
+| **6C. Shub-Niggurath** | A census and individual gifts with appetites | Provisioning useful transformations or ending their dependency |
+| **6D. Hastur** | Accepted roles, privileges, witnesses, and audiences | Choosing when to invoke a role and what recognition costs |
+| **6E. Yog-Sothoth** | A threshold graph and carried keys | Equipping and changing their own expedition routes |
+| **6F. Tsathoggua** | Absences, discovered reserves, prepared responses, and rest bargains | Buying convenience or establishing independent shelter |
+| **6G. Ithaqua** | An almanac, provisions, hauling, and maintained refuges | Spending thaw time or preparing exceptional winter access |
+| **6H. Tcho-Tcho Compact** | Providers, beneficiaries, priests, and collection rights | Making refusal materially possible |
+| **6I. Azathoth** | Devices, qualifying emissions, capture boundaries, and harmonics | Using or grounding useful power with known external costs |
 | **7. Angels** | A charge sheet with victims, witnesses, and repairs | Preparing a defence |
 | **7M. Maruts** | One number that doubles | Watching arithmetic become the antagonist |
 | **8. Witch King** | A map with a line on it, and a body count | Conducting a fighting retreat and an epidemiology at once |
@@ -67,8 +69,9 @@ There is no standard path sheet, and a path that can be recorded on the same for
 | **10. Eternal Cycle** | Two bars and the gap between them, drawn | Defending a shrinking middle they must keep measuring |
 | **11. Githyanki** | A provision ledger with a hard cap above it | Discovering that diplomacy is a granary problem |
 | **12. Slumbering Catastrophe** | Waking operations beside weapons, experience, and proven countermeasures | Deciding when preparation is sufficient to risk the hunt |
+| **13. Sustained Catastrophe / Stolen Dawn** | A renewal record, town supplies, and three independent solution records | Choosing whether to defeat the caster, break its means, or override its working |
 
-Several records are worked below in detail. The [population companion](08_adventure_path_population.md) expands all twenty-one engines without forcing them to share a form.
+Several records are worked below in detail. The [population companion](08_adventure_path_population.md) expands the engines without forcing them to share a form.
 
 ### Two Things Are Universal
 
@@ -140,15 +143,15 @@ That pairing is the whole design. A goblin warren with an overpopulation mechani
 | **3. Titans** | The world is physically made from their bodies | Each is missing pieces of itself and can act only through servants until restored; they do not coordinate | Siding with the gods, who committed the original crime |
 | **4. Tharizdun** | Not an agent; erodes the categories reality runs on | Cannot act at all — every advance needs mortals to do the work | Killing cultists; the dissolution spreads without them once begun |
 | **5. Bane** | Legitimacy; the post outlives the officeholder | Needs visible disorder to justify itself, and must keep the province fed to keep compliance | Assassination and sabotage, which supply the disorder |
-| **6A. Cthulhu** | Cannot be killed; banishment costs him nothing | Cannot simply arrive — needs anchors, dreamers, and conditions | Fighting him. It is survivable and changes nothing |
-| **6B. Nyarlathotep** | Many masks; knows what you will do | A design built from reactions has nothing to work with when nobody reacts | Chasing and unmasking, which is itself a scripted reaction |
+| **6A. Cthulhu** | Returns without losing completed preparations | Must meet actual re-entry conditions; contact can expose its routes | Treating a useful banishment as permanent exclusion |
+| **6B. Nyarlathotep** | Many masks exploit real endorsements and divided institutions | Needs specific authority and voluntary acceptance; evidence can revoke it | Lending authority without checking the beneficiary and scope |
 | **6C. Shub-Niggurath** | Spawn faster than any force can kill | Overpopulation: must expand or starve, and isolated broods die on their own | Clearing sites, which vents the pressure and relieves the network |
 | **6D. Hastur** | Spreads through desire; people volunteer | Needs an audience and cannot compel anyone | Suppression. A banned work is an advertised work |
 | **6E. Yog-Sothoth** | Distance and sequence stop applying | The geometry has a build order and is fragile to being built wrong | Closing the nearest gate, which redistributes power to the rest |
-| **6F. Tsathoggua** | Acts everywhere at once, from nowhere | Will not spend early even when spending early would win; the hoard is its own trap | Waiting for evidence. The quiet is the threat |
-| **6G. Ithaqua** | Releases a season's stored power in one offensive | Must hibernate to bank, and is nearly powerless during the thaw | Enduring the winters. The reserve only grows |
+| **6F. Tsathoggua** | Preserves reserves and prepares interruptions | Needs actual stores, conduits, and enforceable tribute; responses can be exhausted | Taking convenient rest without examining its obligations |
+| **6G. Ithaqua** | Makes expeditions costly and spends stored winter in an offensive | A full discharge exposes replenishment; prepared winter access reaches its assets | Enduring winter without changing storage or replenishment |
 | **6H. Tcho-Tcho Compact** | Decapitation-proof; genuinely useful to its members | Must keep providing, and the patron's price is a debt that compounds | Attacking cells, which recruits for them |
-| **6I. Azathoth** | Mindless; cannot be reasoned with, bargained with, or deterred | Has no plan at all; every deliberate act comes from the cult | Bringing magic to the fight — the spells are the fuel |
+| **6I. Azathoth** | Mindless; defined resonance exposes the region to it | Capture has boundaries and can be grounded, disconnected, or counter-patterned | Using known qualifying power without accounting for its captured emission |
 | **7. Angels** | Correct about the facts, and escalating | Bound by jurisdiction, precedent, and proportion; cannot refuse genuine restitution | Fighting, which proves the charge and raises the next respondent |
 | **7M. Maruts** | Recursive; each one destroyed is replaced by two | Enforce one defined violation and cannot exceed the warrant; the doubling triggers on resistance only | Winning. Every victory doubles the response |
 | **8. Witch King** | Your casualties become his soldiers | Needs bodies and standing infrastructure; ash is not a resource, and undead destroyed are spent forever | Winning a field battle and marching on without burning your own dead |
@@ -161,7 +164,7 @@ That pairing is the whole design. A goblin warren with an overpopulation mechani
 
 The **Suffering** column is the campaign. It is where a party of ordinary size gets leverage over something enormous, and it is almost never reached by fighting. Finding it is usually the work of Act I, and the moment a table stops attacking the power and starts attacking the suffering is the moment the path turns.
 
-The **failing obvious move** should be allowed to succeed tactically, every time, and change nothing strategically. Let them win the battle. Let the village be grateful. Then let them notice, in their own time, that the count went up anyway.
+Resolve the **obvious move** honestly. Tactical victories preserve rescued people, interrupted attacks, expended enemy resources, and earned reprieves even when they do not meet a campaign success condition. Evidence should explain the remaining problem. Never force a win, erase its benefit, or increase the threat by fiat to teach the engine.
 
 ---
 
@@ -604,7 +607,7 @@ Permanent victory requires making the world unreachable: sink or rotate R'lyeh o
 
 **This path advances by ratchet.** Each Preparation permanently lowers the cost of the next Awakening, and no Preparation is ever undone by a banishment. The path is a sequence of catastrophes that get cheaper, and its measure counts *downward*: the number of things still required before he can be called again.
 
-Killing or banishing the body is a survivable encounter, not progress. It moves nothing on this table.
+Defeating or banishing the body does not remove completed Preparations. It does earn the committed interval before re-entry, which the party can use for rescue, salvage, or a permanent remedy. Record that interval and its actual conditions before the confrontation.
 
 #### Preparations
 
@@ -623,7 +626,7 @@ Start at six required. Each completed Preparation permanently reduces the requir
 
 | Cthulhu wins when | The party win when |
 | :----------------- | :------------------ |
-| The requirement reaches zero and R'lyeh stays intersected. Banishment then provides no relief, because nothing has to be called any more. | **Arrival is made permanently expensive.** Anchors destroyed or inverted, the geometry sealed, the stars altered, the city rotated out of conjunction. He is not defeated; he is made unreachable. |
+| The requirement reaches zero and R'lyeh stays intersected. Permanent intersection must be discharged or bound; resolve a banishment's committed reprieve without inventing an immediate replacement. | **Coastal exclusion OR source binding.** Discharge the intersection and permanently exclude every committed arrival site, or bind the submerged source so projection is impossible even with anchors intact. Each completed remedy is independently sufficient. |
 
 An immortal cannot be on a casualty list. The party's condition never contains the word "kill", and a table that has understood this stops trying to win the fight and starts trying to win the coastline.
 
@@ -651,35 +654,27 @@ Every manifestation must permanently alter at least one location even when banis
 
 **If the coast is closed early.** **Inheritance:** the party hold the anchors, the angle, and the calculations, which makes them the only people alive who know how to call him deliberately. Several powers would like that, and one of them is already writing to them.
 
-### 6B. Nyarlathotep: Orchestration
+#### Player Procedures and Independent Victories
 
-**World Process:** Masks posing as patrons, prophets, victims, and villains manipulate opposing factions into completing a design none of them understands.
+**Success A — Coastal exclusion:** complete permanent exclusion works at every committed arrival site and discharge the active intersection. **Success B — Source binding:** reach the submerged source and complete its binding through one declared conjunction interval, preventing projection through otherwise intact arrival sites. Neither requires the other. Both end this incursion; killing the manifestation alone does not.
 
-#### Path Progression
+The [player mechanics](09_outer_power_player_mechanics.md#6a-cthulhu--dream-contact-and-safe-recovery) define accepted benefits and prices, gear or relationship effects, monster objectives, evidence, and completion events. Apply these together with population generation; remedies are alternatives and earned early victory remains valid.
 
-1. **Contradictory Patrons:** Several apparently unrelated figures offer urgent missions, forbidden aid, and mutually exclusive explanations.
-2. **Manufactured Conflict:** Factions are steered into betrayals, wars, assassinations, and struggles over carefully selected sites.
-3. **Useful Victories:** The party defeats genuine threats, but each victory removes an obstacle or performs an action required by a hidden plan.
-4. **The Pattern of Masks:** Repeated symbols, mannerisms, rewards, and impossible knowledge reveal one intelligence behind many identities.
-5. **The Script Closes:** Remaining choices are arranged so that every predictable reaction completes the design.
-6. **The Final Performance:** Nyarlathotep attempts to make the party knowingly accept its assigned role, demonstrating that even resistance served the Crawling Chaos.
+### 6B. Nyarlathotep: Mandates and Divided Interests
 
-#### Persistent Footprint
+**World Process:** Fallible masks acquire real endorsements and exploit divided institutions to realise a local incarnation. They require specific authority and voluntary acceptance; player choices are not retroactively part of a predetermined script.
 
-Record known masks, manipulated factions, completed parts of the hidden design, false binaries presented to the party, and actions the plan still requires. Nyarlathotep advances when enemies destroy one another, when a mask gains trust, or when the party accepts the only choices it was shown.
+**Three acts:** useful commissions → trace active mandates → revoke the incarnation or bind the mask. Generate three indispensable mandates, issuers and revocation procedures, evidence trails, and a trapping condition. Actual signatures, witnessed statements, courier routes, and custody determine what authority exists.
 
-#### Recurring Adventures
+**Player decisions:** lend the party's name, narrow a request, verify a beneficiary, protect a witness, or pursue independent help. Renown matters only among communities that know the party and can grant the requested authority. Monsters abduct witnesses and intercept papers rather than omnisciently erasing evidence.
 
-- Work for a patron whose identity cannot be verified.
-- Discover why a defeated enemy needed to die at a particular place or time.
-- Prevent two enemies from fighting despite excellent reasons for hatred.
-- Compare apparently unrelated bargains and prophecies.
-- Capture a mask without assuming it is the true body.
-- Create an unpredicted option outside the offered choices.
+**Transformation:** revoke and sever the incarnation's mandates, or trap and banish its embodied mask during acceptance. Each is sufficient even if the other remains incomplete. Betrayed clients and legitimate offices persist after victory.
 
-#### Transformation
+#### Player Procedures and Independent Victories
 
-The party wins by exposing the common design, reconciling intended enemies, breaking the expected chain of reactions, and refusing or rewriting the part prepared for them. Physically defeating one mask is useful only if it also disrupts the orchestration.
+**Success A — Revoke the incarnation:** expose the common beneficiary to the actual issuers, revoke the three mandates, and complete a public severance at the site; its old endorsements can no longer sustain this incarnation. **Success B — Bind the mask:** use the discovered true designation and prepared vessel to trap and banish the local incarnation during its acceptance, even if the institutions still believe its public identities. Collecting the designation alone is insufficient.
+
+The [player mechanics](09_outer_power_player_mechanics.md#6b-nyarlathotep--endorsements-and-divided-interests) define accepted benefits and prices, gear or relationship effects, monster objectives, evidence, and completion events. Apply these together with population generation; remedies are alternatives and earned early victory remains valid.
 
 ### 6C. Shub-Niggurath: Proliferation
 
@@ -709,7 +704,7 @@ Track cult cells, nurseries, gates, connections between them, servant population
 
 #### Transformation
 
-The path ends by severing the network and destroying or closing its reproductive source. Killing large monsters without dismantling that system merely creates space for another brood.
+Win by severing forced propagation, or by replacing divine dependencies with a stable bounded ecology through a full birth/feeding cycle. Each is sufficient; neither requires killing transformed civilians. Stopping a raid saves its targets even when intact sources can replace the raiders.
 
 #### The Census
 
@@ -721,9 +716,9 @@ This path is not tracked as a threat. It is tracked as a population problem, on 
 | Bog nursery | 90 | 180 | −90 |
 | Elderwood grove | 210 | 210 | 0 |
 
-**Pressure is mouths minus capacity.** Everything the enemy does follows from that one figure.
+**Pressure is mouths minus capacity.** This constrains feeding and expansion; individual gifts, consent, and source operations have their own recorded conditions.
 
-- Each season, every brood adds mouths. A brood connected to another shares its capacity — which is the entire reason the network matters, and the reason an isolated brood is already dying.
+- Each season, every brood adds mouths. A brood connected to another shares its capacity — which makes connections useful. An isolated brood starves only if its own supply cannot meet consumption.
 - **A brood at positive Pressure must vent before the season turns.** It vents in one of three ways: it sends a war-band out, it opens a new nursery, or it starves. It does not choose the noble option. It chooses the cheapest.
 - **A destroyed war-band is a successful vent.** Write the relief in the Pressure column in the party's favour, because that is who provided it. Eighty mouths left the warren and did not come back, and the warren will be healthier next spring than it has been in years.
 
@@ -733,17 +728,23 @@ That last rule is the discovery at the heart of the path. Let the party win, be 
 
 | Move | Effect | Cost |
 | :--- | :----- | :--- |
-| Kill a war-band | Vents pressure. Nothing else. | The pay is good |
-| Burn a feeding ground | Capacity down, Pressure up — a raid follows immediately | You chose where and when it lands |
-| Sever a connection | The smaller brood loses shared capacity and starves on its own | Holding the cut through a season |
-| Find the fecundity source | Mouths stop accruing | It is deep, and it is not a goblin |
+| Defeat a war-band | Stops its raid; dead mouths reduce pressure | Actual battle risk; saved people and earned pay remain real |
+| Burn a feeding ground | Capacity falls; increased pressure can cause a feasible raid or starvation | Civilian loss and reduced food; enemy route choices remain its own |
+| Sever a connection | Each brood loses shared capacity; recalculate actual supply | Hold the cut and rescue dependants; starvation is not automatic |
+| Disable or regulate the fecundity source | Forced births stop when the operation succeeds | Reach it and execute severance or bounded regulation |
 | Open a direction | Pressure vents somewhere that is not you | Somebody else's valley |
 
-**The three seasons.** *I* — the party win every fight and the numbers rise anyway. *II* — they obtain the census, by captured tally-stick, cook-fire count, or a shaman who keeps the books, and their own victories appear in it as relief. *III* — they choose between starving a population, redirecting it onto a neighbour, and going down to whatever is making them.
+**The three seasons.** *I* — stop actual raids and discover useful gifts. *II* — obtain the census and choose how to provision or end dependencies. *III* — execute source severance or establish a bounded ecology. No victory requires starvation or redirecting violence onto a neighbour.
 
 **Reading.** "Three hundred and forty mouths at the Karst against two hundred and sixty of feed. You killed eighty of them in the spring. They will send a hundred and twenty this autumn, and it will not be because they hate you."
 
 **If ignored.** Pressure vents at whoever is nearest and softest, which is not the party. Broods connect, capacity pools, and the count compounds. Abandonment produces one continuous territory that farms the valley it took.
+
+#### Player Procedures and Independent Victories
+
+**Success A — Sever propagation:** disable the Mother Gate and every independent forced-propagation source so no compulsory expansion remains possible. **Success B — Bound the ecology:** replace each divine reproductive dependency with the demonstrated regulator, supply its bounded population, and complete one full birth/feeding cycle without tribute or compelled propagation. The sources can remain alive under B. Neither requires killing transformed civilians or curing every voluntary gift.
+
+The [player mechanics](09_outer_power_player_mechanics.md#6c-shub-niggurath--gifts-with-appetites) define accepted benefits and prices, gear or relationship effects, monster objectives, evidence, and completion events. Apply these together with population generation; remedies are alternatives and earned early victory remains valid.
 
 ### 6D. Hastur: Complicity and Desecration
 
@@ -755,7 +756,7 @@ That last rule is the discovery at the heart of the path. Let the party win, be 
 2. **Private Roles:** Participants adopt secret names and behaviours that grant inspiration, influence, or shared dreams.
 3. **Desecration:** Performances at significant sites replace local meanings with the logic of the Yellow Sign.
 4. **Public Participation:** Festivals, courts, salons, or political movements normalize the work and marginalize those who refuse it.
-5. **Loss of Self:** Participants cease behaving as people and begin fulfilling roles in an expanding performance.
+5. **Loss of Recognition:** Witnesses increasingly recognise accepted roles in place of personal identities. Players still choose their characters' actions; invoking a privilege carries its disclosed obligations.
 6. **Carcosa:** The city or region becomes the final stage, and its inhabitants complete the summoning simply by playing their parts.
 
 #### Persistent Footprint
@@ -773,7 +774,13 @@ Track corrupted works, their audiences, desecrated sites, people assigned roles,
 
 #### Transformation
 
-Victory requires breaking participation: restore identities, sanctify desecrated places, destroy or transform the work, deny it an audience, and prevent the world from completing the performance that makes Carcosa present.
+Win by enabling withdrawal and permanently dissolving one indispensable role, or by completing the counter-performance that restores all linked venues and cancels the work's claims. Either is sufficient; passive exposure, book destruction, or killing a replaceable performer is not.
+
+#### Player Procedures and Independent Victories
+
+**Success A — Dissolve the cast:** enable an indispensable participant to withdraw and complete that role's dissolution rite at its originating venue, so a replacement audition cannot restore it. **Success B — Counter-performance:** recover the original names and rite and complete a willing counter-performance that restores all linked venues and cancels the work's claims, even with its cast still assembled. Neither is merely burning a book or murdering a performer.
+
+The [player mechanics](09_outer_power_player_mechanics.md#6d-hastur--roles-recognition-and-audiences) define accepted benefits and prices, gear or relationship effects, monster objectives, evidence, and completion events. Apply these together with population generation; remedies are alternatives and earned early victory remains valid.
 
 ### 6E. Yog-Sothoth: Conjunction
 
@@ -803,59 +810,31 @@ Map every gate, key, destination, connection, activation condition, and known in
 
 #### Transformation
 
-The party must collapse, isolate, or rewrite the gate network. Defeating creatures emerging from it does not matter while the geometry continues making entry possible.
+Win by cutting, discharging, and permanently sealing an indispensable junction, or by redirecting the completed conjunction into verified uninhabited containment and closing its return. Defeating a creature protects its targets; the graph determines whether others can arrive.
 
-### 6F. Tsathoggua, the Sleeper: Hidden Accumulation
+#### Player Procedures and Independent Victories
 
-**World Process:** Cults and subterranean monsters abduct people, hoard resources, and remain dormant until they can act everywhere at once.
+**Success A — Cut and seal:** isolate an indispensable junction, safely discharge its stored power, and permanently seal its circuit function. **Success B — Complete into containment:** key the verified uninhabited destination, redirect the required edges, complete the conjunction there, and close the return connection. B can succeed with all original junctions intact. Both leave unrelated routes available according to the resulting graph.
 
-#### Path Progression
+The [player mechanics](09_outer_power_player_mechanics.md#6e-yog-sothoth--the-map-as-equipment) define accepted benefits and prices, gear or relationship effects, monster objectives, evidence, and completion events. Apply these together with population generation; remedies are alternatives and earned early victory remains valid.
 
-1. **Disappearances:** Travellers, livestock, supplies, and specialist workers vanish without visible occupation of the surface.
-2. **Underground Caches:** Captives, food, relics, and sleeping monsters accumulate in concealed caverns.
-3. **Apparent Quiet:** Enemy activity declines because the faction is storing power rather than spending it.
-4. **Prepared Emergence:** Tunnels, hidden entrances, bribed servants, and marked targets allow simultaneous attacks.
-5. **The Sudden Turn:** Dormant units awaken and seize supposedly safe or unguarded locations in one overwhelming action.
-6. **The Fed Sleeper:** Captured territory and victims sustain a permanent subterranean dominion.
+### 6F. Tsathoggua, the Sleeper: Rest and Preserved Strength
 
-#### Persistent Footprint
+**World Process:** Tribute agreements and real subterranean stores support a coordinated emergence. The enemy conserves resources and prepares interruptions; offers of convenient rest draw people into specific obligations.
 
-Track disappearances, suspected caches, stored forces, tunnel routes, marked targets, and awakening conditions. Lack of visible enemy action should increase uncertainty, not automatically advance a clock.
+**Three acts:** investigate absences and offers → discover reserves and establish independent shelter → exhaust emergence infrastructure or sever tribute. Generate actual caches, inhabitants, supplies, tunnels, target strongpoints, and three sustaining agreements. No sealed multiplier converts missing people into arbitrary strength.
 
-#### Recurring Adventures
+**The Absence Ledger** begins with missing names, cargo, dates, and last known locations. Discoveries add actual cache contents, tribute terms, and prepared responses. Investigation earns ordinary rewards and reduces uncertainty; neither compulsory silence nor an automatic warning schedule overrides real events.
 
-- Follow a pattern of missing people underground.
-- Raid a cache before its inhabitants awaken.
-- Rescue captives needed for a future operation.
-- Force a sleeping force to emerge early and unprepared.
-- Collapse or redirect a tunnel aimed at a sanctuary.
-- Enter the deepest chamber before Tsathoggua's accumulated tribute is consumed.
+**Player decisions:** accept a priced hospice, borrow a servant, press on, or provision independent shelter. Rest advances actual time. A wizard-servant's prepared interruption is finite, discoverable, and expended when baited; the party does not face unlimited reactive actions.
 
-#### Transformation
+**Transformation:** remove the assets and conduits necessary for the committed occupation, or free pledged servants and sever all sustaining tribute agreements. Each is sufficient. Enemy victory requires taking and supplying actual strongpoints, not simply revealing a surprise army. Rescued people, stores, and independent shelters remain after an early success.
 
-The party wins by finding and exhausting the hidden reserves before the synchronized emergence. Surface victories after the sudden turn are far more costly because the stored strength has already been converted into territorial control.
+#### Player Procedures and Independent Victories
 
-#### The Absence Ledger
+**Success A — Exhaust the emergence:** destroy or recover the indispensable stored assets and collapse the dedicated conduits, leaving no legal operation capable of supplying the committed occupation. **Success B — End the claim:** release the pledged servants, cancel all three sustaining tribute agreements, and complete the severance rite, expelling the incursion even with physical caches intact. The agreements cannot be renewed by simply appointing another collector after severance.
 
-The party has no automatic enemy tracker, strength estimate, or map of the deep. Its initial record is only a list of what is gone. Hidden world state still fixes the caches, reserves, routes, and emergence conditions before they matter; discoveries can add actual facts to party knowledge. See the [population procedure](08_adventure_path_population.md#6f-tsathoggua-the-price-of-investigating-quiet).
-
-| Missing | Where last seen | When | Still being looked for? |
-| :------ | :-------------- | :--- | :---------------------- |
-| Hesk, drover, and eleven head | North Pass, above the toll | Late summer | No |
-| The Sunken Karst survey party (4) | Karst mouth | Autumn | Two weeks, then abandoned |
-| Salt, forty barrels, and the carter | Delta road | Midwinter | Never reported |
-
-**Set the multiplier at the start and never look at it.** Before the first session, roll or agree a number between three and eight, write it on a slip, and seal it. That is how many times larger the truth is than the ledger. Nobody at the table checks it until the emergence. This is the only path in the collection where the players are meant to be structurally under-informed, and the sealed slip is what stops the table from unconsciously calibrating.
-
-**Nothing else happens.** Do not offer omens. Do not escalate. Do not let a neglected season produce a warning. A quiet year should be genuinely, unhelpfully quiet, and the ledger should grow by two lines and no drama. The path's entire tension is that the correct response to nothing happening is an expensive, unpopular, unrewarded expedition underground, and every argument at the table will be about whether it is worth it.
-
-**What the ledger will not tell you.** Whether the missing are alive. Whether the disappearances are one operation or four. How much is stored. Where. When. The party buy each of those answers with an expedition, and each answer is a fact about the past, never a forecast.
-
-**The turn.** When the emergence comes it takes several places in one night, at a strength the sealed slip determines. There is no warning, because there was never going to be one. The two things that change it: captives recovered (they are the stores), and forced early wakings (a brood roused out of season fights at the party's chosen hour, above ground, instead of at its own).
-
-**Reading.** "Twenty-two lines on the ledger. Three were this month. Nobody is looking for any of them, and Oakhaven has stopped putting up notices."
-
-**If ignored.** Nothing. For years. Then everything, in one night, wherever the party keep their things. The compensation is real and should be offered plainly: a frontier with no visible threat is a frontier where land is cheap, and the party who bought it were not wrong on the evidence available.
+The [player mechanics](09_outer_power_player_mechanics.md#6f-tsathoggua--rest-deferred-prices-and-preserved-strength) define accepted benefits and prices, gear or relationship effects, monster objectives, evidence, and completion events. Apply these together with population generation; remedies are alternatives and earned early victory remains valid.
 
 ### 6G. Ithaqua, the Windwalker: Banked Winter
 
@@ -885,7 +864,7 @@ Track glacial anchors, isolated settlements, remaining thaw routes, stored Cold 
 
 #### Transformation
 
-The party must destroy the structures that bank and transmit the cold, not simply endure successive winters. The final offensive is weaker or stronger according to how much reserve the enemy accumulated during the campaign.
+Win by permanently ending anchor transmission, or by draining the entire reserve into a prepared sink and severing replenishment during its exposed interval. Either is sufficient. A discharge without severance only buys respite. The actual stored reserve determines offensive strength.
 
 #### The Almanac
 
@@ -897,9 +876,9 @@ Keep this path as a calendar. The antagonist is not the tracker; the year is.
 | **Second** | 6 | Inner ring; one outer-ring objective, one way | anchors × 2 |
 | **Third** | 3 | The inner ring only, unless a route is held open through the winter | anchors × 3 |
 
-**The thaw is the whole game.** Outside it, distant objectives are not merely dangerous — they are unreachable, and expeditions attempted in the cold cost double and may not return at all. The party's real resource is weeks, and the campaign is an annual planning argument: Spire Peak is four weeks away and there are five weeks of thaw, so going there means going nowhere else and coming back with no margin.
+**The thaw is the affordable season.** Outside it, distant objectives require explicit exceptional access: cold protection, a known route or guide, maintained shelters, and twice the normal food/fuel provision. Meeting those conditions makes the expedition possible, not safe. Round-trip weeks and hauling limits remain the planning problem; preparation can buy a winter opportunity.
 
-**During hibernation nothing can be attacked.** The anchors are buried, the forces are bedded, and the reserve grows on a schedule the party can compute exactly. This is deliberate: two-thirds of each year is spent knowing precisely what is being accumulated against you and being unable to touch it. Use that time for the settlement-scale play — provisioning, evacuation routes, who eats.
+**Hibernation preserves strength, not invulnerability.** Buried anchors and bedded forces remain reachable through their committed winter approaches when the party meets the access requirements. Otherwise use settlement work, refuge construction, provisioning, and discharge lures. Successful winter operations change actual assets and future reserve growth.
 
 **The offensive spends the reserve, all of it, whether or not it spends it well.** That is the lever. A storm provoked out of season is a storm not available in spring, and a party who can bait a discharge into an empty valley have won something arithmetic and permanent.
 
@@ -908,6 +887,12 @@ Keep this path as a calendar. The antagonist is not the tracker; the year is.
 **Reading.** "Six weeks of thaw this year, and it was nine last year. Two anchors down. Spire Peak is four weeks out and you have not provisioned the Delta."
 
 **If ignored.** The reserve grows on schedule and the arithmetic is public — the party can calculate exactly how much worse they made the coming winter by spending the thaw elsewhere. Then, eventually, the thaw does not arrive at all, and the calendar stops being a planning tool and becomes a record of a year that did not happen.
+
+#### Player Procedures and Independent Victories
+
+**Success A — End transmission:** destroy all functioning banking/transmission anchors and sever their connection so the system cannot suppress the returning thaw. **Success B — Drain and sever:** lure the whole reserve into the prepared sink and permanently sever the replenishment source during its declared exposed interval. B may leave the anchors intact but inert. Neither simple endurance nor a discharge without permanent severance wins.
+
+The [player mechanics](09_outer_power_player_mechanics.md#6g-ithaqua--warmth-hauling-and-exceptional-access) define accepted benefits and prices, gear or relationship effects, monster objectives, evidence, and completion events. Apply these together with population generation; remedies are alternatives and earned early victory remains valid.
 
 ### 6H. The Tcho-Tcho Compact: Distributed Control
 
@@ -920,7 +905,7 @@ Treat the Compact as a political and religious affiliation, not as a people who 
 1. **Mutual Aid:** Small cells provide services neglected by existing authorities.
 2. **Protected Enclaves:** Members control local streets, villages, markets, or roads and defend one another from outsiders.
 3. **Parallel Institutions:** Compact courts, traders, shrines, and militias replace public institutions that have lost trust.
-4. **Distributed Authority:** Ritual knowledge and leadership are deliberately spread so that no captured leader can compromise the whole movement.
+4. **Distributed Authority:** Chapters share expertise, but named priests hold specific collection rights; capturing or persuading one changes that chapter's rights without automatically ending every chapter.
 5. **Regional Control:** Interconnected cells dominate movement, resources, and political decisions across broad territory.
 6. **Cult Polity:** The Compact becomes the functioning state and openly pays the supernatural price of its prosperity.
 
@@ -939,7 +924,13 @@ Track local cells, services each provides, popular support, controlled infrastru
 
 #### Transformation
 
-The path ends when communities no longer need the Compact, its cells lose the ability to coordinate, and its patron can no longer collect the promised price. Killing a leader or one monstrous ally cannot defeat a structure designed to survive decapitation.
+Win by establishing independent provision and terminating collection rights, or by securing collective chapter defection and severance while retaining mundane services and expertise. Each is independently sufficient. A priest's death grants succession only under its committed martyrdom procedure; neither route requires killing the patron.
+
+#### Player Procedures and Independent Victories
+
+**Success A — Independent provision:** replace all five services with operational independent providers, survive the next scheduled collection without losing essential care, and execute the contract's termination procedure so collective tribute is unenforceable. **Success B — Collective defection:** obtain all chapters' valid withdrawal, transfer necessary tools and mundane expertise to their communities, and perform the shared severance rite. B keeps the former chapter providers rather than requiring competing institutions; patron-only benefits have known substitutes before withdrawal. Killing the patron's local avatar is not required by either route.
+
+The [player mechanics](09_outer_power_player_mechanics.md#6h-tcho-tcho-compact--the-material-ability-to-refuse) define accepted benefits and prices, gear or relationship effects, monster objectives, evidence, and completion events. Apply these together with population generation; remedies are alternatives and earned early victory remains valid.
 
 ### 6I. Azathoth: Resonant Awakening
 
@@ -969,9 +960,15 @@ Track resonators, harmonics they produce, regions of failed physics, components 
 
 #### Transformation
 
-There is no final fight with Azathoth. The party must destroy or retune the resonators, reconstruct the cosmic lullaby, alter the astronomical alignment, or move the world beyond the reach of the completed resonance.
+There is no final fight with Azathoth. Win by disconnecting and safely discharging the collectors, or by sustaining a completed counter-pattern through the conjunction to establish permanent separation. Either is sufficient. Useful devices as well as specified spell effects can feed capture; grounding and ordinary magic outside boundaries remain valid.
 
 ---
+
+#### Player Procedures and Independent Victories
+
+**Success A — Disconnect and discharge:** isolate every collector from the invocation network and safely discharge its stored harmonics, leaving the local invocation circuit inoperable. **Success B — Restore separation:** complete the counter-pattern and sustain it throughout the committed conjunction, permanently excluding this resonance from the region even with collectors intact. Neither requires defeating Azathoth in combat. The finale can be a repair/defence operation under changing physical conditions.
+
+The [player mechanics](09_outer_power_player_mechanics.md#6i-azathoth--useful-power-and-its-external-cost) define accepted benefits and prices, gear or relationship effects, monster objectives, evidence, and completion events. Apply these together with population generation; remedies are alternatives and earned early victory remains valid.
 
 ## 7. Angels: Escalating Judgment
 
@@ -1297,6 +1294,24 @@ The party's intended victory is **slaying the creature with an effective finishi
 The catastrophe prevails when its actual rampage destroys or captures the committed regional objectives and the surviving communities cannot sustain resistance. Waking merely makes that outcome possible. Movement, evacuation, and destruction occur at mapped places with real travel intervals. Early slaying leaves hoard claims, dangerous remains, surviving servants, and debts to those who supplied the expedition. Defeat leaves a ruined region and the possibility of another hunt. The Toll retains named settlements, crews, habitats, and evacuees lost during preparation or the rampage.
 
 The [full population procedure](08_adventure_path_population.md#12-slumbering-catastrophe-slay-it-before-the-rampage) specifies waking operations, dragon and tarrasque preparations, opening leads, encounter construction, and the resulting endings.
+
+---
+
+## 13. The Stolen Dawn: Sustained Catastrophe
+
+**World Process:** A sovereign repeatedly renews an already-established supernatural catastrophe. Survival preserves communities while the party discovers and executes one of several independently sufficient remedies.
+
+**Three acts:** town and nearby sites (levels 1–3), wilderness (4–7), underground (8–10). This uses exactly two Cursed Scroll profiles: the Isles of Andrik for both surface acts, then Morzomotha & Karst Deeps for the underground act. Separate town, wilderness, and deep territory instances do not imply three Cursed Scroll profiles. Surface geography and consequences remain continuous.
+
+**Antagonists:** the Pale Regent renews winter through a unique aurora roc; the Mourning Queen uses an irreplaceable horizon bell and star lens. Each has a different discoverable personal vulnerability and permanent means of disabling renewal.
+
+**Player success:** defeat the sovereign **OR** permanently disable its renewal dependency **OR** establish the buried Dawn Engine through a full commissioning night. Each alone ends winter. The engine route can succeed with the sovereign alive and its renewal equipment intact. A temporary missed casting only buys daylight until the next renewal.
+
+**Records and counterplay:** keep nightly renewal facts, settlement food/fuel and route access, and three solution records. Expeditions recover evidence, preserve provisions, obtain effective weapons, reach the renewal site, or restore underground machinery. Enemy operations require actual actors, resources, and travel. There is no seasonal Cold Reserve or generic Doom advancement.
+
+**Enemy success:** all authored surface communities are destroyed, abandoned, or bound into submission, no supplied independent refuge remains, renewal is still possible, and no player victory has occurred. Early victory preserves the returning dawn; the remaining geography supports reconstruction, salvage, and stewardship. The Toll retains losses under every ending.
+
+The [full path dossier](../adventure_paths/04_the_stolen_dawn.md) supplies three acts, two antagonist dossiers, independent evidence, concrete success predicates, site roles, and generation acceptance criteria. This is authored design, not runtime registration.
 
 ---
 

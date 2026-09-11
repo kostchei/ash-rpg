@@ -1,0 +1,149 @@
+import type { AshDatabase } from "../database.js";
+import {
+  type RewardSource,
+  type SitePlan,
+} from "../../shared/path-contracts.js";
+import type { DungeonGraphState, DungeonRoomNode } from "../../shared/types.js";
+import { type RandomSource, rollDie, systemRandom } from "../rules.js";
+import { roomFeature } from "../room-features.js";
+import { RewardService } from "../rewards/service.js";
+
+/**
+ * Materializes a SitePlan into a DungeonGraphState, ensuring all monster rooms
+ * register persistent encounter groups and roll their 50% carried treasure once.
+ */
+export function materializeSitePlan(
+  campaignId: number,
+  sitePlan: SitePlan,
+  graph: DungeonGraphState,
+  db: AshDatabase,
+  rng: RandomSource = systemRandom,
+): {
+  graph: DungeonGraphState;
+  rewardSources: RewardSource[];
+} {
+  const rewardService = new RewardService(db);
+  const createdRewardSources: RewardSource[] = [];
+
+  for (const room of graph.nodes) {
+    delete room.encounter;
+    delete room.trap;
+    delete room.treasure;
+    room.featureRoll = rollDie(10, rng);
+    room.feature = roomFeature(room.featureRoll);
+    room.title = room.id === graph.entryRoomId ? "Site entrance" : `Area ${room.id}`;
+    room.contents = {
+      empty: "No immediate encounter. Traces of this site's history are evident.",
+      trap: "An engineered danger protects this area. Investigate how it is triggered.",
+      minor_hazard: "A local obstacle threatens delay or limited resource loss.",
+      solo_monster: "A lone creature occupies this area.",
+      npc: "Someone is here with their own purpose.",
+      monster_mob: "A group of creatures occupies this area.",
+      major_hazard: "A serious environmental danger obstructs this area.",
+      treasure: "A cache is present. Investigate its protections before claiming it.",
+      boss_monster: "A powerful adversary occupies this area.",
+    }[room.feature];
+    room.interaction = "Describe your approach and record the outcome at the table.";
+
+    if (room.feature === "trap") {
+      room.trap = {
+        name: "Site Trap",
+        trigger: "Investigated trigger mechanism",
+        effect: "Exploration damage or entrapment",
+        dc: 12,
+        spotted: false,
+        disarmed: false,
+      };
+    }
+
+    if (["solo_monster", "monster_mob", "boss_monster"].includes(room.feature)) {
+      const isBoss = room.feature === "boss_monster";
+      const isMob = room.feature === "monster_mob";
+      const count = isMob ? rollDie(4, rng) + 1 : 1;
+      const monsterKey = isBoss ? "aboleth_servitor_marshal" : isMob ? "troglodyte" : "cave_crawler";
+      const monsterName = isBoss ? "Servitor Marshal" : isMob ? "Troglodytes" : "Cave Crawler";
+
+      const groupId = `grp_${campaignId}_${sitePlan.id}_rm${room.id}`;
+      const groupReg = rewardService.registerEncounterGroup(
+        campaignId,
+        {
+          id: groupId,
+          siteId: sitePlan.id,
+          roomId: room.id,
+          name: monsterName,
+          members: [{ key: monsterKey, name: monsterName, count, level: isBoss ? 4 : 2 }],
+          policyType: isBoss && sitePlan.bossHoard ? "boss_hoard" : "general_monster",
+        },
+        `seed_${groupId}`,
+      );
+
+      room.encounter = {
+        monsterKey,
+        name: monsterName,
+        count,
+        defeated: false,
+        encounterId: parseInt(groupId.replace(/\D/g, "").slice(0, 8) || "1", 10),
+      };
+
+      // If group presence roll succeeded, assign room treasure referencing the canonical source
+      if (groupReg.present && groupReg.sourceId) {
+        const src = db.getRewardSource(campaignId, groupReg.sourceId);
+        if (src) {
+          createdRewardSources.push(src);
+          room.treasure = {
+            coins: src.coins.gp + src.coins.sp / 10 + src.coins.cp / 100,
+            items: [...src.items],
+            claimed: false,
+          };
+        }
+      }
+    }
+
+    // Authored cache room
+    if (room.feature === "treasure" && !room.treasure) {
+      const existingCachesCount = createdRewardSources.filter((s) => s.sourceType === "authored_cache").length;
+      const authoredDef =
+        sitePlan.authoredCaches && sitePlan.authoredCaches.length > 0
+          ? sitePlan.authoredCaches[existingCachesCount % sitePlan.authoredCaches.length]
+          : null;
+      const quality = authoredDef?.quality ?? sitePlan.cacheQuality ?? "normal";
+      const xpVal = authoredDef?.xpValue ?? (quality === "legendary" ? 10 : quality === "fabulous" ? 3 : 1);
+      const cacheSourceId = `src_cache_${campaignId}_${sitePlan.id}_rm${room.id}`;
+      let src = db.getRewardSource(campaignId, cacheSourceId);
+      if (!src) {
+        src = {
+          id: cacheSourceId,
+          campaignId,
+          sourceType: "authored_cache",
+          sourceId: cacheSourceId,
+          quality,
+          xpValue: xpVal,
+          coins: authoredDef?.coins ?? { gp: quality === "legendary" ? 150 : quality === "fabulous" ? 50 : 25, sp: 10, cp: 0 },
+          items: authoredDef?.items ?? ["healing_salve"],
+          status: "unclaimed",
+          accessState: "unrevealed",
+          createdAt: new Date().toISOString(),
+        };
+        db.saveRewardSource(src);
+      }
+      createdRewardSources.push(src);
+      room.treasure = {
+        coins: src.coins.gp + src.coins.sp / 10 + src.coins.cp / 100,
+        items: [...src.items],
+        claimed: false,
+      };
+    }
+  }
+
+  // Place objective independently in a random room (not contingent on boss or treasure)
+  const targetRoomIndex = rollDie(graph.nodes.length, rng) - 1;
+  const objectiveRoom = graph.nodes[targetRoomIndex] ?? graph.nodes[0];
+  objectiveRoom.objective = {
+    title: sitePlan.objective.title,
+    deedId: sitePlan.objective.deedId,
+    completed: false,
+  };
+
+  db.saveDungeonGraph(campaignId, graph);
+  return { graph, rewardSources: createdRewardSources };
+}

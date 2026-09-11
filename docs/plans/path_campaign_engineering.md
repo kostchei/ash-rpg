@@ -2,6 +2,10 @@
 
 Status: implementation backlog, 2026-09-06. No runtime completion is claimed. Implements [XP mathematics, sites, and act zones](path_sites_xp_and_zones.md), including the owner's clarification that **general monsters have a 50% chance of real treasure per encounter group**. Level 9 at the final boss is acceptable; rewards through campaign success can bring characters to level 10. Each act has a different persistent zone, optionally randomly selected.
 
+Authoring update, 2026-09-07: [The Stolen Dawn](../adventure_paths/04_the_stolen_dawn.md) adds the Sustained Catastrophe engine. Its three acts are town/nearby, wilderness, and underground, using only two Cursed Scroll profiles (3 → 3 → 5); territory instance IDs are not source-profile IDs. Future implementation must preserve a continuous surface region across the first two acts. All paths now require at least two independently sufficient success conditions. Audit existing adapters; do not claim compliance from alternative preparations for one mandatory ending. The new dossier is not yet runtime eligible.
+
+The approved [outer-power player mechanics](../oracles/09_outer_power_player_mechanics.md) now define the authored procedures for all nine 6A–6I engines: character benefits and prices, expedition resources, social authority, monster objectives, and two independent remedies each. Implement those distinct records in future adapters. Nyarlathotep no longer uses a predetermined script; Tsathoggua has actual discoverable reserves and finite responses rather than a sealed multiplier; Ithaqua allows prepared winter expeditions; Azathoth captures defined device emissions as well as spell effects. Paper procedures are complete design inputs, not runtime support or playtest certification.
+
 ## 1. Required behavior and design decisions
 
 - One general monster encounter group makes one 50% treasure-presence roll, independent of creature count, species count, deaths, combat rounds, or players. Apply this to ordinary site inhabitants as well as wandering groups. This broader scope is an ASH requirement; the cited Shadowdark guidance specifically identifies wandering monsters.

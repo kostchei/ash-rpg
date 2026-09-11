@@ -1,5 +1,8 @@
 /** Actions migrated to transactional receipts. Keep client and server in sync. */
 export const RECEIPTED_ACTIONS = new Set([
+  "path_encounters:start",
+  "path_encounters:arrive",
+  "path_encounters:interact",
   "travel:move",
   "dungeon:claim_treasure",
   "dungeon:record_outcome",

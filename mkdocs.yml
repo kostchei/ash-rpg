@@ -75,6 +75,7 @@ markdown_extensions:
 nav:
   - "Home": index.md
   - "Table Companion": table_companion.md
+  - "Minimal Table Companion Specification": plans/minimal_table_companion_specification.md
   - "Campaign Requirements & Plan": plans/table_assistant_campaign_requirements.md
   - "Path Sites, XP & Act Zones": plans/path_sites_xp_and_zones.md
   - "Path Campaign Engineering": plans/path_campaign_engineering.md

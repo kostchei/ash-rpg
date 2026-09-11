@@ -13,6 +13,7 @@ import { generateProceduralRegion, type GeneratedRegionWorld } from "./generator
 import { CUSTOM_MONSTER_TEMPLATES, resolveMonsterEntry } from "../shared/monster-aliases.js";
 import { abilityModifier, calculateDerivedAc, calculateGearSlots } from "./rules.js";
 import type {
+  ActZoneAssignment,
   ActivitySession,
   AdventurePathRecord,
   CampaignPhase,
@@ -27,21 +28,26 @@ import type {
   DungeonRoom,
   DungeonRoomNode,
   Encounter,
+  EncounterGroup,
   EncounterMonster,
   ExpeditionObjective,
   InventoryItem,
+  OutcomeResolution,
   PublicAdventurePathSummary,
   PublicConnectionSummary,
   PublicHex,
   PublicSiteSummary,
   RegionGenerationConfig,
   RewardRecord,
+  RewardSource,
   Role,
   RollRecord,
   TablePlayerSummary,
   TavernEstablishment,
   TavernLead,
+  TreasureRollRecord,
   WikiNote,
+  XpAwardRecipient,
   ZoneManifest,
   ZoneSummary,
 } from "../shared/types.js";
@@ -378,8 +384,112 @@ export class AshDatabase {
         claimed INTEGER NOT NULL DEFAULT 0,
         allocations_json TEXT NOT NULL DEFAULT '{}'
       );
+
+      CREATE TABLE IF NOT EXISTS campaign_acts (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        campaign_id INTEGER NOT NULL REFERENCES campaigns(id) ON DELETE CASCADE,
+        act_number INTEGER NOT NULL,
+        zone_id TEXT NOT NULL,
+        name TEXT NOT NULL DEFAULT '',
+        level_min INTEGER NOT NULL DEFAULT 1,
+        level_max INTEGER NOT NULL DEFAULT 3,
+        description TEXT NOT NULL DEFAULT '',
+        status TEXT NOT NULL DEFAULT 'active',
+        prerequisites_json TEXT,
+        transition_route_json TEXT,
+        content_version TEXT NOT NULL DEFAULT 'v1',
+        created_at TEXT NOT NULL,
+        UNIQUE(campaign_id, act_number),
+        UNIQUE(campaign_id, zone_id)
+      );
+
+      CREATE TABLE IF NOT EXISTS encounter_groups (
+        id TEXT PRIMARY KEY,
+        campaign_id INTEGER NOT NULL REFERENCES campaigns(id) ON DELETE CASCADE,
+        site_id TEXT,
+        room_id INTEGER,
+        name TEXT NOT NULL,
+        member_count INTEGER NOT NULL DEFAULT 1,
+        members_json TEXT NOT NULL DEFAULT '[]',
+        policy_type TEXT NOT NULL DEFAULT 'general_monster',
+        guarding_source_id TEXT,
+        status TEXT NOT NULL DEFAULT 'active',
+        created_at TEXT NOT NULL
+      );
+
+      CREATE TABLE IF NOT EXISTS treasure_rolls (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        campaign_id INTEGER NOT NULL REFERENCES campaigns(id) ON DELETE CASCADE,
+        group_id TEXT NOT NULL,
+        policy_slot TEXT NOT NULL DEFAULT 'carried_treasure',
+        policy_version TEXT NOT NULL DEFAULT 'v1',
+        seed TEXT NOT NULL,
+        roll INTEGER NOT NULL,
+        present INTEGER NOT NULL,
+        source_id TEXT,
+        table_basis TEXT NOT NULL,
+        quality TEXT NOT NULL DEFAULT 'poor',
+        coins_json TEXT NOT NULL DEFAULT '{"cp":0,"sp":0,"gp":0}',
+        items_json TEXT NOT NULL DEFAULT '[]',
+        created_at TEXT NOT NULL,
+        UNIQUE(campaign_id, group_id, policy_slot)
+      );
+
+      CREATE TABLE IF NOT EXISTS reward_sources (
+        id TEXT PRIMARY KEY,
+        campaign_id INTEGER NOT NULL REFERENCES campaigns(id) ON DELETE CASCADE,
+        source_type TEXT NOT NULL,
+        source_id TEXT NOT NULL,
+        quality TEXT NOT NULL DEFAULT 'normal',
+        xp_value INTEGER NOT NULL DEFAULT 0,
+        coins_json TEXT NOT NULL DEFAULT '{"cp":0,"sp":0,"gp":0}',
+        items_json TEXT NOT NULL DEFAULT '[]',
+        status TEXT NOT NULL DEFAULT 'unclaimed',
+        access_state TEXT NOT NULL DEFAULT 'unrevealed',
+        exclusion_group TEXT,
+        group_id TEXT,
+        created_at TEXT NOT NULL
+      );
+
+      CREATE TABLE IF NOT EXISTS xp_award_recipients (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        campaign_id INTEGER NOT NULL REFERENCES campaigns(id) ON DELETE CASCADE,
+        source_id TEXT NOT NULL,
+        character_id INTEGER NOT NULL REFERENCES characters(id) ON DELETE CASCADE,
+        award_sequence INTEGER NOT NULL,
+        amount INTEGER NOT NULL,
+        level_before INTEGER NOT NULL,
+        xp_before INTEGER NOT NULL,
+        level_after INTEGER NOT NULL,
+        xp_after INTEGER NOT NULL,
+        reset_loss INTEGER NOT NULL DEFAULT 0,
+        status TEXT NOT NULL DEFAULT 'applied',
+        created_at TEXT NOT NULL,
+        UNIQUE(campaign_id, source_id, character_id)
+      );
+
+      CREATE TABLE IF NOT EXISTS path_outcomes (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        campaign_id INTEGER NOT NULL REFERENCES campaigns(id) ON DELETE CASCADE,
+        deed_id TEXT NOT NULL,
+        outcome_type TEXT NOT NULL,
+        approach TEXT NOT NULL,
+        notes TEXT,
+        story_xp_awarded INTEGER NOT NULL DEFAULT 0,
+        created_at TEXT NOT NULL,
+        UNIQUE(campaign_id, deed_id)
+      );
+
+      CREATE INDEX IF NOT EXISTS idx_treasure_rolls_group ON treasure_rolls(campaign_id, group_id);
+      CREATE INDEX IF NOT EXISTS idx_encounter_groups_site ON encounter_groups(campaign_id, site_id);
+      CREATE INDEX IF NOT EXISTS idx_reward_sources_campaign ON reward_sources(campaign_id);
+      CREATE INDEX IF NOT EXISTS idx_campaign_acts_campaign ON campaign_acts(campaign_id);
     `);
 
+    const graphCols = this.db.pragma("table_info(dungeon_graphs)") as Array<{ name: string }>;
+    if (!graphCols.some(c => c.name === "site_structure_json")) {
+      this.db.exec("ALTER TABLE dungeon_graphs ADD COLUMN site_structure_json TEXT");
+    }
     const roomCols = this.db.pragma("table_info(dungeon_rooms)") as Array<{ name: string }>;
     if (!roomCols.some((c) => c.name === "site_id")) {
       this.db.exec("ALTER TABLE dungeon_rooms ADD COLUMN site_id TEXT");
@@ -1409,21 +1519,23 @@ export class AshDatabase {
       edges: JSON.parse(String(row.edges_json)),
       explorationTurns: Number(row.exploration_turns),
       lightTurnsRemaining: Number(row.light_turns_remaining),
+      siteStructure: row.site_structure_json ? JSON.parse(String(row.site_structure_json)) : undefined,
     };
   }
 
   saveDungeonGraph(campaignId: number, graph: DungeonGraphState): void {
     this.db
       .prepare(
-        `INSERT INTO dungeon_graphs (site_id, campaign_id, current_room_id, entry_room_id, nodes_json, edges_json, exploration_turns, light_turns_remaining)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        `INSERT INTO dungeon_graphs (site_id, campaign_id, current_room_id, entry_room_id, nodes_json, edges_json, exploration_turns, light_turns_remaining, site_structure_json)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
          ON CONFLICT(site_id) DO UPDATE SET
            current_room_id = excluded.current_room_id,
            entry_room_id = excluded.entry_room_id,
            nodes_json = excluded.nodes_json,
            edges_json = excluded.edges_json,
            exploration_turns = excluded.exploration_turns,
-           light_turns_remaining = excluded.light_turns_remaining`,
+           light_turns_remaining = excluded.light_turns_remaining,
+           site_structure_json = excluded.site_structure_json`,
       )
       .run(
         graph.siteId,
@@ -1434,6 +1546,7 @@ export class AshDatabase {
         JSON.stringify(graph.edges),
         graph.explorationTurns,
         graph.lightTurnsRemaining,
+        graph.siteStructure ? JSON.stringify(graph.siteStructure) : null,
       );
   }
 
@@ -1569,6 +1682,268 @@ export class AshDatabase {
     } catch {
       return false;
     }
+  }
+
+  // --- Encounter Groups & Treasure Rolls ---
+  saveEncounterGroup(group: EncounterGroup): void {
+    this.db
+      .prepare(
+        `INSERT INTO encounter_groups (id, campaign_id, site_id, room_id, name, member_count, members_json, policy_type, guarding_source_id, status, created_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+         ON CONFLICT(id) DO UPDATE SET
+           name = excluded.name,
+           member_count = excluded.member_count,
+           members_json = excluded.members_json,
+           status = excluded.status`,
+      )
+      .run(
+        group.id,
+        group.campaignId,
+        group.siteId ?? null,
+        group.roomId ?? null,
+        group.name,
+        group.memberCount,
+        JSON.stringify(group.members),
+        group.policyType,
+        group.guardingSourceId ?? null,
+        group.status,
+        now(),
+      );
+  }
+
+  getEncounterGroup(campaignId: number, groupId: string): EncounterGroup | null {
+    const row = this.db
+      .prepare("SELECT * FROM encounter_groups WHERE campaign_id = ? AND id = ?")
+      .get(campaignId, groupId) as Row | undefined;
+    if (!row) return null;
+    return {
+      id: String(row.id),
+      campaignId: Number(row.campaign_id),
+      siteId: row.site_id ? String(row.site_id) : null,
+      roomId: row.room_id !== null ? Number(row.room_id) : null,
+      name: String(row.name),
+      memberCount: Number(row.member_count),
+      members: JSON.parse(String(row.members_json)),
+      policyType: String(row.policy_type) as any,
+      guardingSourceId: row.guarding_source_id ? String(row.guarding_source_id) : null,
+      status: String(row.status) as any,
+    };
+  }
+
+  saveTreasureRoll(roll: TreasureRollRecord): void {
+    this.db
+      .prepare(
+        `INSERT INTO treasure_rolls (campaign_id, group_id, policy_slot, policy_version, seed, roll, present, source_id, table_basis, quality, coins_json, items_json, created_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+         ON CONFLICT(campaign_id, group_id, policy_slot) DO NOTHING`,
+      )
+      .run(
+        roll.campaignId,
+        roll.groupId,
+        roll.policySlot,
+        roll.policyVersion,
+        roll.seed,
+        roll.roll,
+        roll.present ? 1 : 0,
+        roll.sourceId,
+        roll.tableBasis,
+        roll.quality,
+        JSON.stringify(roll.coins),
+        JSON.stringify(roll.items),
+        roll.createdAt || now(),
+      );
+  }
+
+  getTreasureRoll(campaignId: number, groupId: string, policySlot: string = "carried_treasure"): TreasureRollRecord | null {
+    const row = this.db
+      .prepare("SELECT * FROM treasure_rolls WHERE campaign_id = ? AND group_id = ? AND policy_slot = ?")
+      .get(campaignId, groupId, policySlot) as Row | undefined;
+    if (!row) return null;
+    return {
+      id: Number(row.id),
+      campaignId: Number(row.campaign_id),
+      groupId: String(row.group_id),
+      policySlot: String(row.policy_slot),
+      policyVersion: String(row.policy_version),
+      seed: String(row.seed),
+      roll: Number(row.roll),
+      present: Boolean(row.present),
+      sourceId: row.source_id ? String(row.source_id) : null,
+      tableBasis: String(row.table_basis),
+      quality: String(row.quality) as any,
+      coins: JSON.parse(String(row.coins_json)),
+      items: JSON.parse(String(row.items_json)),
+      createdAt: String(row.created_at),
+    };
+  }
+
+  // --- Canonical Reward Sources ---
+  saveRewardSource(source: RewardSource): void {
+    this.db
+      .prepare(
+        `INSERT INTO reward_sources (id, campaign_id, source_type, source_id, quality, xp_value, coins_json, items_json, status, access_state, exclusion_group, group_id, created_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+         ON CONFLICT(id) DO UPDATE SET
+           status = excluded.status,
+           access_state = excluded.access_state,
+           coins_json = excluded.coins_json,
+           items_json = excluded.items_json`,
+      )
+      .run(
+        source.id,
+        source.campaignId,
+        source.sourceType,
+        source.sourceId,
+        source.quality,
+        source.xpValue,
+        JSON.stringify(source.coins),
+        JSON.stringify(source.items),
+        source.status,
+        source.accessState,
+        source.exclusionGroup ?? null,
+        source.groupId ?? null,
+        source.createdAt || now(),
+      );
+  }
+
+  getRewardSource(campaignId: number, sourceId: string): RewardSource | null {
+    const row = this.db
+      .prepare("SELECT * FROM reward_sources WHERE campaign_id = ? AND (id = ? OR source_id = ?)")
+      .get(campaignId, sourceId, sourceId) as Row | undefined;
+    if (!row) return null;
+    return {
+      id: String(row.id),
+      campaignId: Number(row.campaign_id),
+      sourceType: String(row.source_type) as any,
+      sourceId: String(row.source_id),
+      quality: String(row.quality) as any,
+      xpValue: Number(row.xp_value),
+      coins: JSON.parse(String(row.coins_json)),
+      items: JSON.parse(String(row.items_json)),
+      status: String(row.status) as any,
+      accessState: String(row.access_state) as any,
+      exclusionGroup: row.exclusion_group ? String(row.exclusion_group) : null,
+      groupId: row.group_id ? String(row.group_id) : null,
+      createdAt: String(row.created_at),
+    };
+  }
+
+  getRewardSources(campaignId: number): RewardSource[] {
+    const rows = this.db
+      .prepare("SELECT * FROM reward_sources WHERE campaign_id = ? ORDER BY rowid ASC")
+      .all(campaignId) as Row[];
+    return rows.map((row) => ({
+      id: String(row.id),
+      campaignId: Number(row.campaign_id),
+      sourceType: String(row.source_type) as any,
+      sourceId: String(row.source_id),
+      quality: String(row.quality) as any,
+      xpValue: Number(row.xp_value),
+      coins: JSON.parse(String(row.coins_json)),
+      items: JSON.parse(String(row.items_json)),
+      status: String(row.status) as any,
+      accessState: String(row.access_state) as any,
+      exclusionGroup: row.exclusion_group ? String(row.exclusion_group) : null,
+      groupId: row.group_id ? String(row.group_id) : null,
+      createdAt: String(row.created_at),
+    }));
+  }
+
+  // --- Campaign Acts ---
+  saveCampaignActs(campaignId: number, acts: ActZoneAssignment[]): void {
+    const insert = this.db.prepare(
+      `INSERT INTO campaign_acts (campaign_id, act_number, zone_id, name, level_min, level_max, description, transition_route_json, content_version, created_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'v1', ?)
+       ON CONFLICT(campaign_id, act_number) DO UPDATE SET
+         zone_id = excluded.zone_id,
+         name = excluded.name,
+         level_min = excluded.level_min,
+         level_max = excluded.level_max,
+         description = excluded.description,
+         transition_route_json = excluded.transition_route_json`,
+    );
+    this.db.transaction(() => {
+      for (const act of acts) {
+        insert.run(
+          campaignId,
+          act.act,
+          act.zoneId,
+          act.name,
+          act.levelRange[0],
+          act.levelRange[1],
+          act.description,
+          act.transitionRoute ? JSON.stringify(act.transitionRoute) : null,
+          now(),
+        );
+      }
+    })();
+  }
+
+  getCampaignActs(campaignId: number): ActZoneAssignment[] {
+    const rows = this.db
+      .prepare("SELECT * FROM campaign_acts WHERE campaign_id = ? ORDER BY act_number ASC")
+      .all(campaignId) as Row[];
+    return rows.map((r) => ({
+      act: Number(r.act_number) as 1 | 2 | 3,
+      zoneId: String(r.zone_id),
+      name: String(r.name),
+      levelRange: [Number(r.level_min), Number(r.level_max)] as [number, number],
+      description: String(r.description),
+      transitionRoute: r.transition_route_json ? JSON.parse(String(r.transition_route_json)) : undefined,
+    }));
+  }
+
+  // --- Path Outcomes ---
+  recordPathOutcome(campaignId: number, outcome: OutcomeResolution): boolean {
+    try {
+      this.db
+        .prepare(
+          `INSERT INTO path_outcomes (campaign_id, deed_id, outcome_type, approach, notes, story_xp_awarded, created_at)
+           VALUES (?, ?, ?, ?, ?, ?, ?)`,
+        )
+        .run(
+          campaignId,
+          outcome.deedId,
+          outcome.outcomeType,
+          outcome.approach,
+          outcome.notes ?? null,
+          outcome.storyXpAwarded,
+          now(),
+        );
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  isDeedResolved(campaignId: number, deedId: string): boolean {
+    const row = this.db
+      .prepare("SELECT 1 FROM path_outcomes WHERE campaign_id = ? AND deed_id = ?")
+      .get(campaignId, deedId);
+    return Boolean(row);
+  }
+
+  recordXpAwardRecipient(recipient: XpAwardRecipient): void {
+    this.db
+      .prepare(
+        `INSERT INTO xp_award_recipients (campaign_id, source_id, character_id, award_sequence, amount, level_before, xp_before, level_after, xp_after, reset_loss, status, created_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+         ON CONFLICT(campaign_id, source_id, character_id) DO NOTHING`,
+      )
+      .run(
+        recipient.campaignId,
+        recipient.sourceId,
+        recipient.characterId,
+        recipient.awardSequence,
+        recipient.amount,
+        recipient.levelBefore,
+        recipient.xpBefore,
+        recipient.levelAfter,
+        recipient.xpAfter,
+        recipient.resetLoss,
+        recipient.status,
+        recipient.createdAt || now(),
+      );
   }
 
   revealHex(campaignId: number, id: string, revealState: string) {
@@ -2242,10 +2617,19 @@ export class AshDatabase {
     if (activeDungeon && role !== "host") {
       activeDungeon = {
         ...activeDungeon,
+        siteStructure: activeDungeon.siteStructure ? {
+          sections: activeDungeon.siteStructure.sections.filter(section =>
+            section.roomIds.some(id => activeDungeon!.nodes.some(n => n.id === id && n.explored))),
+        } : undefined,
         nodes: activeDungeon.nodes.map((node) => {
           if (node.explored || node.id === activeDungeon!.currentRoomId) {
             return {
               ...node,
+              objective: node.objective ? { ...node.objective, generated: node.objective.generated ? {
+                ...node.objective.generated,
+                clue: node.objective.completed ? node.objective.generated.clue : undefined,
+                nextAction: node.objective.completed ? node.objective.generated.nextAction : undefined,
+              } : undefined } : undefined,
               trap: node.trap?.spotted || node.trap?.disarmed ? node.trap : undefined,
             };
           }
@@ -2261,6 +2645,8 @@ export class AshDatabase {
           };
         }),
         edges: activeDungeon.edges.filter((edge) => {
+          if (edge.transition && !activeDungeon!.nodes.some(n =>
+            (n.id === edge.fromRoomId || n.id === edge.toRoomId) && n.explored)) return false;
           if (edge.doorType === "secret" && edge.state !== "open") {
             return false;
           }
@@ -2281,6 +2667,8 @@ export class AshDatabase {
         leads: tavernEstablishment.leads.map((lead) => ({
           ...lead,
           accuracy: "distorted",
+          destinationOutcome: undefined,
+          arrivalDiscovery: undefined,
         })),
       };
     }

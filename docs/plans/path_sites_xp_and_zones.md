@@ -83,6 +83,8 @@ Required invariant: act1.zoneId, act2.zoneId, and act3.zoneId are pairwise disti
 
 Acts have different primary zones; backtracking and cross-zone consequences remain legal. A domain-bound path uses three regions within the same enclosed domain, preserving its boundary loops. A regional catastrophe may have preparation and evidence zones before the final zone; do not relocate an already-established sleeper just to satisfy act geography. Secret path selection must also conceal future zone assignments and final destinations until discovered.
 
+**Cursed Scroll profiles are distinct from territory instances.** The Stolen Dawn explicitly uses only two Cursed Scroll zones across three acts: town and nearby territory → outer wilderness → underground, with profile assignment **Isles of Andrik → Isles of Andrik → Morzomotha & Karst Deeps** (Scrolls 3 → 3 → 5). Its two surface territories share one continuous region and persisted consequences. Do not require three different source profiles, rename a single territory to fake distinct geography, or regenerate the surface between acts.
+
 ## 5. How every path produces sites
 
 Build a shared generation pipeline driven by authored path adapters:
@@ -90,6 +92,10 @@ Build a shared generation pipeline driven by authored path adapters:
 **Path variant and state → three-zone assignment → act objectives and dependencies → situations and site roles → reward allocation → connected site layouts → inhabitants, clues, hazards, and loot → validation → saved campaign.**
 
 Each adapter must provide three act specifications, eligible environments, its own progress/neglect rules, named entities and resources, player and antagonist victory conditions, site templates, clue alternatives, outcome effects, transitions, and endings. Preserve each engine's distinct records; shared site generation must not replace these with a universal clock.
+
+Each path must provide at least two independently sufficient player success conditions with actual executable outcomes, not merely different preparations for one mandatory boss kill. Audit each normal branch for access, clues, rewards, and completion; test that either can win with the other false. Earned early victory must remain valid. Existing dossiers and adapters require an audit against this new authoring requirement.
+
+The nine outer-power paths use the [player mechanics companion](../oracles/09_outer_power_player_mechanics.md). Site generation must supply their actual choices and both remedies: dream wards/source binding, mandate revocation/mask binding, gift provision/bounded ecology, role dissolution/counter-performance, carried keys/containment, independent rest/tribute severance, winter access/discharge sinks, reliable services/chapter defection, and grounding/counter-pattern work. These are required playable opportunities, not decorative encounters or nine renamed corruption tracks.
 
 Site templates describe purpose and constraints before names and rooms: what the party can achieve, who benefits or resists, viable approaches, prerequisite facts, changes on resolution, and reward sources. Populate existing cave/ruin/tomb/overland families with compatible geomorphs. The objective is independently placed and never contingent on a random boss/treasure roll. Preserve the existing room-feature procedure around authored required contents and record authored overrides.
 
@@ -106,15 +112,15 @@ Each row requires all three acts, distinct zones, branch/reward validation, and 
 | Titans | Investigate prison disturbances | Contest restoration components and custodians | Assemble chosen resolution at final prison region |
 | Tharizdun | Prove a missing distinction | Recover anchors and repair methods | Restore critical distinctions or contain dissolution |
 | Bane | Investigate decrees and grain enforcement | Build lawful alternatives and secure providers | Contest authority and sustain the resulting settlement |
-| Cthulhu | Trace dreams and arrival anchors | Investigate preparations and exclusion methods | Close viable arrival routes; survive manifestation |
-| Nyarlathotep | Trace masks and authored reactions | Recover script evidence and dependencies | Break the script's conditions through chosen intervention |
-| Shub-Niggurath | Survey mouths and food supply | Isolate brood links and secure threatened land | Resolve surviving network and population pressure |
-| Hastur | Investigate recruitment and performances | Recover counter-evidence; reach voluntary audiences | Enable refusal and resolve the final performance |
-| Yog-Sothoth | Discover nodes and geometry | Reach and alter prerequisite junctions | Implement a valid network solution |
-| Tsathoggua | Investigate observable absences without forced revelation | Locate costly dependencies when evidence permits | Intervene in the revealed expenditure/absence process |
-| Ithaqua | Map refuges and seasonal access | Use thaw expeditions against stored power | Reach winter objectives through earned preparations |
-| Tcho-Tcho Compact | Audit essential services | Establish viable replacement providers | Secure a durable independent service network |
-| Azathoth | Link spell events to evidence | Locate fuel operations and nonmagical countermeasures | Interrupt the actual sustaining conditions |
+| Cthulhu | Trace dream contact; secure wards | Use reprieves; recover exclusion and binding methods | Close arrival routes or bind the submerged source |
+| Nyarlathotep | Verify offers, issuers, and masks | Trace mandates; protect witnesses; recover binding knowledge | Revoke authority or bind the local incarnation |
+| Shub-Niggurath | Discover useful gifts and their appetites | Provision or end dependence; trace reproduction | Sever forced propagation or establish bounded ecology |
+| Hastur | Discover roles and privileges | Restore recognition; trace venue and audience claims | Dissolve an indispensable role or complete counter-performance |
+| Yog-Sothoth | Prove thresholds and return conditions | Carry keys; reroute transport; verify containment | Cut and seal a junction or complete into containment |
+| Tsathoggua | Investigate absences and priced rest | Discover actual reserves; establish independent shelter | Exhaust emergence infrastructure or sever tribute |
+| Ithaqua | Provision shelters and first-season routes | Spend thaw time or prepare winter access | End transmission or drain reserve and sever replenishment |
+| Tcho-Tcho Compact | Audit services, priests, and collection rights | Deliver alternatives or prepare collective defection | Terminate collection through independent provision or chapter severance |
+| Azathoth | Correlate useful devices and spells with capture | Ground emissions; maintain essential utilities | Disconnect and discharge collectors or establish separation |
 | Angels | Establish victims, charges, and witnesses | Perform repairs and secure testimony | Present valid restitution or pursue authored alternatives |
 | Maruts | Identify the original violation | Obtain means and standing to correct it | Execute the correction under the warrant's conditions |
 | Witch King | Trace casualties and conversion sites | Protect people; disrupt conversion infrastructure | Break surviving invasion logistics and resolve the front |
@@ -122,8 +128,9 @@ Each row requires all three acts, distinct zones, branch/reward validation, and 
 | Eternal Cycle / Vanishing Middle | Resolve mortal quarrels; preserve an oath | Secure anchors, witnesses, and third-party reciprocity | Defend preparations and resolve the Weighing |
 | Githyanki / portal displacement | Secure reception and evidence | Build food capacity; investigate raids and portal control | Establish a materially sustainable settlement or ending |
 | Slumbering Catastrophe | Discover sleeper and previous hunt | Obtain/test weapons, crews, protection, and routes | Stage the killing expedition or intercept mapped rampage |
+| Sustained Catastrophe / Stolen Dawn | Preserve town supplies; prove renewal and alternative remedies | Reach caster or renewal dependency; secure descent | Restore Dawn Engine or obtain optional aid for another victory; preserve early success |
 
-Bind each row to its detailed [population procedure](../oracles/08_adventure_path_population.md) and dossier. Antagonist variants require their own dependencies and lawful outcomes; renaming an enemy does not complete an adapter. The three expanded path documents supply initial integration cases.
+Bind each row to its detailed [population procedure](../oracles/08_adventure_path_population.md) and dossier. Antagonist variants require their own dependencies and lawful outcomes; renaming an enemy does not complete an adapter. The expanded path documents and outer-power player mechanics supply integration cases.
 
 ## 6. Proposed persistent contracts
 

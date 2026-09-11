@@ -1,0 +1,1326 @@
+{
+  "version": 1,
+  "status": "authoring catalogue; not runtime integrated",
+  "paths": [
+    {
+      "pathId": "domains_of_dread",
+      "name": "Captive Domain / Domains of Dread",
+      "acts": {
+        "1": [
+          {
+            "id": "domains_of_dread_a1_1",
+            "template": "Test {boundary} using a recoverable marker"
+          },
+          {
+            "id": "domains_of_dread_a1_2",
+            "template": "Compare {witness}'s escape account with physical traces"
+          },
+          {
+            "id": "domains_of_dread_a1_3",
+            "template": "Recover the original terms of {local_custom}"
+          },
+          {
+            "id": "domains_of_dread_a1_4",
+            "template": "Protect {resident} while observing the ruler's exception"
+          }
+        ],
+        "2": [
+          {
+            "id": "domains_of_dread_a2_1",
+            "template": "Reproduce {exception} at a second location"
+          },
+          {
+            "id": "domains_of_dread_a2_2",
+            "template": "Recover the instrument that can release {bound_person}"
+          },
+          {
+            "id": "domains_of_dread_a2_3",
+            "template": "Obtain access to {sustaining_site} without invoking its taboo"
+          },
+          {
+            "id": "domains_of_dread_a2_4",
+            "template": "Reconcile conflicting accounts of {founding_pact}"
+          }
+        ],
+        "3": [
+          {
+            "id": "domains_of_dread_a3_1",
+            "template": "Establish the proven conditions for confronting {ruler}"
+          },
+          {
+            "id": "domains_of_dread_a3_2",
+            "template": "Release {bound_person} under the verified pact"
+          },
+          {
+            "id": "domains_of_dread_a3_3",
+            "template": "Sever {sustaining_bond} using its discovered countermeasure"
+          },
+          {
+            "id": "domains_of_dread_a3_4",
+            "template": "Keep {escape_route} open while residents depart"
+          }
+        ]
+      }
+    },
+    {
+      "pathId": "the_mind_below",
+      "name": "Aboleth Savant / The Mind Below",
+      "acts": {
+        "1": [
+          {
+            "id": "the_mind_below_a1_1",
+            "template": "Trace the destination of {missing_person}'s transport"
+          },
+          {
+            "id": "the_mind_below_a1_2",
+            "template": "Verify whether {returned_ally} retains an independently known memory"
+          },
+          {
+            "id": "the_mind_below_a1_3",
+            "template": "Recover the dispatch record from {transfer_site}"
+          },
+          {
+            "id": "the_mind_below_a1_4",
+            "template": "Identify the supplier of {sedative}"
+          }
+        ],
+        "2": [
+          {
+            "id": "the_mind_below_a2_1",
+            "template": "Free a source who knows {installation}'s function"
+          },
+          {
+            "id": "the_mind_below_a2_2",
+            "template": "Test {psychic_protection} without exposing the whole party"
+          },
+          {
+            "id": "the_mind_below_a2_3",
+            "template": "Acquire and test {aquatic_access} on a safe descent"
+          },
+          {
+            "id": "the_mind_below_a2_4",
+            "template": "Intercept the next transfer through {captive_route}"
+          }
+        ],
+        "3": [
+          {
+            "id": "the_mind_below_a3_1",
+            "template": "Disable {control_installation} while preserving its captives"
+          },
+          {
+            "id": "the_mind_below_a3_2",
+            "template": "Secure a protected approach to {savant}"
+          },
+          {
+            "id": "the_mind_below_a3_3",
+            "template": "Confront {savant} with verified protection and return access"
+          },
+          {
+            "id": "the_mind_below_a3_4",
+            "template": "Free the held minds and verify that {control_network} no longer functions"
+          }
+        ]
+      }
+    },
+    {
+      "pathId": "titans",
+      "name": "Titans",
+      "acts": {
+        "1": [
+          {
+            "id": "titans_a1_1",
+            "template": "Identify what damaged {prison_seal}"
+          },
+          {
+            "id": "titans_a1_2",
+            "template": "Recover {warden}'s record of an earlier release"
+          },
+          {
+            "id": "titans_a1_3",
+            "template": "Intercept a shipment intended for {release_deed}"
+          },
+          {
+            "id": "titans_a1_4",
+            "template": "Evacuate residents endangered by {first_tremor}"
+          }
+        ],
+        "2": [
+          {
+            "id": "titans_a2_1",
+            "template": "Restore {binding_component} before its ward fails"
+          },
+          {
+            "id": "titans_a2_2",
+            "template": "Recruit an independent keeper for {unwatched_prison}"
+          },
+          {
+            "id": "titans_a2_3",
+            "template": "Test whether {release_instrument} can be rendered inert"
+          },
+          {
+            "id": "titans_a2_4",
+            "template": "Secure transport between two threatened prisons"
+          }
+        ],
+        "3": [
+          {
+            "id": "titans_a3_1",
+            "template": "Complete the remaining conditions for {binding_remedy}"
+          },
+          {
+            "id": "titans_a3_2",
+            "template": "Interrupt the currently feasible release deed at {prison}"
+          },
+          {
+            "id": "titans_a3_3",
+            "template": "Prepare the verified site for {expulsion_remedy}"
+          },
+          {
+            "id": "titans_a3_4",
+            "template": "Protect the wardens through the final binding operation"
+          }
+        ]
+      }
+    },
+    {
+      "pathId": "tharizdun",
+      "name": "Tharizdun / Unmaking",
+      "acts": {
+        "1": [
+          {
+            "id": "tharizdun_a1_1",
+            "template": "Compare maps that disagree about {erased_place}"
+          },
+          {
+            "id": "tharizdun_a1_2",
+            "template": "Find an independent witness who remembers {lost_name}"
+          },
+          {
+            "id": "tharizdun_a1_3",
+            "template": "Recover a surviving example of {vanishing_distinction}"
+          },
+          {
+            "id": "tharizdun_a1_4",
+            "template": "Mark the observable extent of {unmaking_front}"
+          }
+        ],
+        "2": [
+          {
+            "id": "tharizdun_a2_1",
+            "template": "Restore {distinction} where its surviving reference still applies"
+          },
+          {
+            "id": "tharizdun_a2_2",
+            "template": "Protect a keeper of {bond_memory}"
+          },
+          {
+            "id": "tharizdun_a2_3",
+            "template": "Carry {reference_object} across a changed region"
+          },
+          {
+            "id": "tharizdun_a2_4",
+            "template": "Test the proposed boundary against a limited unmaking effect"
+          }
+        ],
+        "3": [
+          {
+            "id": "tharizdun_a3_1",
+            "template": "Re-establish the required {bonds} before their references vanish"
+          },
+          {
+            "id": "tharizdun_a3_2",
+            "template": "Complete a verified isolation boundary around {incursion}"
+          },
+          {
+            "id": "tharizdun_a3_3",
+            "template": "Rescue people trapped between incompatible versions of {place}"
+          },
+          {
+            "id": "tharizdun_a3_4",
+            "template": "Verify that the chosen repair persists through the next unmaking event"
+          }
+        ]
+      }
+    },
+    {
+      "pathId": "bane",
+      "name": "Bane / Dominion by Decree",
+      "acts": {
+        "1": [
+          {
+            "id": "bane_a1_1",
+            "template": "Authenticate the authority behind {seizure_writ}"
+          },
+          {
+            "id": "bane_a1_2",
+            "template": "Find a witness to the enforcement of {decree}"
+          },
+          {
+            "id": "bane_a1_3",
+            "template": "Recover the publicly promised limits of {office}"
+          },
+          {
+            "id": "bane_a1_4",
+            "template": "Keep {essential_service} available to the dispossessed"
+          }
+        ],
+        "2": [
+          {
+            "id": "bane_a2_1",
+            "template": "Obtain a valid challenge from {issuing_authority}"
+          },
+          {
+            "id": "bane_a2_2",
+            "template": "Protect witnesses until {hearing}"
+          },
+          {
+            "id": "bane_a2_3",
+            "template": "Break the monopoly on {enforcement_resource}"
+          },
+          {
+            "id": "bane_a2_4",
+            "template": "Establish a provider able to replace {occupied_institution}"
+          }
+        ],
+        "3": [
+          {
+            "id": "bane_a3_1",
+            "template": "Invalidate the authority enabling {dominion}"
+          },
+          {
+            "id": "bane_a3_2",
+            "template": "Disable the indispensable enforcement operation at {command_site}"
+          },
+          {
+            "id": "bane_a3_3",
+            "template": "Transfer {public_service} to a functioning accountable replacement"
+          },
+          {
+            "id": "bane_a3_4",
+            "template": "Verify that the terminated decree cannot be reissued through {successor_office}"
+          }
+        ]
+      }
+    },
+    {
+      "pathId": "cthulhu",
+      "name": "Cthulhu / Repeated Manifestation",
+      "acts": {
+        "1": [
+          {
+            "id": "cthulhu_a1_1",
+            "template": "Rescue {dreamers} before their next movement toward the water"
+          },
+          {
+            "id": "cthulhu_a1_2",
+            "template": "Compare dream locations with {tidal_survey}"
+          },
+          {
+            "id": "cthulhu_a1_3",
+            "template": "Identify which {arrival_marker} changes before a manifestation"
+          },
+          {
+            "id": "cthulhu_a1_4",
+            "template": "Recover the route chart from {stranded_vessel}"
+          }
+        ],
+        "2": [
+          {
+            "id": "cthulhu_a2_1",
+            "template": "Test a ward at {refuge}"
+          },
+          {
+            "id": "cthulhu_a2_2",
+            "template": "Map all members of {arrival_network}"
+          },
+          {
+            "id": "cthulhu_a2_3",
+            "template": "Recover and test equipment for {submerged_approach}"
+          },
+          {
+            "id": "cthulhu_a2_4",
+            "template": "Learn the binding cadence from {independent_archive}"
+          }
+        ],
+        "3": [
+          {
+            "id": "cthulhu_a3_1",
+            "template": "Invert the mapped arrival stones and discharge their intersection"
+          },
+          {
+            "id": "cthulhu_a3_2",
+            "template": "Maintain the verified cadence through {projection_interval}"
+          },
+          {
+            "id": "cthulhu_a3_3",
+            "template": "Hold {refuge_route} during the final manifestation"
+          },
+          {
+            "id": "cthulhu_a3_4",
+            "template": "Observe a full arrival interval to verify that {chosen_remedy} persists"
+          }
+        ]
+      }
+    },
+    {
+      "pathId": "nyarlathotep",
+      "name": "Nyarlathotep / Mandates",
+      "acts": {
+        "1": [
+          {
+            "id": "nyarlathotep_a1_1",
+            "template": "Authenticate {custody_warrant} with its issuer"
+          },
+          {
+            "id": "nyarlathotep_a1_2",
+            "template": "Trace who benefits from {public_petition}"
+          },
+          {
+            "id": "nyarlathotep_a1_3",
+            "template": "Locate a witness to {invitation}"
+          },
+          {
+            "id": "nyarlathotep_a1_4",
+            "template": "Recover the original terms of {endorsement}"
+          }
+        ],
+        "2": [
+          {
+            "id": "nyarlathotep_a2_1",
+            "template": "Obtain revocation from {mandate_issuer}"
+          },
+          {
+            "id": "nyarlathotep_a2_2",
+            "template": "Protect {witness} through a public comparison of records"
+          },
+          {
+            "id": "nyarlathotep_a2_3",
+            "template": "Intercept {relic_transfer} authorised by the scheme"
+          },
+          {
+            "id": "nyarlathotep_a2_4",
+            "template": "Test {binding_vessel} against a discarded trace of the mask"
+          }
+        ],
+        "3": [
+          {
+            "id": "nyarlathotep_a3_1",
+            "template": "Execute the valid revocations at {severance_forum}"
+          },
+          {
+            "id": "nyarlathotep_a3_2",
+            "template": "Identify the mask with independently verified {designation}"
+          },
+          {
+            "id": "nyarlathotep_a3_3",
+            "template": "Bind the mask during {acceptance_event}"
+          },
+          {
+            "id": "nyarlathotep_a3_4",
+            "template": "Prevent a documented successor from inheriting the severed mandates"
+          }
+        ]
+      }
+    },
+    {
+      "pathId": "shub_niggurath",
+      "name": "Shub-Niggurath / Proliferation",
+      "acts": {
+        "1": [
+          {
+            "id": "shub_niggurath_a1_1",
+            "template": "Reconcile {farm}'s food demand with its population"
+          },
+          {
+            "id": "shub_niggurath_a1_2",
+            "template": "Identify the destination of {seed_carrier}"
+          },
+          {
+            "id": "shub_niggurath_a1_3",
+            "template": "Compare births at two connected nurseries"
+          },
+          {
+            "id": "shub_niggurath_a1_4",
+            "template": "Help {graft_bearer} obtain an independent food source"
+          }
+        ],
+        "2": [
+          {
+            "id": "shub_niggurath_a2_1",
+            "template": "Map the propagation connections feeding {nursery}"
+          },
+          {
+            "id": "shub_niggurath_a2_2",
+            "template": "Test a bounded regulator at {stable_grove}"
+          },
+          {
+            "id": "shub_niggurath_a2_3",
+            "template": "Evacuate dependants before severing {root_link}"
+          },
+          {
+            "id": "shub_niggurath_a2_4",
+            "template": "Supply {dependent_population} through a complete feeding cycle"
+          }
+        ],
+        "3": [
+          {
+            "id": "shub_niggurath_a3_1",
+            "template": "Sever every indispensable forced-propagation source"
+          },
+          {
+            "id": "shub_niggurath_a3_2",
+            "template": "Install and verify regulators across {dependent_network}"
+          },
+          {
+            "id": "shub_niggurath_a3_3",
+            "template": "Protect the supplied nursery through its first bounded birth cycle"
+          },
+          {
+            "id": "shub_niggurath_a3_4",
+            "template": "Verify that an isolated offshoot cannot restart {forced_births}"
+          }
+        ]
+      }
+    },
+    {
+      "pathId": "hastur",
+      "name": "Hastur / Participation",
+      "acts": {
+        "1": [
+          {
+            "id": "hastur_a1_1",
+            "template": "Recover the accepted terms of {performer's_role}"
+          },
+          {
+            "id": "hastur_a1_2",
+            "template": "Find out why {audience} returns to the same scene"
+          },
+          {
+            "id": "hastur_a1_3",
+            "template": "Help {participant} attempt a witnessed withdrawal"
+          },
+          {
+            "id": "hastur_a1_4",
+            "template": "Compare {original_script} with the current performance"
+          }
+        ],
+        "2": [
+          {
+            "id": "hastur_a2_1",
+            "template": "Obtain the cancellation conditions from {former_performer}"
+          },
+          {
+            "id": "hastur_a2_2",
+            "template": "Provide an alternative to the privilege sustaining {role}"
+          },
+          {
+            "id": "hastur_a2_3",
+            "template": "Rehearse a counter-performance with informed volunteers"
+          },
+          {
+            "id": "hastur_a2_4",
+            "template": "Recover the originating work from {stage_archive}"
+          }
+        ],
+        "3": [
+          {
+            "id": "hastur_a3_1",
+            "template": "Execute the valid cancellation at {originating_stage}"
+          },
+          {
+            "id": "hastur_a3_2",
+            "template": "Complete the independent counter-performance before informed witnesses"
+          },
+          {
+            "id": "hastur_a3_3",
+            "template": "Keep withdrawal routes open during {final_performance}"
+          },
+          {
+            "id": "hastur_a3_4",
+            "template": "Verify that recognition no longer binds the released participants"
+          }
+        ]
+      }
+    },
+    {
+      "pathId": "yog_sothoth",
+      "name": "Yog-Sothoth / Threshold Network",
+      "acts": {
+        "1": [
+          {
+            "id": "yog_sothoth_a1_1",
+            "template": "Map where {displaced_door} actually leads"
+          },
+          {
+            "id": "yog_sothoth_a1_2",
+            "template": "Recover a courier's key and recorded itinerary"
+          },
+          {
+            "id": "yog_sothoth_a1_3",
+            "template": "Bring {stranded_shipment} home through a verified edge"
+          },
+          {
+            "id": "yog_sothoth_a1_4",
+            "template": "Measure a change in {junction}'s geometry"
+          }
+        ],
+        "2": [
+          {
+            "id": "yog_sothoth_a2_1",
+            "template": "Attune a key for {required_edge}"
+          },
+          {
+            "id": "yog_sothoth_a2_2",
+            "template": "Survey {containment_destination} for inhabitants and capacity"
+          },
+          {
+            "id": "yog_sothoth_a2_3",
+            "template": "Discharge a minor connection to test {grounding_method}"
+          },
+          {
+            "id": "yog_sothoth_a2_4",
+            "template": "Preserve an essential return route while rerouting {junction}"
+          }
+        ],
+        "3": [
+          {
+            "id": "yog_sothoth_a3_1",
+            "template": "Seal the indispensable junction after safe discharge"
+          },
+          {
+            "id": "yog_sothoth_a3_2",
+            "template": "Redirect conjunction into verified containment and close its return"
+          },
+          {
+            "id": "yog_sothoth_a3_3",
+            "template": "Retrieve people stranded by the chosen network alteration"
+          },
+          {
+            "id": "yog_sothoth_a3_4",
+            "template": "Test the final graph against the incursion's required circuit"
+          }
+        ]
+      }
+    },
+    {
+      "pathId": "tsathoggua",
+      "name": "Tsathoggua / Hidden Reserves",
+      "acts": {
+        "1": [
+          {
+            "id": "tsathoggua_a1_1",
+            "template": "Trace the last known journey of {missing_caravan}"
+          },
+          {
+            "id": "tsathoggua_a1_2",
+            "template": "Compare deliveries to {depot} with its apparent inventory"
+          },
+          {
+            "id": "tsathoggua_a1_3",
+            "template": "Inspect the obligations attached to {offered_rest}"
+          },
+          {
+            "id": "tsathoggua_a1_4",
+            "template": "Locate independent shelter outside {tribute_route}"
+          }
+        ],
+        "2": [
+          {
+            "id": "tsathoggua_a2_1",
+            "template": "Count the physical reserves in {cache}"
+          },
+          {
+            "id": "tsathoggua_a2_2",
+            "template": "Free workers assigned to {reserve_conduit}"
+          },
+          {
+            "id": "tsathoggua_a2_3",
+            "template": "Recover releases from the signatories of {rest_agreement}"
+          },
+          {
+            "id": "tsathoggua_a2_4",
+            "template": "Exhaust a documented defensive response before the main expedition"
+          }
+        ],
+        "3": [
+          {
+            "id": "tsathoggua_a3_1",
+            "template": "Remove indispensable reserves and collapse their conduits"
+          },
+          {
+            "id": "tsathoggua_a3_2",
+            "template": "Release pledged servants and complete {tribute_severance}"
+          },
+          {
+            "id": "tsathoggua_a3_3",
+            "template": "Keep independent shelter supplied through the emergence interval"
+          },
+          {
+            "id": "tsathoggua_a3_4",
+            "template": "Verify that no counted reserve can sustain the local presence"
+          }
+        ]
+      }
+    },
+    {
+      "pathId": "ithaqua",
+      "name": "Ithaqua / Stored Winter",
+      "acts": {
+        "1": [
+          {
+            "id": "ithaqua_a1_1",
+            "template": "Measure the usable thaw at {pass}"
+          },
+          {
+            "id": "ithaqua_a1_2",
+            "template": "Find out why {refuge}'s fuel failed to arrive"
+          },
+          {
+            "id": "ithaqua_a1_3",
+            "template": "Rescue travellers stranded on {winter_route}"
+          },
+          {
+            "id": "ithaqua_a1_4",
+            "template": "Identify a transmitting anchor from {storm_traces}"
+          }
+        ],
+        "2": [
+          {
+            "id": "ithaqua_a2_1",
+            "template": "Provision {route} with shelter and return fuel"
+          },
+          {
+            "id": "ithaqua_a2_2",
+            "template": "Survey an empty basin able to receive {winter_reserve}"
+          },
+          {
+            "id": "ithaqua_a2_3",
+            "template": "Prepare the cuts at {anchor_network}"
+          },
+          {
+            "id": "ithaqua_a2_4",
+            "template": "Test exceptional winter access with {guide}"
+          }
+        ],
+        "3": [
+          {
+            "id": "ithaqua_a3_1",
+            "template": "Sever the transmitting anchors during a feasible expedition"
+          },
+          {
+            "id": "ithaqua_a3_2",
+            "template": "Lure the stored offensive into {empty_basin}"
+          },
+          {
+            "id": "ithaqua_a3_3",
+            "template": "Permanently sever replenishment during {exposed_interval}"
+          },
+          {
+            "id": "ithaqua_a3_4",
+            "template": "Verify a sustained thaw while keeping displaced households supplied"
+          }
+        ]
+      }
+    },
+    {
+      "pathId": "tcho_tcho",
+      "name": "Tcho-Tcho Compact / Service Dependency",
+      "acts": {
+        "1": [
+          {
+            "id": "tcho_tcho_a1_1",
+            "template": "Recover the collection terms attached to {service}"
+          },
+          {
+            "id": "tcho_tcho_a1_2",
+            "template": "Compare {clinic}'s subsidy claim with actual deliveries"
+          },
+          {
+            "id": "tcho_tcho_a1_3",
+            "template": "Find a willing independent provider for {essential_need}"
+          },
+          {
+            "id": "tcho_tcho_a1_4",
+            "template": "Secure care for a household refusing {collection}"
+          }
+        ],
+        "2": [
+          {
+            "id": "tcho_tcho_a2_1",
+            "template": "Supply and staff {replacement_service}"
+          },
+          {
+            "id": "tcho_tcho_a2_2",
+            "template": "Negotiate a chapter's valid withdrawal from {patron}"
+          },
+          {
+            "id": "tcho_tcho_a2_3",
+            "template": "Transfer patients without interrupting {treatment}"
+          },
+          {
+            "id": "tcho_tcho_a2_4",
+            "template": "Obtain a witnessed release from {authorised_collector}"
+          }
+        ],
+        "3": [
+          {
+            "id": "tcho_tcho_a3_1",
+            "template": "Keep the required independent services operating through collection"
+          },
+          {
+            "id": "tcho_tcho_a3_2",
+            "template": "Execute termination under the verified service clause"
+          },
+          {
+            "id": "tcho_tcho_a3_3",
+            "template": "Complete collective chapter withdrawal and patron severance"
+          },
+          {
+            "id": "tcho_tcho_a3_4",
+            "template": "Demonstrate that replacement care remains viable without the old subsidy"
+          }
+        ]
+      }
+    },
+    {
+      "pathId": "azathoth",
+      "name": "Azathoth / Captured Emissions",
+      "acts": {
+        "1": [
+          {
+            "id": "azathoth_a1_1",
+            "template": "Measure which activations of {device} reach a collector"
+          },
+          {
+            "id": "azathoth_a1_2",
+            "template": "Map the boundary of {capture_field}"
+          },
+          {
+            "id": "azathoth_a1_3",
+            "template": "Investigate the utility failure at {worksite}"
+          },
+          {
+            "id": "azathoth_a1_4",
+            "template": "Recover maintenance records for {stabiliser}"
+          }
+        ],
+        "2": [
+          {
+            "id": "azathoth_a2_1",
+            "template": "Test grounding on an isolated device"
+          },
+          {
+            "id": "azathoth_a2_2",
+            "template": "Provide a safe substitute for {essential_utility}"
+          },
+          {
+            "id": "azathoth_a2_3",
+            "template": "Survey all connections in {collector_circuit}"
+          },
+          {
+            "id": "azathoth_a2_4",
+            "template": "Rehearse the repair sequence of {counter_pattern}"
+          }
+        ],
+        "3": [
+          {
+            "id": "azathoth_a3_1",
+            "template": "Disconnect and safely discharge the collectors"
+          },
+          {
+            "id": "azathoth_a3_2",
+            "template": "Maintain the counter-pattern through {conjunction}"
+          },
+          {
+            "id": "azathoth_a3_3",
+            "template": "Keep the essential utility operating outside capture"
+          },
+          {
+            "id": "azathoth_a3_4",
+            "template": "Verify that the selected remedy prevents renewed harmonic accumulation"
+          }
+        ]
+      }
+    },
+    {
+      "pathId": "angels",
+      "name": "Angels / Judgment",
+      "acts": {
+        "1": [
+          {
+            "id": "angels_a1_1",
+            "template": "Recover the exact charge against {community}"
+          },
+          {
+            "id": "angels_a1_2",
+            "template": "Find an independent account of {alleged_injury}"
+          },
+          {
+            "id": "angels_a1_3",
+            "template": "Preserve evidence before {official_inspection}"
+          },
+          {
+            "id": "angels_a1_4",
+            "template": "Identify who has standing to speak for {victim}"
+          }
+        ],
+        "2": [
+          {
+            "id": "angels_a2_1",
+            "template": "Complete a repair requested by {injured_party}"
+          },
+          {
+            "id": "angels_a2_2",
+            "template": "Protect a witness through {hearing}"
+          },
+          {
+            "id": "angels_a2_3",
+            "template": "Test the jurisdiction claimed by {tribunal}"
+          },
+          {
+            "id": "angels_a2_4",
+            "template": "Recover proof that {required_restitution} was already made"
+          }
+        ],
+        "3": [
+          {
+            "id": "angels_a3_1",
+            "template": "Obtain a binding correction or dismissal of the charge"
+          },
+          {
+            "id": "angels_a3_2",
+            "template": "Complete the sufficient reparations and release procedure"
+          },
+          {
+            "id": "angels_a3_3",
+            "template": "Present preserved evidence at {final_hearing}"
+          },
+          {
+            "id": "angels_a3_4",
+            "template": "Verify that the judgment protects those covered by the settlement"
+          }
+        ]
+      }
+    },
+    {
+      "pathId": "maruts",
+      "name": "Maruts / Escalating Enforcement",
+      "acts": {
+        "1": [
+          {
+            "id": "maruts_a1_1",
+            "template": "Identify the original violation named by {enforcer}"
+          },
+          {
+            "id": "maruts_a1_2",
+            "template": "Recover the contemporary record of {forbidden_act}"
+          },
+          {
+            "id": "maruts_a1_3",
+            "template": "Locate a witness to the disputed exception"
+          },
+          {
+            "id": "maruts_a1_4",
+            "template": "Find a safe route for civilians before {next_wave}"
+          }
+        ],
+        "2": [
+          {
+            "id": "maruts_a2_1",
+            "template": "Correct a reversible part of {violation}"
+          },
+          {
+            "id": "maruts_a2_2",
+            "template": "Obtain access to the authoritative record"
+          },
+          {
+            "id": "maruts_a2_3",
+            "template": "Demonstrate the defect in {enforcement_order}"
+          },
+          {
+            "id": "maruts_a2_4",
+            "template": "Protect the correction operation during an enforcement wave"
+          }
+        ],
+        "3": [
+          {
+            "id": "maruts_a3_1",
+            "template": "Complete and register the sufficient correction"
+          },
+          {
+            "id": "maruts_a3_2",
+            "template": "Obtain binding cancellation of invalid enforcement"
+          },
+          {
+            "id": "maruts_a3_3",
+            "template": "Hold the correction site until its verification is complete"
+          },
+          {
+            "id": "maruts_a3_4",
+            "template": "Confirm that the next enforcement order is lawfully extinguished"
+          }
+        ]
+      }
+    },
+    {
+      "pathId": "witch_king",
+      "name": "Witch King / Conversion Front",
+      "acts": {
+        "1": [
+          {
+            "id": "witch_king_a1_1",
+            "template": "Trace where {battlefield_dead} are being taken"
+          },
+          {
+            "id": "witch_king_a1_2",
+            "template": "Inspect burial records at {apparently_safe_town}"
+          },
+          {
+            "id": "witch_king_a1_3",
+            "template": "Find a survivor of {conversion_site}"
+          },
+          {
+            "id": "witch_king_a1_4",
+            "template": "Open a route for civilians ahead of {front}"
+          }
+        ],
+        "2": [
+          {
+            "id": "witch_king_a2_1",
+            "template": "Recover casualties before {collection_convoy}"
+          },
+          {
+            "id": "witch_king_a2_2",
+            "template": "Isolate a crossing carrying {conversion_material}"
+          },
+          {
+            "id": "witch_king_a2_3",
+            "template": "Disable a depot without stranding its living prisoners"
+          },
+          {
+            "id": "witch_king_a2_4",
+            "template": "Prepare defensible shelter outside the conversion network"
+          }
+        ],
+        "3": [
+          {
+            "id": "witch_king_a3_1",
+            "template": "Destroy the indispensable conversion apparatus"
+          },
+          {
+            "id": "witch_king_a3_2",
+            "template": "Cut the verified sustaining supply and establish containment"
+          },
+          {
+            "id": "witch_king_a3_3",
+            "template": "Evacuate the remaining settlements from {final_corridor}"
+          },
+          {
+            "id": "witch_king_a3_4",
+            "template": "Verify that the front cannot regenerate from surviving depots"
+          }
+        ]
+      }
+    },
+    {
+      "pathId": "apocalypse_cult",
+      "name": "Apocalypse Cult / Invocation",
+      "acts": {
+        "1": [
+          {
+            "id": "apocalypse_cult_a1_1",
+            "template": "Recover an order for {ritual_component}"
+          },
+          {
+            "id": "apocalypse_cult_a1_2",
+            "template": "Inspect the changes being made at {assembly_site}"
+          },
+          {
+            "id": "apocalypse_cult_a1_3",
+            "template": "Identify the supplier of {consecrated_material}"
+          },
+          {
+            "id": "apocalypse_cult_a1_4",
+            "template": "Rescue a person selected for {ritual_function}"
+          }
+        ],
+        "2": [
+          {
+            "id": "apocalypse_cult_a2_1",
+            "template": "Intercept an indispensable component delivery"
+          },
+          {
+            "id": "apocalypse_cult_a2_2",
+            "template": "Test whether {substitute_component} still completes the recipe"
+          },
+          {
+            "id": "apocalypse_cult_a2_3",
+            "template": "Recover instructions for safe dismantling"
+          },
+          {
+            "id": "apocalypse_cult_a2_4",
+            "template": "Prepare the independently evidenced containment or banishment"
+          }
+        ],
+        "3": [
+          {
+            "id": "apocalypse_cult_a3_1",
+            "template": "Render the manifestation recipe permanently inoperable"
+          },
+          {
+            "id": "apocalypse_cult_a3_2",
+            "template": "Execute verified banishment at {invocation_site}"
+          },
+          {
+            "id": "apocalypse_cult_a3_3",
+            "template": "Complete the prepared containment operation"
+          },
+          {
+            "id": "apocalypse_cult_a3_4",
+            "template": "Verify that stored components cannot restart the interrupted assembly"
+          }
+        ]
+      }
+    },
+    {
+      "pathId": "vanishing_middle",
+      "name": "Eternal Cycle / The Vanishing Middle",
+      "acts": {
+        "1": [
+          {
+            "id": "vanishing_middle_a1_1",
+            "template": "Reopen {disputed_crossing} without granting either exclusive control"
+          },
+          {
+            "id": "vanishing_middle_a1_2",
+            "template": "Preserve a neutral meeting place at {institution}"
+          },
+          {
+            "id": "vanishing_middle_a1_3",
+            "template": "Authenticate the competing claims to {local_resource}"
+          },
+          {
+            "id": "vanishing_middle_a1_4",
+            "template": "Help {household} refuse a gift without losing ordinary shelter"
+          }
+        ],
+        "2": [
+          {
+            "id": "vanishing_middle_a2_1",
+            "template": "Protect one of two reachable unclaimed anchors"
+          },
+          {
+            "id": "vanishing_middle_a2_2",
+            "template": "Restore independent operation of {claimed_service}"
+          },
+          {
+            "id": "vanishing_middle_a2_3",
+            "template": "Negotiate a settlement that leaves {neutral_name} unclaimed"
+          },
+          {
+            "id": "vanishing_middle_a2_4",
+            "template": "Recover evidence of what {accepted_gift} actually authorises"
+          }
+        ],
+        "3": [
+          {
+            "id": "vanishing_middle_a3_1",
+            "template": "Keep a viable middle through {final_confrontation}"
+          },
+          {
+            "id": "vanishing_middle_a3_2",
+            "template": "Present the deeds required by the established weighing conditions"
+          },
+          {
+            "id": "vanishing_middle_a3_3",
+            "template": "Execute an independently proven local severance if available"
+          },
+          {
+            "id": "vanishing_middle_a3_4",
+            "template": "Secure the continued independence of {surviving_institution}"
+          }
+        ]
+      }
+    },
+    {
+      "pathId": "githyanki",
+      "name": "Displacement / Githyanki Refugees",
+      "acts": {
+        "1": [
+          {
+            "id": "githyanki_a1_1",
+            "template": "Count arrivals and inspect {grain_stores}"
+          },
+          {
+            "id": "githyanki_a1_2",
+            "template": "Verify the capacity of {proposed_settlement}"
+          },
+          {
+            "id": "githyanki_a1_3",
+            "template": "Find the cause of a blocked supply route"
+          },
+          {
+            "id": "githyanki_a1_4",
+            "template": "Negotiate temporary access to {water_source}"
+          }
+        ],
+        "2": [
+          {
+            "id": "githyanki_a2_1",
+            "template": "Increase food capacity before {next_arrival_wave}"
+          },
+          {
+            "id": "githyanki_a2_2",
+            "template": "Secure transport to an independently inspected destination"
+          },
+          {
+            "id": "githyanki_a2_3",
+            "template": "Negotiate obligations acceptable to residents and newcomers"
+          },
+          {
+            "id": "githyanki_a2_4",
+            "template": "Repair the infrastructure needed for {permanent_settlement}"
+          }
+        ],
+        "3": [
+          {
+            "id": "githyanki_a3_1",
+            "template": "Establish a settlement that supports its actual population"
+          },
+          {
+            "id": "githyanki_a3_2",
+            "template": "Complete agreed relocation to a viable onward destination"
+          },
+          {
+            "id": "githyanki_a3_3",
+            "template": "Keep supplies moving through the final arrival wave"
+          },
+          {
+            "id": "githyanki_a3_4",
+            "template": "Verify the settlement survives a full unsupported provision interval"
+          }
+        ]
+      }
+    },
+    {
+      "pathId": "slumbering_catastrophe",
+      "name": "Slumbering Catastrophe",
+      "acts": {
+        "1": [
+          {
+            "id": "slumbering_catastrophe_a1_1",
+            "template": "Identify the effect of {waking_operation}"
+          },
+          {
+            "id": "slumbering_catastrophe_a1_2",
+            "template": "Recover a survivor's account of a failed hunt"
+          },
+          {
+            "id": "slumbering_catastrophe_a1_3",
+            "template": "Test an alleged weakness against {shed_trace}"
+          },
+          {
+            "id": "slumbering_catastrophe_a1_4",
+            "template": "Map an evacuation route outside {rampage_corridor}"
+          }
+        ],
+        "2": [
+          {
+            "id": "slumbering_catastrophe_a2_1",
+            "template": "Interrupt an actual waking deed"
+          },
+          {
+            "id": "slumbering_catastrophe_a2_2",
+            "template": "Recover and field-test {effective_countermeasure}"
+          },
+          {
+            "id": "slumbering_catastrophe_a2_3",
+            "template": "Prepare access to the sleeper without triggering {known_stimulus}"
+          },
+          {
+            "id": "slumbering_catastrophe_a2_4",
+            "template": "Verify the conditions of an alternative lasting binding"
+          }
+        ],
+        "3": [
+          {
+            "id": "slumbering_catastrophe_a3_1",
+            "template": "Confront the sleeper with tested preparations"
+          },
+          {
+            "id": "slumbering_catastrophe_a3_2",
+            "template": "Complete a verified lasting dormancy or binding"
+          },
+          {
+            "id": "slumbering_catastrophe_a3_3",
+            "template": "Execute a proven relocation remedy where one exists"
+          },
+          {
+            "id": "slumbering_catastrophe_a3_4",
+            "template": "Keep the evacuation corridor usable during the final operation"
+          }
+        ]
+      }
+    },
+    {
+      "pathId": "stolen_dawn",
+      "name": "The Stolen Dawn",
+      "acts": {
+        "1": [
+          {
+            "id": "stolen_dawn_a1_1",
+            "template": "Measure the failed thaw near {town}"
+          },
+          {
+            "id": "stolen_dawn_a1_2",
+            "template": "Trace missing supplies on {nearby_route}"
+          },
+          {
+            "id": "stolen_dawn_a1_3",
+            "template": "Recover observations of the sovereign's renewal"
+          },
+          {
+            "id": "stolen_dawn_a1_4",
+            "template": "Rescue a witness who saw {renewal_instrument}"
+          }
+        ],
+        "2": [
+          {
+            "id": "stolen_dawn_a2_1",
+            "template": "Map and test access to {renewal_focus}"
+          },
+          {
+            "id": "stolen_dawn_a2_2",
+            "template": "Provision a wilderness approach to {sovereign}"
+          },
+          {
+            "id": "stolen_dawn_a2_3",
+            "template": "Recover plans locating the buried {dawn_engine}"
+          },
+          {
+            "id": "stolen_dawn_a2_4",
+            "template": "Obtain a working component or expert for engine repair"
+          }
+        ],
+        "3": [
+          {
+            "id": "stolen_dawn_a3_1",
+            "template": "Defeat the sovereign under verified access conditions"
+          },
+          {
+            "id": "stolen_dawn_a3_2",
+            "template": "Permanently disable the means of renewal"
+          },
+          {
+            "id": "stolen_dawn_a3_3",
+            "template": "Repair and activate the Dawn Engine"
+          },
+          {
+            "id": "stolen_dawn_a3_4",
+            "template": "Protect towns through the transition and verify that dawn persists"
+          }
+        ]
+      }
+    }
+  ]
+}

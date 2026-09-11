@@ -76,7 +76,12 @@ describe("Complete Expedition Loop & Adventure Path Integration", () => {
     expect(state.campaign.tavernEstablishment).toBeDefined();
     const tavern = state.campaign.tavernEstablishment!;
     expect(tavern.name).toBeTruthy();
-    expect(tavern.leads.length).toBeGreaterThanOrEqual(3);
+    expect(tavern.leads).toHaveLength(3);
+    expect(tavern.leads.filter(l => l.isPathLead)).toHaveLength(2);
+    expect(new Set(tavern.leads.map(l => l.targetSiteId)).size).toBe(3);
+    expect(tavern.leads.find(l => !l.isPathLead)?.destinationOutcome).toMatch(/^(active|false|empty)$/);
+    const playerLeads = server.db.getState(1, "player", null, "").campaign.tavernEstablishment!.leads;
+    expect(playerLeads.every(l => l.destinationOutcome === undefined && l.arrivalDiscovery === undefined)).toBe(true);
 
     const pathLead = tavern.leads.find((l) => l.isPathLead);
     expect(pathLead).toBeDefined();
@@ -238,7 +243,7 @@ describe("Complete Expedition Loop & Adventure Path Integration", () => {
     const enterRes = await new Promise<any>((resolve) => {
       hostSocket.emit("site:enter", { siteId: waterworksSiteId, ...mutation() }, (ack: any) => resolve(ack));
     });
-    expect(enterRes.ok).toBe(true);
+    expect(enterRes.ok, JSON.stringify(enterRes)).toBe(true);
 
     let state = server.db.getState(1, "host", null, "");
     expect(state.campaign.phase).toBe("dungeon");
@@ -300,6 +305,9 @@ describe("Complete Expedition Loop & Adventure Path Integration", () => {
     expect(apAfter2?.toll.length).toBe(1); // unchanged
 
     // 7.5 Exit site back to overworld
+    const exitGraph = server.db.getDungeonGraph(1)!;
+    exitGraph.currentRoomId = exitGraph.entryRoomId;
+    server.db.saveDungeonGraph(1, exitGraph);
     const exitRes = await new Promise<any>((resolve) => {
       hostSocket.emit("site:exit", {}, (ack: any) => resolve(ack));
     });
@@ -560,11 +568,12 @@ describe("Complete Expedition Loop & Adventure Path Integration", () => {
 
     const hostDungeonState = server.db.getState(1, "host", null, "");
     expect(hostDungeonState.activeDungeon).toBeDefined();
-    expect(hostDungeonState.activeDungeon!.nodes.length).toBe(5);
-    expect(hostDungeonState.activeDungeon!.edges.some((e) => e.doorType === "secret")).toBe(true);
+    expect([12, 13, 15]).toContain(hostDungeonState.activeDungeon!.nodes.length);
+    expect(hostDungeonState.activeDungeon!.siteStructure?.roll).toBeGreaterThanOrEqual(1);
 
     const playerDungeonState = server.db.getState(1, "player", null, playerToken);
     expect(playerDungeonState.activeDungeon!.edges.some((e) => e.doorType === "secret")).toBe(false);
+    expect(playerDungeonState.activeDungeon!.siteStructure?.roll).toBeUndefined();
 
     // Caller moves from room 1 to room 3 (open passage)
     const moveRes = await new Promise<any>((resolve) => {

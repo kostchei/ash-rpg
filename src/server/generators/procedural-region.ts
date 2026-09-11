@@ -907,23 +907,28 @@ function buildRegionAttempt(
     return "nearby in the surrounding verge";
   }
 
-  const ordinaryRuin = sites.find((s) => s.kind === "ruin" && s.id !== waterworksSite.id) || sites[1];
-  const ordinaryResourceOrSettle =
-    sites.find(
-      (s) =>
-        (s.kind === "resource" || s.kind === "settlement" || s.kind === "shrine") &&
-        s.id !== havenSite.id &&
-        s.id !== ordinaryRuin.id &&
-        s.id !== waterworksSite.id,
-    ) || sites[2];
-
-  const ruinCoordParts = ordinaryRuin.canonicalKey.split(":");
-  const ruinCoord = { q: Number(ruinCoordParts[2]), r: Number(ruinCoordParts[3]) };
-  const ruinHex = HEX_GRID.find((h) => h.q === ruinCoord.q && h.r === ruinCoord.r) ?? { id: "01" };
-
-  const resCoordParts = ordinaryResourceOrSettle.canonicalKey.split(":");
-  const resCoord = { q: Number(resCoordParts[2]), r: Number(resCoordParts[3]) };
-  const resHex = HEX_GRID.find((h) => h.q === resCoord.q && h.r === resCoord.r) ?? { id: "02" };
+  const archiveCell = nonHavenHexes.find(h => h.ring === 1 && h.id !== waterworksCell.id)!;
+  const archiveSite: SiteEntity = {
+    id: `site_manifest_${regionId}`, regionId,
+    canonicalKey: `${regionId}:${layerId}:${archiveCell.q}:${archiveCell.r}`,
+    kind: "ruin", name: "Abandoned Tollhouse & Freight Archive",
+    currentState: "Captive Freight Records and a Hiding Clerk", visibility: "hidden",
+  };
+  sites.push(archiveSite);
+  const regionalCell = nonHavenHexes.filter(h => h.id !== waterworksCell.id && h.id !== archiveCell.id)[siteRng(nonHavenHexes.length - 2)];
+  const regionalNames = ["Prospector's Cache", "Old Shepherd's Vault", "Wayfarer's Watchtower"];
+  const regionalName = regionalNames[siteRng(regionalNames.length)];
+  // Half active; the other half split between an invented claim and a vacated site.
+  const outcomeRoll = siteRng(4);
+  const destinationOutcome = outcomeRoll < 2 ? "active" : outcomeRoll === 2 ? "false" : "empty";
+  const regionalSite: SiteEntity = {
+    id: `site_regional_quest_${regionId}`, regionId,
+    canonicalKey: `${regionId}:${layerId}:${regionalCell.q}:${regionalCell.r}`,
+    kind: "ruin", name: regionalName,
+    currentState: destinationOutcome === "active" ? "Occupied Cache" : "Deserted Ruin",
+    visibility: "hidden",
+  };
+  sites.push(regionalSite);
 
   const tav = generateTavernForZone(surfaceZoneId, true, siteRng);
   const tavernEstablishment: TavernEstablishment = {
@@ -945,30 +950,37 @@ function buildRegionAttempt(
         isPathLead: true,
       },
       {
-        id: `lead_ruin_${regionId}`,
-        title: `Whispers of ${ordinaryRuin.name}`,
-        claim: `A wounded prospector swears ancient coin and silver relics lie untouched within ${ordinaryRuin.name}, guarded by unquiet shades.`,
-        source: "Wounded Scout recovering in the corner",
-        targetHexId: ruinHex.id,
-        targetSiteId: ordinaryRuin.id,
-        directionHint: getDirectionHint(ruinCoord.q, ruinCoord.r),
-        dangerHint: "Tier 2 Threat · Restless undead and stone deadfalls",
-        preparationHint: "Holy water, blunt maces, and climbing cord",
+        id: `lead_archive_${regionId}`,
+        title: "The Clerk Who Stopped Sleeping",
+        claim: "A freight clerk fled to the abandoned tollhouse with records of paid shipments of sleeping prisoners. Bring the clerk and the ledger home before the night wagon returns.",
+        source: "The clerk's sister beside the hearth",
+        targetHexId: archiveCell.id,
+        targetSiteId: archiveSite.id,
+        directionHint: getDirectionHint(archiveCell.q, archiveCell.r),
+        dangerHint: "Collectors search the building; the clerk distrusts strangers",
+        preparationHint: "A safe escort route, light, and something to establish trust",
         accuracy: "true",
-        isPathLead: false,
+        isPathLead: true,
+        arrivalDiscovery: "The clerk is hiding in the archive. The ledger identifies captive shipments through the waterworks to the Karst Deeps; recover it or question the clerk to learn the route.",
       },
       {
         id: `lead_resource_${regionId}`,
-        title: `Expedition Bounty: ${ordinaryResourceOrSettle.name}`,
-        claim: `The Merchant Guild offers gold for anyone who maps the approach to ${ordinaryResourceOrSettle.name} and confirms safe passage for pack mule trains.`,
-        source: "Mercantile Guild Factor posting a parchment notice",
-        targetHexId: resHex.id,
-        targetSiteId: ordinaryResourceOrSettle.id,
-        directionHint: getDirectionHint(resCoord.q, resCoord.r),
-        dangerHint: "Tier 1 Threat · Roaming predators and tricky terrain",
-        preparationHint: "Pack mule, surveying compass, and sturdy boots",
-        accuracy: "true",
+        title: `Lost Relics at ${regionalName}`,
+        claim: `A travelling prospector claims a coffer of silver relics remains in ${regionalName}. Recover it for a share of its contents.`,
+        source: "Travelling prospector at the bar",
+        targetHexId: regionalCell.id,
+        targetSiteId: regionalSite.id,
+        directionHint: getDirectionHint(regionalCell.q, regionalCell.r),
+        dangerHint: "Unsurveyed ruins; possible scavengers and unstable masonry",
+        preparationHint: "Rope, light, and enough provisions for a return journey",
+        accuracy: destinationOutcome === "false" ? "false" : destinationOutcome === "empty" ? "distorted" : "true",
         isPathLead: false,
+        destinationOutcome,
+        arrivalDiscovery: destinationOutcome === "false"
+          ? "The supposed vault is solid bedrock behind a shallow facade. There never was a coffer here: the prospector's story was invented."
+          : destinationOutcome === "empty"
+            ? "Fresh drag marks and a discarded coffer lid show that someone cleared the cache before you arrived. No occupants or valuables remain."
+            : "The prospector's cache is real. Search the ruins for the silver coffer and establish who now occupies the site.",
       },
     ],
   };

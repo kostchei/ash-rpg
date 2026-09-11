@@ -2314,4 +2314,231 @@ button:disabled {
   border-radius: 4px;
 }
 
+/* --- LAN Discovery & QR Controls --- */
+.lan-discovery-box {
+  background: rgba(131, 155, 87, 0.08);
+  border: 1px solid var(--moss);
+  border-radius: 8px;
+  padding: 16px;
+  margin-top: 16px;
+}
+.lan-discovery-row {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.lan-qr-img {
+  width: 110px;
+  height: 110px;
+  border-radius: 6px;
+  border: 1px solid var(--line);
+  background: #ece7d5;
+}
+.interface-select {
+  padding: 4px 8px;
+  font-size: 12px;
+  min-height: 32px;
+  border-radius: 4px;
+  background: var(--surface);
+  color: var(--ink);
+  border: 1px solid var(--line);
+}
+
+/* --- Mobile Player Sheet & Action Controls --- */
+.character-switcher-bar {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+  margin-bottom: 16px;
+  -webkit-overflow-scrolling: touch;
+}
+.character-switcher-btn {
+  flex: 0 0 auto;
+  padding: 8px 14px;
+  border-radius: 6px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.character-switcher-btn.active {
+  border-color: var(--ember);
+  color: var(--ink);
+  background: rgba(217, 117, 56, 0.15);
+  font-weight: bold;
+}
+.hero-vitals-card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 18px;
+  margin-bottom: 16px;
+}
+.hero-hp-bar {
+  margin: 12px 0 10px;
+}
+.hero-hp-meter {
+  height: 12px;
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+}
+.hero-hp-fill {
+  height: 100%;
+  transition: width 0.25s ease, background 0.25s ease;
+}
+
+/* --- Quick Damage Controls --- */
+.quick-damage-bar {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  align-items: center;
+  margin: 8px 0;
+}
+.dmg-chip {
+  padding: 4px 8px;
+  font-size: 11px;
+  font-weight: bold;
+  border-radius: 4px;
+  border: 1px solid var(--line);
+  background: rgba(0, 0, 0, 0.25);
+  cursor: pointer;
+}
+.dmg-chip:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+.dmg-chip.negative {
+  color: #ff7a6a;
+  border-color: rgba(182, 84, 66, 0.5);
+}
+.dmg-chip.positive {
+  color: #7ad97a;
+  border-color: rgba(122, 217, 122, 0.5);
+}
+.custom-dmg-group {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  margin-top: 6px;
+}
+.custom-dmg-input {
+  width: 60px !important;
+  min-height: 32px !important;
+  padding: 4px 8px !important;
+  text-align: center;
+  font-size: 13px;
+}
+
+/* --- Mobile Section Segmented Nav --- */
+.mobile-sheet-nav {
+  display: flex;
+  gap: 4px;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 4px;
+  border-radius: 6px;
+  margin-bottom: 16px;
+}
+.mobile-sheet-nav button {
+  flex: 1;
+  padding: 8px 4px;
+  font-size: 12px;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+}
+.mobile-sheet-nav button.active {
+  background: var(--surface);
+  color: var(--ink);
+  font-weight: bold;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+
+/* --- Action Chips (Weapons, Attacks, Spells, Saves) --- */
+.action-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 8px;
+  margin-top: 8px;
+}
+.action-card {
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.action-card b {
+  font-size: 13px;
+}
+.action-card-btns {
+  display: flex;
+  gap: 4px;
+}
+
+/* --- Floating Dice Roller (FAB) --- */
+.floating-roller-fab {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 52px;
+  height: 52px;
+  border-radius: 26px;
+  background: var(--ember);
+  color: #11130f;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 16px rgba(217, 117, 56, 0.5);
+  border: 2px solid #fff;
+  cursor: pointer;
+  z-index: 90;
+  transition: transform 0.15s ease;
+}
+.floating-roller-fab:active {
+  transform: scale(0.92);
+}
+
+/* --- Caller Override & Table Controls --- */
+.caller-override-btn {
+  padding: 4px 10px;
+  font-size: 11px;
+  border-radius: 4px;
+  border: 1px solid var(--ember);
+  background: rgba(217, 117, 56, 0.2);
+  color: var(--ink);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.caller-override-btn:hover {
+  background: var(--ember);
+  color: #000;
+}
+
+@media (max-width: 600px) {
+  .hero-vitals-card {
+    padding: 12px;
+  }
+  .quick-damage-bar {
+    gap: 3px;
+  }
+  .dmg-chip {
+    padding: 4px 6px;
+    font-size: 10px;
+  }
+}
+
 

@@ -14,7 +14,15 @@ By blending the deep flavor and crunch of **1st Edition AD&D** with the streamli
 
 ## The next playable release: a companion for the physical table
 
-ASH is an assistant for **one to six people playing solo or cooperatively at a physical table**. One computer hosts the campaign; players use phones to view characters, choose activities, roll or record dice, and operate shared exploration. Conversation, fictional decisions, unusual rulings, and miniature positioning remain at the table.
+ASH is an assistant for **one to six people playing solo or cooperatively at a physical table**. One computer hosts the campaign; players use phones to view characters, choose activities, record resources, and operate shared exploration. Conversation, fictional decisions, physical dice rolling, unusual rulings, and miniature positioning remain at the table.
+
+The companion is strictly stripped back to essential physical-table needs (see the [Minimal Table Companion Specification](docs/plans/minimal_table_companion_specification.md)):
+- **Dice on the Table:** No "roll to hit" or damage roll buttons; the app supplies target numbers and modifiers at a glance for physical rolling.
+- **Information Fog of War:** Monster AC is unknown until tested; monster HP uses narrative states (`Unharmed` -> `Bloodied (<50%)`); traps and hazards only present sensory tells until examined; NPC reactions require interaction.
+- **Shadowdark Initiative:** Clean clockwise table-seating order started by a single group DEX check; monsters act as a group on the GM's table seat.
+- **Blind Adventure Paths:** Players explore emergent leads and sites without knowing the endgame boss or outcome in advance.
+- **Widgets & Interactive Leverage:** Campaign keys physically exist in character inventories; sites provide tactical levers to weaken threats.
+- **Searchable Codex:** Instant lookup for conditions, spells, gear, and core OSR tables.
 
 The complete product target is two characters per player using class-first Unearthed Arcana and stats-first Iron Man generation, a chosen or secretly rolled adventure path, a party-informed town and tavern with three leads, regional knowledge distinct from current discoveries, and clickable adventure-site maps. Paths span **three acts with sufficient material for Shadowdark levels 1–10**. The [current requirements and delivery plan](docs/plans/table_assistant_campaign_requirements.md) define this scope, reference-system findings, known implementation gaps, and acceptance gates. The opening-expedition milestone below is only the first playable slice.
 

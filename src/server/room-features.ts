@@ -15,6 +15,7 @@ export function populateSiteRooms(graph: DungeonGraphState, options: {
   roll: (sides: number) => number;
   monster: (feature: NonNullable<DungeonRoomNode["feature"]>) => { key: string; name: string };
   treasure: () => { coins: number; items: string[] };
+  groupTreasure?: (feature: NonNullable<DungeonRoomNode["feature"]>, roomId: number) => { coins: number; items: string[] } | null;
   objective: { title: string; deedId?: string };
 }): void {
   for (const room of graph.nodes) {
@@ -44,11 +45,19 @@ export function populateSiteRooms(graph: DungeonGraphState, options: {
       const monster = options.monster(room.feature);
       room.encounter = { monsterKey: monster.key, name: monster.name,
         count: room.feature === "monster_mob" ? options.roll(4) + 1 : 1, defeated: false };
+      if (options.groupTreasure) {
+        const carried = options.groupTreasure(room.feature, room.id);
+        if (carried) {
+          room.treasure = { ...carried, claimed: false };
+        }
+      }
     }
     if (room.feature === "treasure") room.treasure = { ...options.treasure(), claimed: false };
   }
   // The objective is not a room-feature roll or a reward for killing the boss.
-  const room = graph.nodes[options.roll(graph.nodes.length) - 1];
+  const terminal = graph.siteStructure?.sections.at(-1);
+  const candidates = terminal ? graph.nodes.filter(node => terminal.roomIds.includes(node.id)) : graph.nodes;
+  const room = candidates[options.roll(candidates.length) - 1];
   room.objective = { ...options.objective, completed: false };
 }
 

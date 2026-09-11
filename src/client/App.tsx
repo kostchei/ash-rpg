@@ -2,7 +2,9 @@ import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import { RECEIPTED_ACTIONS } from "../shared/mutations";
 import { createActionId, sendMutation } from "./mutations";
 import { FrontierMap } from "./FrontierMap";
+import { PathEncounters } from "./PathEncounters";
 import { MapViewport } from "./MapViewport";
+import { nextRetreatRoom } from "../shared/dungeon-route.js";
 import {
   AlertTriangle,
   Apple,
@@ -602,6 +604,7 @@ function Campaign({
     charId?: number;
     ability?: string;
     type?: string;
+    advantage?: "normal" | "advantage" | "disadvantage";
   } | null>(null);
   const [toast, setToast] = useState("");
   const pendingActions = useRef(new Set<string>());
@@ -755,6 +758,21 @@ function Campaign({
               onRollAbility={(charId, ability) =>
                 setRollModalContext({ open: true, charId, ability, type: "check" })
               }
+              onRollSave={(charId, ability) =>
+                setRollModalContext({ open: true, charId, ability, type: "save" })
+              }
+              onQuickAttack={(charId) =>
+                setRollModalContext({ open: true, charId, type: "attack" })
+              }
+              onTurnUndead={(charId) =>
+                setRollModalContext({ open: true, charId, type: "turn_undead", ability: "wis" })
+              }
+              onBackstab={(charId) =>
+                setRollModalContext({ open: true, charId, type: "backstab", ability: "dex", advantage: "advantage" })
+              }
+              onThievery={(charId) =>
+                setRollModalContext({ open: true, charId, type: "check", ability: "dex", advantage: "advantage" })
+              }
             />
           ) : (
             <LobbyView state={state} act={act} onOpenParty={() => setTab("party")} />
@@ -764,7 +782,15 @@ function Campaign({
             {tab === "sanctuary" && <SanctuaryView state={state} act={act} />}
             {tab === "map" && <MapView state={state} act={act} />}
             {tab === "dungeon" && <DungeonView state={state} act={act} />}
-            {tab === "combat" && <CombatView state={state} act={act} />}
+            {tab === "combat" && (
+              <CombatView
+                state={state}
+                act={act}
+                onRollAction={(charId, type, ability, advantage) =>
+                  setRollModalContext({ open: true, charId, type, ability, advantage })
+                }
+              />
+            )}
             {tab === "encounters" && <EncounterView state={state} act={act} />}
             {tab === "party" && (
               <PartyView
@@ -772,6 +798,35 @@ function Campaign({
                 act={act}
                 onRollAbility={(charId, ability) =>
                   setRollModalContext({ open: true, charId, ability, type: "check" })
+                }
+                onRollSave={(charId, ability) =>
+                  setRollModalContext({ open: true, charId, ability, type: "save" })
+                }
+                onQuickAttack={(charId) =>
+                  setRollModalContext({ open: true, charId, type: "attack" })
+                }
+                onQuickDamage={(charId, damageDice) =>
+                  act(
+                    "roll:contextual",
+                    { characterId: charId, checkType: "damage", damageDice },
+                    "Damage roll resolved",
+                  )
+                }
+                onQuickCast={(charId, spellId) =>
+                  act(
+                    "roll:contextual",
+                    { characterId: charId, checkType: "spellcast", spellId },
+                    "Spell cast resolved",
+                  )
+                }
+                onTurnUndead={(charId) =>
+                  setRollModalContext({ open: true, charId, type: "turn_undead", ability: "wis" })
+                }
+                onBackstab={(charId) =>
+                  setRollModalContext({ open: true, charId, type: "backstab", ability: "dex", advantage: "advantage" })
+                }
+                onThievery={(charId) =>
+                  setRollModalContext({ open: true, charId, type: "check", ability: "dex", advantage: "advantage" })
                 }
               />
             )}
@@ -805,9 +860,28 @@ function Campaign({
           initialCharId={rollModalContext.charId}
           initialAbility={rollModalContext.ability}
           initialType={rollModalContext.type}
+          initialAdvantage={rollModalContext.advantage}
           onClose={() => setRollModalContext(null)}
         />
       )}
+
+      {/* Floating Action Button (FAB) for fast physical / digital dice rolls */}
+      <button
+        type="button"
+        className="floating-roller-fab"
+        onClick={() =>
+          setRollModalContext({
+            open: true,
+            charId: state.me.characterId ?? state.characters[0]?.id,
+            ability: "str",
+            type: "check",
+          })
+        }
+        title="Open Dice Roller (Digital or Physical)"
+        aria-label="Roll Dice"
+      >
+        <Dices size={24} />
+      </button>
 
       {toast && <div className="toast">{toast}</div>}
     </div>
@@ -895,25 +969,78 @@ function CampaignSubbar({
             </span>
           )}
           {state.me.role === "host" && (
-            <select
-              className="caller-select-dropdown"
-              value={state.campaign.callerToken ?? ""}
-              onChange={(e) =>
-                act(
-                  "campaign:set_caller",
-                  { callerToken: e.target.value || null },
-                  "Caller assigned",
-                )
-              }
-              title="Assign Authoritative Caller"
-            >
-              <option value="">Host Default</option>
-              {state.characters.map((c) => (
-                <option key={c.id} value={c.ownerToken ?? ""}>
-                  {c.name} ({c.className})
-                </option>
-              ))}
-            </select>
+            <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+              <select
+                className="caller-select-dropdown"
+                value={state.campaign.callerToken ?? ""}
+                onChange={(e) =>
+                  act(
+                    "campaign:set_caller",
+                    { callerToken: e.target.value || null },
+                    "Caller assigned",
+                  )
+                }
+                title="Assign Authoritative Caller"
+              >
+                <option value="">Host Default</option>
+                {state.characters.map((c) => (
+                  <option key={c.id} value={c.ownerToken ?? ""}>
+                    {c.name} ({c.className})
+                  </option>
+                ))}
+              </select>
+              {state.campaign.callerToken && (
+                <button
+                  type="button"
+                  className="caller-override-btn"
+                  onClick={() =>
+                    act(
+                      "campaign:set_caller",
+                      { callerToken: null },
+                      "Host took direct Caller authority",
+                    )
+                  }
+                  title="Instantly revoke player caller and claim host direct authority"
+                >
+                  ⚡ Host Override
+                </button>
+              )}
+            </div>
+          )}
+          {state.me.role !== "host" && (
+            !state.campaign.callerToken ? (
+              <button
+                type="button"
+                className="small-btn"
+                style={{ fontSize: "10px", padding: "2px 6px" }}
+                onClick={() =>
+                  act(
+                    "campaign:set_caller",
+                    { callerToken: state.me.token },
+                    "Claimed Caller role",
+                  )
+                }
+                title="Claim Caller role for the party"
+              >
+                Claim Caller
+              </button>
+            ) : state.campaign.callerToken === state.me.token ? (
+              <button
+                type="button"
+                className="small-btn"
+                style={{ fontSize: "10px", padding: "2px 6px" }}
+                onClick={() =>
+                  act(
+                    "campaign:set_caller",
+                    { callerToken: null },
+                    "Released Caller role",
+                  )
+                }
+                title="Release Caller role back to table"
+              >
+                Release Caller
+              </button>
+            ) : null
           )}
         </div>
 
@@ -1281,6 +1408,134 @@ function TavernSessionCard({ state, act }: { state: CampaignState; act: Act }) {
   );
 }
 
+function LanDiscoveryPanel({ state }: { state: CampaignState }) {
+  const [interfaces, setInterfaces] = useState<
+    Array<{ name: string; address: string; isWifi: boolean; isEthernet: boolean; priority: number }>
+  >([]);
+  const [selectedIp, setSelectedIp] = useState<string>(() => {
+    const locHost = typeof window !== "undefined" ? window.location.hostname : "";
+    if (locHost && locHost !== "localhost" && locHost !== "127.0.0.1") {
+      return locHost;
+    }
+    try {
+      const u = new URL(state.campaign.joinUrl);
+      if (u.hostname && u.hostname !== "localhost" && u.hostname !== "127.0.0.1") {
+        return u.hostname;
+      }
+    } catch {}
+    return "localhost";
+  });
+  const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    fetch("/api/network/interfaces")
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.interfaces && Array.isArray(data.interfaces)) {
+          setInterfaces(data.interfaces);
+          if ((selectedIp === "localhost" || selectedIp === "127.0.0.1") && data.current?.address) {
+            setSelectedIp(data.current.address);
+          }
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  const port = typeof window !== "undefined" && window.location.port ? window.location.port : "3000";
+  const protocol = typeof window !== "undefined" && window.location.protocol ? window.location.protocol : "http:";
+  const effectiveBaseUrl =
+    selectedIp === "localhost"
+      ? `${protocol}//localhost:${port}`
+      : `${protocol}//${selectedIp}:${port}`;
+  const effectiveJoinUrl = `${effectiveBaseUrl}/play?code=${state.campaign.code}`;
+  const qrSrc = `/api/campaigns/${state.campaign.code}/qr?ip=${encodeURIComponent(selectedIp)}`;
+  const activeIface = interfaces.find((i) => i.address === selectedIp);
+
+  return (
+    <div className="lan-discovery-box">
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: "10px",
+          flexWrap: "wrap",
+          gap: "8px",
+        }}
+      >
+        <div style={{ fontSize: "12px", fontWeight: "bold", color: "var(--moss)", display: "flex", alignItems: "center", gap: "6px" }}>
+          <span>📶 HOME WI-FI & PHONE QR DISCOVERY</span>
+          {activeIface && (
+            <span className="badge-tag" style={{ background: "rgba(131, 155, 87, 0.2)", color: "var(--moss)", fontSize: "11px" }}>
+              {activeIface.name} ({selectedIp})
+            </span>
+          )}
+        </div>
+        {interfaces.length > 1 && (
+          <label style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "12px", color: "var(--muted)" }}>
+            <span>Network:</span>
+            <select
+              className="interface-select"
+              value={selectedIp}
+              onChange={(e) => setSelectedIp(e.target.value)}
+            >
+              {interfaces.map((iface) => (
+                <option key={iface.address} value={iface.address}>
+                  {iface.name} ({iface.address}){iface.isWifi ? " · Wi-Fi" : iface.isEthernet ? " · Wired" : ""}
+                </option>
+              ))}
+              <option value="localhost">localhost (this PC only)</option>
+            </select>
+          </label>
+        )}
+      </div>
+
+      <div className="lan-discovery-row">
+        <img
+          src={qrSrc}
+          alt={`Join QR code for campaign ${state.campaign.code}`}
+          className="lan-qr-img"
+        />
+        <div style={{ flex: 1, minWidth: "240px" }}>
+          <div style={{ fontSize: "12px", color: "var(--muted)", marginBottom: "4px" }}>
+            Scan with phone camera on your home Wi-Fi:
+          </div>
+          <div style={{ display: "flex", gap: "8px", marginBottom: "6px" }}>
+            <input
+              type="text"
+              readOnly
+              value={effectiveJoinUrl}
+              style={{
+                flex: 1,
+                padding: "6px 10px",
+                fontSize: "13px",
+                background: "rgba(0,0,0,0.3)",
+                border: "1px solid var(--line)",
+                borderRadius: "4px",
+                color: "var(--ink)",
+              }}
+            />
+            <button
+              type="button"
+              className="small-btn primary"
+              onClick={() => {
+                navigator.clipboard.writeText(effectiveJoinUrl);
+                setCopied(true);
+                setTimeout(() => setCopied(false), 2000);
+              }}
+            >
+              {copied ? "Copied!" : "Copy"}
+            </button>
+          </div>
+          <small style={{ color: "var(--muted)", display: "block", fontSize: "11px" }}>
+            Connect phones to the same Wi-Fi. Scanned phones immediately open their responsive digital character sheet.
+          </small>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function LobbyView({
   state,
   act,
@@ -1329,36 +1584,7 @@ function LobbyView({
           </div>
         </div>
 
-        <div style={{ marginTop: "1rem", display: "flex", gap: "1.5rem", flexWrap: "wrap", alignItems: "center" }}>
-          <img
-            src={`/api/campaigns/${state.campaign.code}/qr`}
-            alt="Join QR Code"
-            style={{ width: "96px", height: "96px", borderRadius: "6px", border: "1px solid var(--line)" }}
-          />
-          <div style={{ flex: 1, minWidth: "240px" }}>
-            <div style={{ fontSize: "13px", fontWeight: 600, marginBottom: "4px" }}>PLAYER INVITATION LINK</div>
-            <div style={{ display: "flex", gap: "8px" }}>
-              <input
-                type="text"
-                readOnly
-                value={state.campaign.joinUrl}
-                style={{ flex: 1, padding: "6px 10px", fontSize: "13px", background: "rgba(0,0,0,0.2)", border: "1px solid var(--line)", borderRadius: "4px", color: "var(--ink)" }}
-              />
-              <button
-                type="button"
-                className="small-btn"
-                onClick={() => {
-                  navigator.clipboard.writeText(state.campaign.joinUrl);
-                }}
-              >
-                Copy
-              </button>
-            </div>
-            <small style={{ color: "var(--muted)", marginTop: "4px", display: "block" }}>
-              Each player can join on their phone or tablet and create up to two characters.
-            </small>
-          </div>
-        </div>
+        <LanDiscoveryPanel state={state} />
       </div>
 
       {/* Adventure Path Info */}
@@ -2850,17 +3076,7 @@ function MapView({ state, act }: { state: CampaignState; act: Act }) {
           )}
         </section>
         {state.me.role === "host" && (
-          <section className="panel compact join-card">
-            <img
-              src={`/api/campaigns/${state.campaign.code}/qr`}
-              alt={`QR code to join campaign ${state.campaign.code}`}
-            />
-            <div>
-              <div className="eyebrow">Invite the table</div>
-              <h3>Scan to join</h3>
-              <p>{state.campaign.joinUrl}</p>
-            </div>
-          </section>
+          <LanDiscoveryPanel state={state} />
         )}
         <section className="panel compact">
           <div className="eyebrow">Travel procedure</div>
@@ -2928,6 +3144,7 @@ function MapView({ state, act }: { state: CampaignState; act: Act }) {
                 <button
                   className="small-btn"
                   onClick={() => act("site:exit", {}, "Exited site back to surface")}
+                  disabled={Boolean(state.activeDungeon?.siteStructure && state.activeDungeon.currentRoomId !== state.activeDungeon.entryRoomId)}
                 >
                   <DoorOpen size={14} /> Exit Site to Overworld
                 </button>
@@ -3070,10 +3287,24 @@ function PartyView({
   state,
   act,
   onRollAbility,
+  onRollSave,
+  onQuickAttack,
+  onQuickDamage,
+  onQuickCast,
+  onTurnUndead,
+  onBackstab,
+  onThievery,
 }: {
   state: CampaignState;
   act: Act;
   onRollAbility?: (charId: number, ability: string) => void;
+  onRollSave?: (charId: number, ability: string) => void;
+  onQuickAttack?: (charId: number) => void;
+  onQuickDamage?: (charId: number, damageDice?: string) => void;
+  onQuickCast?: (charId: number, spellId: string) => void;
+  onTurnUndead?: (charId: number) => void;
+  onBackstab?: (charId: number) => void;
+  onThievery?: (charId: number) => void;
 }) {
   const myToken = state.me.token;
   const ownedCharacters = state.characters.filter(
@@ -3089,6 +3320,37 @@ function PartyView({
         title="The adventuring company"
         aside={`${state.characters.length} sworn member${state.characters.length === 1 ? "" : "s"}`}
       />
+
+      {/* Fast Character Switcher Bar for Players with Multiple Characters */}
+      {ownedCharacters.length > 1 && (
+        <div className="character-switcher-bar">
+          {ownedCharacters.map((c) => {
+            const isActive = c.rosterStatus === "active";
+            return (
+              <button
+                key={c.id}
+                type="button"
+                className={`character-switcher-btn ${isActive ? "active" : ""}`}
+                onClick={() => {
+                  if (!isActive) {
+                    act(
+                      "roster:select_active",
+                      { characterId: c.id },
+                      `Swapped active adventurer to ${c.name}`,
+                    );
+                  }
+                }}
+                title={isActive ? "Active adventurer" : "Tap to switch active adventurer"}
+              >
+                <span>{isActive ? "⭐ Active:" : "💤 Reserve:"}</span>
+                <b>{c.name}</b>
+                <small>({c.className} L{c.level} · {c.hp}/{c.maxHp} HP)</small>
+              </button>
+            );
+          })}
+        </div>
+      )}
+
       {creating && (
         <CharacterCreator
           act={act}
@@ -3113,9 +3375,7 @@ function PartyView({
             isOwner &&
             character.rosterStatus === "reserve" &&
             (state.campaign.phase === "sanctuary" ||
-              state.campaign.phase === "camp" ||
-              state.activeSession?.kind === "camp" ||
-              state.activeSession?.kind === "camp_night");
+              state.activeSession?.kind === "camp");
 
           return (
             <CharacterCard
@@ -3133,6 +3393,13 @@ function PartyView({
                 )
               }
               onRollAbility={(ability) => onRollAbility?.(character.id, ability)}
+              onRollSave={(ability) => onRollSave?.(character.id, ability)}
+              onQuickAttack={() => onQuickAttack?.(character.id)}
+              onQuickDamage={(damageDice) => onQuickDamage?.(character.id, damageDice)}
+              onQuickCast={(spellId) => onQuickCast?.(character.id, spellId)}
+              onTurnUndead={() => onTurnUndead?.(character.id)}
+              onBackstab={() => onBackstab?.(character.id)}
+              onThievery={() => onThievery?.(character.id)}
             />
           );
         })}
@@ -3486,6 +3753,13 @@ function CharacterCard({
   act,
   own,
   onRollAbility,
+  onRollSave,
+  onQuickAttack,
+  onQuickDamage,
+  onQuickCast,
+  onTurnUndead,
+  onBackstab,
+  onThievery,
   canSwap,
   onSwap,
 }: {
@@ -3494,6 +3768,13 @@ function CharacterCard({
   act: Act;
   own: boolean;
   onRollAbility?: (ability: string) => void;
+  onRollSave?: (ability: string) => void;
+  onQuickAttack?: () => void;
+  onQuickDamage?: (damageDice?: string) => void;
+  onQuickCast?: (spellId: string) => void;
+  onTurnUndead?: () => void;
+  onBackstab?: () => void;
+  onThievery?: () => void;
   canSwap?: boolean;
   onSwap?: () => void;
 }) {
@@ -3537,6 +3818,23 @@ function CharacterCard({
           {own ? " · your character" : ""}
           {character.originZoneId ? ` · ${character.originZoneId.replace(/_/g, " ")}` : ""}
         </p>
+        {character.conditions && character.conditions.length > 0 && (
+          <div style={{ display: "flex", gap: "4px", flexWrap: "wrap", marginTop: "4px" }}>
+            {character.conditions.map((cond) => (
+              <span
+                key={cond}
+                className="badge-tag"
+                style={{
+                  fontSize: "10px",
+                  background: cond === "dead" ? "var(--danger)" : cond === "dying" ? "#d9534f" : "#8a6d3b",
+                  color: "#fff",
+                }}
+              >
+                {cond}
+              </span>
+            ))}
+          </div>
+        )}
       </div>
       <div className="vital-grid">
         <div>
@@ -3676,6 +3974,178 @@ function CharacterCard({
         ))}
       </div>
 
+      {/* Saving Throws Chips Row */}
+      <div className="saving-throws-row" style={{ display: "flex", gap: "4px", flexWrap: "wrap", margin: "8px 0 12px" }}>
+        <span style={{ fontSize: "11px", color: "var(--muted)", alignSelf: "center", marginRight: "4px" }}>SAVES:</span>
+        {ABILITY_KEYS.map((key) => {
+          const m = mod(character.abilities[key]);
+          return (
+            <button
+              key={key}
+              type="button"
+              className="dmg-chip"
+              onClick={() => onRollSave?.(key)}
+              title={`Roll ${labels[key]} Saving Throw`}
+            >
+              {labels[key]} {m >= 0 ? `+${m}` : m}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Quick Action Chips for Equipped Weapons, Spells & Class Features */}
+      {(() => {
+        const equippedWeapons = (character.inventory ?? []).filter(
+          (it) => it.equipped && (it.kind === "weapon" || it.damage),
+        );
+        const readySpells = (character.spells ?? []).filter(
+          (s) => s.available && !s.penanceRequired,
+        );
+        const isThief = character.className.toLowerCase().includes("thief");
+        const isPriest = character.className.toLowerCase().includes("priest");
+        const isFighter = character.className.toLowerCase().includes("fighter");
+
+        if (equippedWeapons.length === 0 && readySpells.length === 0 && !isThief && !isPriest && !isFighter) return null;
+
+        return (
+          <div className="quick-actions-panel" style={{ margin: "6px 0 14px", background: "rgba(0,0,0,0.2)", padding: "10px", borderRadius: "6px", border: "1px solid var(--line)" }}>
+            <div className="eyebrow" style={{ fontSize: "10px", marginBottom: "6px", color: "var(--muted)" }}>QUICK ACTIONS</div>
+            <div className="action-grid">
+              {equippedWeapons.map((w) => {
+                const strMod = mod(character.abilities.str);
+                const dexMod = mod(character.abilities.dex);
+                const isRanged = w.itemId.includes("bow") || w.itemId.includes("sling");
+                const isFinesse = isRanged || w.itemId.includes("dagger");
+                const atkMod = isFinesse ? Math.max(strMod, dexMod) : strMod;
+                return (
+                  <div key={w.instanceId} className="action-card">
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                      <b>⚔️ {w.name}</b>
+                      <small style={{ color: "var(--muted)" }}>{w.damage || "1d6"}</small>
+                    </div>
+                    <div className="action-card-btns">
+                      <button
+                        type="button"
+                        className="small-btn primary"
+                        style={{ flex: 1, padding: "4px 6px", fontSize: "11px" }}
+                        onClick={() => onQuickAttack?.()}
+                        title={`Roll attack check (${atkMod >= 0 ? `+${atkMod}` : atkMod})`}
+                      >
+                        Atk ({atkMod >= 0 ? `+${atkMod}` : atkMod})
+                      </button>
+                      <button
+                        type="button"
+                        className="small-btn"
+                        style={{ flex: 1, padding: "4px 6px", fontSize: "11px" }}
+                        onClick={() => onQuickDamage?.(w.damage || "1d6")}
+                        title={`Roll weapon damage (${w.damage || "1d6"})`}
+                      >
+                        Dmg
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+              {readySpells.map((s, idx) => {
+                const spellDef = SPELLS.find((sp) => sp.id === s.spellId);
+                const spellName = spellDef?.name ?? s.spellId;
+                const intMod = mod(character.abilities.int);
+                const wisMod = mod(character.abilities.wis);
+                const isPriestClass = character.className.toLowerCase().includes("priest");
+                const checkMod = isPriestClass ? wisMod : intMod;
+                return (
+                  <div key={idx} className="action-card">
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                      <b>✨ {spellName}</b>
+                      <small style={{ color: "var(--muted)" }}>T{s.tier}</small>
+                    </div>
+                    <div className="action-card-btns">
+                      <button
+                        type="button"
+                        className="small-btn primary"
+                        style={{ width: "100%", padding: "4px 6px", fontSize: "11px" }}
+                        onClick={() => onQuickCast?.(s.spellId)}
+                        title={`Cast ${spellName}`}
+                      >
+                        Cast ({checkMod >= 0 ? `+${checkMod}` : checkMod})
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+              {isThief && (
+                <>
+                  <div className="action-card">
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                      <b>🗡️ Backstab</b>
+                      <small style={{ color: "var(--muted)" }}>DEX+2 (Adv)</small>
+                    </div>
+                    <div className="action-card-btns">
+                      <button
+                        type="button"
+                        className="small-btn primary"
+                        style={{ width: "100%", padding: "4px 6px", fontSize: "11px" }}
+                        onClick={() => onBackstab?.()}
+                        title="Roll Backstab attack (Advantage + bonus damage dice)"
+                      >
+                        Backstab Atk
+                      </button>
+                    </div>
+                  </div>
+                  <div className="action-card">
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                      <b>🗝️ Thievery</b>
+                      <small style={{ color: "var(--muted)" }}>DEX (Adv)</small>
+                    </div>
+                    <div className="action-card-btns">
+                      <button
+                        type="button"
+                        className="small-btn"
+                        style={{ width: "100%", padding: "4px 6px", fontSize: "11px" }}
+                        onClick={() => onThievery?.()}
+                        title="Roll Thievery check with Advantage (locks, traps, stealth)"
+                      >
+                        Thievery Check
+                      </button>
+                    </div>
+                  </div>
+                </>
+              )}
+              {isPriest && (
+                <div className="action-card">
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <b>✝️ Turn Undead</b>
+                    <small style={{ color: "var(--muted)" }}>WIS Check</small>
+                  </div>
+                  <div className="action-card-btns">
+                    <button
+                      type="button"
+                      className="small-btn primary"
+                      style={{ width: "100%", padding: "4px 6px", fontSize: "11px" }}
+                      onClick={() => onTurnUndead?.()}
+                      title="Roll Turn Undead check with WIS modifier"
+                    >
+                      Turn Undead ({mod(character.abilities.wis) >= 0 ? `+${mod(character.abilities.wis)}` : mod(character.abilities.wis)})
+                    </button>
+                  </div>
+                </div>
+              )}
+              {isFighter && (
+                <div className="action-card">
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <b>🛡️ Fighter Mastery</b>
+                    <small style={{ color: "var(--muted)" }}>Passive</small>
+                  </div>
+                  <div style={{ fontSize: "11px", color: "var(--muted)", padding: "2px 0" }}>
+                    Weapon Mastery (+1 atk/dmg) & Hauler (+CON slots)
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        );
+      })()}
+
       {/* Equipment & Gear Drawer */}
       <details className="card-drawer inventory-drawer">
         <summary>
@@ -3797,6 +4267,16 @@ function CharacterCard({
                         <span className="badge-tag" style={{ marginLeft: "6px", background: "var(--muted)" }}>EXPENDED</span>
                       )}
                     </div>
+                    {canEdit && s.available && !s.penanceRequired && (
+                      <button
+                        type="button"
+                        className="small-btn primary"
+                        style={{ padding: "2px 8px", fontSize: "11px" }}
+                        onClick={() => onQuickCast?.(s.spellId)}
+                      >
+                        Cast
+                      </button>
+                    )}
                   </div>
                 );
               })}
@@ -3959,6 +4439,10 @@ function DungeonView({ state, act }: { state: CampaignState; act: Act }) {
   );
 
   const lightLit = dungeon.lightTurnsRemaining > 0;
+  const section = dungeon.siteStructure?.sections.find(s => s.roomIds.includes(currentRoom.id));
+  const retreatRoom = nextRetreatRoom(dungeon);
+  const canExit = !dungeon.siteStructure || dungeon.currentRoomId === dungeon.entryRoomId;
+  const atTransition = currentEdges.some(e => e.transition);
 
   const moveRoom = async (toRoomId: number) => {
     await act("dungeon:move_room", { toRoomId }, `Party advanced to Room ${toRoomId}`);
@@ -4027,10 +4511,15 @@ function DungeonView({ state, act }: { state: CampaignState; act: Act }) {
             <span style={{ fontSize: "12px", color: "var(--muted)" }}>
               {dungeon.explorationTurns} Turns Elapsed
             </span>
-            <button className="small-btn" onClick={retreatSurface}>
+            {dungeon.siteStructure && !canExit && <button className="small-btn"
+              disabled={!isCaller || retreatRoom === undefined}
+              onClick={() => retreatRoom !== undefined && moveRoom(retreatRoom)}>
+              Backtrack toward entrance
+            </button>}
+            <button className="small-btn" disabled={!isCaller || !canExit} onClick={retreatSurface}>
               Surface Exit
             </button>
-            <span className="muted">Exit the site, then travel home to recover.</span>
+            <span className="muted">Backtrack and exit to camp here, or travel home to recover.</span>
           </div>
         </div>
 
@@ -4266,6 +4755,13 @@ function DungeonView({ state, act }: { state: CampaignState; act: Act }) {
               {inspectedRoom.feature && <p>Room feature: {inspectedRoom.feature.replaceAll("_", " ")}</p>}
               {inspectedRoom.objective && <p><b>Objective:</b> {inspectedRoom.objective.title}
                 {inspectedRoom.objective.completed ? " — completed" : ""}</p>}
+              {inspectedRoom.objective?.generated && <div>
+                <p>{inspectedRoom.objective.generated.procedure}</p>
+                <p><b>Completion:</b> {inspectedRoom.objective.generated.completion}</p>
+                <p><b>Approaches:</b> {inspectedRoom.objective.generated.approaches.join(", ")}</p>
+                {inspectedRoom.objective.completed && <p><b>Follow-up:</b> {inspectedRoom.objective.generated.nextAction}</p>}
+              </div>}
+              {inspectedRoom.clues?.map(clue => <p key={clue.id}><b>Evidence:</b> {clue.text}</p>)}
               {inspectedRoom.resolution && <p>Recorded: {inspectedRoom.resolution.outcome} — {inspectedRoom.resolution.notes}</p>}
               <p>Record what happened, including how guards, traps, locks, or hazards were dealt with or bypassed. Entering or winning a fight does not automatically secure treasure.</p>
               {isCaller && <form onSubmit={async (event) => {
@@ -4298,7 +4794,8 @@ function DungeonView({ state, act }: { state: CampaignState; act: Act }) {
           {/* Connected Doors & Passages */}
           <div className="sub-panel" style={{ background: "var(--surface)", border: "1px solid var(--line)", borderRadius: "6px", padding: "16px" }}>
             <div className="eyebrow">Passages & Portals from Room {dungeon.currentRoomId}</div>
-            <h3>Connecting Thresholds</h3>
+            <h3>Connecting Thresholds{section ? ` · Section ${section.id}` : ""}</h3>
+            {atTransition && <p>You have reached a link between sections. Continue when ready, or backtrack to the entrance and camp before returning. Explored rooms and claimed treasure remain saved.</p>}
             <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginTop: "12px" }}>
               {currentEdges.map((edge, idx) => {
                 const targetRoomId = edge.fromRoomId === dungeon.currentRoomId ? edge.toRoomId : edge.fromRoomId;
@@ -4322,7 +4819,7 @@ function DungeonView({ state, act }: { state: CampaignState; act: Act }) {
                   >
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                       <div>
-                        <b>Door to Room {targetRoomId}:</b> {targetNode?.title ?? `Room ${targetRoomId}`}
+                        <b>{edge.transition === "stairs" ? "Stairs" : edge.transition === "nearby_path" ? "Path to nearby place" : "Door"} to Room {targetRoomId}:</b> {targetNode?.title ?? `Room ${targetRoomId}`}
                         <div style={{ fontSize: "11px", color: "var(--muted)", textTransform: "uppercase" }}>
                           Type: {edge.doorType} · State: {edge.state}
                         </div>
@@ -4346,7 +4843,9 @@ function DungeonView({ state, act }: { state: CampaignState; act: Act }) {
                           title={isCaller ? "" : "Only the designated Caller or Host can move the party"}
                           onClick={() => moveRoom(targetRoomId)}
                         >
-                          <Footprints size={14} /> Move Party into Room {targetRoomId}
+                          <Footprints size={14} /> {edge.transition
+                            ? `${targetRoomId > dungeon.currentRoomId ? "Continue" : "Return"} ${edge.transition === "stairs" ? (targetRoomId > dungeon.currentRoomId ? "down a level" : "up a level") : "along the path"}`
+                            : `Move Party into Room ${targetRoomId}`}
                         </button>
                       ) : (
                         <>
@@ -4396,7 +4895,20 @@ function DungeonView({ state, act }: { state: CampaignState; act: Act }) {
   );
 }
 
-function CombatView({ state, act }: { state: CampaignState; act: Act }) {
+function CombatView({
+  state,
+  act,
+  onRollAction,
+}: {
+  state: CampaignState;
+  act: Act;
+  onRollAction?: (
+    charId: number,
+    type: string,
+    ability?: string,
+    advantage?: "normal" | "advantage" | "disadvantage",
+  ) => void;
+}) {
   const combat = state.activeCombat;
   if (!combat || combat.status !== "active") {
     return (
@@ -4411,26 +4923,62 @@ function CombatView({ state, act }: { state: CampaignState; act: Act }) {
   }
 
   const activeCombatant = combat.combatants[combat.activeIndex] ?? combat.combatants[0];
+  const [customHpAmounts, setCustomHpAmounts] = useState<Record<string, string>>({});
+  const [deathSaveModes, setDeathSaveModes] = useState<Record<string, "digital" | "physical">>({});
+  const [deathSavePhysicalRolls, setDeathSavePhysicalRolls] = useState<Record<string, number>>({});
+  const [showMoraleModal, setShowMoraleModal] = useState(false);
+  const [moraleMode, setMoraleMode] = useState<"digital" | "physical">("digital");
+  const [physicalMoraleValue, setPhysicalMoraleValue] = useState<number>(7);
 
   const nextTurn = async () => {
     await act("combat:next_turn", {}, "Advanced to next turn");
   };
 
   const deathSave = async (combatantId: string) => {
-    await act("combat:death_save", { combatantId }, "Death save resolved");
+    const mode = deathSaveModes[combatantId] ?? "digital";
+    const physicalRoll = deathSavePhysicalRolls[combatantId] ?? 10;
+    await act(
+      "combat:death_save",
+      {
+        combatantId,
+        diceMode: mode,
+        physicalRoll: mode === "physical" ? physicalRoll : undefined,
+      },
+      "Death save resolved",
+    );
   };
 
-  const moraleCheck = async () => {
-    await act("combat:morale_check", {}, "Monster morale checked");
+  const submitMoraleCheck = async () => {
+    await act(
+      "combat:morale_check",
+      {
+        moraleScore: 7,
+        diceMode: moraleMode,
+        physicalRoll: moraleMode === "physical" ? physicalMoraleValue : undefined,
+      },
+      "Monster morale checked",
+    );
+    setShowMoraleModal(false);
   };
 
   const endCombat = async (victor: "party" | "monsters" | "fled") => {
     await act("combat:end", { victor }, `Combat concluded: ${victor}`);
   };
 
-  const adjustHp = async (combatantId: string, currentHp: number, delta: number) => {
-    const nextHp = currentHp + delta;
-    await act("combat:update_hp", { combatantId, currentHp: nextHp });
+  const adjustHp = async (combatantId: string, delta: number) => {
+    await act(
+      "combat:update_hp",
+      { combatantId, delta },
+      delta < 0 ? `Dealt ${Math.abs(delta)} damage` : `Healed ${delta} HP`,
+    );
+  };
+
+  const applyCustomHp = async (combatantId: string, isDamage: boolean) => {
+    const val = Number(customHpAmounts[combatantId] ?? "0");
+    if (!val || val <= 0) return;
+    const delta = isDamage ? -val : val;
+    await adjustHp(combatantId, delta);
+    setCustomHpAmounts((prev) => ({ ...prev, [combatantId]: "" }));
   };
 
   return (
@@ -4442,11 +4990,11 @@ function CombatView({ state, act }: { state: CampaignState; act: Act }) {
             <h2>Turn: {activeCombatant?.name ?? "Ready"} ({activeCombatant?.kind === "pc" ? "Adventurer" : "Threat"})</h2>
           </div>
 
-          <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+          <div style={{ display: "flex", gap: "8px", alignItems: "center", flexWrap: "wrap" }}>
             <button className="primary" onClick={nextTurn}>
               <ChevronRight size={16} /> Next Turn
             </button>
-            <button className="small-btn" onClick={moraleCheck} title="Check 2d6 vs monster morale score">
+            <button className="small-btn" onClick={() => setShowMoraleModal(true)} title="Check 2d6 vs monster morale score">
               <Skull size={14} /> Morale Check
             </button>
             <button className="small-btn danger-btn" onClick={() => endCombat("party")}>
@@ -4457,6 +5005,56 @@ function CombatView({ state, act }: { state: CampaignState; act: Act }) {
             </button>
           </div>
         </div>
+
+        {/* Morale Check Modal */}
+        {showMoraleModal && (
+          <div className="modal-backdrop">
+            <div className="panel modal-content" style={{ maxWidth: "420px" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px" }}>
+                <Title eyebrow="Monster Morale Check" title="2d6 vs Morale 7" />
+                <button className="icon-button" onClick={() => setShowMoraleModal(false)}><X size={18} /></button>
+              </div>
+              <p style={{ fontSize: "13px", color: "var(--muted)", marginBottom: "12px" }}>
+                Monsters must check morale when their leader is slain or half their number falls.
+              </p>
+              <div style={{ display: "flex", gap: "8px", marginBottom: "12px" }}>
+                <button
+                  type="button"
+                  className={`small-btn ${moraleMode === "digital" ? "primary" : ""}`}
+                  style={{ flex: 1 }}
+                  onClick={() => setMoraleMode("digital")}
+                >
+                  🎲 Digital PRNG
+                </button>
+                <button
+                  type="button"
+                  className={`small-btn ${moraleMode === "physical" ? "primary" : ""}`}
+                  style={{ flex: 1 }}
+                  onClick={() => setMoraleMode("physical")}
+                >
+                  ✋ Physical 2d6
+                </button>
+              </div>
+              {moraleMode === "physical" && (
+                <label style={{ display: "block", marginBottom: "12px" }}>
+                  <span style={{ fontSize: "12px", color: "var(--muted)" }}>Physical 2d6 Dice Total:</span>
+                  <input
+                    type="number"
+                    min={2}
+                    max={12}
+                    value={physicalMoraleValue}
+                    onChange={(e) => setPhysicalMoraleValue(Number(e.target.value))}
+                    style={{ marginTop: "4px" }}
+                  />
+                </label>
+              )}
+              <div style={{ display: "flex", gap: "8px", justifyContent: "flex-end" }}>
+                <button type="button" className="small-btn" onClick={() => setShowMoraleModal(false)}>Cancel</button>
+                <button type="button" className="small-btn primary" onClick={submitMoraleCheck}>Roll Morale</button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Initiative Track */}
         <div className="initiative-track" style={{ display: "flex", gap: "10px", overflowX: "auto", padding: "8px 0 16px", marginBottom: "16px" }}>
@@ -4491,10 +5089,12 @@ function CombatView({ state, act }: { state: CampaignState; act: Act }) {
         </div>
 
         {/* Combatant Cards Grid */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "16px" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: "16px" }}>
           {combat.combatants.map((c) => {
             const isDeadOrDying = c.currentHp <= 0;
             const hpPct = Math.max(0, Math.min(100, Math.round((c.currentHp / c.maxHp) * 100)));
+            const dsMode = deathSaveModes[c.id] ?? "digital";
+            const pcChar = c.kind === "pc" ? state.characters.find((ch) => ch.id === c.refId) : undefined;
 
             return (
               <div
@@ -4516,8 +5116,107 @@ function CombatView({ state, act }: { state: CampaignState; act: Act }) {
                   </div>
                   <div style={{ textAlign: "right", fontSize: "13px" }}>
                     <div><b>AC:</b> {c.ac}</div>
-                    <div style={{ color: "var(--muted)" }}><b>Init:</b> {c.initiative}</div>
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: "4px", marginTop: "2px" }}>
+                      <span style={{ color: "var(--muted)", fontSize: "12px" }}>Init:</span>
+                      <input
+                        type="number"
+                        className="init-edit-input"
+                        defaultValue={c.initiative}
+                        key={`init-${c.id}-${c.initiative}`}
+                        style={{
+                          width: "44px",
+                          height: "24px",
+                          padding: "1px 4px",
+                          fontSize: "12px",
+                          textAlign: "center",
+                          background: "rgba(0, 0, 0, 0.3)",
+                          border: "1px solid var(--line)",
+                          borderRadius: "4px",
+                          color: "var(--ink)",
+                        }}
+                        onBlur={(e) => {
+                          const val = parseInt(e.target.value, 10);
+                          if (!isNaN(val) && val !== c.initiative) {
+                            act(
+                              "combat:set_initiative",
+                              { combatantId: c.id, initiative: val },
+                              `${c.name} initiative set to ${val}`,
+                            );
+                          }
+                        }}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            (e.target as HTMLInputElement).blur();
+                          }
+                        }}
+                        title="Edit initiative (press Enter or click outside to reorder)"
+                      />
+                    </div>
                   </div>
+                </div>
+
+                {/* Conditions Row & Tag Editor */}
+                <div style={{ display: "flex", flexWrap: "wrap", gap: "4px", margin: "6px 0", alignItems: "center" }}>
+                  {(c.conditions ?? []).map((cond) => (
+                    <button
+                      key={cond}
+                      type="button"
+                      className="badge-tag"
+                      style={{
+                        fontSize: "10px",
+                        background: cond === "dead" ? "var(--danger)" : cond === "dying" ? "#d9534f" : "#b8860b",
+                        color: "#fff",
+                        border: "none",
+                        cursor: "pointer",
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: "3px",
+                      }}
+                      onClick={() =>
+                        act(
+                          "combat:toggle_condition",
+                          { combatantId: c.id, condition: cond },
+                          `Removed condition: ${cond}`,
+                        )
+                      }
+                      title={`Click to remove condition "${cond}"`}
+                    >
+                      {cond} <X size={10} />
+                    </button>
+                  ))}
+                  <select
+                    className="small-btn"
+                    style={{
+                      fontSize: "11px",
+                      padding: "2px 6px",
+                      height: "22px",
+                      background: "rgba(0, 0, 0, 0.25)",
+                      color: "var(--muted)",
+                      border: "1px dashed var(--line)",
+                      borderRadius: "4px",
+                      cursor: "pointer",
+                    }}
+                    value=""
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (val) {
+                        act(
+                          "combat:toggle_condition",
+                          { combatantId: c.id, condition: val },
+                          `Added condition: ${val}`,
+                        );
+                      }
+                    }}
+                  >
+                    <option value="">+ Effect</option>
+                    {["blinded", "poisoned", "paralyzed", "stuck", "asleep", "deafened", "frightened"]
+                      .filter((cond) => !(c.conditions ?? []).includes(cond))
+                      .map((cond) => (
+                        <option key={cond} value={cond}>
+                          {cond}
+                        </option>
+                      ))}
+                  </select>
                 </div>
 
                 {/* HP Meter */}
@@ -4526,7 +5225,7 @@ function CombatView({ state, act }: { state: CampaignState; act: Act }) {
                     <span>Hit Points</span>
                     <b>{c.currentHp} / {c.maxHp}</b>
                   </div>
-                  <div style={{ height: "6px", background: "rgba(0, 0, 0, 0.3)", borderRadius: "3px", overflow: "hidden" }}>
+                  <div style={{ height: "8px", background: "rgba(0, 0, 0, 0.4)", borderRadius: "4px", overflow: "hidden" }}>
                     <div
                       style={{
                         height: "100%",
@@ -4538,16 +5237,142 @@ function CombatView({ state, act }: { state: CampaignState; act: Act }) {
                   </div>
                 </div>
 
-                {/* HP Quick Modifiers */}
-                <div style={{ display: "flex", gap: "6px", alignItems: "center", marginBottom: "12px" }}>
-                  <button className="small-btn" onClick={() => adjustHp(c.id, c.currentHp, -5)}>-5</button>
-                  <button className="small-btn" onClick={() => adjustHp(c.id, c.currentHp, -1)}>-1</button>
-                  <span style={{ fontSize: "11px", color: "var(--muted)", flex: 1, textAlign: "center" }}>Adjust HP</span>
-                  <button className="small-btn" onClick={() => adjustHp(c.id, c.currentHp, 1)}>+1</button>
-                  <button className="small-btn" onClick={() => adjustHp(c.id, c.currentHp, 5)}>+5</button>
+                {/* HP Quick Modifier Chips */}
+                <div className="quick-damage-bar">
+                  <span style={{ fontSize: "11px", color: "var(--muted)" }}>Dmg:</span>
+                  {[-10, -5, -2, -1].map((amt) => (
+                    <button
+                      key={amt}
+                      type="button"
+                      className="dmg-chip negative"
+                      onClick={() => adjustHp(c.id, amt)}
+                      title={`Deal ${Math.abs(amt)} damage`}
+                    >
+                      {amt}
+                    </button>
+                  ))}
+                  <span style={{ fontSize: "11px", color: "var(--muted)", marginLeft: "4px" }}>Heal:</span>
+                  {[1, 2, 5, 10].map((amt) => (
+                    <button
+                      key={amt}
+                      type="button"
+                      className="dmg-chip positive"
+                      onClick={() => adjustHp(c.id, amt)}
+                      title={`Heal ${amt} HP`}
+                    >
+                      +{amt}
+                    </button>
+                  ))}
                 </div>
 
-                {/* Dying / Death Saves for PCs */}
+                {/* Custom Damage / Heal Input Row */}
+                <div className="custom-dmg-group">
+                  <input
+                    type="number"
+                    min={1}
+                    placeholder="Dmg"
+                    className="custom-dmg-input"
+                    value={customHpAmounts[c.id] ?? ""}
+                    onChange={(e) => setCustomHpAmounts((prev) => ({ ...prev, [c.id]: e.target.value }))}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        applyCustomHp(c.id, true);
+                      }
+                    }}
+                  />
+                  <button
+                    type="button"
+                    className="small-btn danger-btn"
+                    onClick={() => applyCustomHp(c.id, true)}
+                    title="Apply damage"
+                  >
+                    - Dmg
+                  </button>
+                  <button
+                    type="button"
+                    className="small-btn"
+                    onClick={() => applyCustomHp(c.id, false)}
+                    title="Apply healing"
+                  >
+                    + Heal
+                  </button>
+                  {c.currentHp > 0 && (
+                    <button
+                      type="button"
+                      className="small-btn"
+                      style={{ marginLeft: "auto", fontSize: "11px", color: "var(--danger)" }}
+                      onClick={() => adjustHp(c.id, -c.currentHp)}
+                      title={c.kind === "monster" ? "Defeat monster" : "Drop PC to 0 HP"}
+                    >
+                      {c.kind === "monster" ? "Defeat" : "0 HP"}
+                    </button>
+                  )}
+                </div>
+
+                {/* Tactical Actions for Adventurers */}
+                {c.kind === "pc" && pcChar && !isDeadOrDying && (
+                  <div style={{ marginTop: "10px", paddingTop: "8px", borderTop: "1px solid rgba(255,255,255,0.08)" }}>
+                    <div style={{ fontSize: "10px", color: "var(--muted)", marginBottom: "4px", textTransform: "uppercase" }}>
+                      Tactical Actions
+                    </div>
+                    <div style={{ display: "flex", gap: "4px", flexWrap: "wrap" }}>
+                      <button
+                        type="button"
+                        className="small-btn primary"
+                        style={{ padding: "4px 8px", fontSize: "11px" }}
+                        onClick={() => onRollAction?.(pcChar.id, "attack")}
+                        title="Roll weapon attack check"
+                      >
+                        ⚔️ Attack
+                      </button>
+                      <button
+                        type="button"
+                        className="small-btn"
+                        style={{ padding: "4px 8px", fontSize: "11px" }}
+                        onClick={() => onRollAction?.(pcChar.id, "damage")}
+                        title="Roll weapon damage"
+                      >
+                        💥 Damage
+                      </button>
+                      {pcChar.className.toLowerCase().includes("thief") && (
+                        <button
+                          type="button"
+                          className="small-btn"
+                          style={{ padding: "4px 8px", fontSize: "11px" }}
+                          onClick={() => onRollAction?.(pcChar.id, "backstab", "dex", "advantage")}
+                          title="Roll Thief Backstab attack (Advantage + bonus damage)"
+                        >
+                          🗡️ Backstab
+                        </button>
+                      )}
+                      {pcChar.className.toLowerCase().includes("priest") && (
+                        <button
+                          type="button"
+                          className="small-btn"
+                          style={{ padding: "4px 8px", fontSize: "11px" }}
+                          onClick={() => onRollAction?.(pcChar.id, "turn_undead", "wis")}
+                          title="Roll Priest Turn Undead check"
+                        >
+                          ✝️ Turn Undead
+                        </button>
+                      )}
+                      {pcChar.spells && pcChar.spells.some((s) => s.available && !s.penanceRequired) && (
+                        <button
+                          type="button"
+                          className="small-btn"
+                          style={{ padding: "4px 8px", fontSize: "11px" }}
+                          onClick={() => onRollAction?.(pcChar.id, "spell")}
+                          title="Cast prepared spell"
+                        >
+                          ✨ Cast
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Dying / Death Saves for PCs with Physical Dice Flow */}
                 {c.kind === "pc" && isDeadOrDying && (
                   <div
                     style={{
@@ -4555,7 +5380,7 @@ function CombatView({ state, act }: { state: CampaignState; act: Act }) {
                       border: `1px solid ${c.stabilized ? "#388e3c" : "#c0392b"}`,
                       borderRadius: "6px",
                       padding: "10px",
-                      margin: "8px 0",
+                      marginTop: "10px",
                     }}
                   >
                     {c.stabilized ? (
@@ -4564,17 +5389,61 @@ function CombatView({ state, act }: { state: CampaignState; act: Act }) {
                       </div>
                     ) : (
                       <div>
-                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "6px" }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
                           <span style={{ fontWeight: "bold", fontSize: "12px", color: "var(--danger)" }}>
                             💀 DYING: Death Strikes {c.deathStrikes ?? 0} / 3
                           </span>
+                          <div style={{ display: "flex", gap: "4px" }}>
+                            <button
+                              type="button"
+                              className={`small-btn ${dsMode === "digital" ? "primary" : ""}`}
+                              style={{ padding: "2px 6px", fontSize: "10px" }}
+                              onClick={() => setDeathSaveModes((prev) => ({ ...prev, [c.id]: "digital" }))}
+                            >
+                              🎲 Digital
+                            </button>
+                            <button
+                              type="button"
+                              className={`small-btn ${dsMode === "physical" ? "primary" : ""}`}
+                              style={{ padding: "2px 6px", fontSize: "10px" }}
+                              onClick={() => setDeathSaveModes((prev) => ({ ...prev, [c.id]: "physical" }))}
+                            >
+                              ✋ Physical
+                            </button>
+                          </div>
                         </div>
-                        <button
-                          className="danger-btn small-btn wide"
-                          onClick={() => deathSave(c.id)}
-                        >
-                          Roll Death Save (DC 10 CON)
-                        </button>
+
+                        {dsMode === "physical" ? (
+                          <div style={{ display: "flex", gap: "6px", alignItems: "center" }}>
+                            <input
+                              type="number"
+                              min={1}
+                              max={20}
+                              placeholder="d20"
+                              style={{ width: "60px", minHeight: "32px", padding: "4px 8px", textAlign: "center" }}
+                              value={deathSavePhysicalRolls[c.id] ?? 10}
+                              onChange={(e) =>
+                                setDeathSavePhysicalRolls((prev) => ({ ...prev, [c.id]: Number(e.target.value) }))
+                              }
+                            />
+                            <button
+                              type="button"
+                              className="danger-btn small-btn"
+                              style={{ flex: 1 }}
+                              onClick={() => deathSave(c.id)}
+                            >
+                              Submit Physical Save (DC 10 CON)
+                            </button>
+                          </div>
+                        ) : (
+                          <button
+                            type="button"
+                            className="danger-btn small-btn wide"
+                            onClick={() => deathSave(c.id)}
+                          >
+                            Roll Digital Death Save (DC 10 CON)
+                          </button>
+                        )}
                       </div>
                     )}
                   </div>
@@ -4768,6 +5637,7 @@ function ContextualRollModal({
   initialCharId,
   initialAbility,
   initialType,
+  initialAdvantage,
 }: {
   characters: Character[];
   act: Act;
@@ -4775,35 +5645,54 @@ function ContextualRollModal({
   initialCharId?: number;
   initialAbility?: string;
   initialType?: string;
+  initialAdvantage?: "normal" | "advantage" | "disadvantage";
 }) {
   const [characterId, setCharacterId] = useState<number>(
     initialCharId ?? characters[0]?.id ?? 0,
   );
-  const [type, setType] = useState<"check" | "save" | "attack" | "spell">(
+  const [type, setType] = useState<"check" | "save" | "attack" | "spell" | "damage" | "turn_undead" | "backstab">(
     (initialType as any) ?? "check",
   );
   const [ability, setAbility] = useState<"str" | "dex" | "con" | "int" | "wis" | "cha">(
-    (initialAbility as any) ?? "str",
+    (initialAbility as any) ?? (initialType === "turn_undead" ? "wis" : initialType === "backstab" ? "dex" : "str"),
   );
   const [mode, setMode] = useState<"digital" | "physical">("digital");
-  const [advantage, setAdvantage] = useState<"normal" | "advantage" | "disadvantage">("normal");
+  const [advantage, setAdvantage] = useState<"normal" | "advantage" | "disadvantage">(
+    initialAdvantage ?? (initialType === "backstab" ? "advantage" : "normal"),
+  );
   const [physicalValue, setPhysicalValue] = useState<number>(10);
   const [dc, setDc] = useState<string>("12");
+  const [damageDice, setDamageDice] = useState<string>("1d6");
+  const [spellId, setSpellId] = useState<string>(characters[0]?.spells?.[0]?.spellId ?? "magic_missile");
 
   const activeChar = characters.find((c) => c.id === characterId) ?? characters[0];
 
   const submitRoll = async (e: FormEvent) => {
     e.preventDefault();
+    const checkType =
+      type === "spell"
+        ? "spellcast"
+        : type === "check"
+          ? "ability"
+          : type === "attack"
+            ? "melee_attack"
+            : type;
     await act(
       "roll:contextual",
       {
         characterId,
+        checkType,
         type,
-        ability,
+        ability: type === "turn_undead" ? "wis" : type === "backstab" ? "dex" : ability,
+        diceMode: mode,
         mode,
+        physicalRolls: mode === "physical" ? [physicalValue] : undefined,
         physicalValue: mode === "physical" ? physicalValue : undefined,
+        advantageMode: advantage,
         advantage,
-        dc: dc ? Number(dc) : undefined,
+        dc: dc && type !== "damage" ? Number(dc) : undefined,
+        damageDice: type === "damage" ? damageDice : undefined,
+        spellId: type === "spell" ? spellId : undefined,
       },
       "Roll cast to table",
     );
@@ -4839,30 +5728,74 @@ function ContextualRollModal({
               <span style={{ fontSize: "12px", color: "var(--muted)" }}>Roll Context:</span>
               <select
                 value={type}
-                onChange={(e) => setType(e.target.value as any)}
+                onChange={(e) => {
+                  const val = e.target.value as any;
+                  setType(val);
+                  if (val === "turn_undead") setAbility("wis");
+                  if (val === "backstab") {
+                    setAbility("dex");
+                    setAdvantage("advantage");
+                  }
+                }}
                 style={{ width: "100%", marginTop: "4px" }}
               >
                 <option value="check">Ability Check</option>
                 <option value="save">Saving Throw</option>
                 <option value="attack">Attack Roll</option>
+                <option value="damage">Weapon Damage</option>
                 <option value="spell">Spellcasting Check</option>
+                <option value="turn_undead">Turn Undead</option>
+                <option value="backstab">Backstab Attack</option>
               </select>
             </label>
 
-            <label>
-              <span style={{ fontSize: "12px", color: "var(--muted)" }}>Ability:</span>
-              <select
-                value={ability}
-                onChange={(e) => setAbility(e.target.value as any)}
-                style={{ width: "100%", marginTop: "4px" }}
-              >
-                {ABILITY_KEYS.map((k) => (
-                  <option key={k} value={k}>
-                    {labels[k]} ({activeChar?.abilities[k] ?? 10})
-                  </option>
-                ))}
-              </select>
-            </label>
+            {type === "damage" ? (
+              <label>
+                <span style={{ fontSize: "12px", color: "var(--muted)" }}>Damage Dice:</span>
+                <input
+                  type="text"
+                  value={damageDice}
+                  onChange={(e) => setDamageDice(e.target.value)}
+                  placeholder="1d6, 1d8, 2d6..."
+                  style={{ width: "100%", marginTop: "4px" }}
+                />
+              </label>
+            ) : type === "spell" ? (
+              <label>
+                <span style={{ fontSize: "12px", color: "var(--muted)" }}>Spell:</span>
+                <select
+                  value={spellId}
+                  onChange={(e) => setSpellId(e.target.value)}
+                  style={{ width: "100%", marginTop: "4px" }}
+                >
+                  {(activeChar?.spells && activeChar.spells.length > 0 ? activeChar.spells : SPELLS.slice(0, 8)).map((s: any) => {
+                    const id = typeof s === "string" ? s : s.spellId ?? s.id;
+                    const def = SPELLS.find((sp) => sp.id === id);
+                    return (
+                      <option key={id} value={id}>
+                        {def?.name ?? id}
+                      </option>
+                    );
+                  })}
+                </select>
+              </label>
+            ) : (
+              <label>
+                <span style={{ fontSize: "12px", color: "var(--muted)" }}>Ability:</span>
+                <select
+                  value={ability}
+                  onChange={(e) => setAbility(e.target.value as any)}
+                  style={{ width: "100%", marginTop: "4px" }}
+                  disabled={type === "turn_undead" || type === "backstab"}
+                >
+                  {ABILITY_KEYS.map((k) => (
+                    <option key={k} value={k}>
+                      {labels[k]} ({activeChar?.abilities[k] ?? 10})
+                    </option>
+                  ))}
+                </select>
+              </label>
+            )}
           </div>
 
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
@@ -4884,6 +5817,7 @@ function ContextualRollModal({
                 value={advantage}
                 onChange={(e) => setAdvantage(e.target.value as any)}
                 style={{ width: "100%", marginTop: "4px" }}
+                disabled={type === "damage"}
               >
                 <option value="normal">Normal Roll</option>
                 <option value="advantage">Advantage (Take Higher)</option>
@@ -4894,11 +5828,13 @@ function ContextualRollModal({
 
           {mode === "physical" && (
             <label>
-              <span style={{ fontSize: "12px", color: "var(--muted)" }}>Physical d20 Result Rolled:</span>
+              <span style={{ fontSize: "12px", color: "var(--muted)" }}>
+                {type === "damage" ? "Physical Damage Total Rolled:" : "Physical d20 Result Rolled:"}
+              </span>
               <input
                 type="number"
                 min={1}
-                max={20}
+                max={type === "damage" ? 100 : 20}
                 value={physicalValue}
                 onChange={(e) => setPhysicalValue(Number(e.target.value))}
                 style={{ width: "100%", marginTop: "4px" }}
@@ -4907,17 +5843,19 @@ function ContextualRollModal({
             </label>
           )}
 
-          <label>
-            <span style={{ fontSize: "12px", color: "var(--muted)" }}>Target DC / AC (optional):</span>
-            <input
-              type="number"
-              min={1}
-              max={30}
-              value={dc}
-              onChange={(e) => setDc(e.target.value)}
-              style={{ width: "100%", marginTop: "4px" }}
-            />
-          </label>
+          {type !== "damage" && (
+            <label>
+              <span style={{ fontSize: "12px", color: "var(--muted)" }}>Target DC / AC (optional):</span>
+              <input
+                type="number"
+                min={1}
+                max={30}
+                value={dc}
+                onChange={(e) => setDc(e.target.value)}
+                style={{ width: "100%", marginTop: "4px" }}
+              />
+            </label>
+          )}
 
           <div style={{ marginTop: "12px", display: "flex", justifyContent: "flex-end", gap: "8px" }}>
             <button type="button" onClick={onClose}>Cancel</button>
@@ -4992,6 +5930,7 @@ function EncounterView({ state, act }: { state: CampaignState; act: Act }) {
 
   return (
     <div className="encounter-page">
+      <PathEncounters state={state} act={act} />
       <div className="encounter-heading">
         <Title
           eyebrow="Monsternomicon & Field Adjudicator"

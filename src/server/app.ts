@@ -1,3 +1,5 @@
+import { attachSiteObjectives } from "./generators/site-objectives.js";
+import { generateSiteLayout } from "./generators/site-layout.js";
 import express from "express";
 import { mutationPayloadKey, RECEIPTED_ACTIONS } from "../shared/mutations.js";
 import { randomInt } from "node:crypto";
@@ -5,7 +7,7 @@ import {
   createServer as createHttpServer,
   type Server as HttpServer,
 } from "node:http";
-import { networkInterfaces } from "node:os";
+import { networkInterfaces, type NetworkInterfaceInfo } from "node:os";
 import { resolve } from "node:path";
 import QRCode from "qrcode";
 import { Server as SocketServer, type Socket } from "socket.io";
@@ -64,6 +66,13 @@ import {
   wildernessWatch,
   type Likelihood,
 } from "./rules.js";
+import { RewardService } from "./rewards/service.js";
+import { applyXpEvent, calculateAdvancementRequirement } from "./rewards/progression.js";
+import { resolveOutcome } from "./paths/outcomes.js";
+import { assignActZones } from "./paths/zone-plan.js";
+import { OUTER_PATH_IDS } from "../shared/path-encounters.js";
+import { PathEncounterService } from "./paths/encounters/service.js";
+import { encounterCatalogue } from "./paths/encounters/catalog.js";
 
 const cleanText = z.string().trim().min(1).max(500);
 
@@ -170,13 +179,91 @@ type Ack = (response: {
   [key: string]: unknown;
 }) => void;
 
-function localAddress() {
-  for (const addresses of Object.values(networkInterfaces())) {
-    for (const address of addresses ?? [])
-      if (address.family === "IPv4" && !address.internal)
-        return address.address;
+export interface HostAddressResolution {
+  address: string;
+  interfaceName?: string;
+}
+
+export interface HostInterfaceCandidate {
+  name: string;
+  address: string;
+  isVirtual: boolean;
+  isWifi: boolean;
+  isEthernet: boolean;
+  priority: number;
+}
+
+const VIRTUAL_INTERFACE_REGEX = /(vethernet|wsl|docker|tailscale|virbr|vbox|vmnet|loopback|dummy|hyper-v|bridge|tap|tun|bluetooth|isatap|teredo)/i;
+const WIFI_INTERFACE_REGEX = /(wi-?fi|wlan|wireless|airport|sans fil|inal[aá]mbric)/i;
+const ETHERNET_INTERFACE_REGEX = /(ethernet|eth|en\d|lan)/i;
+
+export function listAvailableHostInterfaces(
+  interfacesProvider: () => NodeJS.Dict<NetworkInterfaceInfo[]> = networkInterfaces,
+): HostInterfaceCandidate[] {
+  const interfaces = interfacesProvider();
+  const candidates: HostInterfaceCandidate[] = [];
+
+  for (const [name, addrs] of Object.entries(interfaces)) {
+    if (!addrs || !name) continue;
+    const isVirtual = VIRTUAL_INTERFACE_REGEX.test(name);
+    const isWifi = WIFI_INTERFACE_REGEX.test(name);
+    const isEthernet = ETHERNET_INTERFACE_REGEX.test(name);
+
+    for (const addr of addrs) {
+      if (addr.family !== "IPv4" || addr.internal) continue;
+      // Skip APIPA (169.254.x.x) and loopback addresses
+      if (addr.address.startsWith("169.254.") || addr.address.startsWith("127.")) continue;
+
+      let priority = 50;
+      if (isVirtual) {
+        priority = 1; // strongly deprioritize virtual switches/adapters
+      } else if (isWifi) {
+        priority = 100; // prioritize Wi-Fi for mobile phones at the table
+      } else if (isEthernet) {
+        priority = 80; // wired LAN
+      }
+
+      // Prioritize common local home router subnets over 172.x virtual networks
+      if (addr.address.startsWith("192.168.")) {
+        priority += 10;
+      } else if (addr.address.startsWith("10.")) {
+        priority += 5;
+      }
+
+      candidates.push({
+        name,
+        address: addr.address,
+        isVirtual,
+        isWifi,
+        isEthernet,
+        priority,
+      });
+    }
   }
-  return "localhost";
+
+  candidates.sort((a, b) => b.priority - a.priority);
+  return candidates;
+}
+
+export function resolveHostAddress(
+  preferredIp?: string,
+  interfacesProvider: () => NodeJS.Dict<NetworkInterfaceInfo[]> = networkInterfaces,
+): HostAddressResolution {
+  const explicitIp = preferredIp || process.env.HOST_IP || process.env.ASH_HOST;
+  if (explicitIp) {
+    return { address: explicitIp.trim(), interfaceName: "manual override" };
+  }
+
+  const candidates = listAvailableHostInterfaces(interfacesProvider);
+  if (candidates.length > 0) {
+    return { address: candidates[0].address, interfaceName: candidates[0].name };
+  }
+
+  return { address: "localhost", interfaceName: "loopback" };
+}
+
+function localAddress(preferredIp?: string) {
+  return resolveHostAddress(preferredIp).address;
 }
 
 function actorName(db: AshDatabase, identity: Identity, baseUrl: string) {
@@ -198,6 +285,7 @@ export interface AshServerOptions {
   port?: number;
   frontend?: boolean;
   devFrontend?: boolean;
+  hostIp?: string;
 }
 
 export async function createAshServer(options: AshServerOptions = {}) {
@@ -206,11 +294,13 @@ export async function createAshServer(options: AshServerOptions = {}) {
     options.dbPath ?? resolve("data/local/ash.sqlite"),
   );
   const app = express();
+  const pathEncounters = new PathEncounterService(db);
   const httpServer: HttpServer = createHttpServer(app);
   const io = new SocketServer(httpServer, {
     cors: { origin: true, credentials: true },
   });
-  const baseUrl = `http://${localAddress()}:${port}`;
+  const resolvedHost = resolveHostAddress(options.hostIp);
+  const baseUrl = `http://${resolvedHost.address}:${port}`;
 
   app.use(express.json({ limit: "100kb" }));
   app.get("/api/health", (_request, response) =>
@@ -317,12 +407,28 @@ export async function createAshServer(options: AshServerOptions = {}) {
     });
   });
 
+  app.get("/api/network/interfaces", (_request, response) => {
+    return response.json({
+      current: resolvedHost,
+      port,
+      baseUrl,
+      interfaces: listAvailableHostInterfaces(),
+    });
+  });
+
   app.get("/api/campaigns/:code/qr", async (request, response) => {
     const campaign = db.getCampaign(request.params.code.toUpperCase());
     if (!campaign) return response.status(404).end();
+    const queryHost = typeof request.query.host === "string" ? request.query.host : undefined;
+    const queryIp = typeof request.query.ip === "string" ? request.query.ip : undefined;
+    const targetBaseUrl = queryHost
+      ? (queryHost.startsWith("http") ? queryHost : `http://${queryHost}`)
+      : queryIp
+        ? `http://${queryIp}:${port}`
+        : baseUrl;
     response.type("png");
     return response.send(
-      await QRCode.toBuffer(`${baseUrl}/play?code=${String(campaign.code)}`, {
+      await QRCode.toBuffer(`${targetBaseUrl}/play?code=${String(campaign.code)}`, {
         margin: 1,
         width: 480,
         color: { dark: "#11130fff", light: "#ece7d5ff" },
@@ -484,20 +590,65 @@ export async function createAshServer(options: AshServerOptions = {}) {
     const actor = () =>
       actorName(db, identity, `${baseUrl}/play?code=${identity.code}`);
 
+    socket.on("path_encounters:read", (_raw: unknown, ack?: Ack) => {
+      // Read-only: do not broadcast or mutate campaign revision just to refresh a panel.
+      ack?.({ ok: true, pack: pathEncounters.view(identity.campaignId),
+        catalogue: identity.role === "host" ? encounterCatalogue() : [] });
+    });
+    socket.on("path_encounters:start", mutationAction("path_encounters:start", (raw: unknown) => {
+      hostOnly();
+      const payload = z.object({ pathId: z.enum(OUTER_PATH_IDS) }).parse(raw);
+      return { pack: pathEncounters.start(identity.campaignId, payload.pathId) };
+    }));
+    socket.on("path_encounters:arrive", mutationAction("path_encounters:arrive", (raw: unknown) => {
+      requireEncounterResolved();
+      const payload = z.object({ siteId: cleanText, notes: cleanText }).parse(raw);
+      return { pack: pathEncounters.update(identity.campaignId, { kind: "arrive", ...payload }) };
+    }));
+    socket.on("path_encounters:interact", mutationAction("path_encounters:interact", (raw: unknown) => {
+      const payload = z.object({ interactionId: cleanText, outcome: z.enum(["success", "failure"]),
+        notes: z.string().trim().max(500).default("") }).parse(raw);
+      return { pack: pathEncounters.update(identity.campaignId, { kind: "interact", ...payload }) };
+    }));
+
     socket.on(
       "campaign:set_caller",
       action((raw: unknown) => {
-        hostOnly();
         const payload = z.object({ callerToken: z.string().nullable() }).parse(raw);
+        const currentCaller = db.getCallerToken(identity.campaignId);
+
+        if (identity.role !== "host") {
+          // Player authority: can claim if unassigned or re-claim self, or release own caller
+          if (payload.callerToken === identity.token) {
+            if (currentCaller && currentCaller !== identity.token) {
+              throw new Error("Another player is currently designated as Caller");
+            }
+          } else if (payload.callerToken === null) {
+            if (currentCaller !== identity.token) {
+              throw new Error("You can only release caller if you are the current caller");
+            }
+          } else {
+            throw new Error("Only the Table Host can reassign Caller to another player");
+          }
+        }
+
         db.setCallerToken(identity.campaignId, payload.callerToken);
+        const state = db.getState(identity.campaignId, "host", null, "");
+        const callerChar = state.characters.find((c) => c.ownerToken === payload.callerToken);
+        const callerName = callerChar ? callerChar.name : payload.callerToken ? "Party Member" : "Table Host";
+
         db.addRoll(identity.campaignId, {
-          actor: "Table",
+          actor: actor(),
           kind: "campaign",
-          label: "Caller Designated",
+          label: payload.callerToken ? "Caller Designated" : "Host Caller Override",
           dice: "—",
           total: 0,
-          detail: payload.callerToken ? "A party member was designated as Caller." : "Caller designation revoked.",
+          detail: payload.callerToken
+            ? `${callerName} is designated as party Caller.`
+            : "Table Host took direct authority (Caller override / revoked).",
         });
+
+        return { callerToken: payload.callerToken, callerName };
       }),
     );
 
@@ -1051,6 +1202,11 @@ export async function createAshServer(options: AshServerOptions = {}) {
         if (!character) throw new Error("Character not found");
         if (character.level >= 36) throw new Error("Character is already at max level (36)");
 
+        const requiredXp = calculateAdvancementRequirement(character.level);
+        if ((character.xp ?? 0) < requiredXp) {
+          throw new Error(`Not enough XP to level up (${character.xp ?? 0}/${requiredXp})`);
+        }
+
         const levelUpResult = levelUpCharacter(character);
         db.updateCharacter(identity.campaignId, levelUpResult.character);
 
@@ -1255,6 +1411,26 @@ export async function createAshServer(options: AshServerOptions = {}) {
     socket.on(
       "roll:contextual",
       action((raw: unknown) => {
+        const rawObj = raw && typeof raw === "object" ? (raw as Record<string, any>) : {};
+        let rawType = rawObj.checkType ?? rawObj.type ?? "ability";
+        if (rawType === "check") rawType = "ability";
+        if (rawType === "spell") rawType = "spellcast";
+        if (rawType === "attack") rawType = "melee_attack";
+
+        const normalized = {
+          ...rawObj,
+          checkType: rawType,
+          diceMode: rawObj.diceMode ?? rawObj.mode ?? "digital",
+          advantageMode: rawObj.advantageMode ?? rawObj.advantage ?? "normal",
+          physicalRolls:
+            rawObj.physicalRolls ??
+            (typeof rawObj.physicalValue === "number"
+              ? [rawObj.physicalValue]
+              : typeof rawObj.physicalRoll === "number"
+                ? [rawObj.physicalRoll]
+                : undefined),
+        };
+
         const payload = z
           .object({
             characterId: z.number().int().optional(),
@@ -1279,7 +1455,7 @@ export async function createAshServer(options: AshServerOptions = {}) {
             weaponItemId: z.string().optional(),
             label: z.string().optional(),
           })
-          .parse(raw);
+          .parse(normalized);
 
         const charId = payload.characterId ?? identity.characterId;
         const state = db.getState(identity.campaignId, "host", null, "");
@@ -2741,6 +2917,11 @@ export async function createAshServer(options: AshServerOptions = {}) {
         const siteQ = Number(siteParts[2]);
         const siteR = Number(siteParts[3]);
 
+        if (camp?.active_site_id) throw new Error("Exit the current site before entering another site");
+        if (site.region_id !== camp.active_region_id || siteParts[1] !== (currentLoc.layerId ?? "surface")) {
+          throw new Error("This site is not in the party's current region and layer");
+        }
+
         if (siteQ !== currentLoc.q || siteR !== currentLoc.r) {
           throw new Error(`Party is at (${currentLoc.q}, ${currentLoc.r}), not at site location (${siteQ}, ${siteR})`);
         }
@@ -2772,44 +2953,40 @@ export async function createAshServer(options: AshServerOptions = {}) {
         db.setActiveSite(identity.campaignId, site.id);
         db.setCampaignPhase(identity.campaignId, "dungeon");
 
+        const tavern = camp.tavern_establishment_json ? JSON.parse(camp.tavern_establishment_json) : null;
+        const siteLead = tavern?.leads.find((lead: { targetSiteId: string }) => lead.targetSiteId === site.id);
+        const deserted = siteLead?.destinationOutcome === "false" || siteLead?.destinationOutcome === "empty";
+
         const existingRoom = db.db
           .prepare("SELECT 1 FROM dungeon_rooms WHERE campaign_id = ? AND site_id = ?")
           .get(identity.campaignId, site.id);
         if (!existingRoom) {
           const room = generateDungeonRoom();
+          if (deserted) {
+            room.contents = siteLead.arrivalDiscovery;
+            room.interaction = "Ancient dust and wind through cracks; free search turn.";
+            room.exits = 1;
+            delete room.trap;
+          }
           db.addRoom(identity.campaignId, room, site.id);
         }
 
         const existingGraph = db.getDungeonGraph(identity.campaignId, site.id);
         if (!existingGraph) {
-          const defaultGraph: DungeonGraphState = {
-            siteId: site.id,
-            campaignId: identity.campaignId,
-            currentRoomId: 1,
-            entryRoomId: 1,
-            explorationTurns: 0,
-            lightTurnsRemaining: 0,
-            nodes: [
-              [100, 200], [250, 100], [250, 300], [400, 200], [550, 200],
-            ].map(([x, y], index) => ({
-              id: index + 1, title: `Area ${index + 1}`, x, y,
-              geometry: `Area within ${site.name}`, contents: "", interaction: "", explored: index === 0,
-            })),
-            edges: [
-              { fromRoomId: 1, toRoomId: 2, doorType: "wooden_door", state: "closed" },
-              { fromRoomId: 1, toRoomId: 3, doorType: "open", state: "open" },
-              { fromRoomId: 2, toRoomId: 4, doorType: "wooden_door", state: "locked" },
-              { fromRoomId: 3, toRoomId: 4, doorType: "open", state: "open" },
-              { fromRoomId: 4, toRoomId: 5, doorType: "secret", state: "closed" },
-            ],
-          };
-          // Secret access is optional; the objective must have an ordinary route.
-          defaultGraph.edges.push({ fromRoomId: 3, toRoomId: 5, doorType: "wooden_door", state: "closed" });
+          const defaultGraph = generateSiteLayout(identity.campaignId, site.id, site.name,
+            deserted ? 6 : rollDie(6),
+            ["settlement", "resource", "shrine", "district"].includes(site.kind) ? "nearby_path" : "stairs");
           const path = db.getAdventurePath(identity.campaignId);
           const situation = path?.activeSituation?.siteId === site.id ? path?.activeSituation : undefined;
           const objective = db.getState(identity.campaignId, "host", null, "").campaign.activeObjective;
           const keys = db.getZoneManifest(camp.active_zone_id || "the_gloaming")?.wanderingMonsterTable ?? [];
-          populateSiteRooms(defaultGraph, {
+          if (deserted) {
+            delete defaultGraph.siteStructure;
+            defaultGraph.nodes = [{ ...defaultGraph.nodes[0], feature: "empty",
+              title: "The trail ends here", contents: siteLead.arrivalDiscovery,
+              interaction: "Inspect the evidence, then choose your next destination." }];
+            defaultGraph.edges = [];
+          } else populateSiteRooms(defaultGraph, {
             roll: rollDie,
             monster: (feature) => {
               const key = feature === "boss_monster" && keys.length
@@ -2821,10 +2998,45 @@ export async function createAshServer(options: AshServerOptions = {}) {
               const reward = generateTreasureReward(1);
               return { coins: reward.coins.gp + reward.coins.sp / 10, items: reward.items };
             },
+            groupTreasure: (feature, roomId) => {
+              const rewardService = new RewardService(db);
+              const groupId = `grp_${identity.campaignId}_${site.id}_rm${roomId}`;
+              const isBoss = feature === "boss_monster";
+              const reg = rewardService.registerEncounterGroup(
+                identity.campaignId,
+                {
+                  id: groupId,
+                  siteId: site.id,
+                  roomId,
+                  name: isBoss ? "Site Boss" : "Site Inhabitants",
+                  members: [{ key: "site_inhabitant", name: "Site Inhabitant", count: feature === "monster_mob" ? 3 : 1 }],
+                  policyType: isBoss ? "boss_hoard" : "general_monster",
+                },
+                `seed_${groupId}`,
+              );
+              if (reg.present && reg.sourceId) {
+                const src = db.getRewardSource(identity.campaignId, reg.sourceId);
+                if (src) {
+                  return {
+                    coins: src.coins.gp + src.coins.sp / 10 + src.coins.cp / 100,
+                    items: [...src.items],
+                  };
+                }
+              }
+              return null;
+            },
             objective: { title: situation?.title ??
               (objective?.targetSiteId === site.id ? objective?.title : undefined) ?? `Investigate ${site.name}`,
               deedId: situation?.requiredDeed },
           });
+          if (!deserted) attachSiteObjectives(defaultGraph, {
+            pathId: siteLead?.isPathLead === false ? undefined : path?.pathId,
+            act: Number(camp.act ?? 1), seed: site.id,
+            primary: situation ? { title: situation.title, deedId: situation.requiredDeed } : undefined,
+          });
+          if (!deserted && siteLead?.arrivalDiscovery) {
+            defaultGraph.nodes[0].contents += ` ${siteLead.arrivalDiscovery}`;
+          }
           db.saveDungeonGraph(identity.campaignId, defaultGraph);
         } else {
           // Re-enter through the entrance, keeping discoveries and outcomes intact.
@@ -3124,8 +3336,23 @@ export async function createAshServer(options: AshServerOptions = {}) {
         }
         if (payload.objectiveCompleted && !room.objective) throw new Error("The objective is not in this room");
         if (payload.treasureFound && !room.treasure) {
-          const reward = generateTreasureReward(1);
-          room.treasure = { coins: reward.coins.gp, items: reward.items, claimed: false };
+          const groupId = `grp_${identity.campaignId}_${graph.siteId}_rm${room.id}`;
+          const roll = db.getTreasureRoll(identity.campaignId, groupId);
+          if (roll && !roll.present) {
+            // Durable negative result preserved: no fresh treasure through searching
+          } else if (roll && roll.present && roll.sourceId) {
+            const src = db.getRewardSource(identity.campaignId, roll.sourceId);
+            if (src) {
+              room.treasure = {
+                coins: src.coins.gp + src.coins.sp / 10 + src.coins.cp / 100,
+                items: [...src.items],
+                claimed: false,
+              };
+            }
+          } else if (room.feature === "treasure") {
+            const reward = generateTreasureReward(1);
+            room.treasure = { coins: reward.coins.gp, items: reward.items, claimed: false };
+          }
         }
         if (payload.treasureAccessible) {
           if (!room.treasure) throw new Error("No treasure has been found here");
@@ -3139,10 +3366,14 @@ export async function createAshServer(options: AshServerOptions = {}) {
         if (payload.objectiveCompleted && room.objective && !room.objective.completed) {
           room.objective.completed = true;
           room.objective.notes = payload.notes;
-          if (room.objective.deedId) {
-            db.resolveAdventurePathDeed(identity.campaignId, room.objective.deedId, 1, payload.notes);
-            db.updateSiteState(graph.siteId, `Objective completed: ${payload.notes}`);
+          if (room.objective.generated) {
+            new RewardService(db).resolveStoryAward(identity.campaignId,
+              room.objective.deedId ?? room.objective.generated.id, "site_objective", payload.outcome, payload.notes);
           }
+          if (room.objective.deedId && (!room.objective.generated || room.objective.deedId !== room.objective.generated.id)) {
+            db.resolveAdventurePathDeed(identity.campaignId, room.objective.deedId, 1, payload.notes);
+          }
+          db.updateSiteState(graph.siteId, `Objective completed: ${payload.notes}`);
         }
         db.saveDungeonGraph(identity.campaignId, graph);
         db.addRoll(identity.campaignId, { actor: actor(), kind: "exploration",
@@ -3409,16 +3640,108 @@ export async function createAshServer(options: AshServerOptions = {}) {
     );
 
     socket.on(
+      "combat:set_initiative",
+      action((raw: unknown) => {
+        callerOrHostOnly();
+        const payload = z
+          .object({
+            combatantId: z.string(),
+            initiative: z.number().int(),
+          })
+          .parse(raw);
+        const combat = db.getCombatState(identity.campaignId);
+        if (!combat || combat.status !== "active") throw new Error("No active combat");
+
+        const target = combat.combatants.find((c) => c.id === payload.combatantId);
+        if (!target) throw new Error("Combatant not found");
+
+        target.initiative = payload.initiative;
+        combat.combatants.sort((a, b) => b.initiative - a.initiative);
+        db.saveCombatState(identity.campaignId, combat);
+
+        db.addRoll(identity.campaignId, {
+          actor: actor(),
+          kind: "combat",
+          label: `${target.name} Initiative Set`,
+          dice: "—",
+          total: payload.initiative,
+          detail: `${target.name}'s initiative set to ${payload.initiative}. Turn order updated.`,
+        });
+
+        return { combat };
+      }),
+    );
+
+    socket.on(
+      "combat:toggle_condition",
+      action((raw: unknown) => {
+        callerOrHostOnly();
+        const payload = z
+          .object({
+            combatantId: z.string(),
+            condition: z.string().trim().min(1).max(50),
+          })
+          .parse(raw);
+        const combat = db.getCombatState(identity.campaignId);
+        if (!combat || combat.status !== "active") throw new Error("No active combat");
+
+        const target = combat.combatants.find((c) => c.id === payload.combatantId);
+        if (!target) throw new Error("Combatant not found");
+
+        const has = target.conditions.includes(payload.condition);
+        target.conditions = has
+          ? target.conditions.filter((c) => c !== payload.condition)
+          : [...target.conditions, payload.condition];
+
+        if (target.kind === "pc") {
+          const state = db.getState(identity.campaignId, "host", null, "");
+          const char = state.characters.find((c) => c.id === target.refId);
+          if (char) {
+            db.updateCharacter(identity.campaignId, {
+              ...char,
+              conditions: target.conditions,
+            });
+          }
+        }
+
+        db.saveCombatState(identity.campaignId, combat);
+
+        db.addRoll(identity.campaignId, {
+          actor: actor(),
+          kind: "combat",
+          label: `${target.name} Condition ${has ? "Cleared" : "Applied"}`,
+          dice: "—",
+          total: 0,
+          detail: `${has ? "Cleared" : "Inflicted"} condition [${payload.condition}] on ${target.name}.`,
+        });
+
+        return { combat };
+      }),
+    );
+
+    socket.on(
       "combat:update_hp",
       mutationAction(
         "combat:update_hp",
         (raw: unknown) => {
+          const rawObj = raw && typeof raw === "object" ? (raw as Record<string, any>) : {};
           const payload = z
             .object({
               combatantId: z.string(),
-              delta: z.number().int(),
+              delta: z.number().int().optional(),
+              currentHp: z.number().int().optional(),
+              damage: z.number().int().positive().optional(),
+              heal: z.number().int().positive().optional(),
             })
-            .parse(raw);
+            .refine(
+              (data) =>
+                data.delta !== undefined ||
+                data.currentHp !== undefined ||
+                data.damage !== undefined ||
+                data.heal !== undefined,
+              { message: "Provide delta, currentHp, damage, or heal" },
+            )
+            .parse(rawObj);
 
           const combat = db.getCombatState(identity.campaignId);
           if (!combat || combat.status !== "active") throw new Error("No active combat");
@@ -3431,7 +3754,18 @@ export async function createAshServer(options: AshServerOptions = {}) {
           }
 
           const prevHp = target.currentHp;
-          const newHp = Math.max(0, Math.min(target.maxHp, prevHp + payload.delta));
+          let delta = 0;
+          if (payload.delta !== undefined) {
+            delta = payload.delta;
+          } else if (payload.damage !== undefined) {
+            delta = -payload.damage;
+          } else if (payload.heal !== undefined) {
+            delta = payload.heal;
+          } else if (payload.currentHp !== undefined) {
+            delta = payload.currentHp - prevHp;
+          }
+
+          const newHp = Math.max(0, Math.min(target.maxHp, prevHp + delta));
           target.currentHp = newHp;
 
           if (target.kind === "pc") {
@@ -3463,13 +3797,20 @@ export async function createAshServer(options: AshServerOptions = {}) {
 
           db.saveCombatState(identity.campaignId, combat);
 
+          const actionDesc =
+            delta < 0
+              ? `took ${Math.abs(delta)} damage`
+              : delta > 0
+                ? `healed ${delta} HP`
+                : `HP set to ${newHp}`;
+
           db.addRoll(identity.campaignId, {
             actor: actor(),
             kind: "combat",
             label: `${target.name} HP Update`,
-            dice: `${payload.delta >= 0 ? "+" : ""}${payload.delta}`,
+            dice: `${delta >= 0 ? "+" : ""}${delta}`,
             total: newHp,
-            detail: `${target.name}: ${prevHp} -> ${newHp}/${target.maxHp} HP${newHp === 0 ? " [DOWN / DYING!]" : ""}`,
+            detail: `${target.name} ${actionDesc} (${prevHp} -> ${newHp}/${target.maxHp} HP)${newHp === 0 ? " [DOWN / DYING!]" : ""}`,
           });
 
           return { combat };
@@ -3565,27 +3906,36 @@ export async function createAshServer(options: AshServerOptions = {}) {
       "combat:morale_check",
       action((raw: unknown) => {
         callerOrHostOnly();
-        const payload = z.object({ moraleScore: z.number().int().default(7) }).parse(raw);
+        const payload = z
+          .object({
+            moraleScore: z.number().int().default(7),
+            diceMode: z.enum(["digital", "physical"]).default("digital"),
+            physicalRoll: z.number().int().optional(),
+          })
+          .parse(raw);
         const combat = db.getCombatState(identity.campaignId);
         if (!combat) throw new Error("No active combat");
 
-        const rollResult = moraleRoll(payload.moraleScore);
-        const passed = rollResult.total <= payload.moraleScore;
+        const rollTotal =
+          payload.diceMode === "physical" && payload.physicalRoll !== undefined
+            ? payload.physicalRoll
+            : moraleRoll(payload.moraleScore).total;
+        const passed = rollTotal <= payload.moraleScore;
         combat.moraleTriggerChecked = true;
         db.saveCombatState(identity.campaignId, combat);
 
         db.addRoll(identity.campaignId, {
           actor: "Table",
           kind: "morale",
-          label: `Monster Morale Check (Score: ${payload.moraleScore})`,
+          label: `${payload.diceMode === "physical" ? "(Physical) " : ""}Monster Morale Check (Score: ${payload.moraleScore})`,
           dice: "2d6",
-          total: rollResult.total,
+          total: rollTotal,
           detail: passed
-            ? "Monsters hold their ground and fight on!"
-            : "MONSTERS ROUT! The enemies break ranks and attempt to flee or surrender!",
+            ? `Roll ${rollTotal} <= ${payload.moraleScore}: Monsters hold their ground and fight on!`
+            : `Roll ${rollTotal} > ${payload.moraleScore}: MONSTERS ROUT! The enemies break ranks and attempt to flee or surrender!`,
         });
 
-        return { rollResult, passed };
+        return { rollResult: { total: rollTotal }, passed };
       }),
     );
 
@@ -3613,19 +3963,45 @@ export async function createAshServer(options: AshServerOptions = {}) {
         let rewardRecord: RewardRecord | null = db.getRewards(identity.campaignId).find((reward) =>
           reward.sourceType === "encounter" && reward.sourceId === String(combat.encounterId)) ?? null;
         if (victory && !sourceRoom && !rewardRecord) {
-          const reward = generateTreasureReward(1);
-          rewardRecord = {
-            id: `reward-${Date.now()}`,
-            campaignId: identity.campaignId,
-            sourceType: "encounter",
-            sourceId: String(combat.encounterId),
-            coins: reward.coins,
-            items: reward.items,
-            claimed: false,
-            allocations: {},
-          };
-          db.saveReward(identity.campaignId, rewardRecord);
-
+          const groupId = `enc_${combat.encounterId}`;
+          const encGroup = db.getEncounterGroup(identity.campaignId, groupId);
+          if (encGroup) {
+            const roll = db.getTreasureRoll(identity.campaignId, encGroup.id);
+            if (roll && !roll.present) {
+              rewardRecord = null;
+            } else if (roll && roll.present && roll.sourceId) {
+              const src = db.getRewardSource(identity.campaignId, roll.sourceId);
+              if (src) {
+                rewardRecord = {
+                  id: `reward-${Date.now()}`,
+                  campaignId: identity.campaignId,
+                  sourceType: "encounter",
+                  sourceId: String(combat.encounterId),
+                  coins: src.coins,
+                  items: [...src.items],
+                  claimed: false,
+                  allocations: {},
+                  quality: src.quality,
+                  xpValue: src.xpValue,
+                  groupId: encGroup.id,
+                };
+                db.saveReward(identity.campaignId, rewardRecord);
+              }
+            }
+          } else {
+            const reward = generateTreasureReward(1);
+            rewardRecord = {
+              id: `reward-${Date.now()}`,
+              campaignId: identity.campaignId,
+              sourceType: "encounter",
+              sourceId: String(combat.encounterId),
+              coins: reward.coins,
+              items: reward.items,
+              claimed: false,
+              allocations: {},
+            };
+            db.saveReward(identity.campaignId, rewardRecord);
+          }
         }
         if (victory && sourceRoom?.encounter && sourceGraph) {
           sourceRoom.encounter.defeated = true;
@@ -3712,27 +4088,18 @@ export async function createAshServer(options: AshServerOptions = {}) {
         const livingChars = state.characters.filter((c) => !c.conditions?.includes("dead"));
 
         if (payload.allocationType === "split_coins") {
-          const totalGp =
-            (reward.coins.gp ?? 0) +
-            Math.floor((reward.coins.sp ?? 0) / 10) +
-            Math.floor((reward.coins.cp ?? 0) / 100);
-          const perChar = Math.floor(totalGp / Math.max(1, livingChars.length));
-          for (const char of livingChars) {
-            db.updateCharacter(identity.campaignId, {
-              ...char,
-              gold: char.gold + perChar,
-            });
-          }
-          reward.coins = { cp: 0, sp: 0, gp: 0 };
-          reward.allocations["coins"] = { target: "party" };
+          const rewardService = new RewardService(db);
+          const splitRes = rewardService.splitRewardCoins(identity.campaignId, payload.rewardId);
           db.addRoll(identity.campaignId, {
             actor: actor(),
             kind: "reward",
             label: "Coins Divided Evenly",
             dice: "—",
-            total: perChar,
-            detail: `Each of ${livingChars.length} party members received ${perChar} gp.`,
+            total: splitRes.copperPerChar,
+            detail: splitRes.log,
           });
+          const updatedReward = db.getRewards(identity.campaignId).find((r) => r.id === payload.rewardId) ?? reward;
+          return { reward: updatedReward };
         } else if (payload.allocationType === "assign_item") {
           if (payload.characterId === undefined || payload.itemIndex === undefined) {
             throw new Error("Target character and item index required");
@@ -3823,10 +4190,26 @@ export async function createAshServer(options: AshServerOptions = {}) {
           ? state.characters.filter((c) => payload.characterIds!.includes(c.id))
           : state.characters.filter((c) => !c.conditions?.includes("dead"));
 
+        let awardSeq = 1;
         for (const char of targets) {
-          const currentXp = char.xp ?? 0;
-          const newXp = currentXp + payload.amount;
-          db.updateCharacter(identity.campaignId, { ...char, xp: newXp });
+          const prog = applyXpEvent(char, payload.amount);
+          db.updateCharacter(identity.campaignId, prog.character);
+          if (payload.sourceId) {
+            db.recordXpAwardRecipient({
+              campaignId: identity.campaignId,
+              sourceId: payload.sourceId,
+              characterId: char.id,
+              awardSequence: awardSeq++,
+              amount: payload.amount,
+              levelBefore: prog.levelBefore,
+              xpBefore: prog.xpBefore,
+              levelAfter: prog.levelAfter,
+              xpAfter: prog.xpAfter,
+              resetLoss: prog.resetLoss,
+              status: "applied",
+              createdAt: new Date().toISOString(),
+            });
+          }
         }
 
         if (payload.sourceId) {
@@ -3924,12 +4307,14 @@ export async function createAshServer(options: AshServerOptions = {}) {
             (!objectiveRoom || objectiveRoom.id !== graph.currentRoomId)) {
           throw new Error("Reach the site's objective before resolving its deed");
         }
-        const res = db.resolveAdventurePathDeed(
-          identity.campaignId,
-          payload.deed,
-          1,
-          payload.details || `Resolved deed ${payload.deed} at site ${payload.siteId}`,
-        );
+        const generated = objectiveRoom?.objective?.generated;
+        const res = generated && generated.id === payload.deed
+          ? new RewardService(db).resolveStoryAward(identity.campaignId, payload.deed,
+            "site_objective", "table_ruling", payload.details)
+          : resolveOutcome(db, identity.campaignId, payload.deed, {
+            outcomeType: "site_objective",
+            notes: payload.details || `Resolved deed ${payload.deed} at site ${payload.siteId}`,
+          });
 
         db.updateSiteState(payload.siteId, `Deed Resolved: ${payload.deed}`);
         if (objectiveRoom?.objective && graph) {
@@ -3957,6 +4342,13 @@ export async function createAshServer(options: AshServerOptions = {}) {
       "site:exit",
       action((_raw: unknown) => {
         const camp = db.db.prepare("SELECT * FROM campaigns WHERE id = ?").get(identity.campaignId) as any;
+        callerOrHostOnly();
+        requireEncounterResolved();
+        const graph = db.getDungeonGraph(identity.campaignId, camp?.active_site_id);
+        if (!camp?.active_site_id) throw new Error("No active site to exit");
+        if (graph?.siteStructure && graph.currentRoomId !== graph.entryRoomId) {
+          throw new Error("Backtrack to the surface entrance before leaving the site; you may retreat before entering the next section");
+        }
         const currentLoc = camp?.party_location_json ? JSON.parse(camp.party_location_json) : { q: 0, r: 0 };
         const isAtHaven = currentLoc.q === 0 && currentLoc.r === 0;
 
@@ -4266,6 +4658,8 @@ export async function createAshServer(options: AshServerOptions = {}) {
     httpServer,
     port,
     baseUrl,
+    hostAddress: resolvedHost.address,
+    interfaceName: resolvedHost.interfaceName,
     listen: () =>
       new Promise<void>((resolveListen) =>
         httpServer.listen(port, "0.0.0.0", resolveListen),
