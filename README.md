@@ -22,6 +22,7 @@ The companion is strictly stripped back to essential physical-table needs (see t
 - **Shadowdark Initiative:** Clean clockwise table-seating order started by a single group DEX check; monsters act as a group on the GM's table seat.
 - **Blind Adventure Paths:** Players explore emergent leads and sites without knowing the endgame boss or outcome in advance.
 - **Widgets & Interactive Leverage:** Campaign keys physically exist in character inventories; sites provide tactical levers to weaken threats.
+- **Living World Directory:** Towns, taverns, shops, trainers, and adventure sites are pinned to the map with their known NPCs, roles, and dispositions so details are never lost session to session.
 - **Searchable Codex:** Instant lookup for conditions, spells, gear, and core OSR tables.
 
 The complete product target is two characters per player using class-first Unearthed Arcana and stats-first Iron Man generation, a chosen or secretly rolled adventure path, a party-informed town and tavern with three leads, regional knowledge distinct from current discoveries, and clickable adventure-site maps. Paths span **three acts with sufficient material for Shadowdark levels 1–10**. The [current requirements and delivery plan](docs/plans/table_assistant_campaign_requirements.md) define this scope, reference-system findings, known implementation gaps, and acceptance gates. The opening-expedition milestone below is only the first playable slice.

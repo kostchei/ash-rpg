@@ -12,6 +12,7 @@ The next release targets a complete in-person expedition with four core classes,
 4. **Physical Widgets & Leverage:** Campaign-progressing items exist in character inventories; sites offer environmental and tactical leverage to weaken threats.
 5. **Session-to-Session Ledger:** Seamless tracking of current HP, gold, conditions, light duration, and carried relics.
 6. **Searchable Codex:** Instant lookup for conditions, spells, gear, and core OSR procedures.
+7. **Living World Directory (NPCs & Facilities):** Map-linked tracking of towns, taverns, shops (blacksmith, apothecary, provisioner), trainers (martial, arcane, divine), and adventure site denizens (rescued captives, sages, witnesses) so names, roles, and locations are never lost between sessions.
 
 ## What is implemented
 

@@ -91,6 +91,18 @@ The ASH Table Companion is designed for **1 to 6 people playing solo or cooperat
   * Real-time / turn-based light trackers (Torches and Lanterns remaining).
   * Inventory slots, equipped gear, and carried path widgets.
 
+### 10. Living World Directory (Settlements, Facilities & NPC Tracking)
+* **Never Lose Track of Who is Where:** Between sessions, players and referees frequently forget NPC names, where shops are located, and who offered training or rumors. The companion pins people and establishments directly to the map.
+* **Map-Linked Settlements & Facilities:**
+  * **Taverns & Inns:** Name, keeper, vibe, lodging quality, rumor boards.
+  * **Shops & Artisans:** Blacksmiths (armor/weapon forging and repair), Apothecaries/Herbalists (healing draughts, antitoxins, herbs), and General Provisioners (torches, rations, standard dungeoneering gear).
+  * **Trainers & Mentors:** Martial weaponmasters (class talent advancement), Arcane academies/libraries (spell scrolls, spellbook transcription), and Divine temples/shrines (blessings, tithes, penance for spell mishaps).
+  * **Adventure Site Denizens:** Rescued captives, hermit sages, parleyed monster chieftains, and lingering witnesses pinned to specific dungeon rooms or surface ruins.
+* **NPC Dossiers:**
+  * **Name, Role, & Ancestry:** e.g., *"Torvald Stonehand (Dwarf Smith)"*, *"Sister Alyssa (Human Priestess)"*, *"Jonathan Vane (Rescued Surveyor)"*.
+  * **Current Location:** Pinned to town, shop, tavern, or adventure site room.
+  * **Disposition & Memory:** Current attitude (Friendly, Neutral, Hostile) and session notes (rumors told, promised favors/debts, training unlocked).
+
 ---
 
 ## 3. Information Fog of War (Diegetic Revelation)
@@ -172,23 +184,24 @@ A fast, instant-filter reference drawer/modal accessible from any view:
 
 ```
 ┌──────────────────────────────────────────────────────────────────────────────┐
-│  [ASH RPG TABLE COMPANION]                  [🔍 Search Codex] [Party Ledger] │
+│  [ASH RPG TABLE COMPANION]       [👥 NPC Directory] [🔍 Codex] [Party Ledger]│
 ├───────────────────────────────┬──────────────────────────────────────────────┤
-│ 1. MAP & SITE (Fog of War)    │ 2. SHADOWDARK INITIATIVE & ENCOUNTER         │
-│ • Hex Map: Terrain & Sites    │ ┌──────────────────────────────────────────┐ │
-│ • Dungeon Node:               │ │ Turn: BOB (Clockwise: Bob → Dave → Mobs) │ │
-│   - Area 3: The Crypt         │ └──────────────────────────────────────────┘ │
-│   - Known Exits: North, East  │ Monster: Barrow Wight (x2)                   │
-│   - Sensory tell for hazards  │ • Wight A: [ Bloodied! ] (11/24 HP) | AC: 14 │
-│ • Discovered "Widgets" & Clues│ • Wight B: [ Unharmed  ] (??/?? HP) | AC: ?  │
-│                               │ Controls: [-1] [-5] HP | [Reaction: Neutral] │
+│ 1. MAP & SITES (Fog of War)   │ 2. SHADOWDARK INITIATIVE & ENCOUNTER         │
+│ • Hex Map: Terrain & Towns    │ ┌──────────────────────────────────────────┐ │
+│ • Town: Oakhaven              │ │ Turn: BOB (Clockwise: Bob → Dave → Mobs) │ │
+│   - Tavern: The Ashen Tankard │ └──────────────────────────────────────────┘ │
+│     NPC: Gundren (Barkeep)    │ Monster: Barrow Wight (x2)                   │
+│   - Smithy: Torvald (Master)  │ • Wight A: [ Bloodied! ] (11/24 HP) | AC: 14 │
+│   - Trainer: Vance (Fighter)  │ • Wight B: [ Unharmed  ] (??/?? HP) | AC: ?  │
+│ • Dungeon: The Bone Crypt     │ Controls: [-1] [-5] HP | [Reaction: Neutral] │
+│   - Rescued: Surveyor Vane    │                                              │
 ├───────────────────────────────┴──────────────────────────────────────────────┤
 │ 3. PLAYER STAT DASHBOARD & LEDGER (No Roll Buttons)                          │
 │ Alice (Fighter)   | AC 15 | HP: 12/18 | ATK: Melee +3 (1d8+2) | Saves: STR +2│
 │ Bob (Thief)       | AC 13 | HP:  8/10 | ATK: Ranged +3 (1d6)   | Saves: DEX +3│
 │ Charlie (Priest)  | AC 16 | HP:  9/14 | Spell DC 11 (T1: [x][ ])| Saves: WIS +2│
 │ Dave (Wizard)     | AC 10 | HP:  4/6  | Spell DC 12 (T1: [ ][ ])| Saves: INT +3│
-│ Party Wallet: 142 GP, 35 SP | Light: Torch (40 min) | Conditions: None      │
+│ Party Wallet: 142 GP, 35 SP | Light: Torch (40 min) | Widgets: [Shield Crystal]│
 └──────────────────────────────────────────────────────────────────────────────┘
 ```
 
