@@ -79,6 +79,7 @@ nav:
   - "Campaign Requirements & Plan": plans/table_assistant_campaign_requirements.md
   - "Path Sites, XP & Act Zones": plans/path_sites_xp_and_zones.md
   - "Path Campaign Engineering": plans/path_campaign_engineering.md
+  - "Product Quality Engineering Plan": plans/product_quality_engineering_plan.md
   - "Implementation Plan": plans/table_companion_mvp.md
   - "Player's Handbook":
       - "Overview & Core Mechanics": rules/01_system_overview.md
