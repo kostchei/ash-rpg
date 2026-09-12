@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { attachSiteObjectives, OBJECTIVE_PATH_PROFILES } from "../src/server/generators/site-objectives.js";
 import { generateSiteLayout } from "../src/server/generators/site-layout.js";
 import { SITE_OBJECTIVE_TYPES } from "../src/shared/site-objectives.js";
+import { getEligibleClasses, UA_CLASS_STAT_ORDER } from "../src/server/rules.js";
 
 describe("Per-section objective selector", () => {
   it("covers the merged vocabulary and all 22 paths across three acts and six size rolls", () => {
@@ -41,6 +42,34 @@ describe("Per-section objective selector", () => {
     expect(similar).toBeGreaterThan(150); expect(similar).toBeLessThan(250);
     expect(kinds.size).toBe(15);
   });
+  it("staffs rescue objectives with a classed, gearless NPC and leaves other kinds alone", () => {
+    let rescues = 0;
+    const methods = new Set<string>();
+    for (let seed = 0; seed < 200; seed++) {
+      const graph = generateSiteLayout(1, "site", "Test", 1);
+      attachSiteObjectives(graph, { pathId: "ithaqua", act: 1, seed: `rescue:${seed}` });
+      for (const objective of graph.nodes.flatMap((n) => (n.objective ? [n.objective] : []))) {
+        const generated = objective.generated!;
+        const isRescue = generated.kind === "rescue_captive" || generated.kind === "rescue_companion";
+        if (!isRescue) {
+          expect(generated.rescuedNpc).toBeUndefined();
+          continue;
+        }
+        rescues++;
+        const npc = generated.rescuedNpc!;
+        methods.add(npc.generationMethod);
+        expect(UA_CLASS_STAT_ORDER[npc.className]).toBeDefined();
+        if (npc.generationMethod === "iron_man") {
+          expect(getEligibleClasses(npc.abilities)).toContain(npc.className);
+        }
+        expect(npc.gear).toEqual([]);
+        expect(generated.completion).toContain("no gear");
+      }
+    }
+    expect(rescues).toBeGreaterThan(0);
+    expect(methods.size).toBe(2);
+  });
+
   it("preserves the opening rescue deed only in the terminal section", () => {
     const graph = generateSiteLayout(1, "waterworks", "Test", 1);
     attachSiteObjectives(graph, { pathId: "the_mind_below", act: 1, seed: "rescue",

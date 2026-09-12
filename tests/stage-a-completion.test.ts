@@ -3,75 +3,142 @@ import { io as Client, type Socket } from "socket.io-client";
 import { createAshServer } from "../src/server/app.js";
 import {
   getEligibleClasses,
+  meetsIronManRequirements,
+  meetsUnearthedArcanaRequirements,
+  rollDungeonNpc,
   rollIronManAbilities,
+  rollRetainerAbilities,
   rollUnearthedArcanaAbilities,
-  UA_CLASS_DICE_ALLOCATION,
+  UA_CLASS_STAT_ORDER,
 } from "../src/server/rules.js";
 import type { AbilityScores } from "../src/shared/types.js";
 
 describe("Stage A Completion: Rules, Integrity, Deduplication & Projections", () => {
   describe("Unearthed Arcana Method I & Iron Man Generation Rules", () => {
-    it("defines UA dice allocations for all 13 supported classes", () => {
-      const classes = [
-        "Fighter", "Thief", "Priest", "Wizard", "Delver", "Ras-Godai",
-        "Druid", "Alchemist", "Sage", "Monk", "Bard", "Duelist", "Ranger",
-      ];
-      for (const cls of classes) {
-        expect(UA_CLASS_DICE_ALLOCATION[cls]).toBeDefined();
-        const alloc = UA_CLASS_DICE_ALLOCATION[cls];
-        expect(alloc.str).toBeGreaterThanOrEqual(3);
-        expect(alloc.dex).toBeGreaterThanOrEqual(3);
-        expect(alloc.con).toBeGreaterThanOrEqual(3);
-        expect(alloc.int).toBeGreaterThanOrEqual(3);
-        expect(alloc.wis).toBeGreaterThanOrEqual(3);
-        expect(alloc.cha).toBeGreaterThanOrEqual(3);
+    const ABILITIES = ["str", "dex", "con", "int", "wis", "cha"] as const;
+    const SUPPORTED_CLASSES = [
+      "Fighter", "Thief", "Priest", "Wizard", "Delver", "Ras-Godai",
+      "Druid", "Alchemist", "Sage", "Monk", "Bard", "Duelist", "Ranger",
+    ];
+
+    it("defines a UA stat order covering all six abilities for all 13 classes", () => {
+      for (const cls of SUPPORTED_CLASSES) {
+        const order = UA_CLASS_STAT_ORDER[cls];
+        expect(order).toBeDefined();
+        expect([...order].sort()).toEqual([...ABILITIES].sort());
       }
     });
 
-    it("rolls UA abilities keeping 3 highest dice and preserving individual dice", () => {
-      // Mock RNG that returns predictable sequence (0..5 -> roll 1..6)
-      let rollSeq = 0;
-      const deterministicRng = (max: number) => {
-        rollSeq = (rollSeq + 1) % max;
-        return rollSeq;
-      };
+    it("rejects an unknown class rather than falling back to flat dice", () => {
+      expect(() => rollUnearthedArcanaAbilities("Bellfounder")).toThrow(
+        /No Unearthed Arcana stat order/,
+      );
+    });
 
-      const result = rollUnearthedArcanaAbilities("Fighter", deterministicRng);
-      expect(result.dice.str.length).toBe(9); // Fighter has 9d6 str
-      expect(result.dice.con.length).toBe(8); // Fighter has 8d6 con
-      expect(result.dice.dex.length).toBe(7); // Fighter has 7d6 dex
-      expect(result.dice.int.length).toBe(5); // Fighter has 5d6 int
-      expect(result.dice.wis.length).toBe(4); // Fighter has 4d6 wis
-      expect(result.dice.cha.length).toBe(3); // Fighter has 3d6 cha
+    it("rolls UA dice pools of 8/7/6/5/4/3 in class order, dropping to 4d6 after two high scores", () => {
+      for (let i = 0; i < 50; i++) {
+        const result = rollUnearthedArcanaAbilities("Fighter");
+        expect(result.statOrder).toEqual(UA_CLASS_STAT_ORDER.Fighter);
 
-      // Verify score equals sum of top 3 dice
-      for (const key of ["str", "con", "dex", "int", "wis", "cha"] as const) {
-        const top3Sum = [...result.dice[key]]
-          .sort((a, b) => b - a)
-          .slice(0, 3)
-          .reduce((sum, v) => sum + v, 0);
-        expect(result.scores[key]).toBe(top3Sum);
-        expect(result.scores[key]).toBeGreaterThanOrEqual(3);
-        expect(result.scores[key]).toBeLessThanOrEqual(18);
+        let highScores = 0;
+        result.statOrder.forEach((key, index) => {
+          const isLast = index === result.statOrder.length - 1;
+          const expected =
+            highScores >= 2 ? (isLast ? 3 : 4) : [8, 7, 6, 5, 4, 3][index];
+          expect(result.dice[key].length).toBe(expected);
+
+          const top3Sum = [...result.dice[key]]
+            .sort((a, b) => b - a)
+            .slice(0, 3)
+            .reduce((sum, v) => sum + v, 0);
+          expect(result.scores[key]).toBe(top3Sum);
+          if (result.scores[key] >= 16) highScores += 1;
+        });
       }
     });
 
-    it("rolls Iron Man abilities strictly in 3d6 order and computes eligible classes", () => {
-      const fixedRng = () => 3; // die roll is 4, 3d6 = 12 for all stats
-      const result = rollIronManAbilities(fixedRng);
+    it("silently rerolls UA sets until they meet the requirements", () => {
+      for (let i = 0; i < 50; i++) {
+        const { scores } = rollUnearthedArcanaAbilities("Wizard");
+        const values = ABILITIES.map((k) => scores[k]);
+        if (values.some((v) => v === 18)) continue;
+        expect(values.filter((v) => v < 6).length).toBeLessThanOrEqual(1);
+        expect(values.reduce((a, b) => a + b, 0)).toBeGreaterThanOrEqual(72);
+      }
+    });
 
-      expect(result.scores).toEqual({
-        str: 12,
-        dex: 12,
-        con: 12,
-        int: 12,
-        wis: 12,
-        cha: 12,
-      });
-      // With all 12s, all classes should be eligible
-      expect(result.eligibleClasses.length).toBe(13);
-      expect(result.eligibleClasses).toContain("Fighter");
-      expect(result.eligibleClasses).toContain("Wizard");
+    it("rolls Iron Man abilities as 3d6 in order, rerolled until they meet the requirements", () => {
+      for (let i = 0; i < 50; i++) {
+        const result = rollIronManAbilities();
+        for (const key of ABILITIES) {
+          expect(result.dice[key].length).toBe(3);
+          expect(result.scores[key]).toBe(
+            result.dice[key].reduce((sum, v) => sum + v, 0),
+          );
+        }
+        expect(result.eligibleClasses.length).toBeGreaterThan(0);
+
+        const values = ABILITIES.map((k) => result.scores[k]).sort((a, b) => b - a);
+        if (values[0] === 18) continue;
+        expect(values[0]).toBeGreaterThanOrEqual(16);
+        expect(values[1]).toBeGreaterThanOrEqual(12);
+        expect(values.filter((v) => v < 6).length).toBeLessThanOrEqual(1);
+        expect(values.reduce((a, b) => a + b, 0)).toBeGreaterThanOrEqual(64);
+      }
+    });
+
+    it("keeps any set containing an 18, however badly it fails the other requirements", () => {
+      const luckyDump: AbilityScores = { str: 18, dex: 3, con: 4, int: 5, wis: 5, cha: 3 };
+      expect(meetsIronManRequirements(luckyDump)).toBe(true);
+      expect(meetsUnearthedArcanaRequirements(luckyDump)).toBe(true);
+    });
+
+    it("checks Iron Man and UA requirements independently", () => {
+      // 16/12 present, one dump, total 66 -> Iron Man passes, UA fails on total.
+      const ironOnly: AbilityScores = { str: 16, dex: 12, con: 12, int: 11, wis: 10, cha: 5 };
+      expect(meetsIronManRequirements(ironOnly)).toBe(true);
+      expect(meetsUnearthedArcanaRequirements(ironOnly)).toBe(false);
+
+      // Total 78, but no 16 -> UA passes, Iron Man fails on prime score.
+      const uaOnly: AbilityScores = { str: 15, dex: 13, con: 13, int: 13, wis: 12, cha: 12 };
+      expect(meetsUnearthedArcanaRequirements(uaOnly)).toBe(true);
+      expect(meetsIronManRequirements(uaOnly)).toBe(false);
+
+      // Two scores under 6 fails both.
+      const twoDumps: AbilityScores = { str: 17, dex: 16, con: 16, int: 16, wis: 5, cha: 4 };
+      expect(meetsIronManRequirements(twoDumps)).toBe(false);
+      expect(meetsUnearthedArcanaRequirements(twoDumps)).toBe(false);
+    });
+
+    it("rolls classless retainers on straight 3d6", () => {
+      const retainer = rollRetainerAbilities();
+      expect(retainer.method).toBe("standard");
+      for (const key of ABILITIES) {
+        expect(retainer.dice[key].length).toBe(3);
+        expect(retainer.scores[key]).toBe(
+          retainer.dice[key].reduce((sum, v) => sum + v, 0),
+        );
+      }
+    });
+
+    it("rolls classed dungeon NPCs: 1-5 Iron Man with an assigned class, 6 UA with a rolled class", () => {
+      const methods = new Set<string>();
+      for (let i = 0; i < 120; i++) {
+        const npc = rollDungeonNpc();
+        methods.add(npc.method);
+        expect(UA_CLASS_STAT_ORDER[npc.className]).toBeDefined();
+        if (npc.method === "iron_man") {
+          // Class is assigned from the scores after rolling them.
+          expect(getEligibleClasses(npc.scores)).toContain(npc.className);
+          for (const key of ABILITIES) expect(npc.dice[key].length).toBe(3);
+        } else {
+          // Class is rolled first, then the pools follow its ability order.
+          expect(npc.dice[UA_CLASS_STAT_ORDER[npc.className][0]].length).toBe(8);
+          expect(meetsUnearthedArcanaRequirements(npc.scores)).toBe(true);
+        }
+      }
+      // 1-in-6 for UA: 120 draws makes both methods overwhelmingly likely to appear.
+      expect(methods.size).toBe(2);
     });
 
     it("filters eligible classes accurately based on prime requisites", () => {

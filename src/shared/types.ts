@@ -82,17 +82,24 @@ export interface ExpeditionObjective {
 
 export interface TavernLead {
   id: string;
-  title: string;
   claim: string;
-  source: string;
-  targetHexId: string;
-  targetSiteId: string;
-  directionHint: string;
-  dangerHint: string;
-  preparationHint: string;
-  accuracy: "true" | "distorted" | "false";
+  title?: string;
+  source?: string;
+  sourceNpc?: string;
+  campaignId?: number;
+  targetHexId?: string;
+  targetSiteId?: string;
+  destinationSiteId?: string;
+  directionHint?: string;
+  dangerHint?: string;
+  apparentDanger?: string;
+  preparationHint?: string;
+  promisedReward?: string;
+  accuracy?: "true" | "distorted" | "false";
   isPathLead?: boolean;
   isFollowUp?: boolean;
+  leadType?: "path_primary" | "path_secondary" | "unrelated";
+  isEmptySite?: boolean;
   /** Rolled once on generation; withheld from players until the destination is entered. */
   destinationOutcome?: "active" | "false" | "empty";
   arrivalDiscovery?: string;
@@ -181,8 +188,6 @@ export interface CampaignSummary {
   callerCharacterName?: string | null;
   revision?: number;
   activeSession?: ActivitySession | null;
-  activeDungeon?: DungeonGraphState | null;
-  activeCombat?: CombatState | null;
   started?: boolean;
   isSecretPath?: boolean;
   tableReadiness?: {
@@ -190,6 +195,9 @@ export interface CampaignSummary {
     readyPlayers: number;
     allReady: boolean;
   };
+  facilities?: WorldFacility[];
+  worldNpcs?: WorldNpc[];
+  tavernLeads?: TavernLead[];
 }
 
 export type AbilityKey = "str" | "dex" | "con" | "int" | "wis" | "cha";
@@ -387,6 +395,7 @@ export interface EncounterMonster {
   id: number;
   monsterKey: string;
   name: string;
+  hpStatus?: Combatant["hpStatus"];
   currentHp: number;
   maxHp: number;
   loreTier: number;
@@ -479,6 +488,9 @@ export interface CampaignState {
   activeCombat?: CombatState | null;
   rewards?: RewardRecord[];
   tablePlayers?: TablePlayerSummary[];
+  facilities?: WorldFacility[];
+  worldNpcs?: WorldNpc[];
+  tavernLeads?: TavernLead[];
 }
 
 export interface ItemDefinition {
@@ -567,6 +579,7 @@ export interface DungeonRoomNode {
     trigger: string;
     effect: string;
     dc: number;
+    sensoryTell?: string;
     spotted?: boolean;
     disarmed?: boolean;
   };
@@ -583,6 +596,7 @@ export interface DungeonRoomNode {
     items: string[];
     claimed?: boolean;
   };
+  sensoryTell?: string;
   explored: boolean;
 }
 
@@ -622,6 +636,9 @@ export interface Combatant {
   conditions: string[];
   deathStrikes?: number;
   stabilized?: boolean;
+  acRevealed?: boolean;
+  acHint?: string;
+  hpStatus?: "unharmed" | "injured" | "bloodied" | "near_death" | "defeated";
 }
 
 export interface CombatState {
@@ -632,6 +649,8 @@ export interface CombatState {
   combatants: Combatant[];
   status: "active" | "resolved";
   moraleTriggerChecked?: boolean;
+  seatingOrder?: string[];
+  winnerCombatantId?: string;
 }
 
 export interface RewardRecord {
@@ -691,10 +710,39 @@ export interface NpcResult {
   quirk: string;
   motive: string;
   interaction: string;
+  abilities: AbilityScores;
+  abilityMethod: "iron_man" | "unearthed_arcana" | "standard";
   retainerStats: {
     level: number;
     hp: number;
     morale: number;
     dailyWage: string;
   };
+}
+
+export interface WorldFacility {
+  id: string;
+  campaignId: number;
+  name: string;
+  kind: "tavern" | "blacksmith" | "apothecary" | "provisioner" | "trainer_martial" | "trainer_arcane" | "trainer_divine";
+  locationType: "settlement" | "site_room";
+  locationId: string;
+  keeperNpcId?: string;
+  keeperName?: string;
+  description: string;
+  services: string[];
+}
+
+export interface WorldNpc {
+  id: string;
+  campaignId: number;
+  name: string;
+  role: string;
+  ancestry: string;
+  locationType: "settlement" | "facility" | "site_room";
+  locationId: string;
+  locationName?: string;
+  disposition: "friendly" | "neutral" | "hostile" | "uncertain";
+  notes: string;
+  rescueState?: "captive" | "rescued" | "parleyed";
 }

@@ -137,9 +137,12 @@ describe("Stage B: Campaign Setup & Two-Character Ownership", () => {
     it("rolls Unearthed Arcana abilities with class-specific dice tables", async () => {
       const res = await send(player1, "character:roll-ua", { className: "Fighter" });
       expect(res.ok).toBe(true);
-      expect(res.dice.str.length).toBe(9); // Fighter Method I: 9d6 str
-      expect(res.dice.con.length).toBe(8); // 8d6 con
-      expect(res.dice.dex.length).toBe(7); // 7d6 dex
+      expect(res.statOrder).toEqual(["str", "con", "dex", "int", "wis", "cha"]);
+      // Descending pools in class order, unless two high scores cut them to 4d6.
+      expect(res.dice.str.length).toBe(8);
+      expect([7, 4].includes(res.dice.con.length)).toBe(true);
+      expect([6, 4].includes(res.dice.dex.length)).toBe(true);
+      expect(res.dice.cha.length).toBe(3);
       expect(res.scores.str).toBeGreaterThanOrEqual(3);
       expect(res.scores.str).toBeLessThanOrEqual(18);
     });
@@ -160,7 +163,7 @@ describe("Stage B: Campaign Setup & Two-Character Ownership", () => {
         name: "Failing Warrior",
         ancestry: "Human",
         className: "Fighter",
-        abilities: { str: 7, dex: 10, con: 10, int: 16, wis: 10, cha: 10 },
+        abilities: { str: 7, dex: 11, con: 11, int: 16, wis: 11, cha: 12 },
         anchors: { homeland: "North", landmark: "Tower", nemesis: "Ghost" },
         originZoneId: "the_gloaming",
         generationMethod: "iron_man",
@@ -220,17 +223,69 @@ describe("Stage B: Campaign Setup & Two-Character Ownership", () => {
       expect(state.me.characterId).toBe(player1Char1Id);
     });
 
-    it("rejects a third character creation attempt for the same player token", async () => {
+    it("allows further Iron Man characters beyond the first two", async () => {
       const res = await send(player1, "character:create", {
         name: "Third Wheel",
         ancestry: "Dwarf",
         className: "Priest",
-        abilities: { str: 12, dex: 10, con: 14, int: 10, wis: 15, cha: 10 },
+        abilities: { str: 12, dex: 10, con: 14, int: 10, wis: 16, cha: 12 },
         anchors: { homeland: "Deep Delve", landmark: "Forge", nemesis: "Shadow" },
+        originZoneId: "the_gloaming",
+        generationMethod: "iron_man",
+      });
+      expect(res.ok).toBe(true);
+      const owned = server.db
+        .getState(1, "player", null, "", player1Token)
+        .characters.filter((c) => c.id === res.characterId);
+      expect(owned[0].rosterStatus).toBe("reserve");
+      // Active character is untouched by the extra recruit.
+      const state = server.db.getState(1, "player", null, "", player1Token);
+      expect(state.me.characterId).toBe(player1Char1Id);
+    });
+
+    it("rejects a second Unearthed Arcana character for the same player", async () => {
+      const res = await send(player1, "character:create", {
+        name: "Second Chosen",
+        ancestry: "Elf",
+        className: "Bard",
+        abilities: { str: 10, dex: 14, con: 12, int: 13, wis: 12, cha: 17 },
+        anchors: { homeland: "Silverstrand", landmark: "Amphitheatre", nemesis: "Critic" },
+        originZoneId: "the_gloaming",
+        generationMethod: "unearthed_arcana",
+      });
+      expect(res.ok).toBe(false);
+      expect(res.error).toContain(
+        "already owns their one Unearthed Arcana character",
+      );
+    });
+
+    it("rejects a player character created without a generation method", async () => {
+      const res = await send(player2, "character:create", {
+        name: "Methodless",
+        ancestry: "Human",
+        className: "Fighter",
+        abilities: { str: 16, dex: 12, con: 13, int: 10, wis: 10, cha: 10 },
+        anchors: { homeland: "Nowhere", landmark: "Nothing", nemesis: "No one" },
         originZoneId: "the_gloaming",
       });
       expect(res.ok).toBe(false);
-      expect(res.error).toContain("already owns the maximum of 2 characters");
+      expect(res.error).toContain(
+        "Players must roll with the Iron Man or Unearthed Arcana method",
+      );
+    });
+
+    it("rejects ability scores that do not meet the chosen method's requirements", async () => {
+      const res = await send(player2, "character:create", {
+        name: "Milquetoast",
+        ancestry: "Human",
+        className: "Fighter",
+        abilities: { str: 11, dex: 10, con: 10, int: 10, wis: 10, cha: 10 },
+        anchors: { homeland: "Nowhere", landmark: "Nothing", nemesis: "No one" },
+        originZoneId: "the_gloaming",
+        generationMethod: "iron_man",
+      });
+      expect(res.ok).toBe(false);
+      expect(res.error).toContain("do not meet the Iron Man requirements");
     });
 
     it("allows second player to create their own characters", async () => {
@@ -241,6 +296,7 @@ describe("Stage B: Campaign Setup & Two-Character Ownership", () => {
         abilities: { str: 10, dex: 17, con: 12, int: 13, wis: 9, cha: 14 },
         anchors: { homeland: "Riverbend", landmark: "Old Mill", nemesis: "Guildmaster" },
         originZoneId: "the_gloaming",
+        generationMethod: "iron_man",
       });
       expect(res.ok).toBe(true);
       player2Char1Id = res.characterId;

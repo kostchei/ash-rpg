@@ -1,5 +1,6 @@
 import request from "supertest";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { seedMarchingParty } from "./helpers/party.js";
 import { createAshServer, type AshServerOptions } from "../src/server/app.js";
 import { AshDatabase } from "../src/server/database.js";
 import { generateProceduralRegion } from "../src/server/generators/procedural-region.js";
@@ -445,6 +446,11 @@ describe("Remediation Verification (R1-R7 and G1-G6)", () => {
       });
 
       await new Promise<void>((resolve) => socket.on("connect", () => resolve()));
+
+      // A party may not leave the haven alone.
+      const campaignId = (server.db.db.prepare("SELECT id FROM campaigns WHERE code = ?")
+        .get(code) as { id: number }).id;
+      seedMarchingParty(server.db, campaignId);
 
       // 1. Test travel:move
       const moveRes = await new Promise<any>((resolve) => {

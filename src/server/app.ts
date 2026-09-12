@@ -1,7 +1,12 @@
+import { randomUUID } from "node:crypto";
+import { activeSeat, combatSeats, seatIndex, MONSTER_SEAT, projectCombat } from "../shared/table-companion.js";
 import { attachSiteObjectives } from "./generators/site-objectives.js";
+import { MAX_DEPARTING_PARTY, MIN_DEPARTING_PARTY } from "../shared/content.js";
 import { generateSiteLayout } from "./generators/site-layout.js";
 import express from "express";
 import { mutationPayloadKey, RECEIPTED_ACTIONS } from "../shared/mutations.js";
+import { type SliceName, type SlicesUpdate } from "../shared/slices.js";
+import { SliceDiffer } from "./slice-diff.js";
 import { randomInt } from "node:crypto";
 import {
   createServer as createHttpServer,
@@ -44,10 +49,12 @@ import {
   calculateDerivedAc,
   calculateGearSlots,
   calculateTravelWatches,
+  computeHpStatus,
   evaluateWatchFatigue,
   generateDungeonRoom,
   generateMonsterVariant,
   generateTreasureReward,
+  getMonsterAcHint,
   isObscuringWeather,
   getEligibleClasses,
   levelUpCharacter,
@@ -61,6 +68,8 @@ import {
   rollClassTalent,
   rollDice,
   rollDie,
+  meetsIronManRequirements,
+  meetsUnearthedArcanaRequirements,
   rollIronManAbilities,
   rollUnearthedArcanaAbilities,
   wildernessWatch,
@@ -141,6 +150,17 @@ const hostSchema = z.object({
   code: z.string().trim().length(6),
   pin: z.string().min(4).max(8),
 });
+const METHOD_LABELS = {
+  iron_man: "Iron Man",
+  unearthed_arcana: "Unearthed Arcana",
+  standard: "3d6 straight",
+} as const;
+
+const formatAbilities = (abilities: Record<string, number>) =>
+  Object.entries(abilities)
+    .map(([key, value]) => `${key.toUpperCase()} ${value}`)
+    .join(" · ");
+
 const abilitySchema = z.object({
   str: z.number().int().min(3).max(20),
   dex: z.number().int().min(3).max(20),
@@ -464,9 +484,62 @@ export async function createAshServer(options: AshServerOptions = {}) {
     next();
   });
 
+  const metrics = {
+    broadcastCount: 0,
+    projectionsComputed: 0,
+    lastBroadcastBytes: 0,
+  };
+
+  db.onRollAdded = (campaignId, roll) => {
+    io.to(`campaign:${campaignId}`).emit("roll:appended", roll);
+  };
+  db.onNoteAdded = (campaignId, note) => {
+    io.to(`campaign:${campaignId}`).emit("note:appended", note);
+  };
+
+  const differs = new Map<number, SliceDiffer>();
+  function differFor(campaignId: number): SliceDiffer {
+    let differ = differs.get(campaignId);
+    if (!differ) {
+      differ = new SliceDiffer();
+      differs.set(campaignId, differ);
+    }
+    return differ;
+  }
+
   async function broadcast(campaignId: number) {
+    metrics.broadcastCount++;
     const room = `campaign:${campaignId}`;
     const sockets = await io.in(room).fetchSockets();
+    if (sockets.length === 0) return;
+
+    const rolesPresent = new Set<Role>();
+    for (const socket of sockets) {
+      rolesPresent.add((socket.data.identity as Identity).role);
+    }
+
+    const joinCode = (sockets[0].data.identity as Identity).code;
+    const joinUrl = `${baseUrl}/play?code=${joinCode}`;
+    const differ = differFor(campaignId);
+
+    // One projection per role, not one per socket.
+    const updateByRole = new Map<Role, SlicesUpdate>();
+    const changedSliceNames = new Set<SliceName>();
+    for (const role of rolesPresent) {
+      metrics.projectionsComputed++;
+      const projection = db.getSlicedState(campaignId, role, null, joinUrl);
+      const { slices, entityDeltas, changed } = differ.diff(role, projection);
+      for (const name of changed) changedSliceNames.add(name);
+      updateByRole.set(role, {
+        campaignRevision: projection.campaignRevision,
+        slices,
+        ...(Object.keys(entityDeltas).length > 0 ? { entityDeltas } : {}),
+      });
+    }
+
+    const sliceRevisions = db.touchSlices(campaignId, [...changedSliceNames]);
+    const callerToken = db.getCallerToken(campaignId);
+
     for (const socket of sockets) {
       const identity = socket.data.identity as Identity;
       const refreshed = db.authenticate(
@@ -476,32 +549,69 @@ export async function createAshServer(options: AshServerOptions = {}) {
       );
       if (!refreshed) continue;
       identity.characterId = refreshed.characterId;
-      socket.emit(
-        "state",
-        db.getState(
-          campaignId,
-          identity.role,
-          identity.characterId,
-          `${baseUrl}/play?code=${identity.code}`,
-          identity.token,
-        ),
-      );
+
+      const roleUpdate = updateByRole.get(identity.role);
+      if (!roleUpdate) throw new Error(`No projection built for role ${identity.role}`);
+
+      const socketPayload: SlicesUpdate = {
+        ...roleUpdate,
+        slices: {
+          ...roleUpdate.slices,
+          me: db.getIdentityState(
+            campaignId,
+            identity.role,
+            identity.characterId,
+            identity.token,
+            callerToken,
+          ),
+        },
+        sliceRevisions,
+      };
+
+      metrics.lastBroadcastBytes = Buffer.byteLength(JSON.stringify(socketPayload), "utf8");
+      socket.emit("state", socketPayload);
     }
   }
 
   io.on("connection", (socket: Socket) => {
     const identity = socket.data.identity as Identity;
     socket.join(`campaign:${identity.campaignId}`);
-    socket.emit(
-      "state",
-      db.getState(
-        identity.campaignId,
-        identity.role,
-        identity.characterId,
-        `${baseUrl}/play?code=${identity.code}`,
-        identity.token,
-      ),
+    const initialSnapshot = db.getSlicedState(
+      identity.campaignId,
+      identity.role,
+      identity.characterId,
+      `${baseUrl}/play?code=${identity.code}`,
+      identity.token,
+      { isInitial: true },
     );
+    differFor(identity.campaignId).prime(identity.role, initialSnapshot);
+    socket.emit("state", initialSnapshot);
+
+    socket.on("rolls:page", (raw: unknown, ack?: Ack) => {
+      try {
+        const payload = z.object({
+          beforeId: z.number().int().positive().optional(),
+          limit: z.number().int().min(1).max(100).default(50),
+        }).parse(raw ?? {});
+        const rolls = db.getRollsPage(identity.campaignId, payload);
+        ack?.({ ok: true, rolls });
+      } catch (err) {
+        ack?.({ ok: false, error: err instanceof Error ? err.message : "Failed to load rolls" });
+      }
+    });
+
+    socket.on("notes:page", (raw: unknown, ack?: Ack) => {
+      try {
+        const payload = z.object({
+          beforeId: z.number().int().positive().optional(),
+          limit: z.number().int().min(1).max(100).default(50),
+        }).parse(raw ?? {});
+        const notes = db.getWikiNotesPage(identity.campaignId, payload);
+        ack?.({ ok: true, notes });
+      } catch (err) {
+        ack?.({ ok: false, error: err instanceof Error ? err.message : "Failed to load notes" });
+      }
+    });
 
     const action =
       <T>(
@@ -520,7 +630,13 @@ export async function createAshServer(options: AshServerOptions = {}) {
             ? { ...result, graph: db.getState(identity.campaignId, identity.role,
                 identity.characterId, "", identity.token).activeDungeon }
             : result;
-          ack?.({ ok: true, ...visibleResult });
+          const safeResult = visibleResult ? { ...visibleResult } : {};
+          if ("combat" in safeResult) safeResult.combat = projectCombat(db.getCombatState(identity.campaignId, (safeResult.combat as CombatState | undefined)?.encounterId));
+          if ("room" in safeResult && "graph" in safeResult) {
+            const roomId = (safeResult.room as { id?: number } | undefined)?.id;
+            safeResult.room = (safeResult.graph as DungeonGraphState | null)?.nodes.find(n => n.id === roomId);
+          }
+          ack?.({ ok: true, ...safeResult });
         } catch (error) {
           ack?.({
             ok: false,
@@ -568,6 +684,29 @@ export async function createAshServer(options: AshServerOptions = {}) {
       }
       return result;
     });
+    /**
+     * The tavern is the only checkpoint on party size: six including retainers. Once
+     * you are out there, rescued companions join regardless — that is how they, and
+     * often you, get home.
+     */
+    const requireDepartingPartySize = (from: { q: number; r: number; layerId?: string }) => {
+      const state = db.getState(identity.campaignId, "host", null, "");
+      const home = state.campaign.homeLocation ?? { q: 0, r: 0, layerId: "surface" };
+      const atHaven = from.q === home.q && from.r === home.r &&
+        (from.layerId ?? "surface") === (home.layerId ?? "surface");
+      if (!atHaven) return;
+      const active = state.characters.filter((c) => c.rosterStatus !== "reserve").length;
+      if (active < MIN_DEPARTING_PARTY) {
+        throw new Error(
+          `A party leaving the haven must number at least ${MIN_DEPARTING_PARTY}, retainers included — muster someone else first`,
+        );
+      }
+      if (active > MAX_DEPARTING_PARTY) {
+        throw new Error(
+          `A party leaving the haven may number at most ${MAX_DEPARTING_PARTY}, retainers included — move someone to the reserve roster first`,
+        );
+      }
+    };
     const requireHaven = () => {
       const state = db.getState(identity.campaignId, "host", null, "");
       const loc = state.campaign.partyLocation;
@@ -819,7 +958,7 @@ export async function createAshServer(options: AshServerOptions = {}) {
       "npc:generate",
       action((raw: unknown) => {
         const payload = z
-          .object({ zoneId: z.string().optional() })
+          .object({ zoneId: z.string().optional(), classed: z.boolean().optional() })
           .optional()
           .parse(raw);
         const state = db.getState(
@@ -829,14 +968,16 @@ export async function createAshServer(options: AshServerOptions = {}) {
           "",
         );
         const zoneId = payload?.zoneId ?? state.campaign.activeZoneId ?? "the_gloaming";
-        const result = generateNpc(state.characters, zoneId);
+        const result = generateNpc(state.characters, zoneId, undefined, {
+          classed: payload?.classed === true,
+        });
         db.addRoll(identity.campaignId, {
           actor: actor(),
           kind: "npc",
-          label: `NPC: ${result.ancestry} ${result.className}`,
+          label: `${payload?.classed ? "Dungeon NPC" : "Retainer"}: ${result.ancestry} ${result.className}`,
           dice: "1d100 + 1d12 + 1d12",
           total: result.retainerStats.level,
-          detail: `${result.demeanor} (${result.quirk}) · Motive: ${result.motive}`,
+          detail: `${result.demeanor} (${result.quirk}) · Motive: ${result.motive} · ${METHOD_LABELS[result.abilityMethod]}: ${formatAbilities(result.abilities)}`,
         });
         return { result };
       }),
@@ -879,6 +1020,7 @@ export async function createAshServer(options: AshServerOptions = {}) {
             morale: z.number().int().min(2).max(12),
             dailyWage: z.string().max(50),
             notes: z.string().max(500),
+            abilities: abilitySchema,
           })
           .parse(raw);
 
@@ -892,7 +1034,7 @@ export async function createAshServer(options: AshServerOptions = {}) {
           ac: 10,
           gold: 0,
           gearSlots: 10,
-          abilities: { str: 10, dex: 10, con: 10, int: 10, wis: 10, cha: 10 },
+          abilities: payload.abilities,
           anchors: {
             homeland: `Wage: ${payload.dailyWage}`,
             landmark: `Morale: ${payload.morale}`,
@@ -1043,7 +1185,7 @@ export async function createAshServer(options: AshServerOptions = {}) {
           actor: actor(),
           kind: "character",
           label: `Unearthed Arcana abilities (${payload.className})`,
-          dice: "Method I class-specific dice",
+          dice: "8d6/7d6/6d6/5d6/4d6/3d6 keep 3, class order",
           total: Math.max(...Object.values(result.scores)),
           detail: Object.entries(result.scores)
             .map(([k, v]) => `${k.toUpperCase()} ${v}`)
@@ -1075,18 +1217,45 @@ export async function createAshServer(options: AshServerOptions = {}) {
       action((raw: unknown) => {
         const input = characterSchema.parse(raw);
         if (identity.role === "player") {
-          const owned = db.db
-            .prepare("SELECT COUNT(*) as c FROM characters WHERE campaign_id = ? AND owner_token = ?")
-            .get(identity.campaignId, identity.token) as { c: number };
-          if (owned.c >= 2) {
-            throw new Error("This player already owns the maximum of 2 characters");
+          if (
+            input.generationMethod !== "iron_man" &&
+            input.generationMethod !== "unearthed_arcana"
+          ) {
+            throw new Error(
+              "Players must roll with the Iron Man or Unearthed Arcana method",
+            );
+          }
+          // Iron Man characters are unlimited; the Unearthed Arcana hero is once per
+          // campaign — after that, replacements have to be rescued from dungeons.
+          if (input.generationMethod === "unearthed_arcana") {
+            const owned = db.db
+              .prepare(
+                "SELECT COUNT(*) as c FROM characters WHERE campaign_id = ? AND owner_token = ? AND generation_method = 'unearthed_arcana'",
+              )
+              .get(identity.campaignId, identity.token) as { c: number };
+            if (owned.c >= 1) {
+              throw new Error(
+                "This player already owns their one Unearthed Arcana character for this campaign",
+              );
+            }
           }
         }
         if (input.generationMethod === "iron_man") {
+          if (!meetsIronManRequirements(input.abilities)) {
+            throw new Error("These ability scores do not meet the Iron Man requirements");
+          }
           const eligible = getEligibleClasses(input.abilities);
           if (!eligible.includes(input.className)) {
             throw new Error("Chosen class is not eligible for these Iron Man ability scores");
           }
+        }
+        if (
+          input.generationMethod === "unearthed_arcana" &&
+          !meetsUnearthedArcanaRequirements(input.abilities)
+        ) {
+          throw new Error(
+            "These ability scores do not meet the Unearthed Arcana requirements",
+          );
         }
 
         const classInfo = CLASSES.find(
@@ -1131,6 +1300,40 @@ export async function createAshServer(options: AshServerOptions = {}) {
           detail: `${input.ancestry} ${input.className} · ${maxHp} HP · Talent: ${level1Talent.effect}`,
         });
         return { characterId };
+      }),
+    );
+
+    socket.on(
+      "party:muster",
+      action((raw: unknown) => {
+        // The party adjustment stage before setting off. No GM approves it; the table's
+        // caller speaks for the group.
+        callerOrHostOnly();
+        const payload = z.object({
+          // The readable cap error comes from the roster rule, not the schema.
+          characterIds: z.array(z.number().int()).min(1).max(50),
+        }).parse(raw);
+        const result = db.setPartyRoster(
+          identity.campaignId,
+          payload.characterIds,
+          MIN_DEPARTING_PARTY,
+          MAX_DEPARTING_PARTY,
+        );
+        const state = db.getState(identity.campaignId, "host", null, "");
+        const marching = state.characters.filter((c) => result.active.includes(c.id));
+        const bound = db.db
+          .prepare("SELECT character_id FROM devices WHERE token = ? AND campaign_id = ?")
+          .get(identity.token, identity.campaignId) as { character_id: number | null } | undefined;
+        identity.characterId = bound?.character_id ?? null;
+        db.addRoll(identity.campaignId, {
+          actor: actor(),
+          kind: "character",
+          label: `Marching party set (${marching.length}/${MAX_DEPARTING_PARTY})`,
+          dice: "Party adjustment",
+          total: marching.length,
+          detail: marching.map((c) => `${c.name} (${c.className})`).join(" · "),
+        });
+        return result;
       }),
     );
 
@@ -1257,6 +1460,17 @@ export async function createAshServer(options: AshServerOptions = {}) {
         return { roll: rolled };
       }),
     );
+
+    socket.on("character:spell_available", action((raw: unknown) => {
+      const payload = z.object({ characterId: z.number().int(), spellId: z.string(), available: z.boolean() }).parse(raw);
+      if (identity.role !== "host" && payload.characterId !== identity.characterId) throw new Error("Only change your own spell ledger");
+      const character = db.getState(identity.campaignId, "host", null, "").characters.find(c => c.id === payload.characterId);
+      const spell = character?.spells?.find(s => s.spellId === payload.spellId);
+      if (!character || !spell) throw new Error("Known spell not found");
+      if (payload.available && spell.penanceRequired) throw new Error("Resolve penance before restoring this spell");
+      spell.available = payload.available;
+      db.updateCharacter(identity.campaignId, character);
+    }));
 
     socket.on(
       "character:hp",
@@ -2112,6 +2326,8 @@ export async function createAshServer(options: AshServerOptions = {}) {
           .get(identity.campaignId, payload.toHexId) as any;
         if (!targetHexRow) throw new Error(`Target hex ${payload.toHexId} not found`);
 
+        requireDepartingPartySize(currentLoc);
+
         const fromQ = currentLoc.q;
         const fromR = currentLoc.r;
         const toQ = Number(targetHexRow.q);
@@ -2436,7 +2652,7 @@ export async function createAshServer(options: AshServerOptions = {}) {
             targetHexId: z.string().optional(),
             targetSiteId: z.string().optional(),
             directionHint: z.string().optional(),
-            notes: z.string().optional(),
+            notes: z.string().max(4000).optional(),
           })
           .parse(raw);
 
@@ -3318,6 +3534,69 @@ export async function createAshServer(options: AshServerOptions = {}) {
     );
 
     socket.on(
+      "dungeon:recruit_rescued",
+      mutationAction("dungeon:recruit_rescued", (raw: unknown) => {
+        const payload = z.object({
+          roomId: z.number().int(),
+          name: cleanText.max(50).optional(),
+        }).parse(raw);
+        const graph = db.getDungeonGraph(identity.campaignId);
+        const room = graph?.nodes.find((node) => node.id === payload.roomId);
+        const rescued = room?.objective?.generated?.rescuedNpc;
+        if (!graph || !room || !rescued) throw new Error("No rescued NPC is held in that room");
+        if (!room.objective!.completed) throw new Error("Free them before they will travel with you");
+        if (rescued.recruited) throw new Error("They have already joined the company");
+
+        const classInfo = CLASSES.find((item) => item.name === rescued.className);
+        if (!classInfo) throw new Error(`No class definition for "${rescued.className}"`);
+        const conMod = abilityModifier(rescued.abilities.con);
+        const ancestryHp = rescued.ancestry === "Dwarf" ? 2 : 0;
+        const maxHp = Math.max(1, rollDie(classInfo.hitDie) + conMod + ancestryHp);
+        const level1Talent = rollClassTalent(rescued.className);
+
+        // Anyone at the table can take them in — there is no GM seat to approve it.
+        const characterId = db.addCharacter(
+          identity.campaignId,
+          identity.token,
+          {
+            name: payload.name ?? rescued.name,
+            ancestry: rescued.ancestry,
+            className: rescued.className,
+            level: 1,
+            hp: maxHp,
+            maxHp,
+            ac: 10 + abilityModifier(rescued.abilities.dex),
+            gold: 0,
+            gearSlots: 10 + abilityModifier(rescued.abilities.str),
+            abilities: rescued.abilities,
+            anchors: {
+              homeland: "Unknown — found in the dark",
+              landmark: `Rescued from ${graph.siteId}, room ${room.id}`,
+              nemesis: "Whoever held them",
+            },
+            talents: [`[Lvl 1] ${level1Talent.effect}`],
+            xp: 0,
+            generationMethod: rescued.generationMethod,
+            rosterStatus: "reserve",
+          },
+          { startingGear: false },
+        );
+
+        rescued.recruited = true;
+        db.saveDungeonGraph(identity.campaignId, graph);
+        db.addRoll(identity.campaignId, {
+          actor: actor(),
+          kind: "character",
+          label: `Rescued ${rescued.name} (${rescued.className})`,
+          dice: `1d${classInfo.hitDie}`,
+          total: maxHp,
+          detail: `${METHOD_LABELS[rescued.generationMethod]} · ${formatAbilities(rescued.abilities)} · joins the reserve roster with no gear`,
+        });
+        return { characterId, graph };
+      }),
+    );
+
+    socket.on(
       "dungeon:record_outcome",
       mutationAction("dungeon:record_outcome", (raw: unknown) => {
         const payload = z.object({
@@ -3470,6 +3749,31 @@ export async function createAshServer(options: AshServerOptions = {}) {
       }),
     );
 
+    socket.on(
+      "dungeon:spot_trap",
+      action((raw: unknown) => {
+        callerOrHostOnly();
+        const payload = z
+          .object({
+            roomId: z.number().int(),
+          })
+          .parse(raw);
+
+        const graph = db.spotRoomTrap(identity.campaignId, payload.roomId);
+        db.addRoll(identity.campaignId, {
+          actor: actor(),
+          kind: "exploration",
+          label: "Trap Detected",
+          dice: "Search",
+          total: 0,
+          detail: `Investigated sensory tells in room ${payload.roomId}. Trap mechanism and trigger detected.`,
+        });
+
+        const room = graph.nodes.find((n) => n.id === payload.roomId);
+        return { graph, room };
+      }),
+    );
+
     // --- M5: Turn-Based Combat Runner Handlers ---
 
     socket.on(
@@ -3541,9 +3845,15 @@ export async function createAshServer(options: AshServerOptions = {}) {
         }
 
         const combatants: Combatant[] = [];
+        let highestPcRoll = 0;
+        let highestPcId = "";
 
         for (const c of state.characters.filter((ch) => ch.rosterStatus !== "reserve")) {
-          const init = resolveInitiativeRoll(abilityModifier(c.abilities.dex));
+          const init = { total: 0 };
+          if (init.total > highestPcRoll) {
+            highestPcRoll = init.total;
+            highestPcId = `pc-${c.id}`;
+          }
           combatants.push({
             id: `pc-${c.id}`,
             name: c.name,
@@ -3561,46 +3871,157 @@ export async function createAshServer(options: AshServerOptions = {}) {
 
         const freshState = db.getState(identity.campaignId, "host", null, "");
         const activeEnc = freshState.encounters.find((e) => e.id === encId) ?? freshState.encounters.find((e) => e.status === "active");
+        let highestMonsterInit = 0;
+        let monsterWinnerId = "";
+
         if (activeEnc && activeEnc.monsters) {
-          for (const m of activeEnc.monsters) {
+          const monsterGroupCheck = 0;
+          for (const visibleMonster of activeEnc.monsters) {
+            const row = db.db.prepare("SELECT * FROM encounter_monsters WHERE id = ? AND encounter_id = ?").get(visibleMonster.id, activeEnc.id) as any;
+            const definition = db.getMonster(visibleMonster.monsterKey);
+            const m = { ...visibleMonster, currentHp: Number(row.current_hp), maxHp: Number(row.max_hp), ac: row.ac ?? definition?.ac ?? 12 };
+            const mId = `monster-${m.id}`;
+            const mInit = monsterGroupCheck;
+            if (mInit > highestMonsterInit) {
+              highestMonsterInit = mInit;
+              monsterWinnerId = mId;
+            }
             combatants.push({
-              id: `monster-${m.id}`,
+              id: mId,
               name: m.name,
               kind: "monster",
               refId: m.id,
-              initiative: rollDie(20),
+              initiative: mInit,
               ac: m.ac ?? 12,
               currentHp: m.currentHp,
               maxHp: m.maxHp,
               conditions: [],
+              acRevealed: false,
+              acHint: getMonsterAcHint(m.ac ?? 12),
+              hpStatus: computeHpStatus(m.currentHp, m.maxHp),
             });
           }
         }
 
-        combatants.sort((a, b) => b.initiative - a.initiative);
+
+        const winnerId = highestPcRoll >= highestMonsterInit ? (highestPcId || combatants[0]?.id) : (monsterWinnerId || combatants[0]?.id);
+        const winnerIndex = Math.max(0, combatants.findIndex((c) => c.id === winnerId));
 
         const combatState: CombatState = {
           encounterId: encId!,
           campaignId: identity.campaignId,
           round: 1,
-          activeIndex: 0,
+          activeIndex: winnerIndex,
           combatants,
           status: "active",
           moraleTriggerChecked: false,
+          seatingOrder: db.getTableSeating(identity.campaignId),
         };
 
+        combatState.seatingOrder = combatSeats(combatState);
+        combatState.activeIndex = seatIndex(combatState, combatState.seatingOrder[0]);
         db.saveCombatState(identity.campaignId, combatState);
 
+        const winner = combatants[winnerIndex];
         db.addRoll(identity.campaignId, {
           actor: "Table",
           kind: "combat",
           label: "Combat Initiated",
           dice: "Initiative",
-          total: combatants[0]?.initiative ?? 0,
-          detail: `Turn order: ${combatants.map((c) => `${c.name} (${c.initiative})`).join(" > ")}`,
+          total: winner?.initiative ?? combatants[0]?.initiative ?? 0,
+          detail: "Roll DEX checks at the physical table, then select the winner. Monsters use one check with their highest DEX modifier.",
         });
 
         return { combat: combatState };
+      }),
+    );
+
+    socket.on(
+      "combat:reveal_ac",
+      action((raw: unknown) => {
+        callerOrHostOnly();
+        const payload = z
+          .object({
+            combatantId: z.string(),
+          })
+          .parse(raw);
+        const updated = db.revealCombatantAc(identity.campaignId, payload.combatantId);
+        const combatant = updated.combatants.find((c) => c.id === payload.combatantId);
+        db.addRoll(identity.campaignId, {
+          actor: actor(),
+          kind: "combat",
+          label: "Armor Class Tested",
+          dice: "—",
+          total: combatant?.ac ?? 10,
+          detail: `${combatant?.name ?? "Monster"} Armor Class confirmed: AC ${combatant?.ac ?? 10}.`,
+        });
+        return { ok: true, ac: combatant?.ac, combat: updated };
+      }),
+    );
+
+    socket.on(
+      "combat:set_seating",
+      action((raw: unknown) => {
+        callerOrHostOnly();
+        const payload = z
+          .object({
+            seatingOrder: z.array(z.string()),
+          })
+          .parse(raw);
+        const updated = db.setCombatSeating(identity.campaignId, payload.seatingOrder);
+        db.addRoll(identity.campaignId, {
+          actor: actor(),
+          kind: "combat",
+          label: "Table Seating Updated",
+          dice: "—",
+          total: payload.seatingOrder.length,
+          detail: `Clockwise seating order set around the table: ${updated.combatants.map((c) => c.name).join(" > ")}.`,
+        });
+        return { ok: true, combat: updated };
+      }),
+    );
+
+    socket.on("npc:record", action((raw: unknown) => {
+      callerOrHostOnly();
+      const payload = z.object({ name: cleanText.max(80), role: cleanText.max(80), ancestry: cleanText.max(80), notes: z.string().max(4000).default("") }).parse(raw);
+      const state = db.getState(identity.campaignId, identity.role, identity.characterId, "", identity.token);
+      const graph = state.activeDungeon;
+      const loc = state.campaign.partyLocation ?? { q: 0, r: 0 };
+      const hex = state.hexes.find(h => h.q === loc.q && h.r === loc.r);
+      const locationId = graph ? `${graph.siteId}:${graph.currentRoomId}` : hex?.id;
+      if (!locationId) throw new Error("Current location is unknown");
+      const npc = db.addNpc(identity.campaignId, { ...payload, id: `npc-${randomUUID()}`, disposition: "uncertain",
+        locationType: graph ? "site_room" : "settlement", locationId,
+        locationName: graph ? `Room ${graph.currentRoomId}` : hex?.name });
+      return { npc };
+    }));
+
+    socket.on(
+      "npc:update_disposition",
+      action((raw: unknown) => {
+        callerOrHostOnly();
+        const payload = z
+          .object({
+            npcId: z.string(),
+            disposition: z.enum(["friendly", "neutral", "hostile", "uncertain"]),
+            notes: z.string().max(4000).optional(),
+          })
+          .parse(raw);
+        const updated = db.updateNpcDisposition(
+          identity.campaignId,
+          payload.npcId,
+          payload.disposition,
+          payload.notes,
+        );
+        db.addRoll(identity.campaignId, {
+          actor: actor(),
+          kind: "social",
+          label: `${updated.name} Attitude`,
+          dice: "—",
+          total: 0,
+          detail: `${updated.name}'s disposition set to ${updated.disposition.toUpperCase()}.${updated.notes ? ` Notes: ${updated.notes}` : ""}`,
+        });
+        return { ok: true, npc: updated };
       }),
     );
 
@@ -3611,12 +4032,11 @@ export async function createAshServer(options: AshServerOptions = {}) {
         const combat = db.getCombatState(identity.campaignId);
         if (!combat || combat.status !== "active") throw new Error("No active combat");
 
-        let nextIdx = combat.activeIndex + 1;
-        let nextRound = combat.round;
-        if (nextIdx >= combat.combatants.length) {
-          nextIdx = 0;
-          nextRound += 1;
-        }
+        if (!combat.winnerCombatantId) throw new Error("Select the physical initiative winner first");
+        const seats = combatSeats(combat);
+        const nextSeat = seats[(seats.indexOf(activeSeat(combat)!) + 1) % seats.length];
+        const nextIdx = seatIndex(combat, nextSeat);
+        const nextRound = combat.round + (nextSeat === combat.winnerCombatantId ? 1 : 0);
 
         const updated: CombatState = {
           ...combat,
@@ -3639,6 +4059,18 @@ export async function createAshServer(options: AshServerOptions = {}) {
       }),
     );
 
+    socket.on("combat:set_winner", action((raw: unknown) => {
+      callerOrHostOnly();
+      const { seatId } = z.object({ seatId: z.string() }).parse(raw);
+      const combat = db.getCombatState(identity.campaignId);
+      if (!combat || !combatSeats(combat).includes(seatId)) throw new Error("Choose an occupied table seat");
+      combat.winnerCombatantId = seatId;
+      combat.activeIndex = seatIndex(combat, seatId);
+      combat.round = 1;
+      db.saveCombatState(identity.campaignId, combat);
+      return { combat };
+    }));
+
     socket.on(
       "combat:set_initiative",
       action((raw: unknown) => {
@@ -3656,7 +4088,7 @@ export async function createAshServer(options: AshServerOptions = {}) {
         if (!target) throw new Error("Combatant not found");
 
         target.initiative = payload.initiative;
-        combat.combatants.sort((a, b) => b.initiative - a.initiative);
+        // A recorded physical check never changes physical seating.
         db.saveCombatState(identity.campaignId, combat);
 
         db.addRoll(identity.campaignId, {
@@ -3665,7 +4097,7 @@ export async function createAshServer(options: AshServerOptions = {}) {
           label: `${target.name} Initiative Set`,
           dice: "—",
           total: payload.initiative,
-          detail: `${target.name}'s initiative set to ${payload.initiative}. Turn order updated.`,
+          detail: `${target.name}'s initiative set to ${payload.initiative}. Physical result recorded; seating preserved.`,
         });
 
         return { combat };
@@ -3796,6 +4228,7 @@ export async function createAshServer(options: AshServerOptions = {}) {
           }
 
           db.saveCombatState(identity.campaignId, combat);
+          if (target.kind === "monster") db.db.prepare("UPDATE encounter_monsters SET current_hp = ? WHERE id = ? AND encounter_id = ?").run(newHp, target.refId, combat.encounterId);
 
           const actionDesc =
             delta < 0
@@ -3809,8 +4242,8 @@ export async function createAshServer(options: AshServerOptions = {}) {
             kind: "combat",
             label: `${target.name} HP Update`,
             dice: `${delta >= 0 ? "+" : ""}${delta}`,
-            total: newHp,
-            detail: `${target.name} ${actionDesc} (${prevHp} -> ${newHp}/${target.maxHp} HP)${newHp === 0 ? " [DOWN / DYING!]" : ""}`,
+            total: target.kind === "monster" ? delta : newHp,
+            detail: target.kind === "monster" ? `${target.name}: ${delta < 0 ? `${Math.abs(delta)} damage recorded` : "healing recorded"}. ${computeHpStatus(newHp, target.maxHp)}.` : `${target.name} ${actionDesc} (${prevHp} -> ${newHp}/${target.maxHp} HP)`,
           });
 
           return { combat };
@@ -3828,7 +4261,7 @@ export async function createAshServer(options: AshServerOptions = {}) {
             .object({
               combatantId: z.string(),
               diceMode: z.enum(["digital", "physical"]).default("digital"),
-              physicalRoll: z.number().int().optional(),
+              physicalRoll: z.number().int().min(1).max(20).optional(),
             })
             .parse(raw);
 
@@ -4660,6 +5093,7 @@ export async function createAshServer(options: AshServerOptions = {}) {
     baseUrl,
     hostAddress: resolvedHost.address,
     interfaceName: resolvedHost.interfaceName,
+    metrics,
     listen: () =>
       new Promise<void>((resolveListen) =>
         httpServer.listen(port, "0.0.0.0", resolveListen),

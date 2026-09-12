@@ -1,3 +1,4 @@
+import { combatSeats, seatIndex, activeSeat, projectCombat } from "../shared/table-companion.js";
 import { mkdirSync, readFileSync, existsSync, readdirSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import {
@@ -11,7 +12,7 @@ import { HEX_DEFINITIONS, MONSTERS, STARTING_EQUIPMENT, SPELLS, ITEMS } from "..
 import { generateHexMap } from "./generators/hex-map.js";
 import { generateProceduralRegion, type GeneratedRegionWorld } from "./generators/procedural-region.js";
 import { CUSTOM_MONSTER_TEMPLATES, resolveMonsterEntry } from "../shared/monster-aliases.js";
-import { abilityModifier, calculateDerivedAc, calculateGearSlots } from "./rules.js";
+import { abilityModifier, calculateDerivedAc, calculateGearSlots, computeHpStatus, getMonsterAcHint } from "./rules.js";
 import type {
   ActZoneAssignment,
   ActivitySession,
@@ -21,6 +22,7 @@ import type {
   CampaignState,
   Character,
   CharacterSpell,
+  Combatant,
   CombatState,
   CursedZoneId,
   DungeonConnectionEdge,
@@ -47,10 +49,13 @@ import type {
   TavernLead,
   TreasureRollRecord,
   WikiNote,
+  WorldFacility,
+  WorldNpc,
   XpAwardRecipient,
   ZoneManifest,
   ZoneSummary,
 } from "../shared/types.js";
+import { ALL_SLICE_NAMES, type SliceName, type SlicesUpdate } from "../shared/slices.js";
 
 type SqlValue = string | number | bigint | null | Uint8Array;
 type Row = Record<string, SqlValue>;
@@ -80,6 +85,8 @@ export class AshDatabase {
   readonly db: Database.Database;
   private readonly zonesCache = new Map<string, ZoneManifest>();
   private readonly bestiaryCache = new Map<string, EncounterMonster>();
+  onRollAdded?: (campaignId: number, roll: RollRecord) => void;
+  onNoteAdded?: (campaignId: number, note: WikiNote) => void;
 
   constructor(path: string) {
     if (path !== ":memory:") mkdirSync(dirname(path), { recursive: true });
@@ -221,6 +228,59 @@ export class AshDatabase {
       CREATE INDEX IF NOT EXISTS idx_encounters_campaign_status ON encounters(campaign_id, status);
       CREATE INDEX IF NOT EXISTS idx_pressures_campaign_status ON campaign_pressures(campaign_id, status);
       CREATE INDEX IF NOT EXISTS idx_xp_awards_campaign_source ON xp_awards(campaign_id, source_id);
+      CREATE TABLE IF NOT EXISTS campaign_slice_revisions (
+        campaign_id INTEGER NOT NULL REFERENCES campaigns(id) ON DELETE CASCADE,
+        slice_name TEXT NOT NULL,
+        revision INTEGER NOT NULL DEFAULT 1,
+        PRIMARY KEY (campaign_id, slice_name)
+      );
+      CREATE TABLE IF NOT EXISTS table_seating (
+        campaign_id INTEGER PRIMARY KEY REFERENCES campaigns(id) ON DELETE CASCADE,
+        seats_json TEXT NOT NULL
+      );
+      CREATE TABLE IF NOT EXISTS world_facilities (
+        id TEXT NOT NULL,
+        campaign_id INTEGER NOT NULL REFERENCES campaigns(id) ON DELETE CASCADE,
+        name TEXT NOT NULL,
+        kind TEXT NOT NULL,
+        location_type TEXT NOT NULL,
+        location_id TEXT NOT NULL,
+        keeper_npc_id TEXT,
+        keeper_name TEXT,
+        description TEXT NOT NULL,
+        services_json TEXT NOT NULL,
+        PRIMARY KEY (campaign_id, id)
+      );
+      CREATE INDEX IF NOT EXISTS idx_facilities_campaign ON world_facilities(campaign_id);
+      CREATE TABLE IF NOT EXISTS world_npcs (
+        id TEXT NOT NULL,
+        campaign_id INTEGER NOT NULL REFERENCES campaigns(id) ON DELETE CASCADE,
+        name TEXT NOT NULL,
+        role TEXT NOT NULL,
+        ancestry TEXT NOT NULL,
+        location_type TEXT NOT NULL,
+        location_id TEXT NOT NULL,
+        location_name TEXT,
+        disposition TEXT NOT NULL DEFAULT 'neutral',
+        notes TEXT NOT NULL DEFAULT '',
+        rescue_state TEXT,
+        PRIMARY KEY (campaign_id, id)
+      );
+      CREATE INDEX IF NOT EXISTS idx_npcs_campaign ON world_npcs(campaign_id);
+      CREATE TABLE IF NOT EXISTS tavern_leads (
+        id TEXT NOT NULL,
+        campaign_id INTEGER NOT NULL REFERENCES campaigns(id) ON DELETE CASCADE,
+        source_npc TEXT NOT NULL,
+        claim TEXT NOT NULL,
+        direction_hint TEXT NOT NULL,
+        apparent_danger TEXT NOT NULL,
+        promised_reward TEXT NOT NULL,
+        destination_site_id TEXT NOT NULL,
+        lead_type TEXT NOT NULL,
+        is_empty_site INTEGER NOT NULL DEFAULT 0,
+        PRIMARY KEY (campaign_id, id)
+      );
+      CREATE INDEX IF NOT EXISTS idx_leads_campaign ON tavern_leads(campaign_id);
       PRAGMA optimize;
     `);
 
@@ -1035,6 +1095,7 @@ export class AshDatabase {
           h.elevation,
         );
       }
+      this.seedStartingWorld(campaignId);
       return { code, hostToken, campaignId, isSecretPath: Boolean(isSecretPath) };
     }
 
@@ -1066,6 +1127,7 @@ export class AshDatabase {
       }
 
       this.saveGeneratedRegion(campaignId, world);
+      this.seedStartingWorld(campaignId);
     })();
 
     return { code, hostToken, campaignId };
@@ -1182,13 +1244,16 @@ export class AshDatabase {
     campaignId: number,
     ownerToken: string | null,
     input: Omit<Character, "id" | "ownerToken">,
+    /** Rescued NPCs arrive with nothing, so their class pack must not be granted. */
+    options: { startingGear?: boolean } = {},
   ) {
     const a = input.abilities;
     const classId = input.classId || input.className.toLowerCase().replace(/[^a-z0-9_]/g, "");
+    const startingGear = options.startingGear !== false;
 
     const inventory: InventoryItem[] = input.inventory && input.inventory.length > 0
       ? input.inventory
-      : (STARTING_EQUIPMENT[classId] ? STARTING_EQUIPMENT[classId].map((packItem) => {
+      : (startingGear && STARTING_EQUIPMENT[classId] ? STARTING_EQUIPMENT[classId].map((packItem) => {
           const itemDef = ITEMS.find((it) => it.id === packItem.itemId);
           return {
             instanceId: randomBytes(8).toString("hex"),
@@ -1236,9 +1301,6 @@ export class AshDatabase {
       const owned = this.db
         .prepare("SELECT id, roster_status FROM characters WHERE campaign_id = ? AND owner_token = ?")
         .all(campaignId, ownerToken) as Array<{ id: number; roster_status: string }>;
-      if (owned.length >= 2) {
-        throw new Error("This player already owns the maximum of 2 characters");
-      }
       if (!rosterStatus) {
         rosterStatus = owned.length === 0 ? "active" : "reserve";
       }
@@ -1295,6 +1357,56 @@ export class AshDatabase {
         )
         .run(id, ownerToken, campaignId);
     return id;
+  }
+
+  /**
+   * The party adjustment stage before setting off: name exactly who marches. Retainers
+   * and rescued companions count towards the cap like anyone else.
+   */
+  setPartyRoster(campaignId: number, characterIds: number[], minParty: number, maxParty: number) {
+    const unique = [...new Set(characterIds)];
+    if (unique.length !== characterIds.length) throw new Error("A character was listed twice");
+    if (unique.length < minParty) {
+      throw new Error(`A party leaving the haven must number at least ${minParty}, retainers included`);
+    }
+    if (unique.length > maxParty) {
+      throw new Error(`A party leaving the haven may number at most ${maxParty}, retainers included`);
+    }
+
+    const campaign = this.db.prepare("SELECT current_phase FROM campaigns WHERE id = ?")
+      .get(campaignId) as { current_phase: string } | undefined;
+    const activeCamp = this.db.prepare(
+      "SELECT 1 FROM activity_sessions WHERE campaign_id = ? AND kind IN ('camp', 'camp_night') AND status = 'open'",
+    ).get(campaignId);
+    if (campaign?.current_phase !== "sanctuary" && !activeCamp) {
+      throw new Error("The party can only be adjusted in a haven sanctuary or during camp");
+    }
+
+    const rows = this.db
+      .prepare("SELECT id, owner_token FROM characters WHERE campaign_id = ?")
+      .all(campaignId) as Array<{ id: number; owner_token: string | null }>;
+    for (const id of unique) {
+      if (!rows.some((row) => row.id === id)) throw new Error(`Character ${id} is not in this campaign`);
+    }
+
+    this.db.transaction(() => {
+      this.db.prepare("UPDATE characters SET roster_status = 'reserve' WHERE campaign_id = ?").run(campaignId);
+      const activate = this.db.prepare("UPDATE characters SET roster_status = 'active' WHERE id = ?");
+      for (const id of unique) activate.run(id);
+      // Keep every device pointed at one of its own marching characters.
+      const devices = this.db
+        .prepare("SELECT token, character_id FROM devices WHERE campaign_id = ?")
+        .all(campaignId) as Array<{ token: string; character_id: number | null }>;
+      for (const device of devices) {
+        const owned = rows.filter((row) => row.owner_token === device.token).map((row) => row.id);
+        const marching = owned.filter((id) => unique.includes(id));
+        if (device.character_id && marching.includes(device.character_id)) continue;
+        this.db.prepare("UPDATE devices SET character_id = ? WHERE token = ? AND campaign_id = ?")
+          .run(marching[0] ?? null, device.token, campaignId);
+      }
+    })();
+
+    return { active: unique };
   }
 
   swapActiveCharacter(campaignId: number, ownerToken: string, characterId: number) {
@@ -1388,6 +1500,37 @@ export class AshDatabase {
       .prepare("SELECT caller_token FROM campaigns WHERE id = ?")
       .get(campaignId) as { caller_token: string | null } | undefined;
     return row?.caller_token ?? null;
+  }
+
+  getSliceRevisions(campaignId: number): Record<SliceName, number> {
+    const rows = this.db
+      .prepare("SELECT slice_name, revision FROM campaign_slice_revisions WHERE campaign_id = ?")
+      .all(campaignId) as Array<{ slice_name: string; revision: number }>;
+    const revisions: Partial<Record<SliceName, number>> = {};
+    for (const r of rows) {
+      revisions[r.slice_name as SliceName] = Number(r.revision);
+    }
+    for (const name of ALL_SLICE_NAMES) {
+      if (revisions[name] === undefined) {
+        revisions[name] = 1;
+      }
+    }
+    return revisions as Record<SliceName, number>;
+  }
+
+  touchSlices(
+    campaignId: number,
+    sliceNames: readonly SliceName[],
+  ): Record<SliceName, number> {
+    const upsert = this.db.prepare(`
+      INSERT INTO campaign_slice_revisions (campaign_id, slice_name, revision)
+      VALUES (?, ?, 2)
+      ON CONFLICT(campaign_id, slice_name) DO UPDATE SET revision = revision + 1
+    `);
+    for (const name of sliceNames) {
+      upsert.run(campaignId, name);
+    }
+    return this.getSliceRevisions(campaignId);
   }
 
   executeMutation<T>(
@@ -1524,6 +1667,17 @@ export class AshDatabase {
   }
 
   saveDungeonGraph(campaignId: number, graph: DungeonGraphState): void {
+    for (const room of graph.nodes) {
+      const npc = room.objective?.completed ? room.objective.generated?.rescuedNpc : undefined;
+      if (!npc) continue;
+      const id = `rescued:${graph.siteId}:${room.id}`;
+      if (!this.db.prepare("SELECT 1 FROM world_npcs WHERE campaign_id = ? AND id = ?").get(campaignId, id)) {
+        this.addNpc(campaignId, { id, name: npc.name, role: npc.className, ancestry: npc.ancestry,
+          locationType: "site_room", locationId: `${graph.siteId}:${room.id}`, locationName: `${room.title} (room ${room.id})`,
+          disposition: "uncertain", notes: "Freed from captivity.", rescueState: "rescued" });
+      }
+    }
+
     this.db
       .prepare(
         `INSERT INTO dungeon_graphs (site_id, campaign_id, current_room_id, entry_room_id, nodes_json, edges_json, exploration_turns, light_turns_remaining, site_structure_json)
@@ -1565,14 +1719,28 @@ export class AshDatabase {
           .get(campaignId) as Row | undefined);
     if (!row) return null;
 
+    const combatants: Combatant[] = JSON.parse(String(row.initiative_order_json));
+    for (const c of combatants) {
+      if (c.kind === "monster") {
+        c.hpStatus = computeHpStatus(c.currentHp, c.maxHp);
+        c.acRevealed = c.acRevealed ?? false;
+        if (!c.acRevealed && !c.acHint) c.acHint = getMonsterAcHint(c.ac);
+        if (c.acRevealed) c.acHint = undefined;
+      }
+    }
+
+    const meta = row.conditions_json ? JSON.parse(String(row.conditions_json)) : {};
+
     return {
       encounterId: Number(row.encounter_id),
       campaignId: Number(row.campaign_id),
       round: Number(row.round),
       activeIndex: Number(row.active_index),
-      combatants: JSON.parse(String(row.initiative_order_json)),
+      combatants,
       status: String(row.status) as "active" | "resolved",
-      moraleTriggerChecked: row.conditions_json ? JSON.parse(String(row.conditions_json)).moraleTriggerChecked : undefined,
+      moraleTriggerChecked: meta.moraleTriggerChecked,
+      seatingOrder: meta.seatingOrder,
+      winnerCombatantId: meta.winnerCombatantId,
     };
   }
 
@@ -1594,10 +1762,422 @@ export class AshDatabase {
         combat.round,
         combat.activeIndex,
         JSON.stringify(combat.combatants),
-        JSON.stringify({ moraleTriggerChecked: combat.moraleTriggerChecked }),
+        JSON.stringify({
+          moraleTriggerChecked: combat.moraleTriggerChecked,
+          seatingOrder: combat.seatingOrder,
+          winnerCombatantId: combat.winnerCombatantId,
+        }),
         combat.status,
       );
   }
+
+  revealCombatantAc(campaignId: number, combatantId: string): CombatState {
+    const combat = this.getCombatState(campaignId);
+    if (!combat || combat.status !== "active") throw new Error("No active combat");
+    const target = combat.combatants.find((c) => c.id === combatantId);
+    if (!target) throw new Error("Combatant not found");
+    target.acRevealed = true;
+    this.saveCombatState(campaignId, combat);
+    return combat;
+  }
+
+  getTableSeating(campaignId: number): string[] {
+    const row = this.db.prepare("SELECT seats_json FROM table_seating WHERE campaign_id = ?").get(campaignId) as { seats_json: string } | undefined;
+    return row ? JSON.parse(row.seats_json) : [];
+  }
+
+  setCombatSeating(campaignId: number, seatingOrder: string[]): CombatState {
+    const combat = this.getCombatState(campaignId);
+    if (!combat || combat.status !== "active") throw new Error("No active combat");
+    const seats = seatingOrder.map(id => combat.combatants.find(c => c.id === id)?.kind === "monster" ? "monsters" : id);
+    const available = combatSeats(combat);
+    if (new Set(seats).size !== seats.length || seats.length !== available.length || seats.some(id => !available.includes(id))) {
+      throw new Error("Include every player and one monster group seat exactly once");
+    }
+    combat.seatingOrder = seats;
+    this.db.prepare("INSERT INTO table_seating VALUES (?, ?) ON CONFLICT(campaign_id) DO UPDATE SET seats_json = excluded.seats_json").run(campaignId, JSON.stringify(seats));
+    this.saveCombatState(campaignId, combat);
+    return combat;
+  }
+
+  spotRoomTrap(campaignId: number, roomId: number): DungeonGraphState {
+    const graph = this.getDungeonGraph(campaignId);
+    if (!graph) throw new Error("No active dungeon");
+    const node = graph.nodes.find((n) => n.id === roomId);
+    if (!node || (!node.explored && node.id !== graph.currentRoomId)) throw new Error("Enter the room before searching it");
+    if (!node.trap) throw new Error("No trap in room");
+    node.trap.spotted = true;
+    this.saveDungeonGraph(campaignId, graph);
+    return graph;
+  }
+
+  getFacilities(campaignId: number): WorldFacility[] {
+    const rows = this.db
+      .prepare("SELECT * FROM world_facilities WHERE campaign_id = ? ORDER BY id")
+      .all(campaignId) as Row[];
+    return rows.map((r) => ({
+      id: String(r.id),
+      campaignId: Number(r.campaign_id),
+      name: String(r.name),
+      kind: String(r.kind) as WorldFacility["kind"],
+      locationType: String(r.location_type) as WorldFacility["locationType"],
+      locationId: String(r.location_id) === "haven-00" ? "00" : String(r.location_id),
+      keeperNpcId: r.keeper_npc_id ? String(r.keeper_npc_id) : undefined,
+      keeperName: r.keeper_name ? String(r.keeper_name) : undefined,
+      description: String(r.description),
+      services: r.services_json ? JSON.parse(String(r.services_json)) : [],
+    }));
+  }
+
+  getNpcs(campaignId: number): WorldNpc[] {
+    const rows = this.db
+      .prepare("SELECT * FROM world_npcs WHERE campaign_id = ? ORDER BY id")
+      .all(campaignId) as Row[];
+    return rows.map((r) => ({
+      id: String(r.id),
+      campaignId: Number(r.campaign_id),
+      name: String(r.name),
+      role: String(r.role),
+      ancestry: String(r.ancestry),
+      locationType: String(r.location_type) as WorldNpc["locationType"],
+      locationId: String(r.location_id),
+      locationName: r.location_name ? String(r.location_name) : undefined,
+      disposition: String(r.disposition) as WorldNpc["disposition"],
+      notes: String(r.notes),
+      rescueState: r.rescue_state ? (String(r.rescue_state) as WorldNpc["rescueState"]) : undefined,
+    }));
+  }
+
+  getTavernLeads(campaignId: number): TavernLead[] {
+    const row = this.db.prepare("SELECT tavern_establishment_json FROM campaigns WHERE id = ?").get(campaignId) as { tavern_establishment_json: string | null };
+    const tavern: TavernEstablishment | null = row?.tavern_establishment_json ? JSON.parse(row.tavern_establishment_json) : null;
+    return (tavern?.leads ?? []).map((lead, index) => ({ ...lead, campaignId,
+      sourceNpc: lead.sourceNpc ?? lead.source,
+      apparentDanger: lead.apparentDanger ?? lead.dangerHint,
+      destinationSiteId: lead.targetSiteId,
+      leadType: index === 0 ? "path_primary" : index === 1 ? "path_secondary" : "unrelated",
+      isEmptySite: lead.destinationOutcome === "empty" || lead.destinationOutcome === "false",
+    }));
+  }
+
+  updateNpcDisposition(
+    campaignId: number,
+    npcId: string,
+    disposition: WorldNpc["disposition"],
+    notes?: string,
+  ): WorldNpc {
+    const current = this.db
+      .prepare("SELECT * FROM world_npcs WHERE campaign_id = ? AND id = ?")
+      .get(campaignId, npcId) as Row | undefined;
+    if (!current) throw new Error(`NPC ${npcId} not found`);
+    const newNotes = notes !== undefined ? notes : String(current.notes);
+    this.db
+      .prepare("UPDATE world_npcs SET disposition = ?, notes = ? WHERE campaign_id = ? AND id = ?")
+      .run(disposition, newNotes, campaignId, npcId);
+    return {
+      id: String(current.id),
+      campaignId,
+      name: String(current.name),
+      role: String(current.role),
+      ancestry: String(current.ancestry),
+      locationType: String(current.location_type) as any,
+      locationId: String(current.location_id),
+      locationName: current.location_name ? String(current.location_name) : undefined,
+      disposition,
+      notes: newNotes,
+    };
+  }
+
+  addNpc(campaignId: number, npc: Omit<WorldNpc, "campaignId">): WorldNpc {
+    this.db
+      .prepare(
+        `INSERT INTO world_npcs (id, campaign_id, name, role, ancestry, location_type, location_id, location_name, disposition, notes, rescue_state)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      )
+      .run(
+        npc.id,
+        campaignId,
+        npc.name,
+        npc.role,
+        npc.ancestry,
+        npc.locationType,
+        npc.locationId,
+        npc.locationName ?? null,
+        npc.disposition,
+        npc.notes,
+        npc.rescueState ?? null,
+      );
+    return { ...npc, campaignId };
+  }
+
+  seedStartingWorld(campaignId: number): void {
+    // Older campaigns have an atlas but no region-backed lead destinations.
+    const campaign = this.db.prepare("SELECT * FROM campaigns WHERE id = ?").get(campaignId) as any;
+    if (!campaign.tavern_establishment_json) {
+      const world = generateProceduralRegion(campaignId, { selection: { mode: "single", zoneId: "the_gloaming" }, seed: `table-${campaign.code}` });
+      const region = world.region;
+      this.db.prepare(`INSERT INTO regions (id,campaign_id,selection_json,seed,generator_version,content_version,rules_version,attempt,revision,active,created_at)
+        VALUES (?,?,?,?,?,?,?,?,0,1,?)`).run(region.id,campaignId,JSON.stringify(region.selection),region.seed,region.generatorVersion,region.contentVersion,region.rulesVersion,region.attempt,region.createdAt);
+      this.db.prepare("INSERT INTO region_layers (region_id,layer_id,kind,scale) VALUES (?, 'surface', 'surface', 6)").run(region.id);
+      for (const hex of world.hexes.filter(h => h.layerId === "surface")) {
+        this.db.prepare(`INSERT INTO region_hexes (canonical_key,region_id,layer_id,q,r,terrain,elevation,depth,moisture,primary_zone,threat_tier,name,landmark)
+          VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)`).run(hex.canonicalKey,region.id,hex.layerId,hex.q,hex.r,hex.terrain,hex.elevation,hex.depth,hex.moisture,hex.primaryZone,hex.threatTier,hex.name,hex.landmark ?? null);
+        this.db.prepare("UPDATE hexes SET canonical_key = ? WHERE campaign_id = ? AND q = ? AND r = ?").run(hex.canonicalKey,campaignId,hex.q,hex.r);
+      }
+      const leadSites = new Set(world.tavernEstablishment!.leads.map(l => l.targetSiteId));
+      for (const site of world.sites.filter(s => leadSites.has(s.id) || s.kind === "haven")) {
+        this.db.prepare("INSERT INTO sites (id,region_id,canonical_key,kind,name,current_state,visibility) VALUES (?,?,?,?,?,?,?)").run(site.id,region.id,site.canonicalKey,site.kind,site.name,site.currentState,site.visibility);
+      }
+      this.db.prepare("UPDATE campaigns SET active_region_id = ?, tavern_establishment_json = ?, adventure_path_json = ?, home_location_json = ?, party_location_json = COALESCE(party_location_json, ?) WHERE id = ?")
+        .run(region.id,JSON.stringify(world.tavernEstablishment),JSON.stringify(world.adventurePath),JSON.stringify({q:0,r:0,layerId:"surface"}),JSON.stringify({q:0,r:0,layerId:"surface"}),campaignId);
+    }
+    const existing = this.db
+      .prepare("SELECT 1 FROM world_facilities WHERE campaign_id = ?")
+      .get(campaignId);
+    if (existing) return;
+
+    const tavernRow = this.db.prepare("SELECT tavern_establishment_json FROM campaigns WHERE id = ?").get(campaignId) as any;
+    const tavern: TavernEstablishment = JSON.parse(tavernRow.tavern_establishment_json);
+    const facilities: WorldFacility[] = [
+      {
+        id: "fac-tavern-1",
+        campaignId,
+        name: tavern.name,
+        kind: "tavern",
+        locationType: "settlement",
+        locationId: "00",
+        keeperNpcId: "npc-gundren",
+        keeperName: tavern.barkeep,
+        description: "A warm stone tavern warmed by a sunken peat fire. Low timber beams and a bustling rumor board.",
+        services: ["Warm Peat Fire Lodging (1 SP/night)", "Hearty Stew & Ale (2 CP)", "Rumor Gathering", "Carousing"],
+      },
+      {
+        id: "fac-smith-1",
+        campaignId,
+        name: "Stonehand Forge",
+        kind: "blacksmith",
+        locationType: "settlement",
+        locationId: "00",
+        keeperNpcId: "npc-torvald",
+        keeperName: "Torvald Stonehand",
+        description: "Ringing anvil and coal smoke. Renowned for tempering iron weapons and refitting mail hauberks.",
+        services: ["Weapon & Armor Forging", "Shield Reinforcement", "Cold-Iron Weapon Treatment (50 GP)"],
+      },
+      {
+        id: "fac-apothecary-1",
+        campaignId,
+        name: "The Bitter Leaf",
+        kind: "apothecary",
+        locationType: "settlement",
+        locationId: "00",
+        keeperNpcId: "npc-alyssa",
+        keeperName: "Sister Alyssa",
+        description: "Bundles of dried nightshade and pungent herbs hang from low rafters. Calming herbal scent.",
+        services: ["Healing Draughts (10 GP)", "Antitoxin Phials (15 GP)", "Wound Poultices (5 SP)"],
+      },
+      {
+        id: "fac-provisioner-1",
+        campaignId,
+        name: "Oakhaven Outpost Supplies",
+        kind: "provisioner",
+        locationType: "settlement",
+        locationId: "00",
+        keeperNpcId: "npc-aldo",
+        keeperName: "Aldo Marsh",
+        description: "Shelves stacked with tallow torches, iron spikes, hemp rope, and sealed ration barrels.",
+        services: ["Torches Bundle of 3 (5 SP)", "Rations 3-Day Pack (15 SP)", "Dungeoneering Spikes & Rope"],
+      },
+      {
+        id: "fac-trainer-martial",
+        campaignId,
+        name: "Weaponmaster's Ring",
+        kind: "trainer_martial",
+        locationType: "settlement",
+        locationId: "00",
+        keeperNpcId: "npc-vance",
+        keeperName: "Master Vance",
+        description: "Sanded combat yard flanked by weapon racks and straw training pell targets.",
+        services: ["Martial Class Advancement", "Weapon Mastery Training", "Sparring Adjudication"],
+      },
+      {
+        id: "fac-trainer-arcane",
+        campaignId,
+        name: "The Arcane Scriptorium",
+        kind: "trainer_arcane",
+        locationType: "settlement",
+        locationId: "00",
+        keeperNpcId: "npc-corvus",
+        keeperName: "Magister Corvus",
+        description: "A tower study crammed with star charts, inkpots, and parchment scraps. Faint ozone smell.",
+        services: ["Spellbook Transcription", "Scroll Identification", "Arcane Class Advancement"],
+      },
+      {
+        id: "fac-trainer-divine",
+        campaignId,
+        name: "Shrine of the Dawn Sun",
+        kind: "trainer_divine",
+        locationType: "settlement",
+        locationId: "00",
+        keeperNpcId: "npc-mara",
+        keeperName: "High Priestess Mara",
+        description: "White stone sanctum lit by morning sunlight and burning sandalwood censers.",
+        services: ["Divine Penance Adjudication", "Expedition Blessings", "Priest Advancement"],
+      },
+    ];
+
+    const npcs: WorldNpc[] = [
+      {
+        id: "npc-gundren",
+        campaignId,
+        name: tavern.barkeep,
+        role: "Innkeeper & Tavern Host",
+        ancestry: "Dwarf",
+        locationType: "facility",
+        locationId: "fac-tavern-1",
+        locationName: "The Ashen Tankard",
+        disposition: "friendly",
+        notes: "Knows all local travelers. Welcomes coin and clean boots; hates tavern brawlers.",
+      },
+      {
+        id: "npc-torvald",
+        campaignId,
+        name: "Torvald Stonehand",
+        role: "Master Blacksmith",
+        ancestry: "Dwarf",
+        locationType: "facility",
+        locationId: "fac-smith-1",
+        locationName: "Stonehand Forge",
+        disposition: "neutral",
+        notes: "Gruff and precise. Respects finely forged steel; will craft custom weapons for rare ore.",
+      },
+      {
+        id: "npc-alyssa",
+        campaignId,
+        name: "Sister Alyssa",
+        role: "Apothecary & Herbalist",
+        ancestry: "Human",
+        locationType: "facility",
+        locationId: "fac-apothecary-1",
+        locationName: "The Bitter Leaf",
+        disposition: "friendly",
+        notes: "Gentle and perceptive. Seeks rare marsh herbs and fungi from the wilderness.",
+      },
+      {
+        id: "npc-aldo",
+        campaignId,
+        name: "Aldo Marsh",
+        role: "Provisioner Merchant",
+        ancestry: "Halfling",
+        locationType: "facility",
+        locationId: "fac-provisioner-1",
+        locationName: "Oakhaven Outpost Supplies",
+        disposition: "neutral",
+        notes: "Shrewd trader with a cheerful smile. Offers fair rates on bulk torches and dried provisions.",
+      },
+      {
+        id: "npc-vance",
+        campaignId,
+        name: "Master Vance",
+        role: "Veteran Weaponmaster",
+        ancestry: "Human",
+        locationType: "facility",
+        locationId: "fac-trainer-martial",
+        locationName: "Weaponmaster's Ring",
+        disposition: "neutral",
+        notes: "Scarred frontier veteran. Stern mentor for Fighters and martial adventurers.",
+      },
+      {
+        id: "npc-corvus",
+        campaignId,
+        name: "Magister Corvus",
+        role: "Court Wizard & Sage",
+        ancestry: "Elf",
+        locationType: "facility",
+        locationId: "fac-trainer-arcane",
+        locationName: "The Arcane Scriptorium",
+        disposition: "neutral",
+        notes: "Secretive scholar of antiquity. Will translate ancient runes and decipher scrolls.",
+      },
+      {
+        id: "npc-mara",
+        campaignId,
+        name: "High Priestess Mara",
+        role: "Dawn Priestess",
+        ancestry: "Human",
+        locationType: "facility",
+        locationId: "fac-trainer-divine",
+        locationName: "Shrine of the Dawn Sun",
+        disposition: "friendly",
+        notes: "Devout sun priestess. Offers sanctuary penance to priests who suffer divine mishaps.",
+      },
+    ];
+
+    const leads = this.getTavernLeads(campaignId);
+
+    this.db.prepare("DELETE FROM world_facilities WHERE campaign_id = ?").run(campaignId);
+    this.db.prepare("DELETE FROM world_npcs WHERE campaign_id = ?").run(campaignId);
+    this.db.prepare("DELETE FROM tavern_leads WHERE campaign_id = ?").run(campaignId);
+
+    const insertFac = this.db.prepare(
+      `INSERT INTO world_facilities (id, campaign_id, name, kind, location_type, location_id, keeper_npc_id, keeper_name, description, services_json)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    );
+    for (const f of facilities) {
+      insertFac.run(
+        f.id,
+        f.campaignId,
+        f.name,
+        f.kind,
+        f.locationType,
+        f.locationId,
+        f.keeperNpcId ?? null,
+        f.keeperName ?? null,
+        f.description,
+        JSON.stringify(f.services),
+      );
+    }
+
+    const insertNpc = this.db.prepare(
+      `INSERT INTO world_npcs (id, campaign_id, name, role, ancestry, location_type, location_id, location_name, disposition, notes, rescue_state)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    );
+    for (const n of npcs) {
+      insertNpc.run(
+        n.id,
+        n.campaignId,
+        n.name,
+        n.role,
+        n.ancestry,
+        n.locationType,
+        n.locationId,
+        n.locationName ?? null,
+        n.disposition,
+        n.notes,
+        n.rescueState ?? null,
+      );
+    }
+
+    const insertLead = this.db.prepare(
+      `INSERT INTO tavern_leads (id, campaign_id, source_npc, claim, direction_hint, apparent_danger, promised_reward, destination_site_id, lead_type, is_empty_site)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    );
+    for (const l of leads) {
+      insertLead.run(
+        l.id,
+        l.campaignId,
+        l.sourceNpc,
+        l.claim,
+        l.directionHint,
+        l.apparentDanger,
+        l.promisedReward,
+        l.destinationSiteId,
+        l.leadType,
+        l.isEmptySite ? 1 : 0,
+      );
+    }
+  }
+
+
 
   getRewards(campaignId: number, claimed?: boolean): RewardRecord[] {
     const query = claimed !== undefined
@@ -2329,8 +2909,9 @@ export class AshDatabase {
       .run(pressureId, campaignId);
   }
 
-  addRoll(campaignId: number, roll: Omit<RollRecord, "id" | "createdAt">) {
-    this.db
+  addRoll(campaignId: number, roll: Omit<RollRecord, "id" | "createdAt">): RollRecord {
+    const createdAt = now();
+    const result = this.db
       .prepare(
         "INSERT INTO rolls (campaign_id,actor,kind,label,dice,total,detail,created_at) VALUES (?,?,?,?,?,?,?,?)",
       )
@@ -2342,16 +2923,522 @@ export class AshDatabase {
         roll.dice,
         roll.total,
         roll.detail,
-        now(),
+        createdAt,
       );
+    // Shaped exactly like rowToRoll, so an appended roll is indistinguishable
+    // from the same roll read back through a page.
+    const record: RollRecord = {
+      id: Number(result.lastInsertRowid),
+      actor: roll.actor,
+      kind: roll.kind,
+      label: roll.label,
+      dice: roll.dice,
+      total: roll.total,
+      detail: roll.detail,
+      createdAt,
+    };
+    this.onRollAdded?.(campaignId, record);
+    return record;
   }
 
-  addNote(campaignId: number, section: string, title: string, body: string) {
-    this.db
+  getRollsPage(
+    campaignId: number,
+    options: { beforeId?: number; limit?: number } = {},
+  ): RollRecord[] {
+    const limit = Math.min(options.limit ?? 50, 100);
+    const rows = options.beforeId
+      ? (this.db
+          .prepare(
+            "SELECT * FROM rolls WHERE campaign_id = ? AND id < ? ORDER BY id DESC LIMIT ?",
+          )
+          .all(campaignId, options.beforeId, limit) as Row[])
+      : (this.db
+          .prepare(
+            "SELECT * FROM rolls WHERE campaign_id = ? ORDER BY id DESC LIMIT ?",
+          )
+          .all(campaignId, limit) as Row[]);
+    return rows.map(rowToRoll);
+  }
+
+  addNote(campaignId: number, section: string, title: string, body: string): WikiNote {
+    const createdAt = now();
+    const result = this.db
       .prepare(
         "INSERT INTO wiki_notes (campaign_id,section,title,body,created_at) VALUES (?,?,?,?,?)",
       )
-      .run(campaignId, section, title, body, now());
+      .run(campaignId, section, title, body, createdAt);
+    const record: WikiNote = {
+      id: Number(result.lastInsertRowid),
+      section,
+      title,
+      body,
+      createdAt,
+    };
+    this.onNoteAdded?.(campaignId, record);
+    return record;
+  }
+
+  getWikiNotesPage(
+    campaignId: number,
+    options: { beforeId?: number; limit?: number } = {},
+  ): WikiNote[] {
+    const limit = Math.min(options.limit ?? 50, 100);
+    const rows = options.beforeId
+      ? (this.db
+          .prepare(
+            "SELECT * FROM wiki_notes WHERE campaign_id = ? AND id < ? ORDER BY id DESC LIMIT ?",
+          )
+          .all(campaignId, options.beforeId, limit) as Row[])
+      : (this.db
+          .prepare(
+            "SELECT * FROM wiki_notes WHERE campaign_id = ? ORDER BY id DESC LIMIT ?",
+          )
+          .all(campaignId, limit) as Row[]);
+    return rows.map((row): WikiNote => ({
+      id: Number(row.id),
+      section: String(row.section),
+      title: String(row.title),
+      body: String(row.body),
+      createdAt: String(row.created_at),
+    }));
+  }
+
+  /**
+   * The viewer-specific `me` slice. Kept in one place because it is the only part
+   * of a projection that differs between two sockets holding the same role.
+   */
+  getIdentityState(
+    campaignId: number,
+    role: Role,
+    characterId: number | null,
+    viewerToken: string | undefined,
+    campaignCallerToken: string | null,
+  ): CampaignState["me"] {
+    let ready = false;
+    let resolvedCharacterId = characterId;
+    if (viewerToken) {
+      const device = this.db
+        .prepare("SELECT ready, character_id FROM devices WHERE campaign_id = ? AND token = ?")
+        .get(campaignId, viewerToken) as { ready: number; character_id?: number } | undefined;
+      ready = Boolean(device?.ready);
+      if (device?.character_id != null) {
+        resolvedCharacterId = device.character_id;
+      }
+    }
+    const isCaller =
+      role === "host" || (Boolean(campaignCallerToken) && campaignCallerToken === viewerToken);
+    return { role, characterId: resolvedCharacterId, isCaller, ready, token: viewerToken };
+  }
+
+  getSlicedState(
+    campaignId: number,
+    role: Role,
+    characterId: number | null,
+    joinUrl: string,
+    callerToken?: string,
+    options: { isInitial?: boolean; rollLimit?: number; noteLimit?: number } = {},
+  ): SlicesUpdate {
+    const campaignRow = this.db
+      .prepare("SELECT * FROM campaigns WHERE id = ?")
+      .get(campaignId) as Row | undefined;
+    if (!campaignRow) {
+      throw new Error(`Campaign ${campaignId} not found`);
+    }
+
+    const campaignRevision = Number(campaignRow.revision ?? 1);
+    const activeZoneId = campaignRow.active_zone_id ? String(campaignRow.active_zone_id) : "the_gloaming";
+    const activeSiteId = campaignRow.active_site_id ? String(campaignRow.active_site_id) : undefined;
+    const isSecretPath = Boolean(campaignRow.is_secret_path);
+    const started = Boolean(campaignRow.started);
+    const rawCallerToken = campaignRow.caller_token ? String(campaignRow.caller_token) : null;
+
+    const slices: SlicesUpdate["slices"] = {};
+
+    let cachedCharacters: Character[] | undefined;
+    const getCharacters = () => {
+      if (!cachedCharacters) {
+        cachedCharacters = (
+          this.db
+            .prepare("SELECT * FROM characters WHERE campaign_id = ? ORDER BY id")
+            .all(campaignId) as Row[]
+        ).map(rowToCharacter);
+      }
+      return cachedCharacters;
+    };
+
+    {
+      slices.characters = getCharacters();
+    }
+
+    {
+      const discoveredSiteIds = this.getDiscoveredSiteIds(campaignId);
+      const siteIndex = this.getSitesByHex(campaignId);
+      slices.hexes = (
+        this.db
+          .prepare("SELECT * FROM hexes WHERE campaign_id = ? ORDER BY CAST(id AS INTEGER)")
+          .all(campaignId) as Row[]
+      ).map((r) => rowToHex(r, role, discoveredSiteIds, siteIndex));
+    }
+
+    {
+      const roomRows = (
+        activeSiteId
+          ? (this.db
+              .prepare("SELECT * FROM dungeon_rooms WHERE campaign_id = ? AND site_id = ? ORDER BY sequence")
+              .all(campaignId, activeSiteId) as Row[])
+          : (this.db
+              .prepare("SELECT * FROM dungeon_rooms WHERE campaign_id = ? ORDER BY sequence")
+              .all(campaignId) as Row[])
+      ).map((r) => rowToRoom(r, role));
+
+      let activeDungeon = this.getDungeonGraph(campaignId, activeSiteId);
+      if (activeDungeon) {
+        activeDungeon = {
+          ...activeDungeon,
+          siteStructure: activeDungeon.siteStructure
+            ? {
+                sections: activeDungeon.siteStructure.sections.filter((section) =>
+                  section.roomIds.some((id) =>
+                    activeDungeon!.nodes.some((n) => n.id === id && n.explored),
+                  ),
+                ),
+              }
+            : undefined,
+          nodes: activeDungeon.nodes.map((node) => {
+            if (node.explored || node.id === activeDungeon!.currentRoomId) {
+              return {
+                ...node,
+                objective: node.objective
+                  ? {
+                      ...node.objective,
+                      generated: node.objective.generated
+                        ? {
+                            ...node.objective.generated,
+                            clue: node.objective.completed
+                              ? node.objective.generated.clue
+                              : undefined,
+                            nextAction: node.objective.completed
+                              ? node.objective.generated.nextAction
+                              : undefined,
+                          }
+                        : undefined,
+                    }
+                  : undefined,
+                feature: node.trap && !node.trap.spotted && !node.trap.disarmed ? undefined : node.feature,
+                featureRoll: node.trap && !node.trap.spotted && !node.trap.disarmed ? undefined : node.featureRoll,
+                contents: node.trap && !node.trap.spotted && !node.trap.disarmed ? (node.trap.sensoryTell ?? "Dust lies across the quiet floor.") : node.contents,
+                sensoryTell: node.trap?.sensoryTell || node.sensoryTell,
+                trap: node.trap
+                  ? node.trap.spotted || node.trap.disarmed
+                    ? node.trap
+                    : undefined
+                  : undefined,
+              };
+            }
+            return {
+              id: node.id,
+              title: "Unknown Chamber",
+              x: node.x,
+              y: node.y,
+              geometry: "Unexplored",
+              contents: "Darkness and silence.",
+              interaction: "",
+              explored: false,
+            };
+          }),
+          edges: activeDungeon.edges.filter((edge) => {
+            if (
+              edge.transition &&
+              !activeDungeon!.nodes.some(
+                (n) => (n.id === edge.fromRoomId || n.id === edge.toRoomId) && n.explored,
+              )
+            )
+              return false;
+            if (edge.doorType === "secret" && edge.state !== "open") {
+              return false;
+            }
+            return true;
+          }),
+        };
+      }
+
+      slices.rooms = {
+        rooms: roomRows,
+        activeDungeon,
+      };
+    }
+
+    {
+      const encounterRows = this.db
+        .prepare("SELECT * FROM encounters WHERE campaign_id = ? ORDER BY id DESC")
+        .all(campaignId) as Row[];
+      const encounters: Encounter[] = encounterRows.map((encounter) => ({
+        id: Number(encounter.id),
+        name: String(encounter.name),
+        status: String(encounter.status) as "active" | "resolved",
+        createdAt: String(encounter.created_at),
+        monsters: (
+          this.db
+            .prepare("SELECT * FROM encounter_monsters WHERE encounter_id = ? ORDER BY id")
+            .all(encounter.id) as Row[]
+        ).map((row) => {
+          const key = String(row.monster_key);
+          const staticMonster = this.getMonster(key);
+          const name = row.name ? String(row.name) : staticMonster?.name ?? key;
+          const tier = Number(row.lore_tier);
+          const ac = row.ac != null ? Number(row.ac) : staticMonster?.ac;
+          const morale = row.morale != null ? Number(row.morale) : staticMonster?.morale;
+          const level = row.level != null ? Number(row.level) : staticMonster?.level;
+          const attacks = row.attacks_json
+            ? JSON.parse(String(row.attacks_json))
+            : staticMonster?.attacks ?? [];
+          const traits = row.traits_json
+            ? JSON.parse(String(row.traits_json))
+            : staticMonster?.traits ?? [];
+          const lore = row.lore_json
+            ? JSON.parse(String(row.lore_json))
+            : staticMonster?.lore ?? [];
+
+          const combatant = this.getCombatState(campaignId, Number(encounter.id))?.combatants.find(c => c.refId === Number(row.id) && c.kind === "monster");
+          const hpVisible = Number(row.current_hp) < Number(row.max_hp) / 2;
+          return {
+            id: Number(row.id),
+            monsterKey: key,
+            name,
+            hpStatus: computeHpStatus(Number(row.current_hp), Number(row.max_hp)),
+            currentHp: hpVisible ? Number(row.current_hp) : 0,
+            maxHp: hpVisible ? Number(row.max_hp) : 0,
+            loreTier: tier,
+            level,
+            family: staticMonster?.family,
+            move: staticMonster?.move,
+            abilities: staticMonster?.abilities,
+            alignment: staticMonster?.alignment,
+            harvest: staticMonster?.harvest,
+            isVariant: Boolean(row.is_variant),
+            variantQuality: row.variant_quality ? String(row.variant_quality) : undefined,
+            variantStrength: row.variant_strength ? String(row.variant_strength) : undefined,
+            variantWeakness: row.variant_weakness ? String(row.variant_weakness) : undefined,
+            ...(tier >= 1 ? { lore: lore.slice(0, tier) } : {}),
+            ...(combatant?.acRevealed ? { ac } : {}),
+            ...(tier >= 2 ? { morale, attacks: [...attacks] } : {}),
+            ...(tier >= 3 ? { traits: [...traits] } : {}),
+          };
+        }),
+      }));
+
+      const pressures = (
+        this.db
+          .prepare(
+            "SELECT * FROM campaign_pressures WHERE campaign_id = ? ORDER BY CASE status WHEN 'active' THEN 0 ELSE 1 END, id",
+          )
+          .all(campaignId) as Row[]
+      ).map(
+        (row): CampaignPressure => ({
+          id: Number(row.id),
+          name: String(row.name),
+          shape: String(row.shape) as CampaignPressure["shape"],
+          current: Number(row.current),
+          threshold: Number(row.threshold),
+          consequence: String(row.consequence),
+          status: String(row.status) as CampaignPressure["status"],
+        }),
+      );
+
+      slices.encounters = {
+        encounters,
+        pressures,
+      };
+    }
+
+    {
+      const combat = this.getCombatState(campaignId);
+      slices.combat = projectCombat(combat);
+    }
+
+    {
+      slices.rewards = this.getRewards(campaignId);
+    }
+
+    {
+      const rollLimit = options.rollLimit ?? (options.isInitial ? 8 : 10);
+      slices.rolls = this.getRollsPage(campaignId, { limit: rollLimit });
+    }
+
+    {
+      const noteLimit = options.noteLimit ?? (options.isInitial ? 10 : 15);
+      slices.notes = this.getWikiNotesPage(campaignId, { limit: noteLimit });
+    }
+
+    {
+      slices.zones = { activeZoneId };
+    }
+
+    const deviceRows = this.db
+      .prepare("SELECT token, ready, character_id FROM devices WHERE campaign_id = ?")
+      .all(campaignId) as Array<{ token: string; ready: number; character_id?: number }>;
+
+    {
+      const chars = getCharacters();
+      slices.tablePlayers = deviceRows.map((d) => {
+        const ownedChars = chars.filter((c) => c.ownerToken === d.token);
+        const activeChar = chars.find((c) => c.id === d.character_id);
+        return {
+          token: d.token,
+          ready: Boolean(d.ready),
+          characterCount: ownedChars.length,
+          activeCharacterName: activeChar?.name,
+        };
+      });
+    }
+
+    {
+      const totalPlayers = deviceRows.length;
+      const readyPlayers = deviceRows.filter((p) => p.ready).length;
+      const allReady = totalPlayers > 0 && readyPlayers === totalPlayers;
+      const tableReadiness = { totalPlayers, readyPlayers, allReady };
+
+      let callerCharacterName: string | null = null;
+      if (rawCallerToken) {
+        if (rawCallerToken === campaignRow.host_token) {
+          callerCharacterName = "Table Host";
+        } else {
+          const callerCharRow = this.db
+            .prepare(
+              `SELECT c.name FROM characters c
+               JOIN devices d ON d.character_id = c.id
+               WHERE d.token = ? AND c.campaign_id = ?`,
+            )
+            .get(rawCallerToken, campaignId) as { name: string } | undefined;
+          callerCharacterName = callerCharRow?.name ?? "Party Caller";
+        }
+      }
+
+      let adventurePath: PublicAdventurePathSummary | null = null;
+      if (campaignRow.adventure_path_json) {
+        try {
+          const rawAP: AdventurePathRecord = JSON.parse(String(campaignRow.adventure_path_json));
+          const tells: string[] = [];
+          if (rawAP.progress.reach >= 2) {
+            tells.push("Locals report officials and couriers acting with strange, synchronized detachment.");
+          } else {
+            tells.push("Quiet rumors circulate of sleepwalkers and water-damaged records.");
+          }
+          if (rawAP.progress.awakening >= 2) {
+            tells.push("Strange subterranean tides pulse through deep wells and cellars.");
+          }
+          if (rawAP.progress.knowledge >= 2) {
+            tells.push("Evidence confirms a coordinated mind-traffic heading toward the deep waterways.");
+          }
+
+          if (isSecretPath) {
+            adventurePath = {
+              pathId: "secret",
+              name: "Uncharted Omens",
+              isSecret: true,
+              narrativeTells: ["Strange omens stir the wilderness, their source yet hidden."],
+              revealedMethods: [],
+              activeSituation: rawAP.activeSituation
+                ? {
+                    title: "A Hidden Rumor in the Shadows",
+                    premise: "Local whispers point toward unusual disturbances requiring investigation.",
+                    status: rawAP.activeSituation.status,
+                    knownClues: rawAP.activeSituation.clues,
+                  }
+                : null,
+            };
+          } else {
+            adventurePath = {
+              pathId: rawAP.pathId,
+              name: rawAP.name,
+              activeSituation: rawAP.activeSituation
+                ? {
+                    title: rawAP.activeSituation.title,
+                    premise: rawAP.activeSituation.premise,
+                    status: rawAP.activeSituation.status,
+                    knownClues: rawAP.activeSituation.clues,
+                  }
+                : null,
+              narrativeTells: tells,
+              revealedMethods: rawAP.aquaticMethodsRevealed ?? [],
+              ...(role === "host"
+                ? {
+                    hostDetails: {
+                      startingZoneId: rawAP.startingZoneId,
+                      caveZoneId: rawAP.caveZoneId,
+                      endZoneId: rawAP.endZoneId,
+                      progress: { ...rawAP.progress },
+                      toll: [...rawAP.toll],
+                      resolvedDeeds: [...rawAP.resolvedDeeds],
+                    },
+                  }
+                : {}),
+            };
+          }
+        } catch {}
+      }
+
+      let tavernEstablishment: TavernEstablishment | null = campaignRow.tavern_establishment_json
+        ? JSON.parse(String(campaignRow.tavern_establishment_json))
+        : null;
+      if (tavernEstablishment) {
+        tavernEstablishment = {
+          ...tavernEstablishment,
+          leads: tavernEstablishment.leads.map((lead) => ({
+            ...lead,
+            accuracy: "distorted",
+            destinationOutcome: undefined,
+            arrivalDiscovery: undefined,
+            isEmptySite: undefined,
+            isPathLead: undefined,
+            leadType: undefined,
+          })),
+        };
+      }
+
+      const activeSession = this.getActiveSession(campaignId);
+
+      slices.campaign = {
+        id: campaignId,
+        code: String(campaignRow.code),
+        name: String(campaignRow.name),
+        regionName: String(campaignRow.region_name),
+        act: Number(campaignRow.act),
+        phase: (campaignRow.current_phase ? String(campaignRow.current_phase) : "sanctuary") as CampaignPhase,
+        activeZoneId,
+        joinUrl,
+        activeRegionId: campaignRow.active_region_id ? String(campaignRow.active_region_id) : undefined,
+        partyLocation: campaignRow.party_location_json ? JSON.parse(String(campaignRow.party_location_json)) : undefined,
+        homeLocation: campaignRow.home_location_json ? JSON.parse(String(campaignRow.home_location_json)) : undefined,
+        day: Number(campaignRow.day ?? 1),
+        watch: (Number(campaignRow.watch ?? 1) as 1 | 2 | 3 | 4),
+        watchesTraveledToday: Number(campaignRow.watches_traveled_today ?? 0),
+        weather: campaignRow.weather ? String(campaignRow.weather) : "Overcast / Mild Breeze",
+        rations: Number(campaignRow.rations ?? 12),
+        activeObjective: campaignRow.active_objective_json ? JSON.parse(String(campaignRow.active_objective_json)) : null,
+        activeSiteId: activeSiteId ?? null,
+        tavernEstablishment,
+        adventurePath,
+        callerToken: role === "host" ? rawCallerToken : null,
+        callerCharacterName,
+        revision: campaignRevision,
+        activeSession,
+        started,
+        isSecretPath,
+        tableReadiness,
+        facilities: this.getFacilities(campaignId),
+        worldNpcs: this.getNpcs(campaignId),
+        // Tavern leads are transmitted once, within the establishment.
+      };
+    }
+
+    slices.me = this.getIdentityState(campaignId, role, characterId, callerToken, rawCallerToken);
+
+    return {
+      campaignRevision,
+      slices,
+      sliceRevisions: this.getSliceRevisions(campaignId),
+    };
   }
 
   getState(
@@ -2361,367 +3448,47 @@ export class AshDatabase {
     joinUrl: string,
     callerToken?: string,
   ): CampaignState {
-    const campaign = this.db
-      .prepare("SELECT * FROM campaigns WHERE id = ?")
-      .get(campaignId) as Row;
-    const characters = (
-      this.db
-        .prepare("SELECT * FROM characters WHERE campaign_id = ? ORDER BY id")
-        .all(campaignId) as Row[]
-    ).map(rowToCharacter);
-    const discoveredSiteIds = this.getDiscoveredSiteIds(campaignId);
-    const siteIndex = this.getSitesByHex(campaignId);
-    const hexes = (
-      this.db
-        .prepare(
-          "SELECT * FROM hexes WHERE campaign_id = ? ORDER BY CAST(id AS INTEGER)",
-        )
-        .all(campaignId) as Row[]
-    ).map((r) => rowToHex(r, role, discoveredSiteIds, siteIndex));
-    const activeSiteId = campaign.active_site_id ? String(campaign.active_site_id) : undefined;
-    const rooms = (
-      activeSiteId
-        ? (this.db
-            .prepare(
-              "SELECT * FROM dungeon_rooms WHERE campaign_id = ? AND site_id = ? ORDER BY sequence",
-            )
-            .all(campaignId, activeSiteId) as Row[])
-        : (this.db
-            .prepare(
-              "SELECT * FROM dungeon_rooms WHERE campaign_id = ? ORDER BY sequence",
-            )
-            .all(campaignId) as Row[])
-    ).map((r) => rowToRoom(r, role));
-    const encounterRows = this.db
-      .prepare(
-        "SELECT * FROM encounters WHERE campaign_id = ? ORDER BY id DESC",
-      )
-      .all(campaignId) as Row[];
-    const encounters: Encounter[] = encounterRows.map((encounter) => ({
-      id: Number(encounter.id),
-      name: String(encounter.name),
-      status: String(encounter.status) as "active" | "resolved",
-      createdAt: String(encounter.created_at),
-      monsters: (
-        this.db
-          .prepare(
-            "SELECT * FROM encounter_monsters WHERE encounter_id = ? ORDER BY id",
-          )
-          .all(encounter.id) as Row[]
-      ).map((row) => {
-        const key = String(row.monster_key);
-        const staticMonster = this.getMonster(key);
-        const name = row.name ? String(row.name) : staticMonster?.name ?? key;
-        const tier = Number(row.lore_tier);
-        const ac = row.ac != null ? Number(row.ac) : staticMonster?.ac;
-        const morale = row.morale != null ? Number(row.morale) : staticMonster?.morale;
-        const level = row.level != null ? Number(row.level) : staticMonster?.level;
-        const attacks = row.attacks_json
-          ? JSON.parse(String(row.attacks_json))
-          : staticMonster?.attacks ?? [];
-        const traits = row.traits_json
-          ? JSON.parse(String(row.traits_json))
-          : staticMonster?.traits ?? [];
-        const lore = row.lore_json
-          ? JSON.parse(String(row.lore_json))
-          : staticMonster?.lore ?? [];
-
-        return {
-          id: Number(row.id),
-          monsterKey: key,
-          name,
-          currentHp: Number(row.current_hp),
-          maxHp: Number(row.max_hp),
-          loreTier: tier,
-          level,
-          family: staticMonster?.family,
-          move: staticMonster?.move,
-          abilities: staticMonster?.abilities,
-          alignment: staticMonster?.alignment,
-          harvest: staticMonster?.harvest,
-          isVariant: Boolean(row.is_variant),
-          variantQuality: row.variant_quality ? String(row.variant_quality) : undefined,
-          variantStrength: row.variant_strength ? String(row.variant_strength) : undefined,
-          variantWeakness: row.variant_weakness ? String(row.variant_weakness) : undefined,
-          ...(tier >= 1 ? { ac, lore: lore.slice(0, tier) } : {}),
-          ...(tier >= 2 ? { morale, attacks: [...attacks] } : {}),
-          ...(tier >= 3 ? { traits: [...traits] } : {}),
-        };
-      }),
-    }));
-    const pressures = (
-      this.db
-        .prepare(
-          "SELECT * FROM campaign_pressures WHERE campaign_id = ? ORDER BY CASE status WHEN 'active' THEN 0 ELSE 1 END, id",
-        )
-        .all(campaignId) as Row[]
-    ).map(
-      (row): CampaignPressure => ({
-        id: Number(row.id),
-        name: String(row.name),
-        shape: String(row.shape) as CampaignPressure["shape"],
-        current: Number(row.current),
-        threshold: Number(row.threshold),
-        consequence: String(row.consequence),
-        status: String(row.status) as CampaignPressure["status"],
-      }),
-    );
-    const rolls = (
-      this.db
-        .prepare(
-          "SELECT * FROM rolls WHERE campaign_id = ? ORDER BY id DESC LIMIT 60",
-        )
-        .all(campaignId) as Row[]
-    ).map(rowToRoll);
-    const notes = (
-      this.db
-        .prepare(
-          "SELECT * FROM wiki_notes WHERE campaign_id = ? ORDER BY id DESC LIMIT 100",
-        )
-        .all(campaignId) as Row[]
-    ).map(
-      (row): WikiNote => ({
-        id: Number(row.id),
-        section: String(row.section),
-        title: String(row.title),
-        body: String(row.body),
-        createdAt: String(row.created_at),
-      }),
-    );
-
-    const activeZoneId = campaign.active_zone_id ? String(campaign.active_zone_id) : "the_gloaming";
-    const phase = (campaign.current_phase ? String(campaign.current_phase) : "sanctuary") as CampaignPhase;
-    const activeZone = this.getZoneManifest(activeZoneId);
-    const availableZones = this.listZones();
-
-    const isSecretPath = Boolean(campaign.is_secret_path);
-    const started = Boolean(campaign.started);
-
-    const deviceRows = this.db
-      .prepare("SELECT token, ready, character_id FROM devices WHERE campaign_id = ?")
-      .all(campaignId) as Array<{ token: string; ready: number; character_id?: number }>;
-
-    let myReady = false;
-    let myCharId = characterId;
-    if (callerToken) {
-      const myDev = deviceRows.find((d) => d.token === callerToken);
-      myReady = Boolean(myDev?.ready);
-      if (myDev?.character_id != null) {
-        myCharId = myDev.character_id;
-      }
-    }
-
-    const tablePlayers: TablePlayerSummary[] = deviceRows.map((d) => {
-      const ownedChars = characters.filter((c) => c.ownerToken === d.token);
-      const activeChar = characters.find((c) => c.id === d.character_id);
-      return {
-        token: d.token,
-        ready: Boolean(d.ready),
-        characterCount: ownedChars.length,
-        activeCharacterName: activeChar?.name,
-      };
+    // Single projector: the full state is the union of every slice, so a fog rule
+    // written once in getSlicedState cannot drift away from the snapshot readers.
+    const { slices } = this.getSlicedState(campaignId, role, characterId, joinUrl, callerToken, {
+      rollLimit: 60,
+      noteLimit: 100,
     });
-
-    const totalPlayers = tablePlayers.length;
-    const readyPlayers = tablePlayers.filter((p) => p.ready).length;
-    const allReady = totalPlayers > 0 && readyPlayers === totalPlayers;
-    const tableReadiness = { totalPlayers, readyPlayers, allReady };
-
-    let adventurePath: PublicAdventurePathSummary | null = null;
-    if (campaign.adventure_path_json) {
-      try {
-        const rawAP: AdventurePathRecord = JSON.parse(String(campaign.adventure_path_json));
-        const tells: string[] = [];
-        if (rawAP.progress.reach >= 2) {
-          tells.push("Locals report officials and couriers acting with strange, synchronized detachment.");
-        } else {
-          tells.push("Quiet rumors circulate of sleepwalkers and water-damaged records.");
-        }
-        if (rawAP.progress.awakening >= 2) {
-          tells.push("Strange subterranean tides pulse through deep wells and cellars.");
-        }
-        if (rawAP.progress.knowledge >= 2) {
-          tells.push("Evidence confirms a coordinated mind-traffic heading toward the deep waterways.");
-        }
-
-        if (isSecretPath) {
-          adventurePath = {
-            pathId: "secret",
-            name: "Uncharted Omens",
-            isSecret: true,
-            narrativeTells: ["Strange omens stir the wilderness, their source yet hidden."],
-            revealedMethods: [],
-            activeSituation: rawAP.activeSituation
-              ? {
-                  title: "A Hidden Rumor in the Shadows",
-                  premise: "Local whispers point toward unusual disturbances requiring investigation.",
-                  status: rawAP.activeSituation.status,
-                  knownClues: rawAP.activeSituation.clues,
-                }
-              : null,
-          };
-        } else {
-          adventurePath = {
-            pathId: rawAP.pathId,
-            name: rawAP.name,
-            activeSituation: rawAP.activeSituation
-              ? {
-                  title: rawAP.activeSituation.title,
-                  premise: rawAP.activeSituation.premise,
-                  status: rawAP.activeSituation.status,
-                  knownClues: rawAP.activeSituation.clues,
-                }
-              : null,
-            narrativeTells: tells,
-            revealedMethods: rawAP.aquaticMethodsRevealed ?? [],
-            ...(role === "host"
-              ? {
-                  hostDetails: {
-                    startingZoneId: rawAP.startingZoneId,
-                    caveZoneId: rawAP.caveZoneId,
-                    endZoneId: rawAP.endZoneId,
-                    progress: { ...rawAP.progress },
-                    toll: [...rawAP.toll],
-                    resolvedDeeds: [...rawAP.resolvedDeeds],
-                  },
-                }
-              : {}),
-          };
-        }
-      } catch {}
-    }
-
-    const rawCallerToken = campaign.caller_token ? String(campaign.caller_token) : null;
-    let callerCharacterName: string | null = null;
-    if (rawCallerToken) {
-      if (rawCallerToken === campaign.host_token) {
-        callerCharacterName = "Table Host";
-      } else {
-        const callerCharRow = this.db
-          .prepare(
-            `SELECT c.name FROM characters c
-             JOIN devices d ON d.character_id = c.id
-             WHERE d.token = ? AND c.campaign_id = ?`,
-          )
-          .get(rawCallerToken, campaignId) as { name: string } | undefined;
-        callerCharacterName = callerCharRow?.name ?? "Party Caller";
-      }
-    }
-
-    const isCaller = role === "host" || (Boolean(rawCallerToken) && rawCallerToken === callerToken);
-    const revision = Number(campaign.revision ?? 1);
-
-    const activeSession = this.getActiveSession(campaignId);
-
-    let activeDungeon = this.getDungeonGraph(campaignId, activeSiteId);
-    if (activeDungeon && role !== "host") {
-      activeDungeon = {
-        ...activeDungeon,
-        siteStructure: activeDungeon.siteStructure ? {
-          sections: activeDungeon.siteStructure.sections.filter(section =>
-            section.roomIds.some(id => activeDungeon!.nodes.some(n => n.id === id && n.explored))),
-        } : undefined,
-        nodes: activeDungeon.nodes.map((node) => {
-          if (node.explored || node.id === activeDungeon!.currentRoomId) {
-            return {
-              ...node,
-              objective: node.objective ? { ...node.objective, generated: node.objective.generated ? {
-                ...node.objective.generated,
-                clue: node.objective.completed ? node.objective.generated.clue : undefined,
-                nextAction: node.objective.completed ? node.objective.generated.nextAction : undefined,
-              } : undefined } : undefined,
-              trap: node.trap?.spotted || node.trap?.disarmed ? node.trap : undefined,
-            };
-          }
-          return {
-            id: node.id,
-            title: "Unknown Chamber",
-            x: node.x,
-            y: node.y,
-            geometry: "Unexplored",
-            contents: "Darkness and silence.",
-            interaction: "",
-            explored: false,
-          };
-        }),
-        edges: activeDungeon.edges.filter((edge) => {
-          if (edge.transition && !activeDungeon!.nodes.some(n =>
-            (n.id === edge.fromRoomId || n.id === edge.toRoomId) && n.explored)) return false;
-          if (edge.doorType === "secret" && edge.state !== "open") {
-            return false;
-          }
-          return true;
-        }),
-      };
-    }
-
-    const activeCombat = this.getCombatState(campaignId);
-    const rewards = this.getRewards(campaignId);
-
-    let tavernEstablishment: TavernEstablishment | null = campaign.tavern_establishment_json
-      ? JSON.parse(String(campaign.tavern_establishment_json))
-      : null;
-    if (tavernEstablishment && role !== "host") {
-      tavernEstablishment = {
-        ...tavernEstablishment,
-        leads: tavernEstablishment.leads.map((lead) => ({
-          ...lead,
-          accuracy: "distorted",
-          destinationOutcome: undefined,
-          arrivalDiscovery: undefined,
-        })),
-      };
-    }
+    const campaign = requireSlice(slices.campaign, "campaign");
+    const rooms = requireSlice(slices.rooms, "rooms");
+    const encounters = requireSlice(slices.encounters, "encounters");
+    const zones = requireSlice(slices.zones, "zones");
+    const activeCombat = requireSlice(slices.combat, "combat");
 
     return {
-      campaign: {
-        id: campaignId,
-        code: String(campaign.code),
-        name: String(campaign.name),
-        regionName: String(campaign.region_name),
-        act: Number(campaign.act),
-        phase,
-        activeZoneId,
-        joinUrl,
-        activeRegionId: campaign.active_region_id ? String(campaign.active_region_id) : undefined,
-        partyLocation: campaign.party_location_json ? JSON.parse(String(campaign.party_location_json)) : undefined,
-        homeLocation: campaign.home_location_json ? JSON.parse(String(campaign.home_location_json)) : undefined,
-        day: Number(campaign.day ?? 1),
-        watch: (Number(campaign.watch ?? 1) as 1 | 2 | 3 | 4),
-        watchesTraveledToday: Number(campaign.watches_traveled_today ?? 0),
-        weather: campaign.weather ? String(campaign.weather) : "Overcast / Mild Breeze",
-        rations: Number(campaign.rations ?? 12),
-        activeObjective: campaign.active_objective_json ? JSON.parse(String(campaign.active_objective_json)) : null,
-        activeSiteId: activeSiteId ?? null,
-        tavernEstablishment,
-        adventurePath,
-        callerToken: role === "host" ? rawCallerToken : null,
-        callerCharacterName,
-        revision,
-        activeSession,
-        activeDungeon,
-        activeCombat,
-        started,
-        isSecretPath,
-        tableReadiness,
-      },
-      me: { role, characterId: myCharId, isCaller, ready: myReady, token: callerToken },
-      characters,
-      hexes,
-      rooms,
-      encounters,
-      pressures,
-      rolls,
-      notes,
-      activeZone,
-      availableZones,
-      activeSession,
-      activeDungeon,
+      campaign,
+      me: requireSlice(slices.me, "me"),
+      characters: requireSlice(slices.characters, "characters"),
+      hexes: requireSlice(slices.hexes, "hexes"),
+      rooms: rooms.rooms,
+      encounters: encounters.encounters,
+      pressures: encounters.pressures,
+      rolls: requireSlice(slices.rolls, "rolls"),
+      notes: requireSlice(slices.notes, "notes"),
+      activeZone: this.getZoneManifest(zones.activeZoneId),
+      availableZones: this.listZones(),
+      activeSession: campaign.activeSession,
+      activeDungeon: rooms.activeDungeon,
       activeCombat,
-      rewards,
-      tablePlayers,
+      rewards: requireSlice(slices.rewards, "rewards"),
+      tablePlayers: requireSlice(slices.tablePlayers, "tablePlayers"),
+      facilities: campaign.facilities,
+      worldNpcs: campaign.worldNpcs,
+      tavernLeads: campaign.tavernEstablishment?.leads,
     };
   }
+}
+
+function requireSlice<T>(value: T | undefined, name: string): T {
+  if (value === undefined) {
+    throw new Error(`Projection slice "${name}" was not built`);
+  }
+  return value;
 }
 
 function rowToCharacter(row: Row): Character {

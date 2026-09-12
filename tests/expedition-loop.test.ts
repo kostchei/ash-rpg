@@ -1,5 +1,6 @@
 import request from "supertest";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { seedMarchingParty } from "./helpers/party.js";
 import { io as Client, type Socket } from "socket.io-client";
 import { createAshServer } from "../src/server/app.js";
 import { AshDatabase } from "../src/server/database.js";
@@ -43,6 +44,8 @@ describe("Complete Expedition Loop & Adventure Path Integration", () => {
 
     expect(createdRes.status).toBe(201);
     campaignCode = createdRes.body.code;
+    // A party may not leave the haven alone.
+    seedMarchingParty(server.db, 1);
     hostToken = createdRes.body.token;
 
     // Join as player
@@ -74,7 +77,7 @@ describe("Complete Expedition Loop & Adventure Path Integration", () => {
   it("1. Generates haven tavern establishment with 3 grounded leads including Mind Below opening lead", async () => {
     const state = server.db.getState(1, "host", null, "");
     expect(state.campaign.tavernEstablishment).toBeDefined();
-    const tavern = state.campaign.tavernEstablishment!;
+    const tavern = { ...state.campaign.tavernEstablishment!, leads: server.db.getTavernLeads(1) };
     expect(tavern.name).toBeTruthy();
     expect(tavern.leads).toHaveLength(3);
     expect(tavern.leads.filter(l => l.isPathLead)).toHaveLength(2);
@@ -95,7 +98,7 @@ describe("Complete Expedition Loop & Adventure Path Integration", () => {
   });
 
   it("2. Party selects expedition objective from tavern lead", async () => {
-    const tavern = server.db.getState(1, "host", null, "").campaign.tavernEstablishment!;
+    const tavern = { leads: server.db.getTavernLeads(1) };
     const pathLead = tavern.leads.find((l) => l.isPathLead)!;
 
     const res = await new Promise<any>((resolve) => {
@@ -569,7 +572,8 @@ describe("Complete Expedition Loop & Adventure Path Integration", () => {
     const hostDungeonState = server.db.getState(1, "host", null, "");
     expect(hostDungeonState.activeDungeon).toBeDefined();
     expect([12, 13, 15]).toContain(hostDungeonState.activeDungeon!.nodes.length);
-    expect(hostDungeonState.activeDungeon!.siteStructure?.roll).toBeGreaterThanOrEqual(1);
+    expect(hostDungeonState.activeDungeon!.siteStructure?.roll).toBeUndefined();
+    expect(server.db.getDungeonGraph(1)!.siteStructure?.roll).toBeGreaterThanOrEqual(1);
 
     const playerDungeonState = server.db.getState(1, "player", null, playerToken);
     expect(playerDungeonState.activeDungeon!.edges.some((e) => e.doorType === "secret")).toBe(false);
@@ -622,6 +626,7 @@ describe("Complete Expedition Loop & Adventure Path Integration", () => {
     expect(startCombatRes.combat.combatants.length).toBeGreaterThan(0);
     expect(startCombatRes.combat.status).toBe("active");
 
+    await new Promise<any>((resolve) => playerSocket.emit("combat:set_winner", { seatId: "monsters" }, resolve));
     const nextTurnRes = await new Promise<any>((resolve) => {
       playerSocket.emit("combat:next_turn", {}, (ack: any) => resolve(ack));
     });
@@ -656,7 +661,7 @@ describe("Complete Expedition Loop & Adventure Path Integration", () => {
     await new Promise<any>((resolve) => {
       hostSocket.emit(
         "combat:update_hp",
-        { combatantId: monsterCombatant.id, delta: -monsterCombatant.currentHp, ...mutation() },
+        { combatantId: monsterCombatant.id, delta: -8, ...mutation() },
         (ack: any) => resolve(ack),
       );
     });

@@ -5,6 +5,8 @@ import { HEX_DIRECTIONS, HEX_POLYGON, HEX_RADIUS, HEX_WIDTH, hexCenter, mapConne
 
 interface FrontierMapProps {
   hexes: PublicHex[];
+  directoryPins?: { hexId: string; label: string }[];
+  onDirectory?: (hexId: string) => void;
   selectedId: string;
   onSelect: (id: string) => void;
   partyLocation: { q: number; r: number };
@@ -13,7 +15,7 @@ interface FrontierMapProps {
 const MIN_ZOOM = 1;
 const MAX_ZOOM = 5;
 
-export function FrontierMap({ hexes, selectedId, onSelect, partyLocation }: FrontierMapProps) {
+export function FrontierMap({ hexes, selectedId, onSelect, partyLocation, directoryPins = [], onDirectory }: FrontierMapProps) {
   const [zoom, setZoom] = useState(1);
   const viewportRef = useRef<HTMLDivElement | null>(null);
   const zoomTo = useZoomAnchor(viewportRef, zoom, setZoom);
@@ -105,6 +107,7 @@ export function FrontierMap({ hexes, selectedId, onSelect, partyLocation }: Fron
             <circle r="10" />
             <path d="M -4 4 L 0 -5 L 4 4 L 0 2 Z" />
           </g>
+          {directoryPins.map(pin => { const hex = hexes.find(h => h.id === pin.hexId); if (!hex || hex.revealState === "unexplored") return null; const point = hexCenter(hex); return <g key={pin.hexId} className="directory-map-pin" transform={`translate(${point.x + 37} ${point.y - 38})`} role="button" tabIndex={0} aria-label={pin.label} onClick={() => onDirectory?.(pin.hexId)} onKeyDown={e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onDirectory?.(pin.hexId); } }}><title>{pin.label}</title><circle r="18"/><text textAnchor="middle" y="5">NPC</text></g>; })}
         </svg>
       </MapViewport>
       <div className="map-legend">

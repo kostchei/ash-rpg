@@ -1,0 +1,45 @@
+.table-companion-layout { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 20px; align-items: start; }
+.table-map, .table-encounter, .table-players { min-width: 0; }
+.table-players { grid-column: 1 / -1; }
+.table-map .map-layout { grid-template-columns: minmax(0, 1fr); }
+.table-map .surface-grid { min-width: 0; }
+.companion-heading { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+.companion-heading h2, .companion-heading h3 { margin: 0; }
+.companion-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 12px 0; }
+.companion-actions input[type=number] { width: 80px; }
+.companion-card { background: var(--color-bg-card); border: 1px solid var(--color-border-subtle); border-radius: var(--radius-md); padding: 16px; margin: 12px 0; }
+.companion-card p { line-height: 1.5; }
+.seating-track { display: flex; list-style: none; padding: 0; gap: 8px; flex-wrap: wrap; }
+.seating-track li { border: 2px solid transparent; padding: 4px; border-radius: var(--radius-md); }
+.seating-track .spotlight { border-color: var(--color-ember); background: var(--color-ember-light); }
+.seating-track li > div { display: flex; justify-content: space-between; }
+.dashboard-roster { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr)); gap: 12px; }
+.stat-references { display: grid; gap: 8px; }
+.stat-references dt { font-weight: 700; }
+.stat-references dd { margin: 4px 0; font-variant-numeric: tabular-nums; }
+.save-reference { display: flex; flex-wrap: wrap; gap: 10px; }
+.spell-reference { display: flex; flex-wrap: wrap; gap: 12px; justify-content: space-between; margin: 12px 0; }
+.spell-reference input { width: auto; }
+.bloodied { color: var(--color-bloodied); }
+.companion-modal { color: var(--color-text-primary); background: var(--color-bg-surface); border: 1px solid var(--color-border-strong); border-radius: var(--radius-lg); padding: 24px; width: min(900px, calc(100vw - 24px)); max-height: 90dvh; overflow-y: auto; box-shadow: var(--shadow-lg); }
+.companion-modal::backdrop { background: var(--color-bg-overlay); backdrop-filter: blur(3px); }
+.companion-modal header { margin-bottom: 16px; }
+.companion-modal > input { width: 100%; }
+.reference-split { display: grid; grid-template-columns: minmax(180px, 0.65fr) minmax(0, 1fr); gap: 20px; min-height: 280px; }
+.reference-split nav { display: flex; flex-direction: column; gap: 6px; max-height: 55dvh; overflow: auto; }
+.reference-split nav button { text-align: left; }
+.reference-text { white-space: pre-wrap; line-height: 1.6; }
+.companion-modal textarea { width: 100%; min-height: 100px; }
+button[aria-pressed=true] { color: var(--color-ember); border-color: var(--color-ember); background: var(--color-ember-light); }
+.directory-map-pin { cursor: pointer; }
+.directory-map-pin circle { fill: var(--color-ember); stroke: var(--color-bg-surface); stroke-width: 2; }
+.directory-map-pin text { fill: white; font-size: 10px; font-weight: 800; }
+.directory-map-pin:focus { outline: 3px solid var(--color-border-focus); }
+.campaign-shell .app-header, .campaign-shell .app-nav, .campaign-shell .panel, .campaign-shell .sub-panel, .campaign-shell .ability-row div { background: var(--color-bg-surface); color: var(--color-text-primary); }
+.campaign-shell .app-nav button.active { background: var(--color-ember-light); border-color: var(--color-ember-border); }
+.campaign-shell button, .companion-modal button { min-height: var(--touch-target-min); min-width: var(--touch-target-min); }
+.campaign-shell input, .campaign-shell select, .campaign-shell textarea, .companion-modal input, .companion-modal select, .companion-modal textarea { color: var(--color-text-primary); background: var(--color-bg-subtle); border: 1px solid var(--color-border-strong); border-radius: var(--radius-sm); padding: 8px; }
+.campaign-shell .main-content { padding: 24px; }
+button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 2px solid var(--color-border-focus); outline-offset: 3px; }
+@media (max-width: 1050px) { .table-companion-layout { grid-template-columns: minmax(0, 1fr); } .table-players { grid-column: auto; } }
+@media (max-width: 560px) { .reference-split { grid-template-columns: 1fr; } .reference-split nav { max-height: 24dvh; } .companion-modal { padding: 16px; } }

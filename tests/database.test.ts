@@ -58,7 +58,7 @@ describe("campaign persistence and fog", () => {
     db.revealMonsterLore(campaign.campaignId, monster.id, 2);
     monster = db.getState(campaign.campaignId, "player", null, "").encounters[0]
       .monsters[0];
-    expect(monster.ac).toBe(13);
+    expect(monster.ac).toBeUndefined(); // Lore does not replace testing armor with an attack.
     expect(monster.attacks?.length).toBeGreaterThan(0);
     expect(monster.traits).toBeUndefined();
   });

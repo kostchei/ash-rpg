@@ -6,6 +6,7 @@ export const RECEIPTED_ACTIONS = new Set([
   "travel:move",
   "dungeon:claim_treasure",
   "dungeon:record_outcome",
+  "dungeon:recruit_rescued",
   "dungeon:light_torch",
   "session:award_xp",
   "session:return_sanctuary",

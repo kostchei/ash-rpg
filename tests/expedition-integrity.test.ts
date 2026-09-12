@@ -3,6 +3,7 @@ import { randomUUID } from "node:crypto";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { io, type Socket } from "socket.io-client";
 import { createAshServer } from "../src/server/app.js";
+import { seedMarchingParty } from "./helpers/party.js";
 import type { DungeonGraphState } from "../src/shared/types.js";
 
 describe("Expedition mutation integrity over real sockets", () => {
@@ -43,6 +44,8 @@ describe("Expedition mutation integrity over real sockets", () => {
       abilities: { str: 12, dex: 12, con: 12, int: 12, wis: 12, cha: 12 },
       hp: 3, maxHp: 10, gold: 5,
     });
+    // A party may not leave the haven alone.
+    seedMarchingParty(server.db, 1);
   });
 
   afterEach(async () => {

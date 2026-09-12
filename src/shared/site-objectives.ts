@@ -15,4 +15,23 @@ export interface GeneratedSiteObjective {
   clue?: string;
   nextAction?: string;
   treasureItem?: string;
+  /** Present on rescue objectives: the classed NPC waiting to be freed. */
+  rescuedNpc?: RescuedNpc;
+}
+
+/**
+ * An NPC met or rescued inside a dungeon. They have a class — most are Iron Man
+ * (1-5 on a d6), a 6 is an Unearthed Arcana character of a random class — and they
+ * carry no gear: whatever they had was taken before the party found them.
+ */
+export interface RescuedNpc {
+  name: string;
+  ancestry: string;
+  className: string;
+  generationMethod: "iron_man" | "unearthed_arcana";
+  abilities: { str: number; dex: number; con: number; int: number; wis: number; cha: number };
+  /** Always empty; rescued NPCs must be equipped from the party's own stores. */
+  gear: never[];
+  /** Set once a player has taken them into their roster. */
+  recruited?: boolean;
 }

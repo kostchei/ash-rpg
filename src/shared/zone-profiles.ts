@@ -993,3 +993,5 @@ export function validateBorderPairing(
   }
   return { valid: true, pairing };
 }
+
+export { STATIC_ZONE_MANIFESTS, listStaticZones, getStaticZoneManifest } from "./zone-manifests.js";

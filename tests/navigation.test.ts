@@ -3,6 +3,7 @@ import { randomUUID } from "node:crypto";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { io, type Socket } from "socket.io-client";
 import { createAshServer } from "../src/server/app.js";
+import { seedMarchingParty } from "./helpers/party.js";
 import {
   isObscuringWeather,
   resolveWildernessNavigation,
@@ -196,6 +197,8 @@ describe("Wilderness navigation over Socket.IO mutations", () => {
       maxHp: 6,
       gold: 10,
     });
+    // A party may not leave the haven alone.
+    seedMarchingParty(server.db, 1);
   });
 
   afterEach(async () => {

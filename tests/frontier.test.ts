@@ -1,6 +1,7 @@
 import request from "supertest";
 import { randomUUID } from "node:crypto";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { seedMarchingParty } from "./helpers/party.js";
 import { io, type Socket } from "socket.io-client";
 import { createAshServer } from "../src/server/app.js";
 import {
@@ -44,6 +45,8 @@ describe("Frontier expansion beyond the initial map", () => {
       host.once("connect", resolve);
       host.once("connect_error", reject);
     });
+    // A party may not leave the haven alone.
+    seedMarchingParty(server.db, 1);
   });
 
   afterEach(async () => {
@@ -112,11 +115,14 @@ describe("Frontier expansion beyond the initial map", () => {
   });
 
   it("charts the ring ahead of the party as it marches outward", async () => {
-    expect((await send(host, "travel:move", { toHexId: "01", mode: "foot", ...envelope() })).ok).toBe(true);
+    // A passed navigation roll keeps the party on its intended route; drift is tested elsewhere.
+    const navigated = (toHexId: string) =>
+      send(host, "travel:move", { toHexId, mode: "foot", navigationRoll: 20, ...envelope() });
+    expect((await navigated("01")).ok).toBe(true);
     clearEncounters();
     expect(publicHexes()).toHaveLength(19); // every neighbour of ring 1 was already charted
 
-    const outward = await send(host, "travel:move", { toHexId: "07", mode: "foot", ...envelope() });
+    const outward = await navigated("07");
     expect(outward.ok).toBe(true);
     expect(outward.chartedHexIds).toHaveLength(3);
     clearEncounters();
@@ -128,7 +134,7 @@ describe("Frontier expansion beyond the initial map", () => {
       expect(charted.some((h) => h.q === neighbor.q && h.r === neighbor.r)).toBe(true);
     }
     const ringThree = charted.find((h) => h.ring === 3)!;
-    expect((await send(host, "travel:move", { toHexId: ringThree.id, mode: "foot", ...envelope() })).ok).toBe(true);
+    expect((await navigated(ringThree.id)).ok).toBe(true);
     expect(JSON.parse(
       (server.db.db.prepare("SELECT party_location_json FROM campaigns WHERE id = 1").get() as any).party_location_json,
     )).toMatchObject({ q: ringThree.q, r: ringThree.r });

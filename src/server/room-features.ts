@@ -10,6 +10,15 @@ export function roomFeature(face: number): NonNullable<DungeonRoomNode["feature"
   return FEATURES[face - 1];
 }
 
+export const SENSORY_TELLS = [
+  "Faint scuff marks and drag trails line the stone threshold; the air carries a sour metallic odor.",
+  "Tiny hairline seams crosscut the flagstones; an unnatural hollow echo answers every footfall.",
+  "Fine crystalline dust and dried rust flake from ceiling niches; a quiet clicking mechanism ticks nearby.",
+  "Charred soot marks score the wall brackets; faint smell of lamp oil or volatile pitch.",
+  "Floor stones are suspiciously scrubbed clean; tiny needle holes line the mortar joints.",
+  "A cool draft whistles through hairline wall fissures; the stones are slick with greasy resin.",
+];
+
 /** Roll once on creation; room contents and the path objective are independent. */
 export function populateSiteRooms(graph: DungeonGraphState, options: {
   roll: (sides: number) => number;
@@ -37,9 +46,18 @@ export function populateSiteRooms(graph: DungeonGraphState, options: {
       boss_monster: "A powerful local adversary occupies this area. Establish its capabilities and intentions before engaging.",
     }[room.feature];
     room.interaction = "Describe your approach and record the outcome at the table.";
+
     if (room.feature === "trap") {
-      room.trap = { name: "Site trap", trigger: "Table determines the trigger from the site's fiction",
-        effect: "Establish consequences before resolving the approach", dc: 12, spotted: false, disarmed: false };
+      const tell = SENSORY_TELLS[(options.roll(SENSORY_TELLS.length) - 1) % SENSORY_TELLS.length];
+      room.trap = {
+        name: "Site trap",
+        trigger: "Table determines the trigger from the site's fiction",
+        effect: "Establish consequences before resolving the approach",
+        dc: 12,
+        sensoryTell: tell,
+        spotted: false,
+        disarmed: false,
+      };
     }
     if (["solo_monster", "monster_mob", "boss_monster"].includes(room.feature)) {
       const monster = options.monster(room.feature);

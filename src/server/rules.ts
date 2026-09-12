@@ -1,3 +1,4 @@
+import { weaponReference } from "../shared/table-companion.js";
 import { randomInt } from "node:crypto";
 import { readFileSync, existsSync } from "node:fs";
 import { resolve } from "node:path";
@@ -58,56 +59,140 @@ export function rollAbilities(rng: RandomSource = systemRandom) {
   return Array.from({ length: 6 }, () => rollDice("3d6", rng).total);
 }
 
-export const UA_CLASS_DICE_ALLOCATION: Record<string, Record<AbilityKey, number>> = {
-  Fighter: { str: 9, con: 8, dex: 7, int: 5, wis: 4, cha: 3 },
-  Thief: { dex: 9, cha: 8, int: 7, con: 6, str: 5, wis: 4 },
-  Priest: { wis: 9, cha: 8, con: 7, str: 6, int: 5, dex: 4 },
-  Wizard: { int: 9, wis: 7, dex: 6, con: 5, cha: 4, str: 3 },
-  Delver: { con: 8, dex: 8, str: 7, wis: 6, int: 5, cha: 4 },
-  "Ras-Godai": { dex: 9, int: 7, str: 6, con: 6, wis: 5, cha: 4 },
-  Druid: { wis: 9, cha: 8, con: 7, int: 6, dex: 5, str: 5 },
-  Alchemist: { int: 9, dex: 7, con: 6, wis: 6, cha: 5, str: 4 },
-  Sage: { int: 9, wis: 8, cha: 6, con: 5, dex: 5, str: 3 },
-  Monk: { dex: 8, wis: 8, str: 7, con: 7, int: 5, cha: 4 },
-  Bard: { cha: 9, dex: 8, int: 7, str: 6, con: 6, wis: 5 },
-  Duelist: { dex: 9, cha: 8, con: 7, str: 6, int: 5, wis: 4 },
-  Ranger: { str: 8, wis: 8, con: 7, dex: 7, int: 6, cha: 5 },
+const emptyDice = (): Record<AbilityKey, number[]> => ({
+  str: [],
+  dex: [],
+  con: [],
+  int: [],
+  wis: [],
+  cha: [],
+});
+
+/** A set containing an 18 is always kept, however badly it fails the other requirements. */
+const KEEP_ALWAYS_SCORE = 18;
+/** Silent rerolls are cheap; a ceiling stops a mis-specified requirement from hanging the server. */
+const MAX_GENERATION_ATTEMPTS = 20000;
+
+const sortedDescending = (scores: AbilityScores) =>
+  ABILITY_KEYS.map((key) => scores[key]).sort((a, b) => b - a);
+
+export const IRON_MAN_REQUIREMENTS = {
+  /** Highest score must reach this. */
+  primeScore: 16,
+  /** Second highest score must reach this. */
+  secondScore: 12,
+  /** Scores strictly below this count as dumps. */
+  dumpThreshold: 6,
+  /** At most this many dumps allowed. */
+  maxDumps: 1,
+  minTotal: 64,
+} as const;
+
+export const UNEARTHED_ARCANA_REQUIREMENTS = {
+  dumpThreshold: 6,
+  maxDumps: 1,
+  minTotal: 72,
+} as const;
+
+const countDumps = (values: number[], threshold: number) =>
+  values.filter((value) => value < threshold).length;
+
+export function meetsIronManRequirements(scores: AbilityScores): boolean {
+  const values = sortedDescending(scores);
+  if (values[0] >= KEEP_ALWAYS_SCORE) return true;
+  const req = IRON_MAN_REQUIREMENTS;
+  if (values[0] < req.primeScore) return false;
+  if (values[1] < req.secondScore) return false;
+  if (countDumps(values, req.dumpThreshold) > req.maxDumps) return false;
+  return values.reduce((sum, value) => sum + value, 0) >= req.minTotal;
+}
+
+export function meetsUnearthedArcanaRequirements(scores: AbilityScores): boolean {
+  const values = sortedDescending(scores);
+  if (values[0] >= KEEP_ALWAYS_SCORE) return true;
+  const req = UNEARTHED_ARCANA_REQUIREMENTS;
+  if (countDumps(values, req.dumpThreshold) > req.maxDumps) return false;
+  return values.reduce((sum, value) => sum + value, 0) >= req.minTotal;
+}
+
+/**
+ * Per-class ability priority. The first ability listed gets the largest dice pool,
+ * the last gets the smallest.
+ */
+export const UA_CLASS_STAT_ORDER: Record<string, AbilityKey[]> = {
+  Fighter: ["str", "con", "dex", "int", "wis", "cha"],
+  Thief: ["dex", "cha", "int", "con", "str", "wis"],
+  Priest: ["wis", "cha", "con", "str", "int", "dex"],
+  Wizard: ["int", "wis", "dex", "con", "cha", "str"],
+  Delver: ["con", "dex", "str", "wis", "int", "cha"],
+  "Ras-Godai": ["dex", "int", "str", "con", "wis", "cha"],
+  Druid: ["wis", "cha", "con", "int", "dex", "str"],
+  Alchemist: ["int", "dex", "con", "wis", "cha", "str"],
+  Sage: ["int", "wis", "cha", "con", "dex", "str"],
+  Monk: ["dex", "wis", "str", "con", "int", "cha"],
+  Bard: ["cha", "dex", "int", "str", "con", "wis"],
+  Duelist: ["dex", "cha", "con", "str", "int", "wis"],
+  Ranger: ["str", "wis", "con", "dex", "int", "cha"],
 };
 
+/** Dice pool per ability, in class priority order, before the high-score cut-off bites. */
+export const UA_DICE_SEQUENCE = [8, 7, 6, 5, 4, 3] as const;
+/** A score at or above this counts towards the cut-off. */
+export const UA_HIGH_SCORE = 16;
+/** Once this many abilities are high, the remaining pools drop to 4d6 (last stays 3d6). */
+export const UA_HIGH_SCORE_LIMIT = 2;
+
+export function unearthedArcanaStatOrder(className: string): AbilityKey[] {
+  const order = UA_CLASS_STAT_ORDER[className];
+  if (!order) throw new Error(`No Unearthed Arcana stat order defined for class "${className}"`);
+  return order;
+}
+
+function rollUnearthedArcanaAttempt(
+  order: AbilityKey[],
+  rng: RandomSource,
+): { scores: AbilityScores; dice: Record<AbilityKey, number[]> } {
+  const scores: Partial<AbilityScores> = {};
+  const dice = emptyDice();
+  let highScores = 0;
+
+  order.forEach((key, index) => {
+    const isLast = index === order.length - 1;
+    const count =
+      highScores >= UA_HIGH_SCORE_LIMIT ? (isLast ? 3 : 4) : UA_DICE_SEQUENCE[index];
+    const rolls = Array.from({ length: count }, () => rollDie(6, rng));
+    dice[key] = rolls;
+    const score = [...rolls]
+      .sort((a, b) => b - a)
+      .slice(0, 3)
+      .reduce((sum, value) => sum + value, 0);
+    scores[key] = score;
+    if (score >= UA_HIGH_SCORE) highScores += 1;
+  });
+
+  return { scores: scores as AbilityScores, dice };
+}
+
+/**
+ * Unearthed Arcana method: descending dice pools in class priority order, rerolled
+ * silently until the set meets its requirements.
+ */
 export function rollUnearthedArcanaAbilities(
   className: string,
   rng: RandomSource = systemRandom,
-): { scores: AbilityScores; dice: Record<AbilityKey, number[]> } {
-  const allocation = UA_CLASS_DICE_ALLOCATION[className] ?? {
-    str: 3,
-    dex: 3,
-    con: 3,
-    int: 3,
-    wis: 3,
-    cha: 3,
-  };
-  const scores: Partial<AbilityScores> = {};
-  const dice: Record<AbilityKey, number[]> = {
-    str: [],
-    dex: [],
-    con: [],
-    int: [],
-    wis: [],
-    cha: [],
-  };
+): { scores: AbilityScores; dice: Record<AbilityKey, number[]>; statOrder: AbilityKey[] } {
+  const order = unearthedArcanaStatOrder(className);
 
-  for (const key of ABILITY_KEYS) {
-    const count = allocation[key] ?? 3;
-    const rolls = Array.from({ length: count }, () => rollDie(6, rng));
-    dice[key] = [...rolls];
-    const highest3 = [...rolls].sort((a, b) => b - a).slice(0, 3);
-    scores[key] = highest3.reduce((sum, val) => sum + val, 0);
+  for (let attempt = 0; attempt < MAX_GENERATION_ATTEMPTS; attempt += 1) {
+    const result = rollUnearthedArcanaAttempt(order, rng);
+    if (meetsUnearthedArcanaRequirements(result.scores)) {
+      return { ...result, statOrder: order };
+    }
   }
 
-  return {
-    scores: scores as AbilityScores,
-    dice,
-  };
+  throw new Error(
+    `Unearthed Arcana generation for ${className} failed to meet its requirements in ${MAX_GENERATION_ATTEMPTS} attempts`,
+  );
 }
 
 export function getEligibleClasses(scores: AbilityScores): string[] {
@@ -141,33 +226,74 @@ export function getEligibleClasses(scores: AbilityScores): string[] {
   return Array.from(new Set(eligible));
 }
 
-export function rollIronManAbilities(
-  rng: RandomSource = systemRandom,
-): { scores: AbilityScores; dice: Record<AbilityKey, number[]>; eligibleClasses: string[] } {
+/** 3d6 straight down the line, with no requirements applied. */
+function rollStraight3d6(rng: RandomSource): {
+  scores: AbilityScores;
+  dice: Record<AbilityKey, number[]>;
+} {
   const scores: Partial<AbilityScores> = {};
-  const dice: Record<AbilityKey, number[]> = {
-    str: [],
-    dex: [],
-    con: [],
-    int: [],
-    wis: [],
-    cha: [],
-  };
+  const dice = emptyDice();
 
   for (const key of ABILITY_KEYS) {
     const rolls = [rollDie(6, rng), rollDie(6, rng), rollDie(6, rng)];
     dice[key] = rolls;
-    scores[key] = rolls.reduce((sum, val) => sum + val, 0);
+    scores[key] = rolls.reduce((sum, value) => sum + value, 0);
   }
 
-  const finalScores = scores as AbilityScores;
-  const eligibleClasses = getEligibleClasses(finalScores);
+  return { scores: scores as AbilityScores, dice };
+}
 
-  return {
-    scores: finalScores,
-    dice,
-    eligibleClasses,
-  };
+/**
+ * Iron Man method: 3d6 in order, rerolled silently until the set meets its requirements.
+ */
+export function rollIronManAbilities(
+  rng: RandomSource = systemRandom,
+): { scores: AbilityScores; dice: Record<AbilityKey, number[]>; eligibleClasses: string[] } {
+  for (let attempt = 0; attempt < MAX_GENERATION_ATTEMPTS; attempt += 1) {
+    const result = rollStraight3d6(rng);
+    if (meetsIronManRequirements(result.scores)) {
+      return { ...result, eligibleClasses: getEligibleClasses(result.scores) };
+    }
+  }
+
+  throw new Error(
+    `Iron Man generation failed to meet its requirements in ${MAX_GENERATION_ATTEMPTS} attempts`,
+  );
+}
+
+export type NpcAbilityMethod = "iron_man" | "unearthed_arcana" | "standard";
+
+/** Classes with a defined Unearthed Arcana ability order, i.e. everything rollable. */
+export const UA_CLASSES = Object.keys(UA_CLASS_STAT_ORDER);
+
+/**
+ * Retainers are classless hirelings: straight 3d6 per ability, no requirements.
+ */
+export function rollRetainerAbilities(
+  rng: RandomSource = systemRandom,
+): { scores: AbilityScores; dice: Record<AbilityKey, number[]>; method: NpcAbilityMethod } {
+  return { ...rollStraight3d6(rng), method: "standard" };
+}
+
+/**
+ * NPCs rescued from or met inside a dungeon have a class. Roll 1d6: on 1-5 they are an
+ * Iron Man character whose class is assigned from the scores afterwards; on a 6 they are
+ * an Unearthed Arcana character whose class is rolled first, then rolled down its order.
+ */
+export function rollDungeonNpc(rng: RandomSource = systemRandom): {
+  className: string;
+  method: "iron_man" | "unearthed_arcana";
+  scores: AbilityScores;
+  dice: Record<AbilityKey, number[]>;
+} {
+  if (rollDie(6, rng) === 6) {
+    const className = UA_CLASSES[rng(UA_CLASSES.length)];
+    const { scores, dice } = rollUnearthedArcanaAbilities(className, rng);
+    return { className, method: "unearthed_arcana", scores, dice };
+  }
+  const { scores, dice, eligibleClasses } = rollIronManAbilities(rng);
+  const className = eligibleClasses[rng(eligibleClasses.length)];
+  return { className, method: "iron_man", scores, dice };
 }
 
 const ORACLE_TARGETS = {
@@ -962,30 +1088,7 @@ export function calculateAttackBonus(
   weapon: InventoryItem,
   isMastered = false,
 ): { attackBonus: number; damageBonus: number; damageDie: string } {
-  const itemDef = ITEMS.find((it) => it.id === weapon.itemId);
-  const props = weapon.properties ?? itemDef?.properties ?? [];
-  const damageDie = weapon.damage ?? itemDef?.damage ?? "1d4";
-
-  const strMod = abilityModifier(character.abilities.str);
-  const dexMod = abilityModifier(character.abilities.dex);
-
-  const isRanged = props.includes("ranged");
-  const isFinesse = props.includes("finesse");
-
-  const statMod = isRanged ? dexMod : isFinesse ? Math.max(strMod, dexMod) : strMod;
-  let attackBonus = statMod;
-  let damageBonus = statMod;
-
-  const isFighter = character.className.toLowerCase() === "fighter";
-  const masteredChoice = character.classChoices?.masteredWeapon;
-  const isWeaponMastered = isMastered || (isFighter && (masteredChoice === weapon.itemId || isMastered));
-
-  if (isWeaponMastered) {
-    attackBonus += 1;
-    damageBonus += 1 + Math.floor(character.level / 3);
-  }
-
-  return { attackBonus, damageBonus, damageDie };
+  return weaponReference(character, weapon, isMastered);
 }
 
 export function calculateBackstabBonus(level: number): { diceCount: number; expression: string } {
@@ -1074,5 +1177,26 @@ export function generateTreasureReward(
     coins: { gp, sp },
     items,
   };
+}
+
+export function computeHpStatus(
+  currentHp: number,
+  maxHp: number,
+): "unharmed" | "injured" | "bloodied" | "near_death" | "defeated" {
+  if (currentHp <= 0) return "defeated";
+  if (maxHp <= 0) return "unharmed";
+  const ratio = currentHp / maxHp;
+  if (ratio < 0.2) return "near_death";
+  if (ratio < 0.5) return "bloodied";
+  if (currentHp < maxHp) return "injured";
+  return "unharmed";
+}
+
+export function getMonsterAcHint(ac: number): string {
+  if (ac >= 17) return "Plate armor or heavy scales";
+  if (ac >= 15) return "Mail hauberk or dense hide";
+  if (ac >= 13) return "Tough hide or supple leather";
+  if (ac >= 11) return "Light furs or worn padding";
+  return "Unarmored and exposed";
 }
 

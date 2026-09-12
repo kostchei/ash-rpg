@@ -5,10 +5,19 @@ import { createActionId, sendMutation } from "../src/client/mutations.js";
 describe("phone mutation transport", () => {
   const fixture = () => {
     const emit = vi.fn();
-    const socket = { connected: true, timeout: vi.fn(), volatile: { emit } };
+    const volatileEmit = vi.fn();
+    const socket = { connected: true, timeout: vi.fn(), emit, volatile: { emit: volatileEmit } };
     socket.timeout.mockReturnValue(socket);
-    return { socket, emit, transport: socket as unknown as Socket };
+    return { socket, emit, volatileEmit, transport: socket as unknown as Socket };
   };
+
+  it("commits over the reliable channel, never the volatile one", async () => {
+    const { emit, volatileEmit, transport } = fixture();
+    emit.mockImplementation((_event, _request, ack) => ack(null, { ok: true, revision: 2 }));
+    await sendMutation(transport, "travel:move", { actionId: "a", expectedRevision: 1 });
+    expect(emit).toHaveBeenCalledTimes(1);
+    expect(volatileEmit).not.toHaveBeenCalled();
+  });
 
   it("does not queue actions while disconnected", async () => {
     const { socket, emit, transport } = fixture();

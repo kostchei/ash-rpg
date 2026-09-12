@@ -1,6 +1,26 @@
 import type { DungeonGraphState } from "../../shared/types.js";
-import { SITE_OBJECTIVE_TYPES, type SiteObjectiveType } from "../../shared/site-objectives.js";
+import { SITE_OBJECTIVE_TYPES, type RescuedNpc, type SiteObjectiveType } from "../../shared/site-objectives.js";
+import { rollDungeonNpc } from "../rules.js";
 import { createRandomSource } from "./prng.js";
+
+const RESCUE_KINDS: SiteObjectiveType[] = ["rescue_captive", "rescue_companion"];
+
+const RESCUED_NAMES = ["Mera Voss", "Orrin Pell", "Tessa Rook", "Dain Holt", "Sella Moss", "Hesk Vale",
+  "Ilda Warren", "Cobb Ferrow", "Neris Dain", "Wyl Ashken", "Pell Marrow", "Odette Crane"];
+const RESCUED_ANCESTRIES = ["Human", "Human", "Dwarf", "High Elf", "Halfling", "Wood Elf"];
+
+/** Rescue objectives hold a real classed NPC, stripped of everything they carried. */
+function rollRescuedNpc(rng: ReturnType<typeof createRandomSource>): RescuedNpc {
+  const npc = rollDungeonNpc(rng);
+  return {
+    name: RESCUED_NAMES[rng(RESCUED_NAMES.length)],
+    ancestry: RESCUED_ANCESTRIES[rng(RESCUED_ANCESTRIES.length)],
+    className: npc.className,
+    generationMethod: npc.method,
+    abilities: npc.scores,
+    gear: [],
+  };
+}
 
 /** Local evidence subjects by act, plus resources and people appropriate to the process.
  * These attach useful investigative work, not automatic ending predicates.
@@ -80,18 +100,24 @@ export function attachSiteObjectives(graph: DungeonGraphState, options: {
       harvest_components: "Recover three usable samples; record their condition and carrier.",
       treasure_cache: "Open or remove the coffer and establish access to its contents.",
       exotic_materials: "Extract three usable specimens and arrange their transport.",
-      rescue_captive: "Free the captive and establish a viable escape or safe shelter; killing the guards is insufficient.",
+      rescue_captive: "Free the captive and establish a viable escape or safe shelter; killing the guards is insufficient. They come away with no gear — equip them from party stores.",
       monster_eggs: "Recover the intact clutch without requiring the guardian's death.",
       assassinate_leader: "Defeat the identified hostile commander; bypassing the target does not fulfil this objective.",
       secure_chokepoint: "Demonstrate usable passage and remove or negotiate the specific obstruction.",
       defeat_guardian: "Defeat, persuade, or bypass the guardian so it no longer prevents this expedition's access.",
       clear_border: "Establish passage for the intended travellers, including a return route.",
-      rescue_companion: "Bring the stranded traveller to safety. Recruitment requires their consent and does not automatically add a character.",
+      rescue_companion: "Bring the stranded traveller to safety. Recruitment requires their consent and does not automatically add a character. They come away with no gear — equip them from party stores.",
       break_ward: "Identify the ward's trigger and interrupt its mechanism; demonstrate access without triggering it.",
       learn_secret: "Examine the records and record the actionable finding; no successful check is needed to read accessible essential evidence.",
       secure_descent: "Test the route, anchors, and return climb with the party's actual equipment.",
     };
-    const target = terminal && options.primary?.deedId === "rescue_surveyor" ? "Surveyor Jonathan Vane" : targets[kind];
+    // The captive is a real classed NPC, so the objective names them rather than a role.
+    const rescuedNpc = RESCUE_KINDS.includes(kind) ? rollRescuedNpc(rng) : undefined;
+    const target = terminal && options.primary?.deedId === "rescue_surveyor"
+      ? "Surveyor Jonathan Vane"
+      : rescuedNpc
+        ? `${rescuedNpc.name}, ${rescuedNpc.ancestry} ${rescuedNpc.className} (${profile.witness}), at the ${mark} shelter`
+        : targets[kind];
     const roomId = section.roomIds[rng(section.roomIds.length)];
     const room = graph.nodes.find(n => n.id === roomId)!;
     const id = `${graph.siteId}:section:${section.id}:objective`;
@@ -107,7 +133,8 @@ export function attachSiteObjectives(graph: DungeonGraphState, options: {
         completion: terminal && options.primary?.deedId === "rescue_surveyor"
           ? "Free Surveyor Jonathan Vane and establish his safe escape from the waterworks." : completions[kind],
         approaches: kind === "assassinate_leader" ? ["combat", "stealth"] : ["investigation", "stealth", "negotiation", "combat"],
-        clue: evidence, nextAction, treasureItem: treasure ? target : undefined } };
+        clue: evidence, nextAction, treasureItem: treasure ? target : undefined,
+        rescuedNpc } };
     // Two actual evidence locations, not two checks on a single indispensable object.
     const corroborationRoom = graph.nodes.find(n => n.id === section.roomIds.find(id => id !== room.id))!;
     room.clues = [{ id: `${id}:account`, text: evidence, objectiveId: id }];

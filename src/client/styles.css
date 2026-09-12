@@ -1,15 +1,18 @@
+@import "./ui/tokens.css";
+@import "./ui/companion.css";
+
 :root {
   font-family: "Cascadia Mono", "SFMono-Regular", Consolas, monospace;
-  color: #ece7d5;
-  background: #11130f;
+  color: var(--color-text-primary);
+  background: var(--color-bg-base);
   font-synthesis: none;
-  --ink: #ece7d5;
-  --muted: #9b9a88;
-  --surface: #1a1d17;
-  --line: #383c30;
-  --ember: #d97538;
-  --moss: #839b57;
-  --danger: #b65442;
+  --ink: var(--color-text-primary);
+  --muted: var(--color-text-muted);
+  --surface: var(--color-bg-surface);
+  --line: var(--color-border-strong);
+  --ember: var(--color-ember);
+  --moss: var(--color-unharmed);
+  --danger: var(--color-bloodied);
 }
 
 * {
@@ -19,7 +22,7 @@ body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
-  background: radial-gradient(circle at 30% 10%, #25281d 0, #11130f 45%);
+  background: var(--color-bg-base);
 }
 button,
 input,
@@ -2540,5 +2543,4 @@ button:disabled {
     font-size: 10px;
   }
 }
-
 

@@ -918,9 +918,8 @@ function buildRegionAttempt(
   const regionalCell = nonHavenHexes.filter(h => h.id !== waterworksCell.id && h.id !== archiveCell.id)[siteRng(nonHavenHexes.length - 2)];
   const regionalNames = ["Prospector's Cache", "Old Shepherd's Vault", "Wayfarer's Watchtower"];
   const regionalName = regionalNames[siteRng(regionalNames.length)];
-  // Half active; the other half split between an invented claim and a vacated site.
-  const outcomeRoll = siteRng(4);
-  const destinationOutcome = outcomeRoll < 2 ? "active" : outcomeRoll === 2 ? "false" : "empty";
+  // One persistent fair coin: an occupied local ruin or an empty historical shelter.
+  const destinationOutcome: "active" | "empty" = siteRng(2) === 0 ? "active" : "empty";
   const regionalSite: SiteEntity = {
     id: `site_regional_quest_${regionId}`, regionId,
     canonicalKey: `${regionId}:${layerId}:${regionalCell.q}:${regionalCell.r}`,
@@ -946,6 +945,7 @@ function buildRegionAttempt(
         directionHint: getDirectionHint(waterworksCell.q, waterworksCell.r),
         dangerHint: "Tier 2 Threat Â· Nocturnal patrols and amphibious wardens",
         preparationHint: "Torches, iron crowbar, and 2 days travel rations",
+        promisedReward: "40 GP from the town council for returning the surveyor safely.",
         accuracy: "true",
         isPathLead: true,
       },
@@ -959,6 +959,7 @@ function buildRegionAttempt(
         directionHint: getDirectionHint(archiveCell.q, archiveCell.r),
         dangerHint: "Collectors search the building; the clerk distrusts strangers",
         preparationHint: "A safe escort route, light, and something to establish trust",
+        promisedReward: "30 GP from the clerk’s family for a safe escort home.",
         accuracy: "true",
         isPathLead: true,
         arrivalDiscovery: "The clerk is hiding in the archive. The ledger identifies captive shipments through the waterworks to the Karst Deeps; recover it or question the clerk to learn the route.",
@@ -973,14 +974,13 @@ function buildRegionAttempt(
         directionHint: getDirectionHint(regionalCell.q, regionalCell.r),
         dangerHint: "Unsurveyed ruins; possible scavengers and unstable masonry",
         preparationHint: "Rope, light, and enough provisions for a return journey",
-        accuracy: destinationOutcome === "false" ? "false" : destinationOutcome === "empty" ? "distorted" : "true",
+        promisedReward: "Half the recovered coffer, if the prospector’s claim proves true.",
+        accuracy: destinationOutcome === "empty" ? "distorted" : "true",
         isPathLead: false,
         destinationOutcome,
-        arrivalDiscovery: destinationOutcome === "false"
-          ? "The supposed vault is solid bedrock behind a shallow facade. There never was a coffer here: the prospector's story was invented."
-          : destinationOutcome === "empty"
-            ? "Fresh drag marks and a discarded coffer lid show that someone cleared the cache before you arrived. No occupants or valuables remain."
-            : "The prospector's cache is real. Search the ruins for the silver coffer and establish who now occupies the site.",
+        arrivalDiscovery: destinationOutcome === "empty"
+          ? "The old chambers were depleted a generation ago. Weathered wall inscriptions tell of the vanished local watch. No occupants or valuables remain, but the dry roof and clean well provide shelter."
+          : "The prospector's cache is real. Search the ruins for the silver coffer and establish who now occupies the site.",
       },
     ],
   };
@@ -1017,10 +1017,10 @@ function buildRegionAttempt(
     id: `rumor_${i + 1}_${regionId}`,
     regionId,
     originSiteId: havenSite.id,
-    targetSiteId: l.targetSiteId,
+    targetSiteId: l.targetSiteId ?? l.destinationSiteId ?? "",
     claim: l.claim,
-    accuracy: l.accuracy,
-    directionHint: l.directionHint,
+    accuracy: l.accuracy ?? "true",
+    directionHint: l.directionHint ?? "",
   }));
 
   // STAGE 13: Assemble the 19 PublicHex entries and full structural hexes (G1 fix)

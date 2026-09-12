@@ -72,6 +72,7 @@ describe("Combat Table Controls & Class Quick Rolls", () => {
           ancestry: "Human",
           className: "Thief",
           abilities: { str: 10, dex: 16, con: 12, int: 10, wis: 14, cha: 8 },
+          generationMethod: "iron_man",
           anchors: {
             homeland: "Shadow District",
             landmark: "Old Belfry",
@@ -101,7 +102,7 @@ describe("Combat Table Controls & Class Quick Rolls", () => {
     await server.close();
   });
 
-  it("initiates combat encounter and manages dynamic initiative reordering", async () => {
+  it("records physical initiative without changing clockwise seating", async () => {
     // Start encounter with 2 monsters
     const startRes = await new Promise<any>((resolve) => {
       hostSocket.emit(
@@ -131,8 +132,8 @@ describe("Combat Table Controls & Class Quick Rolls", () => {
       );
     });
     expect(setInitRes.ok).toBe(true);
-    expect(setInitRes.combat.combatants[0].id).toBe(third.id);
-    expect(setInitRes.combat.combatants[0].initiative).toBe(25);
+    expect(setInitRes.combat.combatants.map((c: any) => c.id)).toEqual(combat.combatants.map((c: any) => c.id));
+    expect(setInitRes.combat.combatants.find((c: any) => c.id === third.id).initiative).toBe(25);
 
     // Designated caller can also set initiative
     const callerSetRes = await new Promise<any>((resolve) => {
@@ -143,8 +144,8 @@ describe("Combat Table Controls & Class Quick Rolls", () => {
       );
     });
     expect(callerSetRes.ok).toBe(true);
-    expect(callerSetRes.combat.combatants[0].id).toBe(second.id);
-    expect(callerSetRes.combat.combatants[0].initiative).toBe(30);
+    expect(callerSetRes.combat.seatingOrder).toEqual(combat.seatingOrder);
+    expect(callerSetRes.combat.combatants.find((c: any) => c.id === second.id).initiative).toBe(30);
 
     // Non-caller player cannot set initiative
     const guestSetRes = await new Promise<any>((resolve) => {

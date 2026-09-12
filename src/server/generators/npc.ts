@@ -1,6 +1,7 @@
 import { readFileSync, existsSync } from "node:fs";
 import { resolve } from "node:path";
-import { rollDie, type RandomSource } from "../rules.js";
+import { rollDie, rollDungeonNpc, rollRetainerAbilities, type RandomSource } from "../rules.js";
+import { CLASSES } from "../../shared/content.js";
 import type { Character, NpcResult } from "../../shared/types.js";
 
 interface NpcOracleData {
@@ -120,12 +121,21 @@ function loadNpcData(): NpcOracleData {
   return cachedNpcData!;
 }
 
+function classHitDie(className: string): number {
+  const found = CLASSES.find((item) => item.name === className);
+  if (!found) throw new Error(`No class definition for "${className}"`);
+  return found.hitDie;
+}
+
 export function generateNpc(
   activeParty: Character[] = [],
   zoneId = "the_gloaming",
   rng?: RandomSource,
+  options: { classed?: boolean } = {},
 ): NpcResult {
   const data = loadNpcData();
+  // Retainers for hire are classless; only NPCs met inside a dungeon carry a class.
+  const classed = options.classed === true;
 
   // 1. Ancestry
   const ancestryWildcardCheck = rollDie(100, rng);
@@ -183,7 +193,16 @@ export function generateNpc(
   const zoneMap = data.zoneSubclasses[zoneId] ?? data.zoneSubclasses["the_gloaming"] ?? {};
   const subclassOptions = zoneMap[baseArchetype] ?? [baseArchetype];
   const subIdx = subclassOptions.length > 1 ? rollDie(subclassOptions.length, rng) - 1 : 0;
-  const resolvedClass = isWildcardClass ? "Specialist Adventurer" : (subclassOptions[subIdx] ?? baseArchetype);
+  const zoneFlavourClass = isWildcardClass
+    ? "Specialist Adventurer"
+    : (subclassOptions[subIdx] ?? baseArchetype);
+
+  // A classed NPC's class comes from their generation method, not the zone table.
+  const dungeonNpc = classed ? rollDungeonNpc(rng) : null;
+  const abilities = dungeonNpc
+    ? { scores: dungeonNpc.scores, dice: dungeonNpc.dice, method: dungeonNpc.method }
+    : rollRetainerAbilities(rng);
+  const resolvedClass = dungeonNpc ? dungeonNpc.className : "Commoner";
 
   // 4. Demeanor & Quirk (1d12)
   const dRoll = rollDie(data.demeanors.length, rng);
@@ -195,11 +214,11 @@ export function generateNpc(
 
   // 6. Retainer Stats
   const level = rollDie(3, rng);
-  const hitDie = baseArchetype === "Fighter" ? 8 : baseArchetype === "Wizard" ? 4 : 6;
+  const hitDie = classed ? classHitDie(resolvedClass) : 6;
   const hp = rollDie(hitDie, rng) + Math.max(0, level - 1) * 3;
   const morale = 7 + level;
   const dailyWage =
-    baseArchetype === "Wizard" || baseArchetype === "Priest"
+    classed && (resolvedClass === "Wizard" || resolvedClass === "Priest")
       ? "10–20 gp/day + 1 salvage share"
       : "2–5 gp/day";
 
@@ -207,8 +226,11 @@ export function generateNpc(
     ancestry,
     isWildcardAncestry,
     className: resolvedClass,
-    isWildcardClass,
-    zoneSubclass: resolvedClass !== baseArchetype ? resolvedClass : undefined,
+    isWildcardClass: classed ? isWildcardClass : false,
+    /** Local colour only — a classed NPC's own class is rolled with their scores. */
+    zoneSubclass: classed && zoneFlavourClass !== resolvedClass ? zoneFlavourClass : undefined,
+    abilities: abilities.scores,
+    abilityMethod: abilities.method,
     demeanor: demeanor.demeanor,
     quirk: demeanor.quirk,
     motive: motive.motive,

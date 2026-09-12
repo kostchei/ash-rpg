@@ -100,7 +100,7 @@ describe("Simulated Full Play Session: LAN Discovery to Dungeon & Combat Loop", 
       abilities: { str: 16, dex: 13, con: 14, int: 10, wis: 10, cha: 9 },
       anchors: { homeland: "Riverlands", landmark: "Old Keep", nemesis: "Bandit Chief" },
       originZoneId: "the_gloaming",
-      generationMethod: "standard",
+      generationMethod: "iron_man",
     });
     expect(char1Res.ok).toBe(true);
     valeriusId = char1Res.characterId;
@@ -113,7 +113,7 @@ describe("Simulated Full Play Session: LAN Discovery to Dungeon & Combat Loop", 
       abilities: { str: 8, dex: 14, con: 11, int: 17, wis: 12, cha: 12 },
       anchors: { homeland: "High Spire", landmark: "Ancient Library", nemesis: "Rival Mage" },
       originZoneId: "the_gloaming",
-      generationMethod: "standard",
+      generationMethod: "unearthed_arcana",
     });
     expect(char2Res.ok).toBe(true);
     morwenId = char2Res.characterId;
@@ -189,6 +189,20 @@ describe("Simulated Full Play Session: LAN Discovery to Dungeon & Combat Loop", 
     });
     expect(selectLeadRes.ok).toBe(true);
 
+    // 4a-ii. Party adjustment stage: nobody leaves the haven alone.
+    const soloRes = await send(playerSocket, "party:muster", { characterIds: [valeriusId] });
+    expect(soloRes.ok).toBe(false);
+    expect(soloRes.error).toContain("at least 2");
+
+    const musterRes = await send(playerSocket, "party:muster", {
+      characterIds: [valeriusId, morwenId],
+    });
+    expect(musterRes.ok).toBe(true);
+    expect(
+      server.db.getState(campaignId, "host", null, "").characters
+        .filter((c) => c.rosterStatus !== "reserve").map((c) => c.id),
+    ).toEqual([valeriusId, morwenId]);
+
     // 4b. Perform navigation INT check with physical dice roll
     const navRollRes = await send(playerSocket, "roll:contextual", {
       characterId: valeriusId,
@@ -211,6 +225,9 @@ describe("Simulated Full Play Session: LAN Discovery to Dungeon & Combat Loop", 
 
     const state = server.db.getState(campaignId, "host", null, "");
     expect(state.campaign.watch).toBeGreaterThan(1);
+    for (const enc of state.encounters.filter((e) => e.status === "active")) {
+      await send(hostSocket, "encounter:resolve", { encounterId: enc.id });
+    }
   });
 
   it("Step 5: Dungeon Entrance, Torches & Chamber Exploration", async () => {
@@ -389,6 +406,10 @@ describe("Simulated Full Play Session: LAN Discovery to Dungeon & Combat Loop", 
       ...nextEnvelope(),
     });
     expect(returnTravel.ok).toBe(true);
+    const returnState = server.db.getState(campaignId, "host", null, "");
+    for (const enc of returnState.encounters.filter((e) => e.status === "active")) {
+      await send(hostSocket, "encounter:resolve", { encounterId: enc.id });
+    }
 
     // 7c. In haven, conclude expedition with sanctuary recovery
     const sanctuaryRes = await send(playerSocket, "session:return_sanctuary", {

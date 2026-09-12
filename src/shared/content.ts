@@ -2,6 +2,15 @@ import type { ItemDefinition, SpellDefinition } from "./types.js";
 
 export const ABILITY_KEYS = ["str", "dex", "con", "int", "wis", "cha"] as const;
 
+/**
+ * Largest party that may leave the haven tavern, retainers included. Companions
+ * rescued mid-expedition join beyond this — they have to, to get back out alive.
+ */
+export const MAX_DEPARTING_PARTY = 6;
+
+/** Smallest party that may leave the haven, retainers included. */
+export const MIN_DEPARTING_PARTY = 2;
+
 export const ANCESTRIES = [
   "Human",
   "Dwarf",
