@@ -1,4 +1,5 @@
 import { abilityMod as mod } from "../shared/table-companion";
+import { mergeTavernLeads, reportedLeadDanger } from "../shared/tavern-leads";
 import { RealmSelect } from "./RealmSelect";
 import { LanDiscoveryPanel } from "./LanDiscoveryPanel";
 import { MapView } from "./MapRegion";
@@ -1215,8 +1216,12 @@ function TavernSessionCard({ state, act }: { state: CampaignState; act: Act }) {
     <article className="sub-panel tavern-session-card full-width" style={{ border: "1px solid var(--ember)", marginBottom: "16px" }}>
       <div className="sub-panel-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <div>
-          <div className="eyebrow">Downtime Gathering</div>
-          <h3>Haven Bastion Taproom Gathering</h3>
+          <h3>Downtime activities</h3>
+          {state.campaign.tavernEstablishment && (
+            <p className="tavern-submeta">
+              <b>Tavern:</b> {state.campaign.tavernEstablishment.name}
+            </p>
+          )}
         </div>
         {(!session || session.status === "resolved") && isCaller && (
           <button className="primary small-btn" onClick={openTavern}>
@@ -1507,6 +1512,7 @@ function LobbyView({
 }
 
 function SanctuaryView({ state, act }: { state: CampaignState; act: Act }) {
+  const leads = mergeTavernLeads(state.campaign.tavernLeads, state.tavernLeads, state.campaign.tavernEstablishment?.leads);
   const [settlement, setSettlement] = useState<SettlementResult | null>(null);
   const [npc, setNpc] = useState<NpcResult | null>(null);
   const [busy, setBusy] = useState(false);
@@ -1610,19 +1616,19 @@ function SanctuaryView({ state, act }: { state: CampaignState; act: Act }) {
         </div>
 
         <div className="sanctuary-grid">
-          {/* Haven Bastion Taproom Downtime Session */}
+          {/* Tavern downtime session */}
           <TavernSessionCard state={state} act={act} />
 
-          {/* Haven Bastion Taproom & Grounded Leads */}
-          {state.campaign.tavernEstablishment && (
+          {/* Tavern details and leads */}
+          {(state.campaign.tavernEstablishment || leads.length > 0) && (
             <article className="sub-panel tavern-establishment-card full-width">
               <div className="sub-panel-header">
                 <div>
-                  <div className="eyebrow">Haven Bastion Taproom</div>
-                  <h3>{state.campaign.tavernEstablishment.name}</h3>
-                  <p className="tavern-submeta" style={{ margin: "4px 0 0", fontSize: "13px", color: "var(--muted)" }}>
+                  <div className="eyebrow">Tavern</div>
+                  <h3>{state.campaign.tavernEstablishment?.name ?? "Expedition leads"}</h3>
+                  {state.campaign.tavernEstablishment && <p className="tavern-submeta" style={{ margin: "4px 0 0", fontSize: "13px", color: "var(--muted)" }}>
                     <b>Vibe:</b> {state.campaign.tavernEstablishment.vibe} · <b>Barkeep:</b> {state.campaign.tavernEstablishment.barkeep}
-                  </p>
+                  </p>}
                 </div>
               </div>
 
@@ -1653,9 +1659,9 @@ function SanctuaryView({ state, act }: { state: CampaignState; act: Act }) {
               )}
 
               <div className="leads-section" style={{ marginTop: "12px" }}>
-                <div className="eyebrow" style={{ marginBottom: "8px" }}>Tavern Intel & Grounded Leads</div>
+                <div className="eyebrow" style={{ marginBottom: "8px" }}>Expedition leads</div>
                 <div className="leads-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "12px" }}>
-                  {state.campaign.tavernEstablishment.leads.map((lead) => {
+                  {leads.map((lead) => {
                     const isCurrentObj = state.campaign.activeObjective?.leadId === lead.id || state.campaign.activeObjective?.title === lead.title;
                     return (
                       <div
@@ -1679,13 +1685,14 @@ function SanctuaryView({ state, act }: { state: CampaignState; act: Act }) {
                           ) : (
                             <span className="badge-tag" style={{ fontSize: "10px" }}>REGIONAL LEAD</span>
                           )}
-                          <span style={{ fontSize: "11px", color: "var(--muted)" }}>{lead.source}</span>
+                          <span style={{ fontSize: "11px", color: "var(--muted)" }}>{lead.sourceNpc ?? lead.source}</span>
                         </div>
-                        <h4 style={{ margin: "0", fontSize: "14px" }}>{lead.title}</h4>
+                        <h4 style={{ margin: "0", fontSize: "14px" }}>{lead.title ?? "Expedition lead"}</h4>
                         <p style={{ margin: "0", fontSize: "13px", fontStyle: "italic", color: "var(--ink)" }}>“{lead.claim}”</p>
                         <div style={{ fontSize: "12px", color: "var(--muted)", display: "flex", flexDirection: "column", gap: "2px" }}>
                           {lead.directionHint && <div><b>Direction:</b> {lead.directionHint}</div>}
-                          {lead.dangerHint && <div><b>Hazards:</b> {lead.dangerHint}</div>}
+                          <div><b>Reported danger:</b> {reportedLeadDanger(lead, state.hexes)}</div>
+                          <div><b>Promised reward:</b> {lead.promisedReward || "No reward promised"}</div>
                           {lead.preparationHint && <div><b>Preparation:</b> {lead.preparationHint}</div>}
                         </div>
                         <div style={{ marginTop: "auto", paddingTop: "8px" }}>
@@ -1717,63 +1724,6 @@ function SanctuaryView({ state, act }: { state: CampaignState; act: Act }) {
                     );
                   })}
                 </div>
-              </div>
-            </article>
-          )}
-
-          {/* Starting Tavern Leads (2 Path + 1 Unrelated) */}
-          {((state.tavernLeads ?? state.campaign.tavernLeads) ?? []).length > 0 && (
-            <article className="sub-panel full-width" style={{ marginTop: "12px", border: "1px solid var(--line)" }}>
-              <div className="sub-panel-header">
-                <div>
-                  <div className="eyebrow" style={{ color: "var(--ember)" }}>Tavern Peat-Smoke Whispers</div>
-                  <h3>Expedition Leads & Starting Rumors</h3>
-                </div>
-              </div>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "12px", marginTop: "12px" }}>
-                {(state.tavernLeads ?? state.campaign.tavernLeads ?? []).map((lead) => (
-                  <div
-                    key={lead.id}
-                    style={{
-                      padding: "12px 14px",
-                      borderRadius: "6px",
-                      background: "rgba(0,0,0,0.25)",
-                      border: "1px solid var(--line)",
-                      borderLeft: `4px solid ${
-                        lead.leadType === "path_primary"
-                          ? "var(--ember)"
-                          : lead.leadType === "path_secondary"
-                          ? "#2563EB"
-                          : "#7C3AED"
-                      }`,
-                      display: "flex",
-                      flexDirection: "column",
-                      gap: "6px",
-                    }}
-                  >
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
-                      <span
-                        className="badge-tag"
-                        style={{
-                          fontSize: "10px",
-                          background: lead.leadType === "path_primary" ? "rgba(217, 117, 56, 0.2)" : lead.leadType === "path_secondary" ? "rgba(37, 99, 235, 0.2)" : "rgba(124, 58, 237, 0.2)",
-                          color: lead.leadType === "path_primary" ? "var(--ember)" : lead.leadType === "path_secondary" ? "#60A5FA" : "#A78BFA",
-                        }}
-                      >
-                        Rumor
-                      </span>
-                      <span style={{ fontSize: "11px", color: "var(--muted)" }}>{lead.sourceNpc}</span>
-                    </div>
-                    <p style={{ margin: "4px 0", fontSize: "13px", fontStyle: "italic", color: "var(--ink)" }}>
-                      "{lead.claim}"
-                    </p>
-                    <div style={{ fontSize: "12px", color: "var(--muted)", display: "flex", flexDirection: "column", gap: "2px" }}>
-                      <div><b>🧭 Direction:</b> {lead.directionHint}</div>
-                      <div><b>⚠️ Danger:</b> {lead.apparentDanger}</div>
-                      <div style={{ color: "var(--moss)" }}><b>💰 Reward:</b> {lead.promisedReward}</div>
-                    </div>
-                  </div>
-                ))}
               </div>
             </article>
           )}
