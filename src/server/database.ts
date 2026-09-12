@@ -55,7 +55,7 @@ import type {
   ZoneManifest,
   ZoneSummary,
 } from "../shared/types.js";
-import { ALL_SLICE_NAMES, type SliceName, type SlicesUpdate } from "../shared/slices.js";
+import { ALL_SLICE_NAMES, requireCombatState, type SliceName, type SlicesUpdate } from "../shared/slices.js";
 
 type SqlValue = string | number | bigint | null | Uint8Array;
 type Row = Record<string, SqlValue>;
@@ -3458,7 +3458,7 @@ export class AshDatabase {
     const rooms = requireSlice(slices.rooms, "rooms");
     const encounters = requireSlice(slices.encounters, "encounters");
     const zones = requireSlice(slices.zones, "zones");
-    const activeCombat = requireSlice(slices.combat, "combat");
+    const activeCombat = requireCombatState(requireSlice(slices.combat, "combat"));
 
     return {
       campaign,

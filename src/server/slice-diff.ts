@@ -1,6 +1,7 @@
 import {
   ALL_SLICE_NAMES,
   APPEND_ONLY_SLICE_NAMES,
+  type CombatWire,
   type EntityDelta,
   type EntityDeltas,
   type SliceName,
@@ -8,16 +9,43 @@ import {
 } from "../shared/slices.js";
 import type { Role } from "../shared/types.js";
 
-/** Keyed list slices that travel as per-entity deltas rather than whole arrays. */
-export const ENTITY_SLICE_NAMES = ["characters", "hexes"] as const satisfies readonly SliceName[];
+/**
+ * Keyed lists that travel as per-entity deltas rather than whole arrays. Two are
+ * slices in their own right; `combatants` lives inside the `combat` slice, whose
+ * header is diffed whole with the roster stripped out.
+ */
+export const ENTITY_SLICE_NAMES = [
+  "characters",
+  "hexes",
+  "combatants",
+] as const;
 type EntitySliceName = (typeof ENTITY_SLICE_NAMES)[number];
 
 /** Slices a broadcast diffs whole; append-only ones travel as append events. */
 export const BROADCAST_SLICE_NAMES = ALL_SLICE_NAMES.filter(
   (name) =>
     !APPEND_ONLY_SLICE_NAMES.includes(name) &&
-    !(ENTITY_SLICE_NAMES as readonly SliceName[]).includes(name),
+    !(ENTITY_SLICE_NAMES as readonly string[]).includes(name),
 );
+
+/** The slice each entity list is reported under when it changes. */
+const ENTITY_OWNER_SLICE: Record<EntitySliceName, SliceName> = {
+  characters: "characters",
+  hexes: "hexes",
+  combatants: "combat",
+};
+
+/**
+ * The combat slice minus its roster, plus the initiative order. The roster is
+ * ~2 kB at a full table and travels as a delta; the order is meaningful
+ * (`activeIndex` indexes into it) so the header restates it whenever it is sent.
+ */
+function combatHeader(combat: CombatWire | null): CombatWire | null {
+  if (!combat) return null;
+  const { combatants, ...rest } = combat;
+  if (!combatants) throw new Error("Combat projection is missing its combatants");
+  return { ...rest, combatantIds: combatants.map((combatant) => combatant.id) };
+}
 
 interface RoleCache {
   slices: Map<SliceName, string>;
@@ -40,13 +68,22 @@ function sliceContent(update: SlicesUpdate, name: SliceName) {
 
 /** The campaign revision changes on every mutation, so it is not part of the diff. */
 function encodeSlice(update: SlicesUpdate, name: SliceName): string {
+  if (name === "combat") {
+    return JSON.stringify(combatHeader(sliceContent(update, "combat") as CombatWire | null));
+  }
   if (name !== "campaign") return JSON.stringify(sliceContent(update, name));
   const { revision: _revision, ...rest } = sliceContent(update, "campaign") as Record<string, unknown>;
   return JSON.stringify(rest);
 }
 
 function entityList(update: SlicesUpdate, name: EntitySliceName): Array<{ id: string | number }> {
-  return sliceContent(update, name) as Array<{ id: string | number }>;
+  if (name === "combatants") {
+    const combat = sliceContent(update, "combat") as CombatWire | null;
+    if (!combat) return [];
+    if (!combat.combatants) throw new Error("Combat projection is missing its combatants");
+    return combat.combatants;
+  }
+  return sliceContent(update, name as SliceName) as Array<{ id: string | number }>;
 }
 
 /**
@@ -93,13 +130,18 @@ export class SliceDiffer {
       if (cache.slices.get(name) === encoded) continue;
       cache.slices.set(name, encoded);
       changed.add(name);
-      Object.assign(slices, { [name]: projection.slices[name] });
+      Object.assign(slices, {
+        [name]:
+          name === "combat"
+            ? combatHeader(projection.slices.combat as CombatWire | null)
+            : projection.slices[name],
+      });
     }
 
     for (const name of ENTITY_SLICE_NAMES) {
       const delta = this.diffEntities(cache, name, projection);
       if (!delta) continue;
-      changed.add(name);
+      changed.add(ENTITY_OWNER_SLICE[name]);
       Object.assign(entityDeltas, { [name]: delta });
     }
 

@@ -3,6 +3,7 @@ import type {
   CampaignState,
   CampaignSummary,
   Character,
+  Combatant,
   CombatState,
   DungeonGraphState,
   DungeonRoom,
@@ -72,6 +73,22 @@ export interface EntityDelta<T, K> {
 export interface EntityDeltas {
   characters?: EntityDelta<Character, number>;
   hexes?: EntityDelta<PublicHex, string>;
+  combatants?: EntityDelta<Combatant, string>;
+}
+
+/**
+ * How combat travels on the wire. The initial snapshot carries `combatants`
+ * inline; diffs strip them into an entity delta, because re-sending 13
+ * combatants for a one-point HP change costs ~2 kB.
+ *
+ * The array order is the initiative order and `activeIndex` indexes into it,
+ * so it cannot be recovered by sorting. `combatantIds` carries it whenever the
+ * roster or the order changes; on a diff that only touches combatant fields the
+ * header is unchanged and absent, and the client keeps the order it has.
+ */
+export interface CombatWire extends Omit<CombatState, "combatants"> {
+  combatants?: Combatant[];
+  combatantIds?: string[];
 }
 
 export interface SlicesUpdate {
@@ -83,7 +100,7 @@ export interface SlicesUpdate {
     hexes?: PublicHex[];
     rooms?: RoomsSliceData;
     encounters?: EncountersSliceData;
-    combat?: CombatState | null;
+    combat?: CombatWire | null;
     rewards?: RewardRecord[];
     rolls?: RollRecord[];
     notes?: WikiNote[];
@@ -114,6 +131,102 @@ export function applyEntityDelta<T, K>(
     byKey.set(keyOf(item), item);
   }
   return [...byKey.values()].sort(compare);
+}
+
+/**
+ * Applies a combatant delta under the initiative order. Order is meaningful —
+ * `activeIndex` indexes into the array — so it is taken from `combatantIds`
+ * when the header supplied a new one, and otherwise preserved from the current
+ * array. A delta that introduces an id with no position is a server bug.
+ */
+export function applyCombatantDelta(
+  current: Combatant[],
+  delta: EntityDelta<Combatant, string>,
+  order: string[] | undefined,
+): Combatant[] {
+  const removed = new Set(delta.remove);
+  const byId = new Map<string, Combatant>();
+  for (const combatant of current) {
+    if (!removed.has(combatant.id)) byId.set(combatant.id, combatant);
+  }
+  for (const combatant of delta.upsert) {
+    byId.set(combatant.id, combatant);
+  }
+
+  if (order === undefined) {
+    const ordered = current
+      .map((combatant) => byId.get(combatant.id))
+      .filter((combatant): combatant is Combatant => combatant !== undefined);
+    if (ordered.length !== byId.size) {
+      throw new Error("Combatant delta introduced combatants without an initiative order");
+    }
+    return ordered;
+  }
+
+  if (order.length !== byId.size) {
+    throw new Error(
+      `Initiative order lists ${order.length} combatants but the delta resolved to ${byId.size}`,
+    );
+  }
+  return order.map((id) => {
+    const combatant = byId.get(id);
+    if (!combatant) throw new Error(`Initiative order references unknown combatant "${id}"`);
+    return combatant;
+  });
+}
+
+/**
+ * Narrows a fully-projected combat slice to a CombatState. Every projection
+ * carries its roster inline; one that does not is a server bug.
+ */
+export function requireCombatState(wire: CombatWire | null): CombatState | null {
+  if (!wire) return null;
+  const { combatants, combatantIds: _order, ...rest } = wire;
+  if (!combatants) throw new Error("Combat projection is missing its combatants");
+  return { ...rest, combatants };
+}
+
+/** Reorders a roster into an explicit initiative order, which must cover it exactly. */
+function orderRoster(roster: Combatant[], order: string[]): Combatant[] {
+  if (order.length !== roster.length) {
+    throw new Error(
+      `Initiative order lists ${order.length} combatants but the roster holds ${roster.length}`,
+    );
+  }
+  const byId = new Map(roster.map((combatant) => [combatant.id, combatant]));
+  return order.map((id) => {
+    const combatant = byId.get(id);
+    if (!combatant) throw new Error(`Initiative order references unknown combatant "${id}"`);
+    return combatant;
+  });
+}
+
+/**
+ * Rebuilds combat from whichever halves this update carried: a header (whole, so
+ * it always restates `combatantIds`), a roster delta, or both. The initial
+ * snapshot carries its combatants inline; diffs do not.
+ */
+function resolveCombat(
+  prev: CombatState | null | undefined,
+  wire: CombatWire | null | undefined,
+  delta: EntityDelta<Combatant, string> | undefined,
+): CombatState | null {
+  if (wire === null) return null;
+  if (wire === undefined && !prev) {
+    throw new Error("Received a combatants delta with no active combat to apply it to");
+  }
+
+  const header = wire ?? prev!;
+  const order = wire?.combatantIds;
+  const base = wire?.combatants ?? prev?.combatants ?? [];
+  const combatants = delta
+    ? applyCombatantDelta(base, delta, order)
+    : order
+      ? orderRoster(base, order)
+      : base;
+
+  const { combatants: _inline, combatantIds: _order, ...rest } = header as CombatWire;
+  return { ...rest, combatants };
 }
 
 export const compareCharacters = (a: Character, b: Character) => a.id - b.id;
@@ -169,10 +282,6 @@ export function patchStateWithSlices(
     next.pressures = slices.encounters.pressures;
     changed = true;
   }
-  if (slices.combat !== undefined) {
-    next.activeCombat = slices.combat;
-    changed = true;
-  }
   if (slices.rewards !== undefined) {
     next.rewards = slices.rewards;
     changed = true;
@@ -214,6 +323,13 @@ export function patchStateWithSlices(
     next.hexes = applyEntityDelta(next.hexes, entityDeltas.hexes, (h) => h.id, compareHexes);
     changed = true;
   }
+  // Combat resolves after the entity deltas and in one step: the header carries
+  // the initiative order and the delta carries the combatants it orders, so
+  // neither half can be applied correctly on its own.
+  if (slices.combat !== undefined || entityDeltas?.combatants) {
+    next.activeCombat = resolveCombat(prev.activeCombat, slices.combat, entityDeltas?.combatants);
+    changed = true;
+  }
 
   if (next.campaign.activeSession !== prev.activeSession) {
     next.activeSession = next.campaign.activeSession;
@@ -249,7 +365,7 @@ export function buildStateFromSlices(update: SlicesUpdate): CampaignState {
     availableZones: listStaticZones(),
     activeSession: campaign.activeSession,
     activeDungeon: rooms.activeDungeon,
-    activeCombat: requireSlice(slices.combat, "combat"),
+    activeCombat: requireCombatState(requireSlice(slices.combat, "combat")),
     rewards: requireSlice(slices.rewards, "rewards"),
     tablePlayers: requireSlice(slices.tablePlayers, "tablePlayers"),
     facilities: campaign.facilities,

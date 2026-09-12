@@ -553,17 +553,25 @@ export async function createAshServer(options: AshServerOptions = {}) {
       const roleUpdate = updateByRole.get(identity.role);
       if (!roleUpdate) throw new Error(`No projection built for role ${identity.role}`);
 
+      // `me` is per-socket rather than per-role, so it cannot use the role cache
+      // above. It is also near-constant, so it is diffed against what this socket
+      // was last sent and omitted when unchanged.
+      const me = db.getIdentityState(
+        campaignId,
+        identity.role,
+        identity.characterId,
+        identity.token,
+        callerToken,
+      );
+      const encodedMe = JSON.stringify(me);
+      const meChanged = socket.data.lastMe !== encodedMe;
+      socket.data.lastMe = encodedMe;
+
       const socketPayload: SlicesUpdate = {
         ...roleUpdate,
         slices: {
           ...roleUpdate.slices,
-          me: db.getIdentityState(
-            campaignId,
-            identity.role,
-            identity.characterId,
-            identity.token,
-            callerToken,
-          ),
+          ...(meChanged ? { me } : {}),
         },
         sliceRevisions,
       };
@@ -585,6 +593,7 @@ export async function createAshServer(options: AshServerOptions = {}) {
       { isInitial: true },
     );
     differFor(identity.campaignId).prime(identity.role, initialSnapshot);
+    socket.data.lastMe = JSON.stringify(initialSnapshot.slices.me);
     socket.emit("state", initialSnapshot);
 
     socket.on("rolls:page", (raw: unknown, ack?: Ack) => {
