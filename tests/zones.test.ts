@@ -95,7 +95,7 @@ describe("Thematic Zone Framework & CampaignPhase State Machine", () => {
     const state2 = db.getState(created.campaignId, "host", null, "");
     expect(state2.campaign.phase).toBe("hexcrawl");
     expect(state2.campaign.activeZoneId).toBe("red_sands");
-    expect(state2.activeZone?.name).toBe("The Red Sands (Djurum)");
+    expect(state2.activeZone?.name).toBe("The Silt Sea");
   });
 
   it("generates authentic havens, taverns, and settlements across all 6 canonical zones", async () => {

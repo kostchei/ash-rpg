@@ -53,14 +53,15 @@ Characters possess six classic ability scores ranging from **3 to 18** (or highe
 | **Charisma** | **CHA** | Reaction rolls (2d6), retainer morale, NPC negotiations, dark glamour. |
 
 ### Ability Modifiers
-Modifiers are calculated directly from ability scores:
+Modifiers are calculated as **floor((ability score - 10) / 2)**: subtract 10, divide by 2, and round down.
 
 | Ability Score | Modifier | Ability Score | Modifier |
 | :---: | :---: | :---: | :---: |
 | **3** | -4 | **12–13** | +1 |
 | **4–5** | -3 | **14–15** | +2 |
-| **6–8** | -2 | **16–17** | +3 |
-| **9–11** | +0 | **18+** | +4 |
+| **6–7** | -2 | **16–17** | +3 |
+| **8–9** | -1 | **18–19** | +4 |
+| **10–11** | +0 | **20–21** | +5 |
 
 ---
 

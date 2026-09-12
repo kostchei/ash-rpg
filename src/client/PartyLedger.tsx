@@ -485,7 +485,7 @@ function CharacterCreator({
               ))
             ) : (
               <>
-                <option value="the_gloaming">The Gloaming (Sanctuary Haven)</option>
+                <option value="the_gloaming">Wychfen (Sanctuary Haven)</option>
                 <option value="sunken_citadel">The Sunken Citadel</option>
                 <option value="deep_ways">The Deep Ways</option>
               </>

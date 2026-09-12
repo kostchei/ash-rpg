@@ -1,6 +1,6 @@
-# The Red Sands (Djurum) (Cursed Scroll 2: Red Sands)
+# The Silt Sea (Cursed Scroll 2: Red Sands)
 
-Sun-Baked Desert, Fighting Pits & Burning Tombs (Cursed Scroll 2)
+Sun-Baked Desert, Fighting Pits & Burning Tombs
 Source reference: JSON pp. 31-36 (sourced)
 
 ## Landform & Settlement

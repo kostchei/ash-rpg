@@ -1,7 +1,7 @@
 {
   "id": "red_sands",
-  "name": "The Red Sands (Djurum)",
-  "theme": "Sun-Baked Desert, Fighting Pits & Burning Tombs (Cursed Scroll 2)",
+  "name": "The Silt Sea",
+  "theme": "Sun-Baked Desert, Fighting Pits & Burning Tombs",
   "biomePalette": [
     "Bleached Stone Flats",
     "Basalt Scree",
@@ -60,6 +60,6 @@
     "Date palms, goat milk, roasted barley, and imported figs",
     "Artesian Spring Basin"
   ],
-  "entryConditions": "Expedition access point into The Red Sands (Djurum).",
+  "entryConditions": "Expedition access point into The Silt Sea.",
   "exitConditions": "Waymarked return route to Alkesh."
 }

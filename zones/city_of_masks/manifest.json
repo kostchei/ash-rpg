@@ -1,7 +1,7 @@
 {
   "id": "city_of_masks",
-  "name": "The City of Masks (Meridia)",
-  "theme": "Canal Metropolis, Masked Aristocracy & Duelist Guilds (Cursed Scroll 6)",
+  "name": "Meridia",
+  "theme": "Canal Metropolis, Masked Aristocracy & Duelist Guilds",
   "biomePalette": [
     "Grape & Olive Terraces",
     "Market Garden Allotments",
@@ -63,6 +63,6 @@
     "River barge grain imports, coastal fishing fleets, and hinterland market gardens",
     "Private Gondola Mooring"
   ],
-  "entryConditions": "Expedition access point into The City of Masks (Meridia).",
+  "entryConditions": "Expedition access point into Meridia.",
   "exitConditions": "Waymarked return route to Meridia (The Rooks)."
 }

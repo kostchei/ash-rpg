@@ -1,6 +1,6 @@
-# The Gloaming (Cursed Scroll 1: Diablerie)
+# Wychfen (Cursed Scroll 1: Diablerie)
 
-Gothic Mistwood, Witchcraft & Barrow Mounds (Cursed Scroll 1)
+Gothic Mistwood, Witchcraft & Barrow Mounds
 Source reference: JSON pp. 39-44 (sourced)
 
 ## Landform & Settlement

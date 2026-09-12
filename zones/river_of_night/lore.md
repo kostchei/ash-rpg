@@ -1,6 +1,6 @@
-# The Black River (Cursed Scroll 4: River of Night)
+# Xaltemoc (Cursed Scroll 4: River of Night)
 
-Primeval Jungle, Ziggurats & Basilisk Cults (Cursed Scroll 4)
+Primeval Jungle, Ziggurats & Basilisk Cults
 Source reference: JSON pp. 24-37 (sourced)
 
 ## Landform & Settlement

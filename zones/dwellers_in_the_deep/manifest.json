@@ -1,7 +1,7 @@
 {
   "id": "dwellers_in_the_deep",
-  "name": "Morzomotha & Karst Deeps",
-  "theme": "Subterranean Karst, Sunless Libraries & Delver Pits (Cursed Scroll 5)",
+  "name": "Morzamotha",
+  "theme": "Subterranean Karst, Sunless Libraries & Delver Pits",
   "biomePalette": [
     "Stalactite Gallery",
     "Echoing Limestone Vault",
@@ -60,6 +60,6 @@
     "Imported smoked meats, iron rations, and cultivated glow-lichen paste",
     "Surface Hoist Winch"
   ],
-  "entryConditions": "Expedition access point into Morzomotha & Karst Deeps.",
+  "entryConditions": "Expedition access point into Morzamotha.",
   "exitConditions": "Waymarked return route to Maugrinhold."
 }

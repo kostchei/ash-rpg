@@ -23,7 +23,7 @@ export function Brand({ large = false }: { large?: boolean }) {
     <div className={`brand${large ? " large" : ""}`}>
       <Flame size={large ? 28 : 22} />
       <span>ASH</span>
-      {large && <small>TABLE COMPANION</small>}
+      {large && <small>table companion</small>}
     </div>
   );
 }

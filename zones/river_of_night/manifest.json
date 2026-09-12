@@ -1,7 +1,7 @@
 {
   "id": "river_of_night",
-  "name": "The Black River",
-  "theme": "Primeval Jungle, Ziggurats & Basilisk Cults (Cursed Scroll 4)",
+  "name": "Xaltemoc",
+  "theme": "Primeval Jungle, Ziggurats & Basilisk Cults",
   "biomePalette": [
     "Canopy Rainforest",
     "Upland Ironwood Jungle",
@@ -58,6 +58,6 @@
     "River catfish, maize terraces, wild cassava, and sweet papayas",
     "Palisade Watchtower"
   ],
-  "entryConditions": "Expedition access point into The Black River.",
+  "entryConditions": "Expedition access point into Xaltemoc.",
   "exitConditions": "Waymarked return route to Tecuhan."
 }

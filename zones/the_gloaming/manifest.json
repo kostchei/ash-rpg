@@ -1,7 +1,7 @@
 {
   "id": "the_gloaming",
-  "name": "The Gloaming",
-  "theme": "Gothic Mistwood, Witchcraft & Barrow Mounds (Cursed Scroll 1)",
+  "name": "Wychfen",
+  "theme": "Gothic Mistwood, Witchcraft & Barrow Mounds",
   "biomePalette": [
     "Ancient Elderwood",
     "Twisted Woodlands",
@@ -58,6 +58,6 @@
     "Small turnip plots, trapped hare, and smoked boar",
     "The Crayfish Tavern and Timber Palisade"
   ],
-  "entryConditions": "Expedition access point into The Gloaming.",
+  "entryConditions": "Expedition access point into Wychfen.",
   "exitConditions": "Waymarked return route to Marin's Hold."
 }

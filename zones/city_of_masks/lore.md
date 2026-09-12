@@ -1,6 +1,6 @@
-# The City of Masks (Meridia) (Cursed Scroll 6: City of Masks)
+# Meridia (Cursed Scroll 6: City of Masks)
 
-Canal Metropolis, Masked Aristocracy & Duelist Guilds (Cursed Scroll 6)
+Canal Metropolis, Masked Aristocracy & Duelist Guilds
 Source reference: JSON pp. 40-45, 50-65 (sourced)
 
 ## Landform & Settlement

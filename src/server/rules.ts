@@ -1,4 +1,4 @@
-import { weaponReference } from "../shared/table-companion.js";
+import { abilityMod, weaponReference } from "../shared/table-companion.js";
 import { randomInt } from "node:crypto";
 import { readFileSync, existsSync } from "node:fs";
 import { resolve } from "node:path";
@@ -38,22 +38,7 @@ export function rollDice(expression: string, rng: RandomSource = systemRandom) {
   };
 }
 
-export const abilityModifier = (score: number) =>
-  score <= 3
-    ? -4
-    : score <= 5
-      ? -3
-      : score <= 8
-        ? -2
-        : score <= 11
-          ? 0
-          : score <= 13
-            ? 1
-            : score <= 15
-              ? 2
-              : score <= 17
-                ? 3
-                : 4;
+export const abilityModifier = abilityMod;
 
 export function rollAbilities(rng: RandomSource = systemRandom) {
   return Array.from({ length: 6 }, () => rollDice("3d6", rng).total);

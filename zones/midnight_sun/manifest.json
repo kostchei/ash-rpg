@@ -1,7 +1,7 @@
 {
   "id": "midnight_sun",
-  "name": "The Isles of Andrik",
-  "theme": "Glacial Fjords, Northern Gods & Sea Wolf Raiders (Cursed Scroll 3)",
+  "name": "Hrafnfjord",
+  "theme": "Glacial Fjords, Northern Gods & Sea Wolf Raiders",
   "biomePalette": [
     "Deep Glacial Fjord",
     "Outer Island Sound",
@@ -60,6 +60,6 @@
     "Hardy barley, dairy cattle, salted cod, and foraged lingonberries",
     "Great Longhouse"
   ],
-  "entryConditions": "Expedition access point into The Isles of Andrik.",
+  "entryConditions": "Expedition access point into Hrafnfjord.",
   "exitConditions": "Waymarked return route to Valthis."
 }

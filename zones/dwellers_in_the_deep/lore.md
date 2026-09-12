@@ -1,6 +1,6 @@
-# Morzomotha & Karst Deeps (Cursed Scroll 5: Dwellers in the Deep)
+# Morzamotha (Cursed Scroll 5: Dwellers in the Deep)
 
-Subterranean Karst, Sunless Libraries & Delver Pits (Cursed Scroll 5)
+Subterranean Karst, Sunless Libraries & Delver Pits
 Source reference: JSON pp. 26-31 (sourced)
 
 ## Landform & Settlement

@@ -3,8 +3,8 @@ import type { ZoneManifest, ZoneSummary } from "./types.js";
 export const STATIC_ZONE_MANIFESTS: Record<string, ZoneManifest> = {
   "city_of_masks": {
     "id": "city_of_masks",
-    "name": "The City of Masks (Meridia)",
-    "theme": "Canal Metropolis, Masked Aristocracy & Duelist Guilds (Cursed Scroll 6)",
+    "name": "Meridia",
+    "theme": "Canal Metropolis, Masked Aristocracy & Duelist Guilds",
     "biomePalette": [
       "Grape & Olive Terraces",
       "Market Garden Allotments",
@@ -66,13 +66,13 @@ export const STATIC_ZONE_MANIFESTS: Record<string, ZoneManifest> = {
       "River barge grain imports, coastal fishing fleets, and hinterland market gardens",
       "Private Gondola Mooring"
     ],
-    "entryConditions": "Expedition access point into The City of Masks (Meridia).",
+    "entryConditions": "Expedition access point into Meridia.",
     "exitConditions": "Waymarked return route to Meridia (The Rooks)."
   },
   "dwellers_in_the_deep": {
     "id": "dwellers_in_the_deep",
-    "name": "Morzomotha & Karst Deeps",
-    "theme": "Subterranean Karst, Sunless Libraries & Delver Pits (Cursed Scroll 5)",
+    "name": "Morzamotha",
+    "theme": "Subterranean Karst, Sunless Libraries & Delver Pits",
     "biomePalette": [
       "Stalactite Gallery",
       "Echoing Limestone Vault",
@@ -131,13 +131,13 @@ export const STATIC_ZONE_MANIFESTS: Record<string, ZoneManifest> = {
       "Imported smoked meats, iron rations, and cultivated glow-lichen paste",
       "Surface Hoist Winch"
     ],
-    "entryConditions": "Expedition access point into Morzomotha & Karst Deeps.",
+    "entryConditions": "Expedition access point into Morzamotha.",
     "exitConditions": "Waymarked return route to Maugrinhold."
   },
   "midnight_sun": {
     "id": "midnight_sun",
-    "name": "The Isles of Andrik",
-    "theme": "Glacial Fjords, Northern Gods & Sea Wolf Raiders (Cursed Scroll 3)",
+    "name": "Hrafnfjord",
+    "theme": "Glacial Fjords, Northern Gods & Sea Wolf Raiders",
     "biomePalette": [
       "Deep Glacial Fjord",
       "Outer Island Sound",
@@ -196,13 +196,13 @@ export const STATIC_ZONE_MANIFESTS: Record<string, ZoneManifest> = {
       "Hardy barley, dairy cattle, salted cod, and foraged lingonberries",
       "Great Longhouse"
     ],
-    "entryConditions": "Expedition access point into The Isles of Andrik.",
+    "entryConditions": "Expedition access point into Hrafnfjord.",
     "exitConditions": "Waymarked return route to Valthis."
   },
   "red_sands": {
     "id": "red_sands",
-    "name": "The Red Sands (Djurum)",
-    "theme": "Sun-Baked Desert, Fighting Pits & Burning Tombs (Cursed Scroll 2)",
+    "name": "The Silt Sea",
+    "theme": "Sun-Baked Desert, Fighting Pits & Burning Tombs",
     "biomePalette": [
       "Bleached Stone Flats",
       "Basalt Scree",
@@ -261,13 +261,13 @@ export const STATIC_ZONE_MANIFESTS: Record<string, ZoneManifest> = {
       "Date palms, goat milk, roasted barley, and imported figs",
       "Artesian Spring Basin"
     ],
-    "entryConditions": "Expedition access point into The Red Sands (Djurum).",
+    "entryConditions": "Expedition access point into The Silt Sea.",
     "exitConditions": "Waymarked return route to Alkesh."
   },
   "river_of_night": {
     "id": "river_of_night",
-    "name": "The Black River",
-    "theme": "Primeval Jungle, Ziggurats & Basilisk Cults (Cursed Scroll 4)",
+    "name": "Xaltemoc",
+    "theme": "Primeval Jungle, Ziggurats & Basilisk Cults",
     "biomePalette": [
       "Canopy Rainforest",
       "Upland Ironwood Jungle",
@@ -324,13 +324,13 @@ export const STATIC_ZONE_MANIFESTS: Record<string, ZoneManifest> = {
       "River catfish, maize terraces, wild cassava, and sweet papayas",
       "Palisade Watchtower"
     ],
-    "entryConditions": "Expedition access point into The Black River.",
+    "entryConditions": "Expedition access point into Xaltemoc.",
     "exitConditions": "Waymarked return route to Tecuhan."
   },
   "the_gloaming": {
     "id": "the_gloaming",
-    "name": "The Gloaming",
-    "theme": "Gothic Mistwood, Witchcraft & Barrow Mounds (Cursed Scroll 1)",
+    "name": "Wychfen",
+    "theme": "Gothic Mistwood, Witchcraft & Barrow Mounds",
     "biomePalette": [
       "Ancient Elderwood",
       "Twisted Woodlands",
@@ -387,7 +387,7 @@ export const STATIC_ZONE_MANIFESTS: Record<string, ZoneManifest> = {
       "Small turnip plots, trapped hare, and smoked boar",
       "The Crayfish Tavern and Timber Palisade"
     ],
-    "entryConditions": "Expedition access point into The Gloaming.",
+    "entryConditions": "Expedition access point into Wychfen.",
     "exitConditions": "Waymarked return route to Marin's Hold."
   }
 };

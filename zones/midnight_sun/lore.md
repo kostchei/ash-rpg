@@ -1,6 +1,6 @@
-# The Isles of Andrik (Cursed Scroll 3: Midnight Sun)
+# Hrafnfjord (Cursed Scroll 3: Midnight Sun)
 
-Glacial Fjords, Northern Gods & Sea Wolf Raiders (Cursed Scroll 3)
+Glacial Fjords, Northern Gods & Sea Wolf Raiders
 Source reference: JSON pp. 37-41 (sourced)
 
 ## Landform & Settlement

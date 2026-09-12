@@ -1,3 +1,4 @@
+import { RealmSelect } from "./RealmSelect";
 import { LanDiscoveryPanel } from "./LanDiscoveryPanel";
 import { useEffect, useMemo, useState } from "react";
 import { Title } from "./ui/Common";
@@ -882,17 +883,10 @@ export function MapView({ state, act, focus, onDirectory }: { state: CampaignSta
                     waterways, radiating roads, and horizon rumors.
                   </p>
                   <div className="theme-select-row">
-                    <select
+                    <RealmSelect
                       value={genTheme}
                       onChange={(e) => setGenTheme(e.target.value)}
-                    >
-                      <option value="the_gloaming">The Gloaming (Gothic Mistwood - CS1)</option>
-                      <option value="red_sands">The Red Sands (Djurum Desert - CS2)</option>
-                      <option value="midnight_sun">The Isles of Andrik (Glacial Fjords - CS3)</option>
-                      <option value="river_of_night">The Black River (Primeval Jungle - CS4)</option>
-                      <option value="dwellers_in_the_deep">Morzomotha (Karst Deeps - CS5)</option>
-                      <option value="city_of_masks">The City of Masks (Meridia Canals - CS6)</option>
-                    </select>
+                     />
                     <button
                       className="primary small-btn"
                       onClick={() =>

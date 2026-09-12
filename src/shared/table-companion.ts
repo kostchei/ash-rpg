@@ -3,7 +3,7 @@ import type { Character, CombatState, InventoryItem } from "./types.js";
 
 export const MONSTER_SEAT = "monsters";
 export function abilityMod(score: number): number {
-  return score <= 3 ? -4 : score <= 5 ? -3 : score <= 8 ? -2 : score <= 11 ? 0 : score <= 13 ? 1 : score <= 15 ? 2 : score <= 17 ? 3 : 4;
+  return Math.floor((score - 10) / 2);
 }
 export function weaponReference(
   character: {

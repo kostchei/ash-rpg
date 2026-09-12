@@ -301,6 +301,8 @@ button:disabled {
 }
 .welcome-story {
   display: flex;
+  min-width: 0;
+  gap: 32px;
   flex-direction: column;
   justify-content: space-between;
   min-height: 100vh;
@@ -311,14 +313,25 @@ button:disabled {
 .brand.large span {
   font-size: 34px;
 }
+.brand.large small {
+  display: block;
+  letter-spacing: 0.04em;
+}
 .welcome-story h1 {
   max-width: 780px;
   margin: 22px 0;
-  font-size: clamp(58px, 8vw, 112px);
+  font-size: clamp(38px, 5.5vw, 80px);
+  overflow-wrap: break-word;
+  text-wrap: balance;
 }
 .welcome-story p {
   max-width: 700px;
   font-size: 15px;
+}
+.welcome-story .welcome-subtitle {
+  font-size: clamp(16px, 1.6vw, 20px);
+  line-height: 1.5;
+  margin-bottom: 28px;
 }
 .feature-strip {
   display: flex;
@@ -1256,7 +1269,7 @@ button:disabled {
     padding: 28px 20px;
   }
   .welcome-story h1 {
-    font-size: 54px;
+    font-size: clamp(36px, 9vw, 54px);
   }
   .welcome-form {
     padding: 35px 20px;
@@ -1334,7 +1347,7 @@ button:disabled {
     padding: 20px 12px;
   }
   .brand.large small {
-    display: none;
+    display: block;
   }
 }
 

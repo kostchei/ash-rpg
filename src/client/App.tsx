@@ -1,3 +1,5 @@
+import { abilityMod as mod } from "../shared/table-companion";
+import { RealmSelect } from "./RealmSelect";
 import { LanDiscoveryPanel } from "./LanDiscoveryPanel";
 import { MapView } from "./MapRegion";
 import { PartyView } from "./PartyLedger";
@@ -36,22 +38,7 @@ const labels = {
   wis: "WIS",
   cha: "CHA",
 } as const;
-const mod = (score: number) =>
-  score <= 3
-    ? -4
-    : score <= 5
-      ? -3
-      : score <= 8
-        ? -2
-        : score <= 11
-          ? 0
-          : score <= 13
-            ? 1
-            : score <= 15
-              ? 2
-              : score <= 17
-                ? 3
-                : 4;
+
 const getSession = () => {
   try {
     return JSON.parse(
@@ -276,10 +263,12 @@ function Welcome({
       <section className="welcome-story">
         <Brand large />
         <div>
-          <div className="eyebrow">GM-less play · one shared world</div>
-          <h1>Let the frontier answer back.</h1>
+          <h1>Automata for Swords and Hexes</h1>
+          <p className="welcome-subtitle">
+            Cooperative or soloplay , shadowdark adjacent hexcrawl
+          </p>
           <p>
-            Characters, procedural rulings, shared fog, and a living campaign
+            Characters, procedural generation, fog or war, and a living campaign
             record—served from your table to every player’s phone.
           </p>
         </div>
@@ -368,17 +357,10 @@ function Welcome({
                 {settingMode === "single" ? (
                   <div className="field" style={{ marginBottom: 10 }}>
                     <label>Setting / Realm</label>
-                    <select
+                    <RealmSelect
                       value={selectedZone}
                       onChange={(e) => { setSelectedZone(e.target.value as CursedZoneId); setPreview(null); }}
-                    >
-                      <option value="the_gloaming">The Gloaming (Gothic Wildwood - CS1)</option>
-                      <option value="red_sands">The Red Sands (Djurum Desert - CS2)</option>
-                      <option value="midnight_sun">The Isles of Andrik (Glacial Fjords - CS3)</option>
-                      <option value="river_of_night">The Black River (Primeval Jungle - CS4)</option>
-                      <option value="dwellers_in_the_deep">Morzomotha (Karst Deeps - CS5)</option>
-                      <option value="city_of_masks">The City of Masks (Meridia Canals - CS6)</option>
-                    </select>
+                     />
                     <small style={{ display: "block", marginTop: 4, opacity: 0.75 }}>
                       {ZONE_PROFILES[selectedZone]?.theme}
                     </small>
@@ -387,31 +369,17 @@ function Welcome({
                   <div className="border-selection-fields" style={{ marginBottom: 10 }}>
                     <div className="field" style={{ marginBottom: 8 }}>
                       <label>First Realm (Zone A)</label>
-                      <select
+                      <RealmSelect
                         value={borderZoneA}
                         onChange={(e) => { setBorderZoneA(e.target.value as CursedZoneId); setPreview(null); }}
-                      >
-                        <option value="the_gloaming">The Gloaming (CS1)</option>
-                        <option value="red_sands">The Red Sands (CS2)</option>
-                        <option value="midnight_sun">The Isles of Andrik (CS3)</option>
-                        <option value="river_of_night">The Black River (CS4)</option>
-                        <option value="dwellers_in_the_deep">Morzomotha (CS5)</option>
-                        <option value="city_of_masks">The City of Masks (CS6)</option>
-                      </select>
+                       />
                     </div>
                     <div className="field" style={{ marginBottom: 8 }}>
                       <label>Second Realm (Zone B)</label>
-                      <select
+                      <RealmSelect
                         value={borderZoneB}
                         onChange={(e) => { setBorderZoneB(e.target.value as CursedZoneId); setPreview(null); }}
-                      >
-                        <option value="red_sands">The Red Sands (CS2)</option>
-                        <option value="the_gloaming">The Gloaming (CS1)</option>
-                        <option value="midnight_sun">The Isles of Andrik (CS3)</option>
-                        <option value="river_of_night">The Black River (CS4)</option>
-                        <option value="dwellers_in_the_deep">Morzomotha (CS5)</option>
-                        <option value="city_of_masks">The City of Masks (CS6)</option>
-                      </select>
+                       />
                     </div>
 
                     {pairing ? (
@@ -1037,7 +1005,7 @@ function CampaignSubbar({
         <button className="zone-dossier-btn" onClick={onOpenZone}>
           <Compass size={15} />
           <span className="zone-chip-label">ZONE</span>
-          <strong>{state.activeZone?.name ?? "The Gloaming"}</strong>
+          <strong>{state.activeZone?.name ?? "Wychfen"}</strong>
           <ChevronRight size={14} />
         </button>
       </div>
