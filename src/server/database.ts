@@ -3023,9 +3023,7 @@ export class AshDatabase {
         .prepare("SELECT ready, character_id FROM devices WHERE campaign_id = ? AND token = ?")
         .get(campaignId, viewerToken) as { ready: number; character_id?: number } | undefined;
       ready = Boolean(device?.ready);
-      if (device?.character_id != null) {
-        resolvedCharacterId = device.character_id;
-      }
+      if (device) resolvedCharacterId = device.character_id ?? null;
     }
     const isCaller =
       role === "host" || (Boolean(campaignCallerToken) && campaignCallerToken === viewerToken);

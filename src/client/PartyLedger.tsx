@@ -1,4 +1,5 @@
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
+import { AnchorField } from "./AnchorField";
 import { randomCharacterName } from "../shared/character-names";
 import { Title, Field } from "./ui/Common";
 import type { Act } from "./ui/types";
@@ -10,6 +11,7 @@ import type { CampaignState, Character, ZoneSummary } from "../shared/types";
 
 const labels = { str: "STR", dex: "DEX", con: "CON", int: "INT", wis: "WIS", cha: "CHA" } as const;
 export function PartyView({
+  initialCreating = false,
   state,
   act,
   onRollAbility,
@@ -21,6 +23,7 @@ export function PartyView({
   onBackstab,
   onThievery,
 }: {
+  initialCreating?: boolean;
   state: CampaignState;
   act: Act;
   onRollAbility?: (charId: number, ability: string) => void;
@@ -34,11 +37,11 @@ export function PartyView({
 }) {
   const myToken = state.me.token;
   const ownedCharacters = state.characters.filter(
-    (c) => (myToken && c.ownerToken === myToken) || c.id === state.me.characterId,
+    (c) => (myToken && c.ownerToken === myToken) || c.id === state.me.characterId || (state.me.role === "host" && !c.ownerToken),
   );
   // Iron Man heroes are unlimited; the single Unearthed Arcana hero is once per campaign.
   const uaUsed = ownedCharacters.some((c) => c.generationMethod === "unearthed_arcana");
-  const [creating, setCreating] = useState(state.me.role === "player" && ownedCharacters.length === 0);
+  const [creating, setCreating] = useState(initialCreating || (state.me.role === "player" && ownedCharacters.length === 0));
 
   return (
     <div className="party-page">
@@ -78,6 +81,11 @@ export function PartyView({
         </div>
       )}
 
+      {!creating && (
+        <button type="button" className="primary" onClick={() => setCreating(true)}>
+          <Plus size={16} /> {ownedCharacters.length ? "Create another character" : "Create character"}
+        </button>
+      )}
       <PartyMuster act={act} state={state} />
 
       {creating && (
@@ -147,6 +155,7 @@ function PartyMuster({ act, state }: { act: Act; state: CampaignState }) {
     state.campaign.phase === "sanctuary" || state.activeSession?.kind === "camp";
   const [picked, setPicked] = useState<number[] | null>(null);
   const [busy, setBusy] = useState(false);
+
 
   const marching =
     picked ??
@@ -247,6 +256,15 @@ function CharacterCreator({
   const [eligibleClasses, setEligibleClasses] = useState<string[]>([]);
   const [hasRolled, setHasRolled] = useState(false);
   const [busy, setBusy] = useState(false);
+
+  useEffect(() => {
+    if (uaUsed && method === "unearthed_arcana") {
+      setMethod("iron_man");
+      setHasRolled(false);
+      setDiceResults(undefined);
+      setEligibleClasses([]);
+    }
+  }, [uaUsed, method]);
 
   const rollUA = async (classChoice: string) => {
     setBusy(true);
@@ -544,36 +562,17 @@ function CharacterCreator({
       </div>
 
       <div className="anchor-grid">
-        <Field
-          label="Homeland truth"
-          value={form.anchors.homeland}
-          onChange={(homeland) =>
-            setForm({ ...form, anchors: { ...form.anchors, homeland } })
-          }
-          placeholder="A custom, taboo, or truth…"
-        />
-        <Field
-          label="Local landmark"
-          value={form.anchors.landmark}
-          onChange={(landmark) =>
-            setForm({ ...form, anchors: { ...form.anchors, landmark } })
-          }
-          placeholder="A ruin, barrow, or sacred place…"
-        />
-        <Field
-          label="Lingering debt / nemesis"
-          value={form.anchors.nemesis}
-          onChange={(nemesis) =>
-            setForm({ ...form, anchors: { ...form.anchors, nemesis } })
-          }
-          placeholder="Who or what follows you?"
-        />
+        <AnchorField kind="contact" label="Contact or buddy" value={form.anchors.homeland}
+          onChange={(homeland) => setForm({ ...form, anchors: { ...form.anchors, homeland } })} />
+        <AnchorField kind="nemesis" label="Nemesis or rival" value={form.anchors.nemesis}
+          onChange={(nemesis) => setForm({ ...form, anchors: { ...form.anchors, nemesis } })} />
+        <AnchorField kind="landmark" label="Local landmark" value={form.anchors.landmark}
+          onChange={(landmark) => setForm({ ...form, anchors: { ...form.anchors, landmark } })} />
       </div>
-
       <div style={{ marginTop: "1rem", display: "flex", gap: "10px", alignItems: "center" }}>
         <button
           className="primary"
-          disabled={busy || !form.name || (method === "iron_man" && !hasRolled)}
+          disabled={busy || !form.name || !hasRolled}
         >
           {busy
             ? "Recording…"
@@ -652,6 +651,11 @@ function CharacterCard({
           )}
         </div>
         <h2>{character.name}</h2>
+        {canEdit && <button type="button" className="small-btn" onClick={async () => {
+          if (window.confirm(`Delete ${character.name} permanently, including their inventory?`)) {
+            await act("character:delete", { characterId: character.id }, `${character.name} deleted`);
+          }
+        }}>Delete character</button>}
         <p>
           {character.className}
           {own ? " · your character" : ""}
@@ -1179,13 +1183,13 @@ function CharacterCard({
             </p>
           )}
           <p>
-            <b>Homeland:</b> {character.anchors.homeland || "Unwritten"}
+            <b>Contact or buddy:</b> {character.anchors.homeland || "Unwritten"}
           </p>
           <p>
-            <b>Landmark:</b> {character.anchors.landmark || "Unwritten"}
+            <b>Local landmark:</b> {character.anchors.landmark || "Unwritten"}
           </p>
           <p>
-            <b>Nemesis:</b> {character.anchors.nemesis || "Unwritten"}
+            <b>Nemesis or rival:</b> {character.anchors.nemesis || "Unwritten"}
           </p>
           {character.generationDice && Object.keys(character.generationDice).length > 0 && (
             <div style={{ marginTop: "6px" }}>
@@ -1204,4 +1208,3 @@ function CharacterCard({
     </article>
   );
 }
-

@@ -584,6 +584,7 @@ function Campaign({
     advantage?: "normal" | "advantage" | "disadvantage";
   } | null>(null);
   const [showPartyModal, setShowPartyModal] = useState(false);
+  const [createCharacterOnOpen, setCreateCharacterOnOpen] = useState(false);
   const [showCodexModal, setShowCodexModal] = useState(false);
   const [showDirectoryModal, setShowDirectoryModal] = useState(false);
   const [directoryHex, setDirectoryHex] = useState<string>();
@@ -760,7 +761,7 @@ function Campaign({
           tab === "party" ? (
             <PartyView state={state} act={act} />
           ) : (
-            <LobbyView state={state} act={act} onOpenParty={() => setShowPartyModal(true)} />
+            <LobbyView state={state} act={act} onOpenParty={() => setShowPartyModal(true)} onCreateCharacter={() => { setCreateCharacterOnOpen(true); setShowPartyModal(true); }} />
           )
         ) : tab === "sanctuary" ? (
           <SanctuaryView state={state} act={act} />
@@ -802,8 +803,8 @@ function Campaign({
       </section>
 
       {showPartyModal && (
-        <Modal title="Party Roster & Inventory Ledger" onClose={() => setShowPartyModal(false)}>
-          <PartyView state={state} act={act} />
+        <Modal title="Party Roster & Inventory Ledger" onClose={() => { setShowPartyModal(false); setCreateCharacterOnOpen(false); }}>
+          <PartyView state={state} act={act} initialCreating={createCharacterOnOpen} />
         </Modal>
       )}
 
@@ -1359,6 +1360,7 @@ function TavernSessionCard({ state, act }: { state: CampaignState; act: Act }) {
 }
 
 function LobbyView({
+  onCreateCharacter,
   state,
   act,
   onOpenParty,
@@ -1366,6 +1368,7 @@ function LobbyView({
   state: CampaignState;
   act: Act;
   onOpenParty: () => void;
+  onCreateCharacter: () => void;
 }) {
   const isHost = state.me.role === "host";
   const myToken = state.me.token;
@@ -1447,6 +1450,9 @@ function LobbyView({
             <button className="small-btn" onClick={onOpenParty}>
               <Users size={14} /> Open Company Sheet
             </button>
+            <button className="primary" onClick={onCreateCharacter}>
+              <Plus size={14} /> Create character
+            </button>
           </div>
         </div>
 
@@ -1454,7 +1460,7 @@ function LobbyView({
           {state.characters.length === 0 ? (
             <div style={{ gridColumn: "1 / -1", padding: "2rem", textAlign: "center", background: "rgba(255,255,255,0.02)", border: "1px dashed var(--line)", borderRadius: "8px" }}>
               <p style={{ margin: "0 0 1rem", color: "var(--muted)" }}>No adventurers have stepped forward yet.</p>
-              <button className="primary" onClick={onOpenParty}>
+              <button className="primary" onClick={onCreateCharacter}>
                 <Plus size={16} /> Create First Character
               </button>
             </div>

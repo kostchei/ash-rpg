@@ -23,3 +23,17 @@ export function randomCharacterName(ancestry: string, random = Math.random): str
   }
   return pick(PREFIXES) + pick(SUFFIXES);
 }
+
+/** Anchor NPCs: 20% three-letter names, 60% standard names, 20% elaborate names. */
+export function randomAnchorName(random = Math.random): string {
+  const pick = (items: readonly string[]) => items[Math.floor(random() * items.length)];
+  const style = random();
+  if (style < 0.2) {
+    return pick("B D F G H J K L M N P R S T V Z".split(" "))
+      + pick(["a", "e", "i", "o", "u"])
+      + pick("b d f g k l m n p r s t v x z".split(" "));
+  }
+  const name = randomCharacterName("", random);
+  if (style < 0.8) return name;
+  return `${name} ${randomCharacterName("", random)} of the ${pick(["Seven", "Silent", "Shattered", "Hidden", "Silver", "Burning"])} ${pick(["Stars", "Gates", "Crowns", "Spires", "Isles", "Oaths"])}`;
+}

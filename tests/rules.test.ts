@@ -148,7 +148,7 @@ describe("ASH rules engine", () => {
     const weapon = { instanceId: "w1", itemId: "longsword", name: "Longsword", kind: "weapon" as const, slots: 1, damage: "1d8", properties: ["versatile"] };
     const attack = calculateAttackBonus({ level: 3, className: "Fighter", abilities: { str: 14, dex: 10 }, classChoices: { masteredWeapon: "longsword" } }, weapon);
     expect(attack.attackBonus).toBe(3);
-    expect(attack.damageBonus).toBe(4);
+    expect(attack.damageBonus).toBe(2);
   });
 
   it("resolves spellcasting checks with mishap on Wizard nat 1 and penance on Priest nat 1", () => {

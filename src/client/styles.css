@@ -2534,3 +2534,10 @@ button:disabled {
   }
 }
 
+
+.anchor-field { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.anchor-field textarea { width: 100%; resize: vertical; min-height: 86px; }
+.anchor-field small { color: var(--muted); }
+.anchor-suggestions { display: flex; flex-wrap: wrap; gap: 6px; }
+.anchor-suggestions button { border-radius: 16px; padding: 5px 10px; font-size: 12px; text-align: left; white-space: normal; overflow-wrap: anywhere; }
+.anchor-reroll { align-self: flex-start; display: inline-flex; align-items: center; gap: 6px; font-size: 12px; }

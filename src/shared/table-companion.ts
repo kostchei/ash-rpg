@@ -24,7 +24,6 @@ export function weaponReference(
   const dex = abilityMod(character.abilities.dex);
 
   const statAtk = isRanged ? dex : isFinesse ? Math.max(str, dex) : str;
-  const statDmg = isRanged ? 0 : isFinesse ? Math.max(str, dex) : str;
 
   const isFighter = character.className.toLowerCase() === "fighter";
   const mastery =
@@ -32,7 +31,8 @@ export function weaponReference(
     (isFighter && character.classChoices?.masteredWeapon === weapon.itemId);
 
   let attackBonus = statAtk + (mastery ? 1 : 0);
-  let damageBonus = statDmg + (mastery ? 1 + Math.floor(character.level / 3) : 0);
+  // Ability modifiers apply to attack rolls only, never weapon damage.
+  let damageBonus = mastery ? 1 + Math.floor(character.level / 3) : 0;
 
   const talents = character.talents ?? [];
   for (const t of talents) {

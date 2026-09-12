@@ -1234,21 +1234,20 @@ export async function createAshServer(options: AshServerOptions = {}) {
               "Players must roll with the Iron Man or Unearthed Arcana method",
             );
           }
-          // Iron Man characters are unlimited; the Unearthed Arcana hero is once per
-          // campaign — after that, replacements have to be rescued from dungeons.
+        }
+          // One existing UA hero per owner; host-created heroes have no owner token.
           if (input.generationMethod === "unearthed_arcana") {
             const owned = db.db
               .prepare(
-                "SELECT COUNT(*) as c FROM characters WHERE campaign_id = ? AND owner_token = ? AND generation_method = 'unearthed_arcana'",
+                "SELECT COUNT(*) as c FROM characters WHERE campaign_id = ? AND owner_token IS ? AND generation_method = 'unearthed_arcana'",
               )
-              .get(identity.campaignId, identity.token) as { c: number };
+              .get(identity.campaignId, identity.role === "player" ? identity.token : null) as { c: number };
             if (owned.c >= 1) {
               throw new Error(
                 "This player already owns their one Unearthed Arcana character for this campaign",
               );
             }
           }
-        }
         if (input.generationMethod === "iron_man") {
           if (!meetsIronManRequirements(input.abilities)) {
             throw new Error("These ability scores do not meet the Iron Man requirements");
@@ -1311,6 +1310,27 @@ export async function createAshServer(options: AshServerOptions = {}) {
         return { characterId };
       }),
     );
+
+    socket.on("character:delete", action((raw: unknown) => {
+      const { characterId } = z.object({ characterId: z.number().int() }).parse(raw);
+      const character = db.db.prepare("SELECT owner_token FROM characters WHERE campaign_id = ? AND id = ?")
+        .get(identity.campaignId, characterId) as { owner_token: string | null } | undefined;
+      if (!character) throw new Error("Character not found");
+      if (identity.role !== "host" && character.owner_token !== identity.token) {
+        throw new Error("You can only delete your own characters");
+      }
+      const combat = db.getCombatState(identity.campaignId);
+      if (combat?.combatants.some(c => c.kind === "pc" && c.refId === characterId)) {
+        throw new Error("End the character's combat before deleting them");
+      }
+      db.db.transaction(() => {
+        db.db.prepare("UPDATE devices SET character_id = NULL, ready = 0 WHERE campaign_id = ? AND character_id = ?")
+          .run(identity.campaignId, characterId);
+        db.db.prepare("DELETE FROM characters WHERE campaign_id = ? AND id = ?").run(identity.campaignId, characterId);
+      })();
+      if (identity.characterId === characterId) identity.characterId = null;
+      return { characterId };
+    }));
 
     socket.on(
       "party:muster",

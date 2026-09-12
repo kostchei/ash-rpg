@@ -32,6 +32,27 @@ describe("Physical table companion contract", () => {
   });
   afterAll(async () => { host?.disconnect(); guest?.disconnect(); await server?.close(); });
 
+  it("allows additional Iron Man heroes, limits UA per owner, and authorizes deletion", async () => {
+    const input = { name: "Roster test", ancestry: "Human", className: "Fighter",
+      abilities: { str: 16, dex: 12, con: 12, int: 12, wis: 12, cha: 12 },
+      anchors: { homeland: "", landmark: "", nemesis: "" } };
+    for (const socket of [host, guest]) {
+      const ua = await send("character:create", { ...input, generationMethod: "unearthed_arcana" }, socket);
+      expect(ua.ok).toBe(true);
+      expect((await send("character:create", { ...input, generationMethod: "unearthed_arcana" }, socket)).ok).toBe(false);
+      const reserve = await send("character:create", { ...input, generationMethod: "iron_man" }, socket);
+      expect(reserve.ok).toBe(true);
+      if (socket === guest) expect(state().characters.find(c => c.id === reserve.characterId)?.rosterStatus).toBe("reserve");
+      if (socket === host) expect((await send("character:delete", { characterId: reserve.characterId }, guest)).ok).toBe(false);
+      expect((await send("character:delete", { characterId: reserve.characterId }, socket)).ok).toBe(true);
+      expect((await send("character:delete", { characterId: ua.characterId }, socket)).ok).toBe(true);
+      expect(state().characters.some(c => c.id === ua.characterId || c.id === reserve.characterId)).toBe(false);
+      const replacement = await send("character:create", { ...input, generationMethod: "unearthed_arcana" }, socket);
+      expect(replacement.ok).toBe(true);
+      expect((await send("character:delete", { characterId: replacement.characterId }, socket)).ok).toBe(true);
+    }
+  });
+
   it("keeps one monster seat, advances a complete clockwise round from a non-first winner, and preserves seating across combats", async () => {
     const start = await send("combat:start", { monsters: [{ name: "Guard", hp: 20, ac: 15 }, { name: "Scout", hp: 10, ac: 12 }] });
     expect(start.ok).toBe(true);
