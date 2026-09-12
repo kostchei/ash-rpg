@@ -137,12 +137,12 @@ describe("Stage B: Campaign Setup & Two-Character Ownership", () => {
     it("rolls Unearthed Arcana abilities with class-specific dice tables", async () => {
       const res = await send(player1, "character:roll-ua", { className: "Fighter" });
       expect(res.ok).toBe(true);
-      expect(res.statOrder).toEqual(["str", "con", "dex", "int", "wis", "cha"]);
+      expect(res.statOrder).toEqual(["str", "con", "dex", "cha", "wis", "int"]);
       // Descending pools in class order, unless two high scores cut them to 4d6.
       expect(res.dice.str.length).toBe(8);
       expect([7, 4].includes(res.dice.con.length)).toBe(true);
       expect([6, 4].includes(res.dice.dex.length)).toBe(true);
-      expect(res.dice.cha.length).toBe(3);
+      expect(res.dice.int.length).toBe(3);
       expect(res.scores.str).toBeGreaterThanOrEqual(3);
       expect(res.scores.str).toBeLessThanOrEqual(18);
     });

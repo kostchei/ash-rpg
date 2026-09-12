@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from "react";
+import { randomCharacterName } from "../shared/character-names";
 import { Title, Field } from "./ui/Common";
 import type { Act } from "./ui/types";
 import { ABILITY_KEYS, ANCESTRIES, CLASSES, MAX_DEPARTING_PARTY, MIN_DEPARTING_PARTY, SPELLS } from "../shared/content";
@@ -234,14 +235,14 @@ function CharacterCreator({
   const [method, setMethod] = useState<"unearthed_arcana" | "iron_man">(
     uaUsed ? "iron_man" : "unearthed_arcana",
   );
-  const [form, setForm] = useState({
-    name: "",
+  const [form, setForm] = useState(() => ({
+    name: randomCharacterName(ANCESTRIES[0]),
     ancestry: ANCESTRIES[0] as string,
     className: CLASSES[0].name as string,
     originZoneId: activeZoneId || "the_gloaming",
     abilities: { str: 10, dex: 10, con: 10, int: 10, wis: 10, cha: 10 },
     anchors: { homeland: "", landmark: "", nemesis: "" },
-  });
+  }));
   const [diceResults, setDiceResults] = useState<Record<string, number[]> | undefined>(undefined);
   const [eligibleClasses, setEligibleClasses] = useState<string[]>([]);
   const [hasRolled, setHasRolled] = useState(false);
@@ -386,11 +387,24 @@ function CharacterCreator({
       </div>
 
       <div className="creator-grid">
-        <Field
-          label="Character name"
-          value={form.name}
-          onChange={(name) => setForm({ ...form, name })}
-        />
+        <div>
+          <Field
+            label="Character name"
+            value={form.name}
+            onChange={(name) => setForm({ ...form, name })}
+          />
+          <button
+            type="button"
+            style={{ marginTop: 8 }}
+            title="50% ancestry name list, 50% combined name parts. Unlisted ancestries use the full name table."
+            onClick={() => setForm((current) => ({
+              ...current,
+              name: randomCharacterName(current.ancestry),
+            }))}
+          >
+            <Dices size={16} aria-hidden="true" /> Random name
+          </button>
+        </div>
         <label>
           Ancestry
           <select

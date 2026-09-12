@@ -120,19 +120,19 @@ export function meetsUnearthedArcanaRequirements(scores: AbilityScores): boolean
  * the last gets the smallest.
  */
 export const UA_CLASS_STAT_ORDER: Record<string, AbilityKey[]> = {
-  Fighter: ["str", "con", "dex", "int", "wis", "cha"],
+  Fighter: ["str", "con", "dex", "cha", "wis", "int"],
   Thief: ["dex", "cha", "int", "con", "str", "wis"],
   Priest: ["wis", "cha", "con", "str", "int", "dex"],
   Wizard: ["int", "wis", "dex", "con", "cha", "str"],
   Delver: ["con", "dex", "str", "wis", "int", "cha"],
   "Ras-Godai": ["dex", "int", "str", "con", "wis", "cha"],
-  Druid: ["wis", "cha", "con", "int", "dex", "str"],
+  Druid: ["wis", "cha", "con", "int", "str", "dex"],
   Alchemist: ["int", "dex", "con", "wis", "cha", "str"],
   Sage: ["int", "wis", "cha", "con", "dex", "str"],
   Monk: ["dex", "wis", "str", "con", "int", "cha"],
-  Bard: ["cha", "dex", "int", "str", "con", "wis"],
+  Bard: ["cha", "dex", "int", "wis", "str", "con"],
   Duelist: ["dex", "cha", "con", "str", "int", "wis"],
-  Ranger: ["str", "wis", "con", "dex", "int", "cha"],
+  Ranger: ["dex", "int", "con", "wis", "str", "cha"],
 };
 
 /** Dice pool per ability, in class priority order, before the high-score cut-off bites. */
