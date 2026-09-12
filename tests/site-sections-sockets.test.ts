@@ -24,6 +24,10 @@ describe("Linked site expedition", () => {
     server.db.db.prepare("UPDATE campaigns SET party_location_json = ? WHERE id = ?")
       .run(JSON.stringify({ regionId, layerId, q: Number(q), r: Number(r) }), id);
     const address = server.httpServer.address() as { port: number };
+    server.db.addCharacter(id, null, { name: "Bree", ancestry: "Human", className: "Thief", level: 1,
+      hp: 6, maxHp: 6, ac: 12, gold: 0, gearSlots: 10, xp: 0,
+      abilities: { str: 10, dex: 14, con: 10, int: 10, wis: 10, cha: 10 },
+      anchors: { homeland: "Valley", landmark: "River", nemesis: "Bandit" } });
     host = io(`http://localhost:${address.port}`, { auth: { code: camp.code, role: "host", token: camp.hostToken } });
     await new Promise<void>((resolve, reject) => { host.once("connect", resolve); host.once("connect_error", reject); });
   });
@@ -34,7 +38,7 @@ describe("Linked site expedition", () => {
       abilities: { str: 12, dex: 10, con: 10, int: 10, wis: 10, cha: 10 },
       anchors: { homeland: "Valley", landmark: "River", nemesis: "Bandit" } });
     const graph = generateSiteLayout(id, siteId, "Three sites", 1);
-    attachSiteObjectives(graph, { pathId: "ithaqua", act: 2, seed: "award-check" });
+    attachSiteObjectives(graph, { pathId: "ithaqua", act: 2, seed: "award-check", discoveringLevel: 1 });
     server.db.saveDungeonGraph(id, graph);
     expect((await send("site:enter", { siteId, ...envelope() })).ok).toBe(true);
     const knowledge = server.db.getAdventurePath(id)!.progress.knowledge;

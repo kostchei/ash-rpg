@@ -4,10 +4,20 @@ import type { DungeonGraphState } from "../../shared/types.js";
  * Stairs join dungeon levels; outdoor places use short paths within that hex.
  * Transitions are ordinary reversible moves, never automatic progression.
  */
+/** Section sizes for a site-size d6: one large level, a medium plus a small, or three small. */
+export function siteSectionSizes(face: number): number[] {
+  if (!Number.isInteger(face) || face < 1 || face > 6) throw new Error("Site size requires a d6 result");
+  return face === 6 ? [12] : face >= 3 ? [8, 5] : [5, 5, 5];
+}
+
+/** Total areas in a site rolled with the given d6 face. */
+export function siteRoomCount(face: number): number {
+  return siteSectionSizes(face).reduce((total, size) => total + size, 0);
+}
+
 export function generateSiteLayout(campaignId: number, siteId: string, name: string,
   face: number, connection: "stairs" | "nearby_path" = "stairs"): DungeonGraphState {
-  if (!Number.isInteger(face) || face < 1 || face > 6) throw new Error("Site size requires a d6 result");
-  const sizes = face === 6 ? [12] : face >= 3 ? [8, 5] : [5, 5, 5];
+  const sizes = siteSectionSizes(face);
   const graph: DungeonGraphState = { campaignId, siteId, entryRoomId: 1, currentRoomId: 1,
     explorationTurns: 0, lightTurnsRemaining: 0, nodes: [], edges: [],
     siteStructure: { roll: face, sections: [] } };

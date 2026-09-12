@@ -105,7 +105,7 @@ describe("Party adjustment stage and rescued companions", () => {
     for (const name of ["Ada", "Bram", "Cass", "Dov", "Esk", "Fen"]) addCharacter(name);
     // This seed places a captive in the first section; objectives are deterministic.
     const graph = generateSiteLayout(id, siteId, "Rescue site", 1);
-    attachSiteObjectives(graph, { pathId: "ithaqua", act: 1, seed: "muster-rescue:0" });
+    attachSiteObjectives(graph, { discoveringLevel: 1, pathId: "ithaqua", act: 1, seed: "muster-rescue:0" });
     const room = graph.nodes.find((n) => n.objective?.generated?.rescuedNpc);
     if (!room) throw new Error("Expected a rescue objective for seed muster-rescue:0");
     const rescued = room.objective!.generated!.rescuedNpc!;

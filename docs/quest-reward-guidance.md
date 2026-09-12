@@ -1,22 +1,27 @@
-# Quest rewards: research and proposed policy
+# Quest rewards: research and implemented policy
 
-Research date: 2026-09-12. Reward scaling below is a proposal, not an implemented payout rule.
+Research date: 2026-09-12. Implemented 2026-09-13 in `src/shared/quest-rewards.ts` and `src/shared/danger.ts`.
 
 ## Rules evidence
 
-Kelsey Dionne's *Shadowdark Game Master Quickstart*, p. 13, suggests approximately 10 GP times average party level per encounter for the group, with shorthand values of 20/50/80 GP for levels 1–3/4–6/7–9. XP depends on treasure quality (0/1/3/10), not a GP conversion. Danger categories change encounter frequency. Page 41 selects monster treasure by monster level and unguarded treasure by discovering character level.
+Verified against the Shadowdark RPG core rules (V4.8):
 
-Sources: [publisher's Quickstart distribution](https://www.thearcanelibrary.com/products/shadowdark-rpg-quickstart-set-pdf), [readable mirror of the authored GM Quickstart, pp. 13–14 and 41](https://studylib.net/doc/28430488/quickstart-gm-screen). The mirror is a 2023 text; this research did not verify the full current paid core treasure tables. These guidelines are not a prescribed quest-bounty schedule.
+- **Awarding XP (p. 117).** Treasure has four categories — Poor (0 XP), Normal (1 XP), Fabulous (3 XP), Legendary (10 XP). Each PC gets the full XP value of each treasure, and XP resets to zero on level-up. Per treasure find, a group should gain about 10 GP x their average party level in value, or 20 GP at levels 0–3, 50 GP at 4–6, 80 GP at 7–9.
+- **Random Encounters (p. 112).** The environment's danger level sets how often the GM checks: Unsafe every 3 crawling rounds, Risky every 2, Deadly every round. These three words are the rules' own danger vocabulary.
+- **Treasure Overview (p. 269).** Wandering monsters have only a 50% chance of carrying treasure and are poor sources of XP. A monster rolls on the treasure table matching **its** level; unguarded treasure is rolled on the table matching the **discovering character's** level.
+- **Treasure tables (pp. 270–277).** Four d100 tables: Treasure 0-3, 4-6, 7-9 and 10+.
 
-## Assessment of current offers
+These are guidelines for treasure finds, not a prescribed quest-bounty schedule; the budget below builds on them.
 
-The surveyor's 40 GP and clerk's 30 GP are fixed text in procedural-region.ts. They are plausible modest payments to a low-level party, especially in addition to recovered treasure. They are not scaled to character level, quest length or danger. A long expedition needs several encounters' worth of total value, including site treasure and the patron payment. A share of an unknown coffer cannot be evaluated as a fixed reward, and can legitimately yield nothing.
+## Danger vocabulary
 
-The separate monster treasure implementation is also custom: it collapses all levels above 6 into one tier. It does not reproduce the core book's four treasure tables. That system should be reviewed separately before claiming core-table fidelity.
+Areas and quests are described with the danger words **Unsafe, Risky, Deadly** from p. 112, never with bare tier numbers. *Safe* is this app's own label for a tier-0 area where no encounter check is made — the book names only the three that carry a check. `src/shared/danger.ts` is the single place that turns the stored numeric `threatTier` (0–3) into a word for display; the column itself stays numeric, so no data migration was needed.
 
-## Proposed reward budget
+A quest carries a separate, explicit `riskLevel` of Unsafe, Risky or Deadly, set when the offer is created. It is never inferred from an area's threat tier and never from a hidden destination outcome. Where a lead has no rating, the UI reports a surveyed area's danger as an explicitly labelled estimate ("Risky (area estimate)") and otherwise says "Danger level unknown". Unsurveyed hex tiers are never leaked.
 
-Use an adventure's intended level band, fixed when the offer is created. Do not reprice an accepted quest every time a character levels up. Average party level can initialize newly generated jobs; actual monster level remains the basis for guarded treasure.
+## Reward budget
+
+`questRewardBudget()` prices an offer once, from the adventure's intended level band. An accepted quest is not repriced when characters level up; average party level only initializes newly generated jobs. Actual monster level remains the basis for guarded treasure.
 
 | Intended level | Group value per meaningful encounter |
 | --- | ---: |
@@ -27,12 +32,42 @@ Use an adventure's intended level band, fixed when the offer is created. Do not 
 
 The level-0 use of 20 GP is a house-rule extension of the 1–3 shortcut. The 10+ formula extrapolates the general guideline; it is not a transcription of the 10+ treasure table.
 
-For a short job involving two meaningful encounters, a proposed total budget is baseline × 2 × danger factor: 1 for ordinary risk, 1.5 for elevated risk, 2 for severe risk. These factors are house rules. At levels 0–3 this gives 40/60/80 GP; at 4–6, 100/150/200; at 7–9, 160/240/320; at level 10, 200/300/400. Amounts are for the whole party, not each character.
+Total budget is baseline × encounters × risk multiplier, where the multipliers are **Unsafe 1, Risky 1.5, Deadly 2**. These factors are house rules. For a two-encounter job this gives 40/60/80 GP at levels 0–3; 100/150/200 at 4–6; 160/240/320 at 7–9; 200/300/400 at level 10. Amounts are for the whole party, not each character.
 
-Split this budget between the patron's promised fee and expected recoverable valuables. Avoid awarding the whole budget twice. For example, an elevated-risk two-encounter low-level rescue might offer 40 GP plus roughly 20 GP of recoverable valuables. A poorer patron can substitute supplies, shelter, information or a favor. Do not convert these budgets automatically to XP.
+The budget is split between the patron's promised fee and expected recoverable valuables, so the same value is not awarded twice. The default patron share is two thirds, rounded to the nearest 5 GP; `patronShare: 0` prices a job paid entirely out of what the party recovers. A Risky two-encounter level-1 rescue therefore offers 40 GP plus roughly 20 GP of recoverable valuables. A poorer patron can substitute supplies, shelter, information or a favor. These budgets are not converted to XP.
 
-Danger needs separate concepts: reported hazards, area threat tier, monster level, and the rules' encounter-frequency category. The app's numerical threat tier does not establish an automatic mapping to Unsafe/Risky/Deadly. Only apply a multiplier after defining an explicit quest risk rating; do not infer it from hidden destination outcomes. Higher danger should improve expected opportunity, not guarantee loot or reveal false rumors.
+Offers carry their pricing on the lead itself (`riskLevel`, `intendedLevel`, `expectedEncounters`, `rewardBudgetGp`, `patronFeeGp`, `recoverableValueGp`) so the promised reward text and the budget cannot drift apart. Higher danger improves expected opportunity; it never guarantees loot or reveals false rumors.
 
-## UI correction
+### Current offers
 
-Render each lead once and retain its title, source, description, direction, reported danger, preparation, promised reward and selection control. Use both legacy danger fields. When a numerical danger report is absent, use a known surveyed area's tier as an explicitly labeled estimate; otherwise state that the level is unknown. Keep unrevealed site details private.
+The opening tavern leads in `procedural-region.ts` are priced for level 1 and two meaningful encounters: the surveyor rescue is Risky (40 GP fee + ~20 GP recoverable), the clerk escort is Unsafe (25 GP fee + ~15 GP recoverable), and the prospector's relic claim is Risky with no fee at all — the whole ~60 GP has to come out of a coffer that may be empty. The post-rescue Karst siphons follow-up is Deadly, priced from the party's average level at the moment it is offered.
+
+## Monster treasure
+
+The invented treasure pools are gone. `scripts/ingest/extract-treasure-tables.ts` extracts all four printed d100 tables into `data/treasure/core-tables.json` (50 rows each, full 1–100 coverage, asserted at extraction time), and `src/server/rewards/core-treasure.ts` rolls on them:
+
+- A monster's carried treasure uses the table for **its** level; `generateUnguardedTreasure()` uses the table for the **discovering character's** level, as p. 269 directs.
+- Each row keeps its printed d100 width as its weight, so the distribution is the book's.
+- A find is either loose coin or an object, never both — the old code handed out coins *and* items on every hit.
+
+The one thing the book does not supply is a quality label per row, so `treasureQualityForValue()` is the app's own mapping: a find is Poor below half the expected find value for that level, Normal below 2x, Fabulous below 10x, and Legendary at or above 10x. Anchored on 20/50/80 GP (and 10 GP x level above 9) this puts each table's junk rows at Poor and its capstone rows at Legendary — the Staff of Ord, the book's own Legendary example, grades Legendary. The resulting spread is roughly 20% Poor / 55% Normal / 25% Fabulous / 1% Legendary per table.
+
+The 50% carried-treasure presence roll and the app's rule that a successful presence roll never yields a Poor find are unchanged; the Poor rows are simply excluded from that particular draw, with every other row keeping its weight.
+
+## Where treasure actually sits in a site
+
+Three independent things put treasure in a site, and they do not compete for the same areas:
+
+1. **Carried treasure.** A monster area registers its encounter group, which makes one 50% presence roll on the monster's own level table.
+2. **Random unguarded finds.** Every area rolls a d10 feature and a 9 is a cache, so a site holds a random number of unguarded finds, each rolled on the discovering party's level table.
+3. **The adventure's own caches.** A site plan's `authoredCaches` are placed content. They reserve their areas up front and are always in the site, whatever the feature rolls came up. Previously they were only created when an area happened to roll a treasure feature, so a site with three authored caches usually surfaced one of them and the other two silently vanished.
+
+Objectives are a fourth, separate thing, and most of them are not treasure at all. Of the fifteen objective kinds, five are treasure-shaped — `recover_relic`, `harvest_components`, `treasure_cache`, `exotic_materials`, `monster_eggs` — and those place their named target plus, in an area that holds nothing else yet, a real find rolled on the party's table. The other ten pay out in a rescued person, a defeated commander, an opened route, a lifted curse or a secret learned, and place no treasure of their own. All objectives award story XP regardless.
+
+## Progression
+
+`runPathProgressionAudit` now walks each site the way `materializeSitePlan` does — the site's own d6 size roll, then a d10 feature per area — instead of assuming a fixed encounter count and awarding every authored cache unconditionally. With book-accurate treasure and correctly placed caches, The Night Below puts about 99% of parties at level 9 entering the finale and 98–99% at level 10 at completion, against the release criteria of 95%.
+
+## UI
+
+Each lead renders once and retains its title, source, description, direction, reported danger, preparation, promised reward and selection control. Both legacy danger fields are read. Unrevealed site details stay private.

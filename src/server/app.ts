@@ -53,7 +53,6 @@ import {
   evaluateWatchFatigue,
   generateDungeonRoom,
   generateMonsterVariant,
-  generateTreasureReward,
   getMonsterAcHint,
   isObscuringWeather,
   getEligibleClasses,
@@ -76,6 +75,7 @@ import {
   type Likelihood,
 } from "./rules.js";
 import { RewardService } from "./rewards/service.js";
+import { generateUnguardedTreasure } from "./rewards/core-treasure.js";
 import { applyXpEvent, calculateAdvancementRequirement } from "./rewards/progression.js";
 import { resolveOutcome } from "./paths/outcomes.js";
 import { assignActZones } from "./paths/zone-plan.js";
@@ -3240,8 +3240,8 @@ export async function createAshServer(options: AshServerOptions = {}) {
               return { key, name: db.getMonster(key)?.name ?? key };
             },
             treasure: () => {
-              const reward = generateTreasureReward(1);
-              return { coins: reward.coins.gp + reward.coins.sp / 10, items: reward.items };
+              const reward = generateUnguardedTreasure(db.averageActivePartyLevel(identity.campaignId));
+              return { coins: reward.coins.gp + reward.coins.sp / 10 + reward.coins.cp / 100, items: reward.items };
             },
             groupTreasure: (feature, roomId) => {
               const rewardService = new RewardService(db);
@@ -3278,6 +3278,7 @@ export async function createAshServer(options: AshServerOptions = {}) {
             pathId: siteLead?.isPathLead === false ? undefined : path?.pathId,
             act: Number(camp.act ?? 1), seed: site.id,
             primary: situation ? { title: situation.title, deedId: situation.requiredDeed } : undefined,
+            discoveringLevel: db.averageActivePartyLevel(identity.campaignId),
           });
           if (!deserted && siteLead?.arrivalDiscovery) {
             defaultGraph.nodes[0].contents += ` ${siteLead.arrivalDiscovery}`;
@@ -3658,7 +3659,7 @@ export async function createAshServer(options: AshServerOptions = {}) {
               };
             }
           } else if (room.feature === "treasure") {
-            const reward = generateTreasureReward(1);
+            const reward = generateUnguardedTreasure(db.averageActivePartyLevel(identity.campaignId));
             room.treasure = { coins: reward.coins.gp, items: reward.items, claimed: false };
           }
         }
@@ -4451,7 +4452,7 @@ export async function createAshServer(options: AshServerOptions = {}) {
               }
             }
           } else {
-            const reward = generateTreasureReward(1);
+            const reward = generateUnguardedTreasure(db.averageActivePartyLevel(identity.campaignId));
             rewardRecord = {
               id: `reward-${Date.now()}`,
               campaignId: identity.campaignId,
@@ -4502,13 +4503,13 @@ export async function createAshServer(options: AshServerOptions = {}) {
           })
           .parse(raw);
 
-        const treasure = generateTreasureReward(payload.level);
+        const treasure = generateUnguardedTreasure(payload.level);
         const reward: RewardRecord = {
           id: `reward-${Date.now()}`,
           campaignId: identity.campaignId,
           sourceType: payload.sourceType,
           sourceId: payload.sourceId,
-          coins: { cp: 0, sp: treasure.coins.sp, gp: treasure.coins.gp },
+          coins: { cp: treasure.coins.cp, sp: treasure.coins.sp, gp: treasure.coins.gp },
           items: treasure.items,
           claimed: false,
           allocations: {},

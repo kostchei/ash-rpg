@@ -48,6 +48,10 @@ import type {
   TavernLead,
 } from "../../shared/types.js";
 import { HEX_GRID } from "./hex-map.js";
+import { questRewardBudget } from "../../shared/quest-rewards.js";
+
+/** Level band the opening tavern offers are priced for. See docs/quest-reward-guidance.md. */
+const STARTING_QUEST_LEVEL = 1;
 
 export const GENERATOR_VERSION = "2.0.0";
 export const CONTENT_VERSION = "2026.09";
@@ -929,6 +933,13 @@ function buildRegionAttempt(
   };
   sites.push(regionalSite);
 
+  // Opening offers are written for a freshly mustered party and are priced once, here.
+  // An accepted quest keeps this budget even after the characters level up.
+  const surveyorReward = questRewardBudget({ intendedLevel: STARTING_QUEST_LEVEL, encounters: 2, risk: "risky" });
+  const clerkReward = questRewardBudget({ intendedLevel: STARTING_QUEST_LEVEL, encounters: 2, risk: "unsafe" });
+  // The prospector fronts nothing: the whole budget has to come out of the coffer.
+  const relicReward = questRewardBudget({ intendedLevel: STARTING_QUEST_LEVEL, encounters: 2, risk: "risky", patronShare: 0 });
+
   const tav = generateTavernForZone(surfaceZoneId, true, siteRng);
   const tavernEstablishment: TavernEstablishment = {
     name: tav.name,
@@ -943,9 +954,15 @@ function buildRegionAttempt(
         targetHexId: waterworksCell.id,
         targetSiteId: waterworksSite.id,
         directionHint: getDirectionHint(waterworksCell.q, waterworksCell.r),
-        dangerHint: "Tier 2 Threat Â· Nocturnal patrols and amphibious wardens",
+        dangerHint: "Nocturnal patrols and amphibious wardens",
         preparationHint: "Torches, iron crowbar, and 2 days travel rations",
-        promisedReward: "40 GP from the town council for returning the surveyor safely.",
+        riskLevel: surveyorReward.risk,
+        intendedLevel: surveyorReward.intendedLevel,
+        expectedEncounters: surveyorReward.encounters,
+        rewardBudgetGp: surveyorReward.totalGp,
+        patronFeeGp: surveyorReward.patronFeeGp,
+        recoverableValueGp: surveyorReward.recoverableValueGp,
+        promisedReward: `${surveyorReward.patronFeeGp} GP from the town council for returning the surveyor safely, over and above roughly ${surveyorReward.recoverableValueGp} GP the waterworks is thought to still hold.`,
         accuracy: "true",
         isPathLead: true,
       },
@@ -958,8 +975,14 @@ function buildRegionAttempt(
         targetSiteId: archiveSite.id,
         directionHint: getDirectionHint(archiveCell.q, archiveCell.r),
         dangerHint: "Collectors search the building; the clerk distrusts strangers",
-        preparationHint: "A safe escort route, light, and something to establish trust",
-        promisedReward: "30 GP from the clerk’s family for a safe escort home.",
+        preparationHint: "An escort route, light, and something to establish trust",
+        riskLevel: clerkReward.risk,
+        intendedLevel: clerkReward.intendedLevel,
+        expectedEncounters: clerkReward.encounters,
+        rewardBudgetGp: clerkReward.totalGp,
+        patronFeeGp: clerkReward.patronFeeGp,
+        recoverableValueGp: clerkReward.recoverableValueGp,
+        promisedReward: `${clerkReward.patronFeeGp} GP from the clerk's family for a safe escort home, plus whatever the ledger and the tollhouse strongbox are worth (about ${clerkReward.recoverableValueGp} GP).`,
         accuracy: "true",
         isPathLead: true,
         arrivalDiscovery: "The clerk is hiding in the archive. The ledger identifies captive shipments through the waterworks to the Karst Deeps; recover it or question the clerk to learn the route.",
@@ -974,7 +997,13 @@ function buildRegionAttempt(
         directionHint: getDirectionHint(regionalCell.q, regionalCell.r),
         dangerHint: "Unsurveyed ruins; possible scavengers and unstable masonry",
         preparationHint: "Rope, light, and enough provisions for a return journey",
-        promisedReward: "Half the recovered coffer, if the prospector’s claim proves true.",
+        riskLevel: relicReward.risk,
+        intendedLevel: relicReward.intendedLevel,
+        expectedEncounters: relicReward.encounters,
+        rewardBudgetGp: relicReward.totalGp,
+        patronFeeGp: relicReward.patronFeeGp,
+        recoverableValueGp: relicReward.recoverableValueGp,
+        promisedReward: `No fee up front: your half of the coffer, which the prospector values at about ${relicReward.recoverableValueGp} GP. The claim may be worth nothing.`,
         accuracy: destinationOutcome === "empty" ? "distorted" : "true",
         isPathLead: false,
         destinationOutcome,

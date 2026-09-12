@@ -8,6 +8,7 @@ import type { Act } from "./ui/types";
 import { abilityMod as mod } from "../shared/table-companion";
 import { Apple, Compass, DoorOpen, Footprints, Map, RefreshCw, Search, Sparkles, Tent } from "lucide-react";
 import type { CampaignState } from "../shared/types";
+import { DANGER_LEVEL_LABEL, dangerLevelForThreatTier } from "../shared/danger";
 
 import { FrontierMap } from "./FrontierMap";
 import { npcHexId } from "../shared/directory";
@@ -658,8 +659,8 @@ export function MapView({ state, act, focus, onDirectory }: { state: CampaignSta
                 <b>{selected.biome}</b>
               </div>
               <div className="stat-row">
-                <span>Threat</span>
-                <b>Tier {selected.threatTier}</b>
+                <span>Danger</span>
+                <b>{selected.threatTier == null ? "Unknown" : DANGER_LEVEL_LABEL[dangerLevelForThreatTier(selected.threatTier)]}</b>
               </div>
               <p className="hex-landmark-desc">
                 <strong>Landmark:</strong> {selected.landmark}

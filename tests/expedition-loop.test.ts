@@ -288,6 +288,13 @@ describe("Complete Expedition Loop & Adventure Path Integration", () => {
     expect(apAfter1?.progress.knowledge).toBe(1);
     expect(apAfter1?.toll.length).toBe(1);
 
+    // The follow-up offer is rated Deadly and priced once, from the party that earned it.
+    const followUp = server.db.getTavernLeads(1).find((lead) => lead.id === "lead_surveyor_followup_1");
+    expect(followUp).toBeDefined();
+    expect(followUp?.riskLevel).toBe("deadly");
+    expect(followUp?.rewardBudgetGp).toBe(followUp!.patronFeeGp! + followUp!.recoverableValueGp!);
+    expect(followUp?.promisedReward).toContain("GP");
+
     // 7.4 Idempotency test: duplicate deed resolution does NOT increment progress or duplicate toll
     const deedRes2 = await new Promise<any>((resolve) => {
       hostSocket.emit(

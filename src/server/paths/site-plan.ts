@@ -7,6 +7,7 @@ import type { DungeonGraphState, DungeonRoomNode } from "../../shared/types.js";
 import { type RandomSource, rollDie, systemRandom } from "../rules.js";
 import { roomFeature } from "../room-features.js";
 import { RewardService } from "../rewards/service.js";
+import { generateUnguardedTreasure } from "../rewards/core-treasure.js";
 
 /**
  * Materializes a SitePlan into a DungeonGraphState, ensuring all monster rooms
@@ -17,6 +18,8 @@ export function materializeSitePlan(
   sitePlan: SitePlan,
   graph: DungeonGraphState,
   db: AshDatabase,
+  /** Level of the characters searching the site; sets which unguarded treasure table is used. */
+  discoveringLevel: number,
   rng: RandomSource = systemRandom,
 ): {
   graph: DungeonGraphState;
@@ -24,6 +27,26 @@ export function materializeSitePlan(
 } {
   const rewardService = new RewardService(db);
   const createdRewardSources: RewardSource[] = [];
+
+  // The adventure's own caches are placed content, not a room-feature result.
+  // They claim their areas first; random finds fill in around them.
+  const authoredCaches =
+    sitePlan.authoredCaches && sitePlan.authoredCaches.length > 0
+      ? sitePlan.authoredCaches
+      : sitePlan.hasAuthoredCache && sitePlan.cacheQuality
+      ? [{ quality: sitePlan.cacheQuality }]
+      : [];
+  const cacheRoomIds = new Set(
+    graph.nodes
+      .filter((node) => node.id !== graph.entryRoomId)
+      .slice(0, authoredCaches.length)
+      .map((node) => node.id),
+  );
+  if (cacheRoomIds.size < authoredCaches.length) {
+    throw new Error(
+      `Site ${sitePlan.id} has ${authoredCaches.length} authored caches but only ${cacheRoomIds.size} areas to place them in`,
+    );
+  }
 
   for (const room of graph.nodes) {
     delete room.encounter;
@@ -99,27 +122,22 @@ export function materializeSitePlan(
       }
     }
 
-    // Authored cache room
-    if (room.feature === "treasure" && !room.treasure) {
-      const existingCachesCount = createdRewardSources.filter((s) => s.sourceType === "authored_cache").length;
-      const authoredDef =
-        sitePlan.authoredCaches && sitePlan.authoredCaches.length > 0
-          ? sitePlan.authoredCaches[existingCachesCount % sitePlan.authoredCaches.length]
-          : null;
-      const quality = authoredDef?.quality ?? sitePlan.cacheQuality ?? "normal";
-      const xpVal = authoredDef?.xpValue ?? (quality === "legendary" ? 10 : quality === "fabulous" ? 3 : 1);
-      const cacheSourceId = `src_cache_${campaignId}_${sitePlan.id}_rm${room.id}`;
-      let src = db.getRewardSource(campaignId, cacheSourceId);
+    // A treasure area that no guard is sitting on holds an unguarded find,
+    // rolled on the table for the level of whoever is doing the discovering.
+    if (room.feature === "treasure" && !room.treasure && !cacheRoomIds.has(room.id)) {
+      const find = generateUnguardedTreasure(discoveringLevel, rng);
+      const findSourceId = `src_find_${campaignId}_${sitePlan.id}_rm${room.id}`;
+      let src = db.getRewardSource(campaignId, findSourceId);
       if (!src) {
         src = {
-          id: cacheSourceId,
+          id: findSourceId,
           campaignId,
-          sourceType: "authored_cache",
-          sourceId: cacheSourceId,
-          quality,
-          xpValue: xpVal,
-          coins: authoredDef?.coins ?? { gp: quality === "legendary" ? 150 : quality === "fabulous" ? 50 : 25, sp: 10, cp: 0 },
-          items: authoredDef?.items ?? ["healing_salve"],
+          sourceType: "unguarded_treasure",
+          sourceId: findSourceId,
+          quality: find.quality,
+          xpValue: find.xpValue,
+          coins: find.coins,
+          items: find.items,
           status: "unclaimed",
           accessState: "unrevealed",
           createdAt: new Date().toISOString(),
@@ -133,6 +151,38 @@ export function materializeSitePlan(
         claimed: false,
       };
     }
+  }
+
+  // Fill the areas reserved above with the adventure's own caches.
+  const cacheRooms = graph.nodes.filter((node) => cacheRoomIds.has(node.id));
+  for (const [index, authored] of authoredCaches.entries()) {
+    const room = cacheRooms[index];
+    const quality = authored.quality;
+    const xpVal = authored.xpValue ?? (quality === "legendary" ? 10 : quality === "fabulous" ? 3 : 1);
+    const cacheSourceId = `src_cache_${campaignId}_${sitePlan.id}_rm${room.id}`;
+    let src = db.getRewardSource(campaignId, cacheSourceId);
+    if (!src) {
+      src = {
+        id: cacheSourceId,
+        campaignId,
+        sourceType: "authored_cache",
+        sourceId: cacheSourceId,
+        quality,
+        xpValue: xpVal,
+        coins: authored.coins ?? { gp: quality === "legendary" ? 150 : quality === "fabulous" ? 50 : 25, sp: 10, cp: 0 },
+        items: authored.items ?? ["healing_salve"],
+        status: "unclaimed",
+        accessState: "unrevealed",
+        createdAt: new Date().toISOString(),
+      };
+      db.saveRewardSource(src);
+    }
+    createdRewardSources.push(src);
+    room.treasure = {
+      coins: src.coins.gp + src.coins.sp / 10 + src.coins.cp / 100,
+      items: [...src.items],
+      claimed: false,
+    };
   }
 
   // Place objective independently in a random room (not contingent on boss or treasure)

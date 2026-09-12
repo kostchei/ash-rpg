@@ -85,6 +85,7 @@ export type TreasureRollRecord = z.infer<typeof TreasureRollRecordSchema>;
 export const RewardSourceTypeSchema = z.enum([
   "encounter_group",
   "authored_cache",
+  "unguarded_treasure",
   "story_objective",
   "story_act",
   "boss_hoard",

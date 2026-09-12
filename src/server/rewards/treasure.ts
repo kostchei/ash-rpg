@@ -6,6 +6,7 @@ import {
 } from "../../shared/path-contracts.js";
 import { type RandomSource, rollDie, systemRandom } from "../rules.js";
 import { createRandomSource } from "../generators/prng.js";
+import { coreTreasureTableForLevel, rollCoreTreasure } from "./core-treasure.js";
 
 export interface ResolvedGroupTreasure {
   roll: number;
@@ -41,9 +42,12 @@ export function rollGroupPresence(rng: RandomSource = systemRandom): {
 }
 
 /**
- * Versioned conditional real-treasure pool.
- * A successful presence roll MUST yield a Normal-or-better find (at least 1 XP).
- * Poor finds (0 XP) are never returned on a successful presence roll.
+ * Draws one find from the core treasure table matching the monster's level
+ * (0-3, 4-6, 7-9 or 10+), as printed in the rulebook.
+ *
+ * The app's own policy sits on top of the table: a successful presence roll
+ * MUST yield a Normal-or-better find, so the table's Poor rows are excluded
+ * from that draw. Every other row keeps its printed d100 weight.
  */
 export function selectRealTreasurePackage(
   level: number,
@@ -55,60 +59,13 @@ export function selectRealTreasurePackage(
   items: string[];
   tableBasis: string;
 } {
-  const tier = level <= 3 ? 1 : level <= 6 ? 2 : 3;
-  const qualityRoll = rollDie(100, rng);
-
-  let quality: TreasureQuality;
-  if (tier === 1) {
-    // Tier 1: 75% Normal (1 XP), 25% Fabulous (3 XP)
-    quality = qualityRoll <= 75 ? "normal" : "fabulous";
-  } else if (tier === 2) {
-    // Tier 2: 50% Normal (1 XP), 45% Fabulous (3 XP), 5% Legendary (10 XP)
-    if (qualityRoll <= 50) quality = "normal";
-    else if (qualityRoll <= 95) quality = "fabulous";
-    else quality = "legendary";
-  } else {
-    // Tier 3: 30% Normal (1 XP), 55% Fabulous (3 XP), 15% Legendary (10 XP)
-    if (qualityRoll <= 30) quality = "normal";
-    else if (qualityRoll <= 85) quality = "fabulous";
-    else quality = "legendary";
-  }
-
-  const xpValue = TREASURE_XP_BY_QUALITY[quality];
-  let gp = 0;
-  let sp = 0;
-  let cp = 0;
-  const items: string[] = [];
-
-  if (quality === "normal") {
-    gp = rollDie(6, rng) * 5 * tier;
-    sp = rollDie(10, rng) * 5;
-    cp = rollDie(10, rng) * 10;
-    if (rollDie(6, rng) >= 3) {
-      items.push(tier >= 2 ? "healing_salve" : "holy_water");
-    }
-  } else if (quality === "fabulous") {
-    gp = rollDie(6, rng) * 20 * tier + 25;
-    sp = rollDie(10, rng) * 10;
-    cp = rollDie(10, rng) * 20;
-    items.push(tier >= 3 ? "potion_of_invisibility" : "healing_salve");
-    if (rollDie(6, rng) >= 4) {
-      items.push("silver_dagger");
-    }
-  } else if (quality === "legendary") {
-    gp = rollDie(6, rng) * 50 * tier + 150;
-    sp = rollDie(10, rng) * 25;
-    cp = rollDie(10, rng) * 50;
-    items.push("ancient_ward_stone");
-    items.push("elixir_of_heroism");
-  }
-
+  const find = rollCoreTreasure(level, rng, "normal");
   return {
-    quality,
-    xpValue,
-    coins: { gp, sp, cp },
-    items,
-    tableBasis: `guarded_tier_${tier}_${quality}`,
+    quality: find.quality,
+    xpValue: find.xpValue,
+    coins: find.coins,
+    items: find.items,
+    tableBasis: find.tableBasis,
   };
 }
 
@@ -138,7 +95,7 @@ export function resolveGroupTreasure(
         xpValue: 0,
         coins: { cp: 0, sp: 0, gp: 0 },
         items: [],
-        tableBasis: `tier_${level <= 3 ? 1 : level <= 6 ? 2 : 3}_empty`,
+        tableBasis: `core_treasure_${coreTreasureTableForLevel(level).band}_empty`,
       };
     }
 

@@ -10,7 +10,7 @@ describe("Per-section objective selector", () => {
     expect(Object.keys(OBJECTIVE_PATH_PROFILES)).toHaveLength(22);
     for (const pathId of Object.keys(OBJECTIVE_PATH_PROFILES)) for (const act of [1, 2, 3]) for (const face of [1, 2, 3, 4, 5, 6]) {
       const graph = generateSiteLayout(1, "site", "Test", face);
-      attachSiteObjectives(graph, { pathId, act, seed: `${pathId}:${act}:${face}` });
+      attachSiteObjectives(graph, { discoveringLevel: 1, pathId, act, seed: `${pathId}:${act}:${face}` });
       const objectives = graph.nodes.flatMap(n => n.objective ? [n.objective] : []);
       expect(objectives).toHaveLength(graph.siteStructure!.sections.length);
       for (const section of graph.siteStructure!.sections) {
@@ -31,7 +31,7 @@ describe("Per-section objective selector", () => {
     const kinds = new Set<string>();
     for (let seed = 0; seed < 400; seed++) {
       const a = generateSiteLayout(1, "site", "Test", 1), b = structuredClone(a);
-      const options = { pathId: "ithaqua", act: 2, seed: String(seed) };
+      const options = { pathId: "ithaqua", act: 2, seed: String(seed), discoveringLevel: 1 };
       attachSiteObjectives(a, options); attachSiteObjectives(b, options);
       expect(a).toEqual(b);
       if (a.siteStructure!.objectiveMode === "similar") similar++;
@@ -47,7 +47,7 @@ describe("Per-section objective selector", () => {
     const methods = new Set<string>();
     for (let seed = 0; seed < 200; seed++) {
       const graph = generateSiteLayout(1, "site", "Test", 1);
-      attachSiteObjectives(graph, { pathId: "ithaqua", act: 1, seed: `rescue:${seed}` });
+      attachSiteObjectives(graph, { discoveringLevel: 1, pathId: "ithaqua", act: 1, seed: `rescue:${seed}` });
       for (const objective of graph.nodes.flatMap((n) => (n.objective ? [n.objective] : []))) {
         const generated = objective.generated!;
         const isRescue = generated.kind === "rescue_captive" || generated.kind === "rescue_companion";
@@ -72,7 +72,7 @@ describe("Per-section objective selector", () => {
 
   it("preserves the opening rescue deed only in the terminal section", () => {
     const graph = generateSiteLayout(1, "waterworks", "Test", 1);
-    attachSiteObjectives(graph, { pathId: "the_mind_below", act: 1, seed: "rescue",
+    attachSiteObjectives(graph, { discoveringLevel: 1, pathId: "the_mind_below", act: 1, seed: "rescue",
       primary: { title: "Rescue the Surveyor", deedId: "rescue_surveyor" } });
     const rooms = graph.nodes.filter(n => n.objective?.deedId === "rescue_surveyor");
     expect(rooms).toHaveLength(1);
@@ -84,7 +84,7 @@ describe("Per-section objective selector", () => {
     for (let seed = 0; seed < 100; seed++) {
       const graph = generateSiteLayout(1, "site", "Test", 1);
       graph.nodes.forEach(n => { n.treasure = { coins: 12, items: ["existing item"] }; });
-      attachSiteObjectives(graph, { act: 1, seed: String(seed) });
+      attachSiteObjectives(graph, { discoveringLevel: 1, act: 1, seed: String(seed) });
       for (const room of graph.nodes) if (room.objective?.generated?.treasureItem) {
         seen.add(room.objective.generated.kind);
         expect(room.treasure!.items).toContain(room.objective.generated.treasureItem);

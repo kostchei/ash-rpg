@@ -1,0 +1,1274 @@
+{
+  "source": "Shadowdark RPG core rules, Treasure 0-3 / 4-6 / 7-9 / 10+ (pp. 270-277)",
+  "extractedFrom": "D:/Code/Core_Dark/tmp/extracted_text/Shadowdark_RPG_-_V4-8.json",
+  "tables": [
+    {
+      "band": "0-3",
+      "minLevel": 0,
+      "maxLevel": 3,
+      "entries": [
+        {
+          "min": 1,
+          "max": 1,
+          "description": "Bent tin fork (1 cp)",
+          "valueGp": 0.01
+        },
+        {
+          "min": 2,
+          "max": 3,
+          "description": "Muddy torch (2 cp)",
+          "valueGp": 0.02
+        },
+        {
+          "min": 4,
+          "max": 5,
+          "description": "Bag of smooth pebbles (2 cp)",
+          "valueGp": 0.02
+        },
+        {
+          "min": 6,
+          "max": 7,
+          "description": "10 cp in a greasy pouch",
+          "valueGp": 0.1,
+          "coins": {
+            "gp": 0,
+            "sp": 0,
+            "cp": 10
+          }
+        },
+        {
+          "min": 8,
+          "max": 9,
+          "description": "Rusty lantern with shattered glass (1 gp)",
+          "valueGp": 1
+        },
+        {
+          "min": 10,
+          "max": 11,
+          "description": "Silver tooth (1 gp)",
+          "valueGp": 1
+        },
+        {
+          "min": 12,
+          "max": 13,
+          "description": "Dull dagger (1 gp)",
+          "valueGp": 1
+        },
+        {
+          "min": 14,
+          "max": 15,
+          "description": "Two empty glass vials (6 gp)",
+          "valueGp": 6
+        },
+        {
+          "min": 16,
+          "max": 17,
+          "description": "60 sp in a rotten boot",
+          "valueGp": 6,
+          "coins": {
+            "gp": 0,
+            "sp": 60,
+            "cp": 0
+          }
+        },
+        {
+          "min": 18,
+          "max": 19,
+          "description": "Cracked, handheld mirror (8 gp)",
+          "valueGp": 8
+        },
+        {
+          "min": 20,
+          "max": 21,
+          "description": "Chipped greataxe (9 gp)",
+          "valueGp": 9
+        },
+        {
+          "min": 22,
+          "max": 23,
+          "description": "10 gp in a moldy, wood box",
+          "valueGp": 10,
+          "coins": {
+            "gp": 10,
+            "sp": 0,
+            "cp": 0
+          }
+        },
+        {
+          "min": 24,
+          "max": 25,
+          "description": "Chip of an emerald (10 gp)",
+          "valueGp": 10
+        },
+        {
+          "min": 26,
+          "max": 27,
+          "description": "Longbow and bundle of 40 arrows (10 gp)",
+          "valueGp": 10
+        },
+        {
+          "min": 28,
+          "max": 29,
+          "description": "Dusty, leather armor dyed black (10 gp)",
+          "valueGp": 10
+        },
+        {
+          "min": 30,
+          "max": 31,
+          "description": "Scuffed, heavy shield (10 gp)",
+          "valueGp": 10
+        },
+        {
+          "min": 32,
+          "max": 33,
+          "description": "Simple, well-made bastard sword (10 gp)",
+          "valueGp": 10
+        },
+        {
+          "min": 34,
+          "max": 35,
+          "description": "12 gp in the pocket of a ripped cloak",
+          "valueGp": 12,
+          "coins": {
+            "gp": 12,
+            "sp": 0,
+            "cp": 0
+          }
+        },
+        {
+          "min": 36,
+          "max": 37,
+          "description": "Wavy-bladed greatsword (12 gp)",
+          "valueGp": 12
+        },
+        {
+          "min": 38,
+          "max": 39,
+          "description": "Pair of elf-forged shortswords (14 gp)",
+          "valueGp": 14
+        },
+        {
+          "min": 40,
+          "max": 41,
+          "description": "Golden bowl (15 gp)",
+          "valueGp": 15
+        },
+        {
+          "min": 42,
+          "max": 43,
+          "description": "Obsidian statuette of Shune the Vile (15 gp)",
+          "valueGp": 15
+        },
+        {
+          "min": 44,
+          "max": 45,
+          "description": "Undersized pearl (20 gp)",
+          "valueGp": 20
+        },
+        {
+          "min": 46,
+          "max": 47,
+          "description": "Jade-and-gold scarab pin (20 gp)",
+          "valueGp": 20
+        },
+        {
+          "min": 48,
+          "max": 49,
+          "description": "Bag of 10 silver spikes (2 gp each)",
+          "valueGp": 20
+        },
+        {
+          "min": 50,
+          "max": 53,
+          "description": "Mithral locket with a painting of a halfling (20 gp)",
+          "valueGp": 20
+        },
+        {
+          "min": 54,
+          "max": 55,
+          "description": "Two finely forged dwarven shields (20 gp)",
+          "valueGp": 20
+        },
+        {
+          "min": 56,
+          "max": 57,
+          "description": "Pair of silvered daggers (10 gp each)",
+          "valueGp": 20
+        },
+        {
+          "min": 58,
+          "max": 59,
+          "description": "Copper-and-gold mead tankard (20 gp)",
+          "valueGp": 20
+        },
+        {
+          "min": 60,
+          "max": 61,
+          "description": "Bundle of five red dragon scales (5 gp each)",
+          "valueGp": 25
+        },
+        {
+          "min": 62,
+          "max": 63,
+          "description": "Light, warm cloak woven of spidersilk (25 gp)",
+          "valueGp": 25
+        },
+        {
+          "min": 64,
+          "max": 65,
+          "description": "Fine set of ivory game pieces (25 gp)",
+          "valueGp": 25
+        },
+        {
+          "min": 66,
+          "max": 67,
+          "description": "Half-finished suit of chainmail (30 gp)",
+          "valueGp": 30
+        },
+        {
+          "min": 68,
+          "max": 69,
+          "description": "Matched trio of warhammers (10 gp each)",
+          "valueGp": 30
+        },
+        {
+          "min": 70,
+          "max": 71,
+          "description": "Fragment of a sapphire (30 gp)",
+          "valueGp": 30
+        },
+        {
+          "min": 72,
+          "max": 73,
+          "description": "Set of silk slippers and a robe (35 gp)",
+          "valueGp": 35
+        },
+        {
+          "min": 74,
+          "max": 75,
+          "description": "Silver-and-gold circlet (40 gp)",
+          "valueGp": 40
+        },
+        {
+          "min": 76,
+          "max": 77,
+          "description": "Radiant, polished pearl (40 gp)",
+          "valueGp": 40
+        },
+        {
+          "min": 78,
+          "max": 79,
+          "description": "Mithral shield etched with soaring dragons (40 gp)",
+          "valueGp": 40
+        },
+        {
+          "min": 80,
+          "max": 81,
+          "description": "Gold monkey idol with a ruby gripped in its teeth (60 gp)",
+          "valueGp": 60
+        },
+        {
+          "min": 82,
+          "max": 83,
+          "description": "Fine suit of chainmail (60 gp)",
+          "valueGp": 60
+        },
+        {
+          "min": 84,
+          "max": 85,
+          "description": "Cracked emerald (60 gp)",
+          "valueGp": 60
+        },
+        {
+          "min": 86,
+          "max": 87,
+          "description": "Two lustrous pearls (40 gp each)",
+          "valueGp": 80
+        },
+        {
+          "min": 88,
+          "max": 89,
+          "description": "1st-tier spell scroll (80 gp)",
+          "valueGp": 80
+        },
+        {
+          "min": 90,
+          "max": 91,
+          "description": "Potion of Invisibility (80 gp)",
+          "valueGp": 80
+        },
+        {
+          "min": 92,
+          "max": 93,
+          "description": "Magic wand, 2nd-tier spell (100 gp)",
+          "valueGp": 100
+        },
+        {
+          "min": 94,
+          "max": 95,
+          "description": "Egg of The Cockatrice (100 gp)",
+          "valueGp": 100
+        },
+        {
+          "min": 96,
+          "max": 97,
+          "description": "+1 armor (benefit, curse) (150 gp)",
+          "valueGp": 150
+        },
+        {
+          "min": 98,
+          "max": 99,
+          "description": "Bag of Holding (virtue, flaw) (150 gp)",
+          "valueGp": 150
+        },
+        {
+          "min": 100,
+          "max": 100,
+          "description": "+1 magic weapon (benefit) (200 gp)",
+          "valueGp": 200
+        }
+      ]
+    },
+    {
+      "band": "4-6",
+      "minLevel": 4,
+      "maxLevel": 6,
+      "entries": [
+        {
+          "min": 1,
+          "max": 1,
+          "description": "Scattering of 3 cp",
+          "valueGp": 0.03,
+          "coins": {
+            "gp": 0,
+            "sp": 0,
+            "cp": 3
+          }
+        },
+        {
+          "min": 2,
+          "max": 3,
+          "description": "Wooden ring carved with knot pattern (5 cp)",
+          "valueGp": 0.05
+        },
+        {
+          "min": 4,
+          "max": 5,
+          "description": "Heavy iron key (1 sp)",
+          "valueGp": 0.1
+        },
+        {
+          "min": 6,
+          "max": 7,
+          "description": "Steel-banded wooden shield (10 gp)",
+          "valueGp": 10
+        },
+        {
+          "min": 8,
+          "max": 9,
+          "description": "Golden anchor necklace (10 gp)",
+          "valueGp": 10
+        },
+        {
+          "min": 10,
+          "max": 11,
+          "description": "Bag of 20 glass marbles (5 sp each)",
+          "valueGp": 10
+        },
+        {
+          "min": 12,
+          "max": 13,
+          "description": "Serrated greatsword (12 gp)",
+          "valueGp": 12
+        },
+        {
+          "min": 14,
+          "max": 15,
+          "description": "Three silver-tipped javelins (4 gp each)",
+          "valueGp": 12
+        },
+        {
+          "min": 16,
+          "max": 17,
+          "description": "Bag of rare spices (15 gp)",
+          "valueGp": 15
+        },
+        {
+          "min": 18,
+          "max": 19,
+          "description": "Mahogany pipe with ivory inlay (25 gp)",
+          "valueGp": 25
+        },
+        {
+          "min": 20,
+          "max": 21,
+          "description": "Set of polished bone dice (25 gp)",
+          "valueGp": 25
+        },
+        {
+          "min": 22,
+          "max": 23,
+          "description": "Copper flask etched with an owl (30 gp)",
+          "valueGp": 30
+        },
+        {
+          "min": 24,
+          "max": 25,
+          "description": "Eyepatch made of batwing leather (30 gp)",
+          "valueGp": 30
+        },
+        {
+          "min": 26,
+          "max": 27,
+          "description": "Leather bandoleer with 10 blue bottles (3 gp each)",
+          "valueGp": 30
+        },
+        {
+          "min": 28,
+          "max": 29,
+          "description": "Small oil painting of an elf woman (35 gp)",
+          "valueGp": 35
+        },
+        {
+          "min": 30,
+          "max": 31,
+          "description": "Opalescent pearl (40 gp)",
+          "valueGp": 40
+        },
+        {
+          "min": 32,
+          "max": 33,
+          "description": "Ceremonial, gold-capped warhammer (40 gp)",
+          "valueGp": 40
+        },
+        {
+          "min": 34,
+          "max": 35,
+          "description": "Silver ring with a miniature emerald (40 gp)",
+          "valueGp": 40
+        },
+        {
+          "min": 36,
+          "max": 37,
+          "description": "Tapestry of a unicorn in a forest glade (45 gp)",
+          "valueGp": 45
+        },
+        {
+          "min": 38,
+          "max": 39,
+          "description": "Goblin-made clockwork dragon doll (45 gp)",
+          "valueGp": 45
+        },
+        {
+          "min": 40,
+          "max": 41,
+          "description": "Half-complete suit of chainmail (50 gp)",
+          "valueGp": 50
+        },
+        {
+          "min": 42,
+          "max": 43,
+          "description": "Mace inlaid with gold holy symbols (50 gp)",
+          "valueGp": 50
+        },
+        {
+          "min": 44,
+          "max": 45,
+          "description": "Delicate, ancient vase of Myrkhosian make (50 gp)",
+          "valueGp": 50
+        },
+        {
+          "min": 46,
+          "max": 47,
+          "description": "Rare incense that is repulsive to undead (50 gp)",
+          "valueGp": 50
+        },
+        {
+          "min": 48,
+          "max": 49,
+          "description": "Minotaur hoof with a gold horseshoe (50 gp)",
+          "valueGp": 50
+        },
+        {
+          "min": 50,
+          "max": 53,
+          "description": "Longsword with a fiery pearl set in the pommel (50 gp)",
+          "valueGp": 50
+        },
+        {
+          "min": 54,
+          "max": 55,
+          "description": "Green crystal statuette of Memnon (50 gp)",
+          "valueGp": 50
+        },
+        {
+          "min": 56,
+          "max": 57,
+          "description": "Crimson holy symbol of Ramlaat with small ruby (55 gp)",
+          "valueGp": 55
+        },
+        {
+          "min": 58,
+          "max": 59,
+          "description": "Six black candles traced with gold runes (10 gp each)",
+          "valueGp": 60
+        },
+        {
+          "min": 60,
+          "max": 61,
+          "description": "Suit of dwarf-made chainmail (60 gp)",
+          "valueGp": 60
+        },
+        {
+          "min": 62,
+          "max": 63,
+          "description": "Dragonbone crossbow carved as roaring dragon (60 gp)",
+          "valueGp": 60
+        },
+        {
+          "min": 64,
+          "max": 65,
+          "description": "Half-complete suit of plate mail (65 gp)",
+          "valueGp": 65
+        },
+        {
+          "min": 66,
+          "max": 67,
+          "description": "Magnetic, iridescent chunk of meteorite (70 gp)",
+          "valueGp": 70
+        },
+        {
+          "min": 68,
+          "max": 69,
+          "description": "Full-length mirror set in gold frame (70 gp)",
+          "valueGp": 70
+        },
+        {
+          "min": 70,
+          "max": 71,
+          "description": "Large, green scarab encased in amber (75 gp)",
+          "valueGp": 75
+        },
+        {
+          "min": 72,
+          "max": 73,
+          "description": "Lute carved from ironwood with gold hardware (75 gp)",
+          "valueGp": 75
+        },
+        {
+          "min": 74,
+          "max": 75,
+          "description": "Ivory tusk carved with angels battling demons (80 gp)",
+          "valueGp": 80
+        },
+        {
+          "min": 76,
+          "max": 77,
+          "description": "Mithral shield inlaid with small, blue pearls (80 gp)",
+          "valueGp": 80
+        },
+        {
+          "min": 78,
+          "max": 79,
+          "description": "Two intact griffon eggs (40 gp each)",
+          "valueGp": 80
+        },
+        {
+          "min": 80,
+          "max": 81,
+          "description": "Suit of blackened-steel plate mail (130 gp)",
+          "valueGp": 130
+        },
+        {
+          "min": 82,
+          "max": 83,
+          "description": "2nd-tier spell scroll (140 gp)",
+          "valueGp": 140
+        },
+        {
+          "min": 84,
+          "max": 85,
+          "description": "Potion of Healing (150 gp)",
+          "valueGp": 150
+        },
+        {
+          "min": 86,
+          "max": 87,
+          "description": "3rd-tier spell scroll (200 gp)",
+          "valueGp": 200
+        },
+        {
+          "min": 88,
+          "max": 89,
+          "description": "Potion of Flying (200 gp)",
+          "valueGp": 200
+        },
+        {
+          "min": 90,
+          "max": 91,
+          "description": "Potion of Giant Strength (200 gp)",
+          "valueGp": 200
+        },
+        {
+          "min": 92,
+          "max": 93,
+          "description": "Magic wand, 3rd-tier spell (curse) (250 gp)",
+          "valueGp": 250
+        },
+        {
+          "min": 94,
+          "max": 95,
+          "description": "Ring of Feather Falling (250 gp)",
+          "valueGp": 250
+        },
+        {
+          "min": 96,
+          "max": 97,
+          "description": "+2 magic armor (benefit, curse) (300 gp)",
+          "valueGp": 300
+        },
+        {
+          "min": 98,
+          "max": 99,
+          "description": "Kytherian Cog (300 gp)",
+          "valueGp": 300
+        },
+        {
+          "min": 100,
+          "max": 100,
+          "description": "+2 magic weapon (benefit, curse) (500 gp)",
+          "valueGp": 500
+        }
+      ]
+    },
+    {
+      "band": "7-9",
+      "minLevel": 7,
+      "maxLevel": 9,
+      "entries": [
+        {
+          "min": 1,
+          "max": 1,
+          "description": "Broken glass shards (2 cp)",
+          "valueGp": 0.02
+        },
+        {
+          "min": 2,
+          "max": 3,
+          "description": "Pair of muddy boots (5 sp)",
+          "valueGp": 0.5
+        },
+        {
+          "min": 4,
+          "max": 5,
+          "description": "Rotting, leather pouch with 12 sp",
+          "valueGp": 1.2,
+          "coins": {
+            "gp": 0,
+            "sp": 12,
+            "cp": 0
+          }
+        },
+        {
+          "min": 6,
+          "max": 7,
+          "description": "Greatsword made of blue steel (15 gp)",
+          "valueGp": 15
+        },
+        {
+          "min": 8,
+          "max": 9,
+          "description": "Tall, thin mirror in a bronze frame (20 gp)",
+          "valueGp": 20
+        },
+        {
+          "min": 10,
+          "max": 11,
+          "description": "Pair of bastard swords with griffon pommels (20 gp)",
+          "valueGp": 20
+        },
+        {
+          "min": 12,
+          "max": 13,
+          "description": "Silver-and-gold statuette of an elf archer (25 gp)",
+          "valueGp": 25
+        },
+        {
+          "min": 14,
+          "max": 15,
+          "description": "Taxidermied smilodon (30 gp)",
+          "valueGp": 30
+        },
+        {
+          "min": 16,
+          "max": 17,
+          "description": "Cameo necklace of a human's profile (30 gp)",
+          "valueGp": 30
+        },
+        {
+          "min": 18,
+          "max": 19,
+          "description": "Ivory horn mug carved with drinking dwarves (35 gp)",
+          "valueGp": 35
+        },
+        {
+          "min": 20,
+          "max": 21,
+          "description": "Ironwood longbow engraved with silver leaves (35 gp)",
+          "valueGp": 35
+        },
+        {
+          "min": 22,
+          "max": 23,
+          "description": "Mahogany chess board with silver pieces (40 gp)",
+          "valueGp": 40
+        },
+        {
+          "min": 24,
+          "max": 25,
+          "description": "Mithral shield polished to a mirror-shine (45 gp)",
+          "valueGp": 45
+        },
+        {
+          "min": 26,
+          "max": 27,
+          "description": "Iridescent, spiralled unicorn horn (50 gp)",
+          "valueGp": 50
+        },
+        {
+          "min": 28,
+          "max": 29,
+          "description": "Basilisk egg in a silk bag (55 gp)",
+          "valueGp": 55
+        },
+        {
+          "min": 30,
+          "max": 31,
+          "description": "Gold holy symbol of Madeera with a large pearl (60 gp)",
+          "valueGp": 60
+        },
+        {
+          "min": 32,
+          "max": 33,
+          "description": "Red dragon mask with gold filigree (65 gp)",
+          "valueGp": 65
+        },
+        {
+          "min": 34,
+          "max": 35,
+          "description": "Gold censer with hooded, skeletal figures (70 gp)",
+          "valueGp": 70
+        },
+        {
+          "min": 36,
+          "max": 37,
+          "description": "Large, marble statue of an armored angel (70 gp)",
+          "valueGp": 70
+        },
+        {
+          "min": 38,
+          "max": 39,
+          "description": "Chainmail with several rows of gold links (75 gp)",
+          "valueGp": 75
+        },
+        {
+          "min": 40,
+          "max": 41,
+          "description": "Clutch of three green cockatrice eggs (25 gp each)",
+          "valueGp": 75
+        },
+        {
+          "min": 42,
+          "max": 43,
+          "description": "Oak lockbox filled to the brim with 80 gp",
+          "valueGp": 80,
+          "coins": {
+            "gp": 80,
+            "sp": 0,
+            "cp": 0
+          }
+        },
+        {
+          "min": 44,
+          "max": 45,
+          "description": "Blue silk robe embroidered with silver moons (80 gp)",
+          "valueGp": 80
+        },
+        {
+          "min": 46,
+          "max": 47,
+          "description": "Radiant giant pearl (80 gp)",
+          "valueGp": 80
+        },
+        {
+          "min": 48,
+          "max": 49,
+          "description": "Lantern made of intricate stained glass (80 gp)",
+          "valueGp": 80
+        },
+        {
+          "min": 50,
+          "max": 53,
+          "description": "Life-sized, jointed python of polished gold (80 gp)",
+          "valueGp": 80
+        },
+        {
+          "min": 54,
+          "max": 55,
+          "description": "Oil painting of a famous bard (85 gp)",
+          "valueGp": 85
+        },
+        {
+          "min": 56,
+          "max": 57,
+          "description": "Chunk of meteorite sculpted into a tentacled idol (85 gp)",
+          "valueGp": 85
+        },
+        {
+          "min": 58,
+          "max": 59,
+          "description": "Black silk surcoat embroidered with a gold lion (90 gp)",
+          "valueGp": 90
+        },
+        {
+          "min": 60,
+          "max": 61,
+          "description": "Pair of lustrous pearls in a silver lockbox (90 gp)",
+          "valueGp": 90
+        },
+        {
+          "min": 62,
+          "max": 63,
+          "description": "Gilded helm plumed with roc feathers (95 gp)",
+          "valueGp": 95
+        },
+        {
+          "min": 64,
+          "max": 65,
+          "description": "Hand-drawn bestiary of rare creatures (95 gp)",
+          "valueGp": 95
+        },
+        {
+          "min": 66,
+          "max": 67,
+          "description": "Wyvern hatchling encased in amber (110 gp)",
+          "valueGp": 110
+        },
+        {
+          "min": 68,
+          "max": 69,
+          "description": "Pendant with three lambent pearls (120 gp)",
+          "valueGp": 120
+        },
+        {
+          "min": 70,
+          "max": 71,
+          "description": "Life-sized, obsidian statue of a galloping horse (120 gp)",
+          "valueGp": 120
+        },
+        {
+          "min": 72,
+          "max": 73,
+          "description": "Glittering, faceted emerald (120 gp)",
+          "valueGp": 120
+        },
+        {
+          "min": 74,
+          "max": 75,
+          "description": "Potion of Healing (150 gp)",
+          "valueGp": 150
+        },
+        {
+          "min": 76,
+          "max": 77,
+          "description": "Potion of Polymorph (200 gp)",
+          "valueGp": 200
+        },
+        {
+          "min": 78,
+          "max": 79,
+          "description": "Magic wand, 3rd-tier spell (250 gp)",
+          "valueGp": 250
+        },
+        {
+          "min": 80,
+          "max": 81,
+          "description": "4th-tier spell scroll (260 gp)",
+          "valueGp": 260
+        },
+        {
+          "min": 82,
+          "max": 83,
+          "description": "Crystal Ball (260 gp)",
+          "valueGp": 260
+        },
+        {
+          "min": 84,
+          "max": 85,
+          "description": "Magic wand, 4th-tier spell (flaw) (300 gp)",
+          "valueGp": 300
+        },
+        {
+          "min": 86,
+          "max": 87,
+          "description": "Immovable Rod (300 gp)",
+          "valueGp": 300
+        },
+        {
+          "min": 88,
+          "max": 89,
+          "description": "+2 magic armor (benefit) (300 gp)",
+          "valueGp": 300
+        },
+        {
+          "min": 90,
+          "max": 91,
+          "description": "+2 mithral magic armor (benefit, virtue) (320 gp)",
+          "valueGp": 320
+        },
+        {
+          "min": 92,
+          "max": 93,
+          "description": "Scorpion idol, one Death's Sting blessing (320 gp)",
+          "valueGp": 320
+        },
+        {
+          "min": 94,
+          "max": 95,
+          "description": "Necromancy circle, one Ghostwalk blessing (350 gp)",
+          "valueGp": 350
+        },
+        {
+          "min": 96,
+          "max": 97,
+          "description": "Owl statue, one Arcane Eye blessing (350 gp)",
+          "valueGp": 350
+        },
+        {
+          "min": 98,
+          "max": 99,
+          "description": "+2 magic weapon (benefit, flaw) (500 gp)",
+          "valueGp": 500
+        },
+        {
+          "min": 100,
+          "max": 100,
+          "description": "+3 magic weapon (benefit, virtue) (900 gp)",
+          "valueGp": 900
+        }
+      ]
+    },
+    {
+      "band": "10+",
+      "minLevel": 10,
+      "maxLevel": null,
+      "entries": [
+        {
+          "min": 1,
+          "max": 1,
+          "description": "Three tarnished silver plates (5 sp each)",
+          "valueGp": 1.5
+        },
+        {
+          "min": 2,
+          "max": 3,
+          "description": "Soapstone statuette of Gede with crumbled head (3 gp)",
+          "valueGp": 3
+        },
+        {
+          "min": 4,
+          "max": 5,
+          "description": "Half-empty cask of dwarvish honey mead (5 gp)",
+          "valueGp": 5
+        },
+        {
+          "min": 6,
+          "max": 7,
+          "description": "Damaged chainmail in need of repair (50 gp)",
+          "valueGp": 50
+        },
+        {
+          "min": 8,
+          "max": 9,
+          "description": "Five matching, ceremonial greatswords (12 gp each)",
+          "valueGp": 60
+        },
+        {
+          "min": 10,
+          "max": 11,
+          "description": "Chipped emerald worth half its value (60 gp)",
+          "valueGp": 60
+        },
+        {
+          "min": 12,
+          "max": 13,
+          "description": "Gold ring with a large, black pearl (65 gp)",
+          "valueGp": 65
+        },
+        {
+          "min": 14,
+          "max": 15,
+          "description": "Suit of crimson chainmail with matching shield (70 gp)",
+          "valueGp": 70
+        },
+        {
+          "min": 16,
+          "max": 17,
+          "description": "Giant pearl in the mouth of a gold-dipped bat (100 gp)",
+          "valueGp": 100
+        },
+        {
+          "min": 18,
+          "max": 19,
+          "description": "Stained glass pane of St. Terragnis vs. a dragon (110 gp)",
+          "valueGp": 110
+        },
+        {
+          "min": 20,
+          "max": 21,
+          "description": "Marble throne with giant pearl in headrest (115 gp)",
+          "valueGp": 115
+        },
+        {
+          "min": 22,
+          "max": 23,
+          "description": "Dagger with emerald in the pommel (120 gp)",
+          "valueGp": 120
+        },
+        {
+          "min": 24,
+          "max": 25,
+          "description": "A trio of pearls with blue and violet hues (40 gp each)",
+          "valueGp": 120
+        },
+        {
+          "min": 26,
+          "max": 27,
+          "description": "Suit of plate mail shaped to look like a minotaur (130 gp)",
+          "valueGp": 130
+        },
+        {
+          "min": 28,
+          "max": 29,
+          "description": "Suit of blue plate mail with crashing wave motif (130 gp)",
+          "valueGp": 130
+        },
+        {
+          "min": 30,
+          "max": 31,
+          "description": "Jade sculpture of a meditating elephant-man (140 gp)",
+          "valueGp": 140
+        },
+        {
+          "min": 32,
+          "max": 33,
+          "description": "Masterwork lute by realm's most famous luthier (140 gp)",
+          "valueGp": 140
+        },
+        {
+          "min": 34,
+          "max": 35,
+          "description": "Dragonbone greataxe with a ruby in pommel (220 gp)",
+          "valueGp": 220
+        },
+        {
+          "min": 36,
+          "max": 37,
+          "description": "Gold scarab dotted with miniature emeralds (220 gp)",
+          "valueGp": 220
+        },
+        {
+          "min": 38,
+          "max": 39,
+          "description": "Chest brimming with 230 gp",
+          "valueGp": 230,
+          "coins": {
+            "gp": 230,
+            "sp": 0,
+            "cp": 0
+          }
+        },
+        {
+          "min": 40,
+          "max": 41,
+          "description": "Silvered staff tipped with a ruby held in a claw (220 gp)",
+          "valueGp": 220
+        },
+        {
+          "min": 42,
+          "max": 43,
+          "description": "Only existing painting of an ancient king (240 gp)",
+          "valueGp": 240
+        },
+        {
+          "min": 44,
+          "max": 45,
+          "description": "Gold pendant bearing a teardrop-cut ruby (240 gp)",
+          "valueGp": 240
+        },
+        {
+          "min": 46,
+          "max": 47,
+          "description": "Giant, egg-shaped emerald (240 gp)",
+          "valueGp": 240
+        },
+        {
+          "min": 48,
+          "max": 49,
+          "description": "Silk robe with four pearls as buttons (240 gp)",
+          "valueGp": 240
+        },
+        {
+          "min": 50,
+          "max": 53,
+          "description": "Silver skull with a ruby in the eye (240 gp)",
+          "valueGp": 240
+        },
+        {
+          "min": 54,
+          "max": 55,
+          "description": "Mithral suit of elvish chainmail (240 gp)",
+          "valueGp": 240
+        },
+        {
+          "min": 56,
+          "max": 57,
+          "description": "Opalized giant conch shell with silver inlay (250 gp)",
+          "valueGp": 250
+        },
+        {
+          "min": 58,
+          "max": 59,
+          "description": "Gold sarcophagus inscribed with lost language (250 gp)",
+          "valueGp": 250
+        },
+        {
+          "min": 60,
+          "max": 61,
+          "description": "Chunk of meteorite wrapped around a ruby (250 gp)",
+          "valueGp": 250
+        },
+        {
+          "min": 62,
+          "max": 63,
+          "description": "4th-tier spell scroll (260 gp)",
+          "valueGp": 260
+        },
+        {
+          "min": 64,
+          "max": 65,
+          "description": "Velvet bag holding a lustrous sapphire (280 gp)",
+          "valueGp": 280
+        },
+        {
+          "min": 66,
+          "max": 67,
+          "description": "2 Potions of Healing (300 gp)",
+          "valueGp": 300
+        },
+        {
+          "min": 68,
+          "max": 69,
+          "description": "Silver torc with a sapphire and two pearls (360 gp)",
+          "valueGp": 360
+        },
+        {
+          "min": 70,
+          "max": 71,
+          "description": "Flawless, dazzling diamond (360 gp)",
+          "valueGp": 360
+        },
+        {
+          "min": 72,
+          "max": 73,
+          "description": "Taxidermied adult dragon (360 gp)",
+          "valueGp": 360
+        },
+        {
+          "min": 74,
+          "max": 75,
+          "description": "5th-tier spell scroll (360 gp)",
+          "valueGp": 360
+        },
+        {
+          "min": 76,
+          "max": 77,
+          "description": "Potion of Extirpation (360 gp)",
+          "valueGp": 360
+        },
+        {
+          "min": 78,
+          "max": 79,
+          "description": "Magic wand, 5th-tier spell (virtue, flaw) (360 gp)",
+          "valueGp": 360
+        },
+        {
+          "min": 80,
+          "max": 81,
+          "description": "Giant diamond, casts wish once without fail (720 gp)",
+          "valueGp": 720
+        },
+        {
+          "min": 82,
+          "max": 83,
+          "description": "Portable Hole (720 gp)",
+          "valueGp": 720
+        },
+        {
+          "min": 84,
+          "max": 85,
+          "description": "Ruby-eyed, gold idol, 3 Demonskin blessings (840 gp)",
+          "valueGp": 840
+        },
+        {
+          "min": 86,
+          "max": 87,
+          "description": "Scroll of the Covenant, 3 Divine Halo blessings (840 gp)",
+          "valueGp": 840
+        },
+        {
+          "min": 88,
+          "max": 89,
+          "description": "Brak's Cube of Perfection (840 gp)",
+          "valueGp": 840
+        },
+        {
+          "min": 90,
+          "max": 91,
+          "description": "Richly woven Flying Carpet (840 gp)",
+          "valueGp": 840
+        },
+        {
+          "min": 92,
+          "max": 93,
+          "description": "+3 mithral magic armor (benefit, virtue) (900 gp)",
+          "valueGp": 900
+        },
+        {
+          "min": 94,
+          "max": 95,
+          "description": "+3 magic weapon (2 benefits) (900 gp)",
+          "valueGp": 900
+        },
+        {
+          "min": 96,
+          "max": 97,
+          "description": "The fearsome Obsidian Witchknife (1,200 gp)",
+          "valueGp": 1200
+        },
+        {
+          "min": 98,
+          "max": 99,
+          "description": "The hallowed Armor of Saint Terragnis (1,200 gp)",
+          "valueGp": 1200
+        },
+        {
+          "min": 100,
+          "max": 100,
+          "description": "The mighty Staff of Ord (1,200 gp)",
+          "valueGp": 1200
+        }
+      ]
+    }
+  ]
+}

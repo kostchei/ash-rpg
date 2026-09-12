@@ -80,6 +80,8 @@ export interface ExpeditionObjective {
   notes?: string;
 }
 
+import type { QuestRiskLevel } from "./danger.js";
+
 export interface TavernLead {
   id: string;
   claim: string;
@@ -95,6 +97,16 @@ export interface TavernLead {
   apparentDanger?: string;
   preparationHint?: string;
   promisedReward?: string;
+  /** Explicit quest risk rating (Unsafe/Risky/Deadly), set when the offer is created. */
+  riskLevel?: QuestRiskLevel;
+  /** Level band the offer was priced for; never repriced when characters level up. */
+  intendedLevel?: number;
+  /** Meaningful encounters the offer was priced for. */
+  expectedEncounters?: number;
+  /** Whole-party budget in GP, split between the promised fee and recoverable valuables. */
+  rewardBudgetGp?: number;
+  patronFeeGp?: number;
+  recoverableValueGp?: number;
   accuracy?: "true" | "distorted" | "false";
   isPathLead?: boolean;
   isFollowUp?: boolean;

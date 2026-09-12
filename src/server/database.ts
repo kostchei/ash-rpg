@@ -12,6 +12,7 @@ import Database from "better-sqlite3";
 import { HEX_DEFINITIONS, MONSTERS, STARTING_EQUIPMENT, SPELLS, ITEMS } from "../shared/content.js";
 import { generateHexMap } from "./generators/hex-map.js";
 import { generateProceduralRegion, type GeneratedRegionWorld } from "./generators/procedural-region.js";
+import { questRewardBudget } from "../shared/quest-rewards.js";
 import { CUSTOM_MONSTER_TEMPLATES, resolveMonsterEntry } from "../shared/monster-aliases.js";
 import { abilityModifier, calculateDerivedAc, calculateGearSlots, computeHpStatus, getMonsterAcHint } from "./rules.js";
 import type {
@@ -1849,6 +1850,20 @@ export class AshDatabase {
     }));
   }
 
+  /**
+   * Average level of the characters currently in the field. Sets which treasure
+   * table unguarded finds are rolled on and prices newly offered jobs.
+   */
+  averageActivePartyLevel(campaignId: number): number {
+    const levels = (
+      this.db
+        .prepare("SELECT level FROM characters WHERE campaign_id = ? AND roster_status != 'reserve'")
+        .all(campaignId) as Array<{ level: number }>
+    ).map((row) => Number(row.level));
+    if (levels.length === 0) throw new Error(`Campaign ${campaignId} has no active characters`);
+    return Math.max(1, Math.round(levels.reduce((sum, level) => sum + level, 0) / levels.length));
+  }
+
   getTavernLeads(campaignId: number): TavernLead[] {
     const row = this.db.prepare("SELECT tavern_establishment_json FROM campaigns WHERE id = ?").get(campaignId) as { tavern_establishment_json: string | null };
     const tavern: TavernEstablishment | null = row?.tavern_establishment_json ? JSON.parse(row.tavern_establishment_json) : null;
@@ -2748,6 +2763,13 @@ export class AshDatabase {
       if (campRow?.tavern_establishment_json) {
         try {
           const establishment: TavernEstablishment = JSON.parse(campRow.tavern_establishment_json);
+          // Price the follow-up once, from the party that earned it.
+          const followUpReward = questRewardBudget({
+            intendedLevel: this.averageActivePartyLevel(campaignId),
+            encounters: 3,
+            risk: "deadly",
+            patronShare: 0.5,
+          });
           const followUpLead: TavernLead = {
             id: `lead_surveyor_followup_${campaignId}`,
             title: "Rescued Surveyor's Account: The Karst Siphons",
@@ -2756,8 +2778,15 @@ export class AshDatabase {
             targetHexId: "00",
             targetSiteId: path.activeSituation?.siteId ?? "",
             directionHint: "Down through the waterworks overflow shaft",
-            dangerHint: "Tier 3 Threat · Deep Karst pressure and mind-siphoning slimes",
+            dangerHint: "Deep Karst pressure and mind-siphoning slimes",
             preparationHint: "Water-breathing draughts or kuo-toa gill charms",
+            riskLevel: followUpReward.risk,
+            intendedLevel: followUpReward.intendedLevel,
+            expectedEncounters: followUpReward.encounters,
+            rewardBudgetGp: followUpReward.totalGp,
+            patronFeeGp: followUpReward.patronFeeGp,
+            recoverableValueGp: followUpReward.recoverableValueGp,
+            promisedReward: `${followUpReward.patronFeeGp} GP raised by the town council for charting the siphons, against roughly ${followUpReward.recoverableValueGp} GP of salvage in the flooded works.`,
             accuracy: "true",
             isPathLead: true,
             isFollowUp: true,
@@ -2768,7 +2797,9 @@ export class AshDatabase {
               .prepare("UPDATE campaigns SET tavern_establishment_json = ? WHERE id = ?")
               .run(JSON.stringify(establishment), campaignId);
           }
-        } catch {}
+        } catch (error) {
+          throw new Error(`Failed to offer the surveyor follow-up lead for campaign ${campaignId}: ${(error as Error).message}`);
+        }
       }
     }
 

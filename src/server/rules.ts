@@ -1145,25 +1145,6 @@ export function resolveInitiativeRoll(
   return { roll, total: roll + dexMod };
 }
 
-export function generateTreasureReward(
-  tier = 1,
-  rng: RandomSource = systemRandom,
-): {
-  coins: { gp: number; sp: number };
-  items: string[];
-} {
-  const gp = rollDie(6, rng) * 10 + rollDie(6, rng) * 5 * tier;
-  const sp = rollDie(6, rng) * 5;
-  const items: string[] = [];
-  if (rollDie(6, rng) >= 4) {
-    items.push(tier >= 2 ? "healing_salve" : "holy_water");
-  }
-  return {
-    coins: { gp, sp },
-    items,
-  };
-}
-
 export function computeHpStatus(
   currentHp: number,
   maxHp: number,

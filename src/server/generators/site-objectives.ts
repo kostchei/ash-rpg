@@ -2,6 +2,7 @@ import type { DungeonGraphState } from "../../shared/types.js";
 import { SITE_OBJECTIVE_TYPES, type RescuedNpc, type SiteObjectiveType } from "../../shared/site-objectives.js";
 import { rollDungeonNpc } from "../rules.js";
 import { createRandomSource } from "./prng.js";
+import { generateUnguardedTreasure } from "../rewards/core-treasure.js";
 
 const RESCUE_KINDS: SiteObjectiveType[] = ["rescue_captive", "rescue_companion"];
 
@@ -57,6 +58,8 @@ const aliases: Record<string, string> = { the_stolen_dawn: "stolen_dawn", the_va
 export function attachSiteObjectives(graph: DungeonGraphState, options: {
   pathId?: string; act: number; seed: string;
   primary?: { title: string; deedId?: string };
+  /** Level of the characters exploring; sets which treasure table a treasure-shaped objective rolls on. */
+  discoveringLevel: number;
 }): void {
   const sections = graph.siteStructure?.sections;
   if (!sections?.length) return;
@@ -125,7 +128,11 @@ export function attachSiteObjectives(graph: DungeonGraphState, options: {
     const evidence = `The ${mark} account names ${contact}, a ${profile.witness}, as a source on ${subject}. Its route sketch follows the marked passage ${terminal ? "back toward this site's entrance" : "to the next section's entrance"}.`;
     const nextAction = terminal ? `Ask after ${contact} through local contacts to verify ${subject} before committing to a remedy.`
       : `Inspect the entrance to the next section for the handler's matching mark; choose whether to continue or retreat first.`;
+    // Five of the fifteen objective kinds are treasure-shaped. The rest pay out
+    // in a rescued person, a defeated commander, an opened route or a secret
+    // learned, and place no treasure of their own.
     const treasure = ["recover_relic", "harvest_components", "treasure_cache", "exotic_materials", "monster_eggs"].includes(kind);
+    const find = treasure ? generateUnguardedTreasure(options.discoveringLevel, rng) : undefined;
     room.objective = { title: terminal && options.primary ? options.primary.title : `${verbs[kind]} ${target}`,
       deedId: terminal && options.primary?.deedId ? options.primary.deedId : id, completed: false,
       generated: { id, sectionId: section.id, kind, target,
@@ -140,9 +147,18 @@ export function attachSiteObjectives(graph: DungeonGraphState, options: {
     room.clues = [{ id: `${id}:account`, text: evidence, objectiveId: id }];
     corroborationRoom.clues = [{ id: `${id}:receipt`, objectiveId: id,
       text: `A separate ${mark} receipt bears ${contact}'s name, mentions ${subject}, and repeats the route directions. ${nextAction}` }];
-    // A physical target exists independently of the room-feature roll; one treasure find per room.
-    if (treasure) {
-      room.treasure ??= { coins: 0, items: [], claimed: false };
+    // A physical target exists independently of the room-feature roll; one
+    // treasure find per room. An area that holds nothing yet gets the objective's
+    // own contents, rolled on the table for the level of the party searching it;
+    // an area that already holds a find just gains the named target.
+    if (find) {
+      if (!room.treasure) {
+        room.treasure = {
+          coins: find.coins.gp + find.coins.sp / 10 + find.coins.cp / 100,
+          items: [...find.items],
+          claimed: false,
+        };
+      }
       if (!room.treasure.items.includes(target)) room.treasure.items.push(target);
     }
   });

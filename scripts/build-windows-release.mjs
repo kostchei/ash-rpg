@@ -12,7 +12,7 @@ if (existsSync(out)) throw new Error(`Release folder already exists: ${out}. Mov
 execFileSync('cmd.exe', ['/d', '/c', 'npm run build'], { stdio: 'inherit' });
 mkdirSync(join(out, 'runtime'), { recursive: true });
 cpSync(process.execPath, join(out, 'runtime/node.exe'));
-for (const folder of ['dist/client', 'dist/server', 'zones', 'data/bestiary', 'data/classes', 'data/oracles']) {
+for (const folder of ['dist/client', 'dist/server', 'zones', 'data/bestiary', 'data/classes', 'data/oracles', 'data/treasure']) {
   cpSync(folder, join(out, folder), { recursive: true });
 }
 for (const file of ['launch.cjs', 'Start ASH.cmd', 'READ ME.txt']) cpSync(join('scripts/release', file), join(out, file));

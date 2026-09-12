@@ -6,6 +6,9 @@ import type { Character } from "../../shared/types.js";
 import { createRandomSource } from "../generators/prng.js";
 import { applyXpEvent } from "../rewards/progression.js";
 import { resolveGroupTreasure } from "../rewards/treasure.js";
+import { generateUnguardedTreasure } from "../rewards/core-treasure.js";
+import { roomFeature } from "../room-features.js";
+import { siteRoomCount } from "../generators/site-layout.js";
 import { buildCampaignPlan } from "./campaign-plan.js";
 
 export interface AuditSimulationConfig {
@@ -136,20 +139,39 @@ export function runPathProgressionAudit(
           continue;
         }
 
-        // 1. Monster encounter groups in this site
-        const groupCount = site.monsterGroupsCount;
-        for (let g = 0; g < groupCount; g++) {
-          const groupId = `${site.id}_grp_${g}`;
-          const highestLvl = actNum === 1 ? 2 : actNum === 2 ? 5 : 8;
-          const treasureResult = resolveGroupTreasure(
-            groupId,
-            highestLvl,
-            `${runSeed}_${groupId}`,
-            runRng,
-            isFinaleSite ? "boss_hoard" : "general_monster",
-          );
+        // Walk the site's areas exactly as materializeSitePlan does: the site's
+        // own d6 size roll sets how many areas there are, and each area rolls a
+        // d10 feature. Monster areas register a group and make its one 50%
+        // carried-treasure roll; treasure areas hold an unguarded find rolled on
+        // the discovering character's table. The adventure's own caches are
+        // placed separately, below, and are not competing for those areas.
+        const authoredCaches =
+          site.authoredCaches && site.authoredCaches.length > 0
+            ? site.authoredCaches
+            : site.hasAuthoredCache && site.cacheQuality
+            ? [{ quality: site.cacheQuality, xpValue: undefined as number | undefined }]
+            : [];
 
-          if (treasureResult.present) {
+        const roomCount = siteRoomCount(runRng(6) + 1);
+        const monsterLevel = actNum === 1 ? 2 : actNum === 2 ? 5 : 8;
+
+        for (let room = 0; room < roomCount; room++) {
+          const feature = roomFeature(runRng(10) + 1);
+
+          if (feature === "solo_monster" || feature === "monster_mob" || feature === "boss_monster") {
+            const groupId = `${site.id}_rm${room}`;
+            const treasureResult = resolveGroupTreasure(
+              groupId,
+              monsterLevel,
+              `${runSeed}_${groupId}`,
+              runRng,
+              isFinaleSite && feature === "boss_monster" ? "boss_hoard" : "general_monster",
+            );
+
+            if (!treasureResult.present) {
+              negativeDrops++;
+              continue;
+            }
             positiveDrops++;
             const isAccessed = (runRng(100) / 100) < accessRate;
             if (isAccessed && treasureResult.xpValue > 0) {
@@ -158,34 +180,36 @@ export function runPathProgressionAudit(
               totalTreasureXp += treasureResult.xpValue;
               totalResetLoss += prog.resetLoss;
             }
-          } else {
-            negativeDrops++;
+            continue;
           }
+
+          if (feature !== "treasure") continue;
+
+          // An unguarded find, rolled on the discovering character's table. This
+          // is on top of the adventure's own placed caches, below.
+          const isAccessed = (runRng(100) / 100) < accessRate;
+          if (!isAccessed) continue;
+          const findXp = generateUnguardedTreasure(char.level, runRng).xpValue;
+          if (findXp === 0) continue;
+
+          const prog = applyXpEvent(char, findXp, profile, runRng);
+          char = prog.character;
+          totalTreasureXp += findXp;
+          totalResetLoss += prog.resetLoss;
         }
 
-        // 2. Authored caches and boons in this site
-        const siteCaches =
-          site.authoredCaches && site.authoredCaches.length > 0
-            ? site.authoredCaches
-            : site.hasAuthoredCache && site.cacheQuality
-            ? [{ quality: site.cacheQuality }]
-            : [];
-
-        for (const cache of siteCaches) {
+        // The adventure's own caches are placed content and are always in the
+        // site, whatever the room features rolled.
+        for (const authored of authoredCaches) {
           const isAccessed = (runRng(100) / 100) < accessRate;
-          if (isAccessed) {
-            const cacheXp =
-              cache.xpValue ??
-              (cache.quality === "legendary"
-                ? 10
-                : cache.quality === "fabulous"
-                ? 3
-                : 1);
-            const prog = applyXpEvent(char, cacheXp, profile, runRng);
-            char = prog.character;
-            totalTreasureXp += cacheXp;
-            totalResetLoss += prog.resetLoss;
-          }
+          if (!isAccessed) continue;
+          const cacheXp =
+            authored.xpValue ??
+            (authored.quality === "legendary" ? 10 : authored.quality === "fabulous" ? 3 : 1);
+          const prog = applyXpEvent(char, cacheXp, profile, runRng);
+          char = prog.character;
+          totalTreasureXp += cacheXp;
+          totalResetLoss += prog.resetLoss;
         }
 
         // 3. Site objective story XP (+1)

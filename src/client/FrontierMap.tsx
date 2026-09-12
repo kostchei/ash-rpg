@@ -1,5 +1,6 @@
 import { useId, useRef, useState } from "react";
 import type { PublicHex } from "../shared/types";
+import { DANGER_LEVEL_ABBREVIATION, dangerLevelForThreatTier } from "../shared/danger";
 import { MapViewport, useZoomAnchor, ZoomSlider } from "./MapViewport";
 import { HEX_DIRECTIONS, HEX_POLYGON, HEX_RADIUS, HEX_WIDTH, hexCenter, mapConnections, mapLabel, terrainTile, pointOfInterestTile, routeArtwork, isWaterRoute, wrapMapLabel } from "./hex-cartography";
 
@@ -96,7 +97,7 @@ export function FrontierMap({ hexes, selectedId, onSelect, partyLocation, direct
                   </>}
                   {!known && <text className="hex-unknown-symbol" y="-2">?</text>}
                   {wrapMapLabel(mapLabel(hex)).map((line, index) => <text key={index} className="hex-label" y={29 + index * 14}>{line}</text>)}
-                  {known && hex.threatTier != null && <text className="hex-tier" y="60">T{hex.threatTier}{hex.elevation != null ? ` · Elev ${hex.elevation}` : ""}</text>}
+                  {known && hex.threatTier != null && <text className="hex-tier" y="60">{DANGER_LEVEL_ABBREVIATION[dangerLevelForThreatTier(hex.threatTier)]}{hex.elevation != null ? ` · Elev ${hex.elevation}` : ""}</text>}
                   {hex.revealState === "rumored" && <circle className="hex-rumor-mark" cx="43" cy="-25" r="3" />}
                 </g>
               );
