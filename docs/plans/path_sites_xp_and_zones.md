@@ -108,7 +108,7 @@ Each row requires all three acts, distinct zones, branch/reward validation, and 
 | Engine | Act I site roles | Act II site roles | Act III site roles |
 | --- | --- | --- | --- |
 | Captive Domain / Domains of Dread | Test domain laws; recover testimony | Obtain killing-condition components; investigate bargains | Establish required circumstance; confront or escape |
-| Aboleth Savant / Mind Below | Rescue and verify witnesses; expose transport | Trace control relays; obtain safe descent and aquatic access | Isolate network; prepare and enter Savant's seat |
+| Aboleth Savant / Night Below | Rescue and verify witnesses; expose transport | Trace control relays; obtain safe descent and aquatic access | Isolate network; prepare and enter Savant's seat |
 | Titans | Investigate prison disturbances | Contest restoration components and custodians | Assemble chosen resolution at final prison region |
 | Tharizdun | Prove a missing distinction | Recover anchors and repair methods | Restore critical distinctions or contain dissolution |
 | Bane | Investigate decrees and grain enforcement | Build lawful alternatives and secure providers | Contest authority and sustain the resulting settlement |
@@ -125,7 +125,7 @@ Each row requires all three acts, distinct zones, branch/reward validation, and 
 | Maruts | Identify the original violation | Obtain means and standing to correct it | Execute the correction under the warrant's conditions |
 | Witch King | Trace casualties and conversion sites | Protect people; disrupt conversion infrastructure | Break surviving invasion logistics and resolve the front |
 | Apocalypse Cult | Identify patron and actual component list | Contest components, substitutions, and ritual sites | Prevent, redirect, or defeat the resulting manifestation |
-| Eternal Cycle / Vanishing Middle | Resolve mortal quarrels; preserve an oath | Secure anchors, witnesses, and third-party reciprocity | Defend preparations and resolve the Weighing |
+| The Eternal Cycle | Resolve mortal quarrels; preserve an oath | Secure anchors, witnesses, and third-party reciprocity | Defend preparations and resolve the Weighing |
 | Githyanki / portal displacement | Secure reception and evidence | Build food capacity; investigate raids and portal control | Establish a materially sustainable settlement or ending |
 | Slumbering Catastrophe | Discover sleeper and previous hunt | Obtain/test weapons, crews, protection, and routes | Stage the killing expedition or intercept mapped rampage |
 | Sustained Catastrophe / Stolen Dawn | Preserve town supplies; prove renewal and alternative remedies | Reach caster or renewal dependency; secure descent | Restore Dawn Engine or obtain optional aid for another victory; preserve early success |
@@ -150,8 +150,8 @@ Generate treasure classification independently of item allocation. Freeze actual
 1. **Establish the rules profile and reward service.** Verify Core treasure/carousing tables and ruling boundaries; enforce server-side XP eligibility, reset, level-10 cap for this profile, ordered source awards, recipient validation, and replay protection. Support the proposed site/act awards as configurable ASH rules. Keep any extended-level profile explicit.
 2. **Assign three zones and routes.** Extend the existing saved region/zone generators; implement filtered seeded selection, distinctness, route/access checks, persistence, and concealed future destinations. Preserve domain boundary behavior.
 3. **Implement the shared adapter and site contracts.** Build semantic objectives, dependencies, multiple clues, persistent reward sources, geomorph placement, and outcome reduction through existing exploration controls.
-4. **Complete Mind Below across all acts.** Use its authored starting environments, cave routes, and final aquatic regions as three distinct zone pools. Connect prisoner transport to control infrastructure, access preparations, and final approaches. Produce one complete audited campaign before broadening support.
-5. **Prove reuse with Domains of Dread and Vanishing Middle.** Validate enclosed regional travel, conditional victory, noncombat objectives, anchors, and the Weighing. Remove Waterworks-specific UI assumptions through data-driven outcomes.
+4. **Complete Night Below across all acts.** Use its authored starting environments, cave routes, and final aquatic regions as three distinct zone pools. Connect prisoner transport to control infrastructure, access preparations, and final approaches. Produce one complete audited campaign before broadening support.
+5. **Prove reuse with Domains of Dread and Eternal Cycle.** Validate enclosed regional travel, conditional victory, noncombat objectives, anchors, and the Weighing. Remove Waterworks-specific UI assumptions through data-driven outcomes.
 6. **Implement the remaining adapter rows in batches.** Dependency/assembly engines first, then authority/services, spreading networks, and calendar/hidden-process engines. Give every antagonist variant its own coverage report. Exclude incomplete variants from random full-campaign selection.
 7. **Audit progression and rehearse play.** Run deterministic campaigns across seeds, eligible zone assignments, and active rosters 1–6. Simulate ordinary exploration, missed caches, mutually exclusive branches, peaceful resolution, retreat, no carousing, optional carousing, reserve swaps, and casualties/replacements under explicit policies. Include award ordering and threshold waste. Then rehearse representative early, middle, and late sites at the physical table.
 

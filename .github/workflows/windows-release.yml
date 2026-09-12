@@ -1,0 +1,105 @@
+name: Windows release
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: windows-release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: windows-2022
+    timeout-minutes: 30
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.18.0'
+          architecture: x64
+          cache: npm
+
+      - name: Validate release version
+        run: |
+          $version = (Get-Content package.json -Raw | ConvertFrom-Json).version
+          if ($env:GITHUB_REF_TYPE -eq 'tag' -and $env:GITHUB_REF_NAME -ne "v$version") {
+            throw "Tag $env:GITHUB_REF_NAME must match package.json version v$version"
+          }
+          "ASH_RELEASE_NAME=ASH-$version-windows-x64" >> $env:GITHUB_ENV
+
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Run tests
+        run: npm test
+      - name: Check client types
+        run: npx tsc --noEmit
+      - name: Build portable release
+        run: npm run release:windows
+
+      - name: Check the extracted ZIP with its bundled runtime
+        run: |
+          $zip = Join-Path $env:GITHUB_WORKSPACE "releases/$env:ASH_RELEASE_NAME.zip"
+          $extract = Join-Path $env:RUNNER_TEMP ('ash-release-check-' + [guid]::NewGuid().ToString('N'))
+          Expand-Archive -LiteralPath $zip -DestinationPath $extract
+          $release = Join-Path $extract $env:ASH_RELEASE_NAME
+          if (Test-Path (Join-Path $release 'data/local')) {
+            throw 'Release must not contain campaign saves'
+          }
+          & (Join-Path $release 'runtime/node.exe') scripts/release/smoke-test.mjs $release
+          if ($LASTEXITCODE -ne 0) { throw 'Extracted release verification failed' }
+
+      - name: Write SHA-256 checksum
+        run: |
+          $zip = Join-Path 'releases' "$env:ASH_RELEASE_NAME.zip"
+          $hash = (Get-FileHash -LiteralPath $zip -Algorithm SHA256).Hash.ToLowerInvariant()
+          "$hash  $env:ASH_RELEASE_NAME.zip" | Set-Content -Encoding ascii "$zip.sha256"
+
+      - name: Upload verified Windows package
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-release
+          path: |
+            releases/*.zip
+            releases/*.zip.sha256
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 30
+
+  publish:
+    if: github.event_name == 'push' && github.ref_type == 'tag'
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: windows-release
+          path: release-assets
+      - name: Publish GitHub release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          RELEASE_TAG: ${{ github.ref_name }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
+            gh release upload "$RELEASE_TAG" release-assets/* --clobber
+          else
+            flags=()
+            if [[ "$RELEASE_TAG" == *-* ]]; then flags+=(--prerelease); fi
+            gh release create "$RELEASE_TAG" release-assets/* \
+              --verify-tag --title "ASH $RELEASE_TAG — Windows" \
+              --generate-notes "${flags[@]}"
+          fi

@@ -97,7 +97,7 @@ Player responses show the fiction and discovered information. Do not expose hidd
 
 ## 4. Example: an opening expedition
 
-Illustrative Mind Below situation, not an already generated campaign:
+Illustrative Night Below situation, not an already generated campaign:
 
 1. The path places a missing surveyor, a transport agent, and evidence of prisoner traffic at a disused waterworks connected to the region's river route.
 2. A tavern contact knows the surveyor's last destination and reports nighttime wagons. Another contact offers unrelated work.
@@ -110,9 +110,9 @@ The path's hidden identity need never be announced for this sequence to work.
 
 ## 5. First implementation and acceptance
 
-Implement one shared path-content interface and connect an initial Mind Below situation through the existing tavern, map, travel, discovery, and site systems. Reuse its implemented helpers where they agree with the authored rules. Persist its relationships and outcomes; do not build a parallel set of exploration controls.
+Implement one shared path-content interface and connect an initial Night Below situation through the existing tavern, map, travel, discovery, and site systems. Reuse its implemented helpers where they agree with the authored rules. Persist its relationships and outcomes; do not build a parallel set of exploration controls.
 
-Acceptance requires: hear a grounded lead, choose an approach, travel with costs and an interruptible encounter, discover and investigate the intended site, resolve a path-relevant deed, return, receive a justified follow-up, reload, and revisit the changed location. Also verify an unrelated lead, retreat, hidden-information filtering, and that repeated actions do not duplicate consequences. The same exploration interfaces must accept another path's content without embedding Mind Below-specific assumptions.
+Acceptance requires: hear a grounded lead, choose an approach, travel with costs and an interruptible encounter, discover and investigate the intended site, resolve a path-relevant deed, return, receive a justified follow-up, reload, and revisit the changed location. Also verify an unrelated lead, retreat, hidden-information filtering, and that repeated actions do not duplicate consequences. The same exploration interfaces must accept another path's content without embedding Night Below-specific assumptions.
 
 ## 6. Deferred fix: Domains of Dread boundary loops
 

@@ -29,7 +29,7 @@ Do not roll a finale until its remedy exists in the selected variant and its pre
 - Sever {sustaining_bond} using its discovered countermeasure.
 - Keep {escape_route} open while residents depart.
 
-## Aboleth Savant / The Mind Below
+## Aboleth Savant / The Night Below
 
 ### Act 1
 
@@ -420,7 +420,7 @@ Do not roll a finale until its remedy exists in the selected variant and its pre
 - Complete the prepared containment operation.
 - Verify that stored components cannot restart the interrupted assembly.
 
-## Eternal Cycle / The Vanishing Middle
+## The Eternal Cycle
 
 ### Act 1
 

@@ -74,7 +74,7 @@ describe("Complete Expedition Loop & Adventure Path Integration", () => {
     await server.close();
   });
 
-  it("1. Generates haven tavern establishment with 3 grounded leads including Mind Below opening lead", async () => {
+  it("1. Generates haven tavern establishment with 3 grounded leads including Night Below opening lead", async () => {
     const state = server.db.getState(1, "host", null, "");
     expect(state.campaign.tavernEstablishment).toBeDefined();
     const tavern = { ...state.campaign.tavernEstablishment!, leads: server.db.getTavernLeads(1) };

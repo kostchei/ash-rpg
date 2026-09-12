@@ -987,7 +987,7 @@ function buildRegionAttempt(
 
   const adventurePath: AdventurePathRecord = {
     pathId: "the_mind_below",
-    name: "The Mind Below",
+    name: "The Night Below",
     startingZoneId: surfaceZoneId,
     caveZoneId: "living_sandstone",
     endZoneId: "faerzress_sea",

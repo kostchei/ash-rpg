@@ -1,0 +1,25 @@
+ASH TABLE COMPANION - WINDOWS PORTABLE RELEASE
+
+1. Extract the entire ZIP into a folder you can write to, such as Documents\ASH.
+2. Double-click Start ASH.cmd. Your browser opens automatically.
+3. Create a campaign. Players on the same Wi-Fi scan the lobby QR code.
+4. Keep the ASH window and computer running during play.
+5. Press Ctrl+C in the ASH window when finished.
+
+No Node.js installation, npm commands, or internet connection is needed to play.
+If Windows Firewall asks, allow access on your private home network so phones
+can connect. Guest Wi-Fi may prevent devices from reaching each other.
+
+SAVES AND UPGRADES
+Campaigns live in data\local\ash.sqlite inside this extracted folder.
+Stop ASH before copying data\local for a backup.
+When upgrading, extract into a new folder and copy your old data\local folder
+into the new release before starting. Keep the old folder until verified.
+Use the same phone browser to retain its saved player identity.
+
+TROUBLESHOOTING
+If the browser does not open, visit http://localhost:3000 on the host computer.
+Phones must use the LAN address printed in the ASH window, not localhost.
+If port 3000 is busy, close the other ASH window before starting again.
+This package is for Windows x64. The bundled runtime and dependencies are
+included under their respective licenses (see runtime and node_modules).

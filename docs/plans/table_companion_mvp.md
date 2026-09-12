@@ -12,7 +12,7 @@ The release must complete this loop:
 
 **Join → create four core characters → choose tavern activities → select a lead → travel → camp → discover a site → explore connected dungeon rooms → resolve combat → allocate treasure → return and recover → resume next session.**
 
-Validate Fighter, Thief, Priest, and Wizard at levels 1–3. Deliver a complete opening expedition using The Mind Below and a playable ordinary regional site; retain pathless exploration. A supported first template is sufficient for adventure-path generation, provided its generated people, clues, locations, and consequences are connected and saved. Completing an entire multi-act campaign is outside this release.
+Validate Fighter, Thief, Priest, and Wizard at levels 1–3. Deliver a complete opening expedition using The Night Below and a playable ordinary regional site; retain pathless exploration. A supported first template is sufficient for adventure-path generation, provided its generated people, clues, locations, and consequences are connected and saved. Completing an entire multi-act campaign is outside this release.
 
 Use one shared party position in the wilderness and one inside the active dungeon. Combat uses physical positioning and Close/Near/Far descriptions. Defer individual tactical tokens, line of sight, automated enemy turns, split-party simulation, additional class/path implementations, cloud accounts, offline mutation merging, and exhaustive spell-effect automation.
 
@@ -115,7 +115,7 @@ Acceptance: four devices submit independent choices, reconnect, and see them res
 Dependencies: M2 for leads, objectives, travel, and discovery.
 
 1. Extract a common situation interface for generating, placing, revealing, and resolving path content. Keep each path's own progression and triggers.
-2. Adapt the Mind Below opening to that interface; remove UI checks for a specific site-name substring and hard-coded rescue outcomes. Present eligible, player-readable actions with stable outcome IDs.
+2. Adapt the Night Below opening to that interface; remove UI checks for a specific site-name substring and hard-coded rescue outcomes. Present eligible, player-readable actions with stable outcome IDs.
 3. Generate and save a premise, opposing interests, a small set of linked opportunities/sites, clues, and alternative outcomes. Place them on feasible geography. Ordinary sites use the same exploration records without requiring a path.
 4. Persist site description, inhabitants, hazards, access, rewards, and changed state. Entering a settlement or shrine need not automatically mean entering a dungeon.
 5. Resolve deeds once, update relevant people/sites/path state, and create eligible follow-up leads. Neglect advances only through the path's specified trigger, not a universal watch counter.

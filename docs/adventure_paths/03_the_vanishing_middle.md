@@ -1,8 +1,8 @@
-# Adventure Path 3: The Vanishing Middle
+# Adventure Path 3: The Eternal Cycle
 
 > **System-facing campaign procedure:** the players are never told that this Adventure Path is active. They take honest work in a mortal quarrel, watch both sides reach for help, and discover — late, and by paying for it — what the help costs.
 
-In **The Vanishing Middle**, nobody is trying to destroy the world. Two absolute principles are each trying to save it, and both are correct about what is wrong. Law can end a plague, settle an inheritance, stop a raid, and hold a border. Chaos can free a slave, break a bad law, cure an incurable body, and overturn a bought verdict. Each intervention is defensible. Each intervention licenses the next one from the other side. The catastrophe is assembled entirely out of reasonable local decisions.
+In **The Eternal Cycle**, nobody is trying to destroy the world. Two absolute principles are each trying to save it, and both are correct about what is wrong. Law can end a plague, settle an inheritance, stop a raid, and hold a border. Chaos can free a slave, break a bad law, cure an incurable body, and overturn a bought verdict. Each intervention is defensible. Each intervention licenses the next one from the other side. The catastrophe is assembled entirely out of reasonable local decisions.
 
 The campaign covers **levels 1–10**, three acts, and three independently selected environments, giving 27 combinations. Its common movement is:
 
@@ -242,7 +242,7 @@ This is also the path's version of the engine framework's *failing obvious move*
 
 ## Encounter Scaling for 1–6 Players
 
-Use the Party Power, encounter ceiling, hazard, and active-enemy rules from [The Mind Below](02_the_mind_below.md) unchanged. This path adds three rules of its own.
+Use the Party Power, encounter ceiling, hazard, and active-enemy rules from [The Night Below](02_the_mind_below.md) unchanged. This path adds three rules of its own.
 
 **Matched response, not scaled response.** The Symmetry Rule sets intensity before Party Power sets the ceiling. A solo character who has spent nothing faces standard encounters at level. A solo character carrying a Black Blade faces dangerous ones — a consequence they purchased, having been shown the price.
 

@@ -64,7 +64,7 @@
     },
     {
       "pathId": "the_mind_below",
-      "name": "Aboleth Savant / The Mind Below",
+      "name": "Aboleth Savant / The Night Below",
       "acts": {
         "1": [
           {
@@ -1084,7 +1084,7 @@
     },
     {
       "pathId": "vanishing_middle",
-      "name": "Eternal Cycle / The Vanishing Middle",
+      "name": "The Eternal Cycle",
       "acts": {
         "1": [
           {

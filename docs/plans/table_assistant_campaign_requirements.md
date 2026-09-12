@@ -146,7 +146,7 @@ These sources establish reusable objective and topology patterns. They do not es
 
 Baseline verification on `9c1b2e0`: **96 tests across 14 files pass; client TypeScript checking and production build pass; working tree was clean before this documentation work.** No browser/mobile table rehearsal was performed in that assessment.
 
-The commit adds equipment/spells/contextual actions, caller support, persisted tavern/camp sessions, dungeon graphs, combat state, rewards and return controls. Existing campaign hosting, SQLite persistence, regional generation, and Mind Below integration are useful foundations. Their existence does not certify the new setup or campaign requirements.
+The commit adds equipment/spells/contextual actions, caller support, persisted tavern/camp sessions, dungeon graphs, combat state, rewards and return controls. Existing campaign hosting, SQLite persistence, regional generation, and Night Below integration are useful foundations. Their existence does not certify the new setup or campaign requirements.
 
 | Area | Remaining work or observed risk |
 | --- | --- |

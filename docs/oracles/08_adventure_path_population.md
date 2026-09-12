@@ -89,7 +89,7 @@ An ending follows fulfilled conditions, not an act number. Early resolution can 
 | II — The Control Network | Trace transport and relays; acquire protection and a feasible approach |
 | III — Break the Holding | Disable support capabilities and liberate, deceive, isolate, or confront the controlling intelligence |
 
-**Generate.** Use [The Mind Below](../adventure_paths/02_the_mind_below.md) for the 27 environment combinations, four tracks, aquatic access, and installations. Select the Savant's need before selecting its victims. Place recruiter, transport lieutenant, warden, dissident, three recurring controlled people, and the Chorus, Memory Well, and Pressure Heart. Link each surface victim to a destination and a use.
+**Generate.** Use [The Night Below](../adventure_paths/02_the_mind_below.md) for the 27 environment combinations, four tracks, aquatic access, and installations. Select the Savant's need before selecting its victims. Place recruiter, transport lieutenant, warden, dissident, three recurring controlled people, and the Chorus, Memory Well, and Pressure Heart. Link each surface victim to a destination and a use.
 
 | Requirement | Completion and capability |
 | :---------- | :------------------------ |
@@ -518,7 +518,7 @@ These deeds feed the authored tracks; do not replace the tracks with a second nu
 | II — The Matching | Face reciprocal escalation while preserving Middle names and acquiring Anchors |
 | III — The Weighing | Answer accumulated Claims and found, negotiate, or deliberately transform the region's future |
 
-**Generate.** Use [The Vanishing Middle](../adventure_paths/03_the_vanishing_middle.md) for the 27 combinations, twelve Middle names, five Anchors, Allegiance, Symmetry Rule, Champion, and Weighing. Write what each side of the opening quarrel is right about. Name both Petitioners before offering aid. Locate every Middle name and every Anchor's access problem.
+**Generate.** Use [The Eternal Cycle](../adventure_paths/03_the_vanishing_middle.md) for the 27 combinations, twelve Middle names, five Anchors, Allegiance, Symmetry Rule, Champion, and Weighing. Write what each side of the opening quarrel is right about. Name both Petitioners before offering aid. Locate every Middle name and every Anchor's access problem.
 
 **Requirements.** Each pole must obtain a mortal petition before intervening, provide the promised aid before claiming its result, secure a witnessed acceptance before assigning a Gift or Warrant, and fulfill the authored matched escalation before increasing its commitment. Each claimed Middle name records the exact deed and beneficiary. These are checks on the existing procedure, not a second requirement score. Use Law's Hold, Chaos's Hold, and the remaining named Middle; War Intensity is expressed through matched interventions rather than a competing third numerical track.
 

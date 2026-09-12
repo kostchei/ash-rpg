@@ -9,7 +9,7 @@ import {
   updateMindBelowProgress,
 } from "../src/server/generators/mind-below.js";
 
-describe("The Mind Below adventure-path scaffold", () => {
+describe("The Night Below adventure-path scaffold", () => {
   it("combines any starting, cave, and end zone", () => {
     const path = createMindBelowPath({
       startingZone: "red_spires",

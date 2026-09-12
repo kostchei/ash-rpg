@@ -34,6 +34,44 @@ ASH is a solo/cooperative assistant for one to six people at a physical table. T
 
 ## Run at the table
 
+### Portable Windows release
+
+Extract the complete `ASH-0.1.0-windows-x64.zip` release to a writable folder and
+double-click **Start ASH.cmd**. The bundled runtime starts the server and opens
+your browser; no Node.js installation or npm commands are needed. Keep the
+window open during play. Players on the same Wi-Fi scan the lobby QR code.
+Allow private-network access if Windows Firewall prompts.
+
+Campaign saves stay in the extracted folder under `data/local`. Stop ASH before
+backing up that folder. To upgrade, extract the new release separately and copy
+the old `data/local` folder into it before starting.
+
+Maintainers can build the ZIP on Windows x64 with `npm run release:windows`.
+The packager includes a Node runtime, production dependencies, compiled client
+and server, and game content; it excludes personal campaign saves. Outputs are
+under `releases/`. Move an existing same-version release aside before rebuilding.
+
+### Automated Windows releases
+
+The **Windows release** GitHub Actions workflow installs locked dependencies,
+runs the tests and client type check, builds the portable ZIP, and verifies an
+extracted copy using its bundled runtime. It checks campaign creation, player
+joining, save restoration, game content, client assets, and launcher startup.
+Only a verified ZIP and its SHA-256 checksum are uploaded.
+
+- For a downloadable test build, open **Actions → Windows release → Run workflow**.
+  Download the `windows-release` artifact from the completed run (kept for 30 days).
+- To publish a release, commit the version in `package.json` and `package-lock.json`,
+  then push a matching tag such as `v0.1.0`. The workflow attaches the ZIP and
+  checksum to the GitHub release. A mismatched tag fails before building.
+- Tags containing a hyphen, such as `v0.2.0-beta.1`, create prereleases.
+  Manual runs build artifacts only, even when run against a tag.
+
+The workflow uses GitHub's built-in token; no additional secrets are required.
+The workflow and packaging scripts must be committed and pushed before it can run.
+
+### From source
+
 Install Node.js 22 or later, then run:
 
 ```bash

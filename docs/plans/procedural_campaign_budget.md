@@ -7,8 +7,8 @@ Design specification, 2026-09-07. Replaces fixed starting quests as the intended
 ## What exists, and what is being specified
 
 - **22 designed engine variants:** the 13 numbered engines, with engine 6 expanded into nine outer-power methods instead of one, plus Maruts as the distinct 7M variant. These are not 22 equally complete playable implementations.
-- **4 campaign dossiers:** Domains of Dread, The Mind Below, The Vanishing Middle, and The Stolen Dawn. These instantiate engines; do not count them as four extra engines.
-- **3 registered campaign-plan adapters:** Domains of Dread, The Mind Below, and The Vanishing Middle. World creation still uses the fixed Mind Below opening rather than selecting among all these adapters.
+- **4 campaign dossiers:** Domains of Dread, The Night Below, The Eternal Cycle, and The Stolen Dawn. These instantiate engines; do not count them as four extra engines.
+- **3 registered campaign-plan adapters:** Domains of Dread, The Night Below, and The Eternal Cycle. World creation still uses the fixed Night Below opening rather than selecting among all these adapters.
 - **9 outer-power encounter packs:** seven fixed locations each, **63 locations including nine havens**, hence 54 non-haven locations. These table-assisted packs are not nine full procedural campaigns.
 - **New objective catalogue:** 22 engines × 3 acts × 4 parameterised objectives = **264 templates in 66 pools**. Read the [act lists](../oracles/12_procedural_objective_pools.md) or consume the [JSON catalogue](../data/procedural_objective_pools.json). This is starter authoring data, not an integrated generator.
 

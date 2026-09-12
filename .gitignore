@@ -39,6 +39,7 @@ lerna-debug.log*
 
 # Node / Web Frontend
 node_modules/
+releases/
 dist/
 dist-ssr/
 build/

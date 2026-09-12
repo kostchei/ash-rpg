@@ -29,7 +29,7 @@ export interface ZoneCandidate {
 }
 
 /**
- * Default candidate pools by act for the canonical Mind Below path
+ * Default candidate pools by act for the canonical Night Below path
  */
 export const MIND_BELOW_CANDIDATE_ZONES: Record<1 | 2 | 3, ZoneCandidate[]> = {
   1: Object.values(MIND_BELOW_STARTING_ZONES).map((z) => ({

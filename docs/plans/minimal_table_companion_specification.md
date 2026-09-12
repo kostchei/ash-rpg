@@ -39,7 +39,7 @@ The ASH Table Companion is designed for **1 to 6 people playing solo or cooperat
 ## 2. The Nine Core Pillars
 
 ### 1. Blind / Emergent Adventure Path
-* **No Spoilers for Players or Solo Hosts:** The overarching campaign threat (e.g. *The Mind Below*, *Domains of Dread*, *The Stolen Dawn*) and its climactic boss/outcome are withheld from the party.
+* **No Spoilers for Players or Solo Hosts:** The overarching campaign threat (e.g. *The Night Below*, *Domains of Dread*, *The Stolen Dawn*) and its climactic boss/outcome are withheld from the party.
 * **Emergent Discovery:** Players only see localized symptoms, rumors, and faction movements. The identity of the master antagonist and the endgame stakes are pieced together through physical clues and site exploration.
 
 ### 2. Quests and Missions

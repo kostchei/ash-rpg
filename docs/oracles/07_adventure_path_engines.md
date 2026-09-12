@@ -1171,7 +1171,7 @@ The finale depends on what the cult successfully assembled. The party might prev
 
 ## 10. The Eternal Cycle: Polarization
 
-> Worked in full as [Adventure Path 3: The Vanishing Middle](../adventure_paths/03_the_vanishing_middle.md).
+> Worked in full as [Adventure Path 3: The Eternal Cycle](../adventure_paths/03_the_vanishing_middle.md).
 
 **World Process:** The war between Law and Chaos makes every victory dangerous and drives the world toward an absolute state.
 
@@ -1182,7 +1182,7 @@ Law can preserve a city while advancing universal stagnation. Chaos can overthro
 1. **Proxy Struggles:** Mortal factions invoke Law or Chaos to win local conflicts.
 2. **Alignment:** Governments, cults, heroes, monsters, and territories are forced to declare allegiance.
 3. **Arms Race:** Each side deploys more absolute servants, artifacts, and transformations in response to the other.
-4. **Vanishing Middle:** Neutral places, mixed institutions, compromises, and ordinary mortal life become impossible to sustain.
+4. **Eternal Cycle:** Neutral places, mixed institutions, compromises, and ordinary mortal life become impossible to sustain.
 5. **Cosmic War:** Lords of Law and Chaos act openly through armies and champions.
 6. **Ragnarok:** One principle becomes absolute, or the combined violence of both sides destroys the world they sought to control.
 

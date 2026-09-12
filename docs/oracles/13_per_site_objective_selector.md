@@ -37,7 +37,7 @@ These subjects determine the content of the placed account and corroborating rec
 | Path | Act I evidence concerns | Act II evidence concerns | Act III evidence concerns |
 | --- | --- | --- | --- |
 | domains of dread | exceptions to the boundary rules | the obligations sustaining the domain | the conditions of release |
-| the mind below | the route used to transport captives | the supply of psychic control installations | the maintenance of the held-mind network |
+| the night below | the route used to transport captives | the supply of psychic control installations | the maintenance of the held-mind network |
 | titans | damage to the prison seals | the supply of binding components | the sequence for restoring the restraints |
 | tharizdun | places missing from newer maps | surviving references to erased distinctions | the boundaries needed to contain unmaking |
 | bane | the issuers of seizure writs | the authority supporting local enforcement | the succession of the enabling office |
@@ -54,7 +54,7 @@ These subjects determine the content of the placed account and corroborating rec
 | maruts | the original act named in the enforcement order | the means to correct the recorded violation | the authority that can cancel further enforcement |
 | witch king | the destination of collected battlefield dead | the depots supplying conversion | the indispensable apparatus sustaining the front |
 | apocalypse cult | the buyers of consecrated components | the dependencies of the manifestation recipe | the dismantling sequence at the invocation site |
-| vanishing middle | the competing claims to the crossing | the institutions still operating independently | the deeds supporting an unclaimed settlement |
+| eternal cycle | the competing claims to the crossing | the institutions still operating independently | the deeds supporting an unclaimed settlement |
 | githyanki | the shortfall between arrivals and grain stores | the capacity of the proposed settlement | the supplies needed through the final arrival wave |
 | slumbering catastrophe | the disturbances that wake the sleeper | the trials of earlier countermeasures | the conditions needed for the prepared confrontation |
 | stolen dawn | the timing of renewed winter | the wilderness route to the renewal focus | the buried Dawn Engine's missing connections |

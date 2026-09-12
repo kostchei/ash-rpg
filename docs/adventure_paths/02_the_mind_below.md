@@ -1,8 +1,8 @@
-# Adventure Path 2: The Mind Below
+# Adventure Path 2: The Night Below
 
 > **System-facing campaign procedure:** the players are never told that this Adventure Path is active. They meet missing people, altered friends, subterranean factions, protective relics, and impossible water. The aboleths become apparent only if the players assemble the evidence.
 
-In **The Mind Below**, an aboleth savant is extending its rule upward by stealing useful minds and changing the people around the party. Its first weapon is not an invading army. It is the trusted official, returned captive, frightened witness, or beloved relative who has been made to serve.
+In **The Night Below**, an aboleth savant is extending its rule upward by stealing useful minds and changing the people around the party. Its first weapon is not an invading army. It is the trusted official, returned captive, frightened witness, or beloved relative who has been made to serve.
 
 The campaign covers **levels 1–10**, three acts, and three independently selected environments. It has 27 possible geographic combinations:
 

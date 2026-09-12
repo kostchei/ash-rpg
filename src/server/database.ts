@@ -1,3 +1,4 @@
+import { adventurePathDisplayName } from "../shared/adventure-path-names.js";
 import { combatSeats, seatIndex, activeSeat, projectCombat } from "../shared/table-companion.js";
 import { mkdirSync, readFileSync, existsSync, readdirSync } from "node:fs";
 import { dirname, resolve } from "node:path";
@@ -1062,7 +1063,7 @@ export class AshDatabase {
     if (!generationConfig || (generationConfig as any).legacy === true) {
       const defaultAP = {
         pathId: "the_mind_below",
-        name: "The Mind Below",
+        name: "The Night Below",
         progress: { reach: 0, awakening: 0, knowledge: 0 },
         aquaticMethodsRevealed: [],
       };
@@ -2701,7 +2702,8 @@ export class AshDatabase {
       .get(campaignId) as { adventure_path_json?: string } | undefined;
     if (!row?.adventure_path_json) return null;
     try {
-      return JSON.parse(row.adventure_path_json);
+      const path: AdventurePathRecord = JSON.parse(row.adventure_path_json);
+      return { ...path, name: adventurePathDisplayName(path.pathId, path.name) };
     } catch {
       return null;
     }
@@ -3350,7 +3352,7 @@ export class AshDatabase {
           } else {
             adventurePath = {
               pathId: rawAP.pathId,
-              name: rawAP.name,
+              name: adventurePathDisplayName(rawAP.pathId, rawAP.name),
               activeSituation: rawAP.activeSituation
                 ? {
                     title: rawAP.activeSituation.title,

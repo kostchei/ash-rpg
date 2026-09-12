@@ -39,7 +39,7 @@ The first release is complete when four players can join, create a Fighter, Thie
 | Tavern | Each player chooses recovery, rumor gathering, carousing, or buying supplies; costs and outcomes persist. The party selects a lead or its own objective. |
 | Hex exploration | A shared party marker, legal travel, visible travel costs, time and supplies, encounters, discovery, and a return journey. |
 | Camping | Each player selects a duty on their phone; the table resolves one shared camp with supplies, recovery, and possible interruption. |
-| Adventure paths | Generate connected situations, leads, clues, sites, and consequences. Use The Mind Below as the first supported template, with reusable interfaces for other paths. |
+| Adventure paths | Generate connected situations, leads, clues, sites, and consequences. Use The Night Below as the first supported template, with reusable interfaces for other paths. |
 | Sites and dungeons | Persistent site changes, connected rooms and exits, a shared current room, discovery, revisiting, and exploration turns. |
 | Combat assistance | Monster generation, initiative, rounds and turns, PC and monster HP, conditions, death saves, reaction, and morale. |
 | Treasure and return | Generate and claim treasure once, allocate items and gold, award XP, and preserve the expedition's discoveries and outcomes. |
@@ -181,6 +181,11 @@ ash-rpg/
 ## 🚀 Getting Started
 
 ### 🎲 Run the Table Companion
+
+**Windows portable release:** Extract `ASH-0.1.0-windows-x64.zip` and double-click
+**Start ASH.cmd**. It includes its own runtime and opens the game in your browser;
+players join over the same Wi-Fi using the lobby QR code. No npm commands or
+Node.js installation are needed. See the [release and backup guide](docs/table_companion.md#portable-windows-release).
 
 The repository now includes a local multiplayer campaign app for a shared screen and player phones. It stores each campaign in SQLite, synchronizes play live, and automates the ASH oracle, wilderness, dungeon, encounter, lore, and threat procedures.
 

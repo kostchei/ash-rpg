@@ -26,7 +26,7 @@ const ADAPTER_REGISTRY: Map<string, PathAdapterDefinition> = new Map();
 
 ADAPTER_REGISTRY.set("the_mind_below", {
   pathId: "the_mind_below",
-  name: "The Mind Below",
+  name: "The Night Below",
   description:
     "An Aboleth Savant extends psychic tendrils from subterranean depths, seizing surface minds and preparing an abyssal awakening.",
   candidateZones: MIND_BELOW_CANDIDATE_ZONES,
@@ -44,7 +44,7 @@ ADAPTER_REGISTRY.set("domains_of_dread", {
 
 ADAPTER_REGISTRY.set("vanishing_middle", {
   pathId: "vanishing_middle",
-  name: "The Vanishing Middle",
+  name: "The Eternal Cycle",
   description:
     "Cosmic balances tilt as ancient oaths are broken; characters must mediate mortal disputes, attune balance anchors, and resolve the Grand Weighing.",
   candidateZones: VANISHING_MIDDLE_CANDIDATE_ZONES,
@@ -54,7 +54,7 @@ ADAPTER_REGISTRY.set("vanishing_middle", {
 export function getPathAdapter(pathId: string): PathAdapterDefinition {
   const adapter = ADAPTER_REGISTRY.get(pathId);
   if (!adapter) {
-    // Default fallback to the canonical Mind Below adapter
+    // Default fallback to the canonical Night Below adapter
     return ADAPTER_REGISTRY.get("the_mind_below")!;
   }
   return adapter;

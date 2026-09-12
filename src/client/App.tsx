@@ -500,7 +500,7 @@ function Welcome({
                     value={pathMode}
                     onChange={(e) => setPathMode(e.target.value as "explicit" | "secret")}
                   >
-                    <option value="explicit">The Mind Below (Authored Path)</option>
+                    <option value="explicit">The Night Below (Authored Path)</option>
                     <option value="secret">Secret / System Selection (Concealed Omens)</option>
                   </select>
                   <small style={{ display: "block", marginTop: 4, opacity: 0.75 }}>
@@ -1415,7 +1415,7 @@ function LobbyView({
           {state.campaign.isSecretPath ? "Secret Adventure Path Selection" : "Authored Adventure Path"}
         </div>
         <h3 style={{ margin: "0.25rem 0 0.5rem" }}>
-          {state.campaign.adventurePath?.name ?? "The Mind Below"}
+          {state.campaign.adventurePath?.name ?? "The Night Below"}
         </h3>
         <p style={{ margin: 0, fontSize: "14px", color: "var(--ink)" }}>
           {state.campaign.isSecretPath

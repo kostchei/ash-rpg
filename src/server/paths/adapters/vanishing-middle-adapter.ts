@@ -102,7 +102,7 @@ export function createVanishingMiddlePlan(zonePlan: CampaignActPlan, seed: strin
   const sites = buildVanishingMiddleSites(zonePlan);
   return {
     pathId: "vanishing_middle",
-    name: "The Vanishing Middle",
+    name: "The Eternal Cycle",
     seed,
     acts: zonePlan,
     sites,

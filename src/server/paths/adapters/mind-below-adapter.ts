@@ -714,7 +714,7 @@ export function createMindBelowCampaignPlan(
 
   return {
     pathId: "the_mind_below",
-    name: "The Mind Below",
+    name: "The Night Below",
     seed,
     acts: zonePlan,
     sites,
