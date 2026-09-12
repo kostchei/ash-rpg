@@ -1253,9 +1253,18 @@ export class AshDatabase {
     const classId = input.classId || input.className.toLowerCase().replace(/[^a-z0-9_]/g, "");
     const startingGear = options.startingGear !== false;
 
+    const defaultStartingPack = [
+      { itemId: "shortsword", equipped: true },
+      { itemId: "leather_armor", equipped: true },
+      { itemId: "backpack", equipped: false },
+      { itemId: "torches", quantity: 1, remainingTorches: 2 },
+      { itemId: "rations", quantity: 3 },
+    ];
+    const startingPack = STARTING_EQUIPMENT[classId] ?? (classId === "cleric" ? STARTING_EQUIPMENT["priest"] : undefined) ?? defaultStartingPack;
+
     const inventory: InventoryItem[] = input.inventory && input.inventory.length > 0
       ? input.inventory
-      : (startingGear && STARTING_EQUIPMENT[classId] ? STARTING_EQUIPMENT[classId].map((packItem) => {
+      : (startingGear ? startingPack.map((packItem) => {
           const itemDef = ITEMS.find((it) => it.id === packItem.itemId);
           return {
             instanceId: randomBytes(8).toString("hex"),
@@ -1265,6 +1274,7 @@ export class AshDatabase {
             slots: itemDef?.slots ?? 1,
             equipped: packItem.equipped ?? false,
             quantity: packItem.quantity ?? 1,
+            remainingTorches: packItem.remainingTorches,
             damage: itemDef?.damage,
             properties: itemDef?.properties,
             baseAc: itemDef?.baseAc,
@@ -1278,7 +1288,7 @@ export class AshDatabase {
       : [];
 
     if (spells.length === 0) {
-      if (classId === "priest") {
+      if (classId === "priest" || classId === "cleric") {
         spells = SPELLS.filter((s) => s.tier === 1 && s.sphere === "divine").slice(0, 2).map((s) => ({
           spellId: s.id,
           tier: s.tier,
@@ -1326,7 +1336,7 @@ export class AshDatabase {
         input.hp,
         input.maxHp,
         finalAc ?? input.ac ?? 10,
-        input.gold,
+        input.gold ?? (10 + Math.floor(Math.random() * 6 + 1) + Math.floor(Math.random() * 6 + 1)),
         finalGearSlots,
         a.str,
         a.dex,

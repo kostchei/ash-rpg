@@ -13,7 +13,7 @@ export function PlayerDashboard({ state, act, onLedger }: { state: CampaignState
       const hp = (delta: number) => combatant ? act("combat:update_hp", { combatantId: combatant.id, delta }) : act("character:hp", { characterId: c.id, hp: Math.max(0, Math.min(c.maxHp, c.hp + delta)) });
       return <article key={c.id} className="companion-card">
         <div className="companion-heading"><h3>{c.name} <small>{c.className} {c.level}</small></h3><strong>AC {c.ac} · HP {c.hp}/{c.maxHp}</strong></div>
-        <div className="companion-actions"><button disabled={!canEdit} onClick={() => void hp(-1)}>−1 HP</button><button disabled={!canEdit} onClick={() => void hp(1)}>+1 HP</button><span>{c.conditions?.join(" · ") || "No conditions"}</span></div>
+        <div className="companion-actions"><button disabled={!canEdit} onClick={() => void hp(-1)} title="Damage −1 HP">Damage −1 HP</button><button disabled={!canEdit} onClick={() => void hp(1)} title="Healing +1 HP">Healing +1 HP</button><span>{c.conditions?.join(" · ") || "No conditions"}</span></div>
         <dl className="stat-references">{(c.inventory ?? []).filter(w => w.equipped && w.kind === "weapon").map(w => {
           const r = weaponReference(c, w); return <div key={w.instanceId}><dt>{w.name}</dt><dd>Attack {signed(r.attackBonus)} · Damage {r.damageDie}{r.damageBonus ? signed(r.damageBonus) : ""}</dd></div>;
         })}</dl>

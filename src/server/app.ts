@@ -949,15 +949,31 @@ export async function createAshServer(options: AshServerOptions = {}) {
 
     socket.on(
       "settlement:generate",
-      action((_raw: unknown) => {
-        const result = generateSettlement();
+      action((raw: unknown) => {
+        const payload = (raw && typeof raw === "object") ? (raw as { existingTavern?: { name: string; vibe: string } }) : {};
+        const row = db.db.prepare("SELECT tavern_establishment_json FROM campaigns WHERE id = ?").get(identity.campaignId) as { tavern_establishment_json?: string } | undefined;
+        let tavernObj: any = null;
+        if (row?.tavern_establishment_json) {
+          try {
+            tavernObj = JSON.parse(row.tavern_establishment_json);
+          } catch {}
+        }
+        let existingTavern = payload.existingTavern;
+        if (!existingTavern && tavernObj?.name) {
+          existingTavern = { name: tavernObj.name, vibe: tavernObj.vibe ?? "" };
+        }
+        const result = generateSettlement(undefined, existingTavern);
+        if (tavernObj) {
+          tavernObj.settlement = result;
+          db.db.prepare("UPDATE campaigns SET tavern_establishment_json = ? WHERE id = ?").run(JSON.stringify(tavernObj), identity.campaignId);
+        }
         db.addRoll(identity.campaignId, {
           actor: actor(),
           kind: "settlement",
           label: `Settlement: ${result.scale.name}`,
-          dice: "1d6 + 2d10 + 1d8",
+          dice: existingTavern ? "1d6 + 1d8" : "1d6 + 2d10 + 1d8",
           total: 0,
-          detail: `${result.tavern.name} (${result.tavern.vibe}) · Rumor: "${result.rumor.rumor}"`,
+          detail: `${result.scale.name} · Pop: ${result.scale.population} · Defenses: ${result.scale.defense} · Rumor: "${result.rumor.rumor}"`,
         });
         return { result };
       }),
@@ -1290,7 +1306,7 @@ export async function createAshServer(options: AshServerOptions = {}) {
             hp: maxHp,
             maxHp,
             ac: 10 + dexMod,
-            gold: (rollDie(6) + rollDie(6)) * 10,
+            gold: 10 + rollDie(6) + rollDie(6),
             gearSlots: 10 + strMod + (input.ancestry === "Half-Ogre" ? 4 : 0),
             talents: [`[Lvl 1] ${level1Talent.effect}`],
             xp: 0,

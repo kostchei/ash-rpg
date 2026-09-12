@@ -61,14 +61,64 @@ describe("M0: Multiplayer Mutations & Authority", () => {
 
     expect(fighter.classId).toBe("fighter");
     expect(fighter.inventory && fighter.inventory.length).toBeGreaterThan(0);
-    // Fighter starts with chainmail (base 13, max dex 2 => 13 + 1 = 14) + shield (+2) = 16 AC
-    expect(fighter.ac).toBe(16);
+    // Fighter starts with leather armor (base 11 + 1 dex = 12 AC) and greatsword
+    expect(fighter.ac).toBe(12);
+    expect(fighter.inventory?.some((i) => i.itemId === "greatsword" && i.equipped)).toBe(true);
+    expect(fighter.inventory?.some((i) => i.itemId === "leather_armor" && i.equipped)).toBe(true);
+    expect(fighter.inventory?.some((i) => i.itemId === "backpack")).toBe(true);
+    expect(fighter.inventory?.some((i) => i.itemId === "torches" && i.remainingTorches === 2)).toBe(true);
+    expect(fighter.inventory?.some((i) => i.itemId === "rations" && i.quantity === 3)).toBe(true);
     // Gear slots for Fighter with 14 STR (+2) and 14 CON (+2 hauler): 10 + 2 + 2 = 14
     expect(fighter.gearSlots).toBe(14);
 
     expect(wizard.classId).toBe("wizard");
+    expect(wizard.inventory?.some((i) => i.itemId === "staff" && i.equipped)).toBe(true);
+    expect(wizard.inventory?.some((i) => i.itemId === "leather_armor" && i.equipped)).toBe(true);
+    expect(wizard.inventory?.some((i) => i.itemId === "backpack")).toBe(true);
+    expect(wizard.inventory?.some((i) => i.itemId === "torches" && i.remainingTorches === 2)).toBe(true);
+    expect(wizard.inventory?.some((i) => i.itemId === "rations" && i.quantity === 3)).toBe(true);
     expect(wizard.spells && wizard.spells.length).toBe(3);
     expect(wizard.spells?.every((s) => s.available)).toBe(true);
+
+    // Verify duelist, priest/cleric, thief, and bard starting loadouts
+    const duelistId = db.addCharacter(campaignId, null, {
+      name: "Darian", ancestry: "human", className: "Duelist", level: 1, hp: 8, maxHp: 8, ac: 10,
+      abilities: { str: 10, dex: 14, con: 10, int: 10, wis: 10, cha: 10 },
+      anchors: { homeland: "Haven", landmark: "Wall", nemesis: "Rival" },
+    });
+    const priestId = db.addCharacter(campaignId, null, {
+      name: "Vera", ancestry: "human", className: "Priest", level: 1, hp: 6, maxHp: 6, ac: 10,
+      abilities: { str: 12, dex: 10, con: 12, int: 10, wis: 14, cha: 10 },
+      anchors: { homeland: "Haven", landmark: "Shrine", nemesis: "Cult" },
+    });
+    const thiefId = db.addCharacter(campaignId, null, {
+      name: "Milo", ancestry: "halfling", className: "Thief", level: 1, hp: 5, maxHp: 5, ac: 10,
+      abilities: { str: 8, dex: 16, con: 10, int: 12, wis: 10, cha: 12 },
+      anchors: { homeland: "Borough", landmark: "Tunnel", nemesis: "Guild" },
+    });
+    const bardId = db.addCharacter(campaignId, null, {
+      name: "Lyanna", ancestry: "human", className: "Bard", level: 1, hp: 6, maxHp: 6, ac: 10,
+      abilities: { str: 10, dex: 12, con: 10, int: 12, wis: 10, cha: 16 },
+      anchors: { homeland: "Tavern", landmark: "Stage", nemesis: "Critic" },
+    });
+
+    const refreshed = db.getState(campaignId, "host", null, "http://localhost:3000", hostToken);
+    const duelist = refreshed.characters.find((c) => c.id === duelistId)!;
+    const priest = refreshed.characters.find((c) => c.id === priestId)!;
+    const thief = refreshed.characters.find((c) => c.id === thiefId)!;
+    const bard = refreshed.characters.find((c) => c.id === bardId)!;
+
+    expect(duelist.inventory?.some((i) => i.itemId === "greatsword" && i.equipped)).toBe(true);
+    expect(priest.inventory?.some((i) => i.itemId === "warhammer" && i.equipped)).toBe(true);
+    expect(thief.inventory?.some((i) => i.itemId === "shortsword" && i.equipped)).toBe(true);
+    expect(bard.inventory?.some((i) => i.itemId === "shortsword" && i.equipped)).toBe(true);
+
+    for (const char of [duelist, priest, thief, bard]) {
+      expect(char.inventory?.some((i) => i.itemId === "leather_armor" && i.equipped)).toBe(true);
+      expect(char.inventory?.some((i) => i.itemId === "backpack")).toBe(true);
+      expect(char.inventory?.some((i) => i.itemId === "torches" && i.remainingTorches === 2)).toBe(true);
+      expect(char.inventory?.some((i) => i.itemId === "rations" && i.quantity === 3)).toBe(true);
+    }
   });
 
   it("manages caller designation and correctly reports isCaller in state projection", () => {

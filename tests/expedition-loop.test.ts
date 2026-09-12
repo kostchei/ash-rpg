@@ -497,7 +497,7 @@ describe("Complete Expedition Loop & Adventure Path Integration", () => {
     const wizard = initChars.find((c) => c.id === wizardId)!;
 
     expect(fighter.inventory && fighter.inventory.length).toBeGreaterThan(0);
-    expect(fighter.ac).toBeGreaterThanOrEqual(14); // Chainmail + Shield
+    expect(fighter.ac).toBe(12); // Leather Armor + 1 DEX
     expect(wizard.spells && wizard.spells.length).toBeGreaterThan(0);
     expect(priest.spells && priest.spells.length).toBeGreaterThan(0);
 

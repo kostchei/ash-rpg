@@ -4,14 +4,14 @@ export function Title({
   title,
   aside,
 }: {
-  eyebrow: string;
+  eyebrow?: string;
   title: string;
   aside?: string;
 }) {
   return (
     <div className="surface-title">
       <div>
-        <div className="eyebrow">{eyebrow}</div>
+        {eyebrow && <div className="eyebrow">{eyebrow}</div>}
         <h1>{title}</h1>
       </div>
       {aside && <span>{aside}</span>}

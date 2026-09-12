@@ -92,20 +92,28 @@ function loadSettlementData(): SettlementOracleData {
   return cachedData!;
 }
 
-export function generateSettlement(rng?: RandomSource): SettlementResult {
+export function generateSettlement(
+  rng?: RandomSource,
+  existingTavern?: { name: string; vibe: string },
+): SettlementResult {
   const data = loadSettlementData();
 
   // 1d6 for scale
   const scaleRoll = rollDie(6, rng);
   const matchedScale = data.scales.find((s) => (s.max ? scaleRoll >= s.roll && scaleRoll <= s.max : scaleRoll === s.roll)) ?? data.scales[0];
 
-  // Tavern name: prefix (1d10) + suffix (1d10), vibe (1d10)
-  const prefixRoll = rollDie(data.tavernPrefixes.length, rng);
-  const suffixRoll = rollDie(data.tavernSuffixes.length, rng);
-  const vibeRoll = rollDie(data.tavernVibes.length, rng);
+  let tavernName = existingTavern?.name;
+  let tavernVibe = existingTavern?.vibe;
 
-  const tavernName = `${data.tavernPrefixes[prefixRoll - 1]} ${data.tavernSuffixes[suffixRoll - 1]}`;
-  const tavernVibe = data.tavernVibes[vibeRoll - 1];
+  if (!tavernName) {
+    // Tavern name: prefix (1d10) + suffix (1d10), vibe (1d10)
+    const prefixRoll = rollDie(data.tavernPrefixes.length, rng);
+    const suffixRoll = rollDie(data.tavernSuffixes.length, rng);
+    const vibeRoll = rollDie(data.tavernVibes.length, rng);
+
+    tavernName = `${data.tavernPrefixes[prefixRoll - 1]} ${data.tavernSuffixes[suffixRoll - 1]}`;
+    tavernVibe = data.tavernVibes[vibeRoll - 1];
+  }
 
   // Rumor (1d8)
   const rumorRoll = rollDie(data.rumors.length, rng);
@@ -120,7 +128,7 @@ export function generateSettlement(rng?: RandomSource): SettlementResult {
     },
     tavern: {
       name: tavernName,
-      vibe: tavernVibe,
+      vibe: tavernVibe ?? "",
     },
     rumor: {
       rumor: matchedRumor.rumor,

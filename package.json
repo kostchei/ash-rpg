@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "release:windows": "node scripts/build-windows-release.mjs",
+    "release:update": "node scripts/update-windows-release.mjs",
     "dev": "tsx watch src/server/index.ts",
     "dev:client": "vite --host 0.0.0.0",
     "build": "npm run build:client && npm run build:server",

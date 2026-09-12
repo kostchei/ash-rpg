@@ -193,6 +193,8 @@ describe("Stage B: Campaign Setup & Two-Character Ownership", () => {
       expect(c1.rosterStatus).toBe("active");
       expect(c1.generationMethod).toBe("unearthed_arcana");
       expect(c1.originZoneId).toBe("the_gloaming");
+      expect(c1.gold).toBeGreaterThanOrEqual(12);
+      expect(c1.gold).toBeLessThanOrEqual(22);
 
       // Verify active character ID bound to device
       const state = server.db.getState(1, "player", null, "", player1Token);

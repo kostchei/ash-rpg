@@ -131,8 +131,7 @@ describe("Expedition mutation integrity over real sockets", () => {
     expect(first.graph.nodes[1].treasure).toBeUndefined();
     expect(first.graph.edges).toEqual([]);
     expect((await send(player, "dungeon:light_torch", payload)).ok).toBe(true);
-    expect(state().characters[0].inventory?.find((i) => i.itemId === "torches")?.remainingTorches).toBe(2);
-    expect((await send(player, "dungeon:light_torch", envelope())).ok).toBe(true);
+    expect(state().characters[0].inventory?.find((i) => i.itemId === "torches")?.remainingTorches).toBe(1);
     expect((await send(player, "dungeon:light_torch", envelope())).ok).toBe(true);
     expect(state().characters[0].inventory?.some((i) => i.itemId === "torches")).toBe(false);
     const before = state().campaign.revision;

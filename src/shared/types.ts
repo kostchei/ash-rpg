@@ -122,6 +122,7 @@ export interface TavernEstablishment {
   vibe: string;
   barkeep: string;
   leads: TavernLead[];
+  settlement?: SettlementResult | null;
 }
 
 export * from "./path-contracts.js";

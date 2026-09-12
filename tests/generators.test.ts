@@ -13,6 +13,17 @@ describe("Settlement, NPC, & Campaign Generators", () => {
     expect(s.rumor.rumor).toBeDefined();
   });
 
+  it("preserves existing tavern without regenerating when defining settlement", () => {
+    const s = generateSettlement(undefined, {
+      name: "The Crayfish Tavern",
+      vibe: "Smoky peat fires",
+    });
+    expect(s.tavern.name).toBe("The Crayfish Tavern");
+    expect(s.tavern.vibe).toBe("Smoky peat fires");
+    expect(s.scale.name).toBeDefined();
+    expect(s.rumor.rumor).toBeDefined();
+  });
+
   it("generates an NPC with party-skewed demographics and regional subclass", () => {
     const party: Character[] = [
       {

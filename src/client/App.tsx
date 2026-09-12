@@ -1513,7 +1513,8 @@ function LobbyView({
 
 function SanctuaryView({ state, act }: { state: CampaignState; act: Act }) {
   const leads = mergeTavernLeads(state.campaign.tavernLeads, state.tavernLeads, state.campaign.tavernEstablishment?.leads);
-  const [settlement, setSettlement] = useState<SettlementResult | null>(null);
+  const [localSettlement, setLocalSettlement] = useState<SettlementResult | null>(null);
+  const settlement = localSettlement || state.campaign.tavernEstablishment?.settlement || null;
   const [npc, setNpc] = useState<NpcResult | null>(null);
   const [busy, setBusy] = useState(false);
   const [retainerName, setRetainerName] = useState("");
@@ -1521,12 +1522,18 @@ function SanctuaryView({ state, act }: { state: CampaignState; act: Act }) {
   const generateSettlementAction = async () => {
     setBusy(true);
     try {
+      const existingTavern = state.campaign.tavernEstablishment
+        ? {
+            name: state.campaign.tavernEstablishment.name,
+            vibe: state.campaign.tavernEstablishment.vibe,
+          }
+        : undefined;
       const res = await act<{ result: SettlementResult }>(
         "settlement:generate",
-        {},
-        "Settlement consulted via City Oracle",
+        { existingTavern },
+        "Settlement defined outside tavern window",
       );
-      if (res?.result) setSettlement(res.result);
+      if (res?.result) setLocalSettlement(res.result);
     } finally {
       setBusy(false);
     }
@@ -1573,12 +1580,16 @@ function SanctuaryView({ state, act }: { state: CampaignState; act: Act }) {
 
   const saveSettlementToNotes = async () => {
     if (!settlement) return;
+    const tavernName =
+      state.campaign.tavernEstablishment?.name ||
+      settlement.tavern?.name ||
+      "The Tavern";
     await act(
       "note:add",
       {
         section: "discovery",
-        title: `${settlement.scale.name}: ${settlement.tavern.name}`,
-        body: `Scale: ${settlement.scale.name} (Pop: ${settlement.scale.population}, Defenses: ${settlement.scale.defense}, Services: ${settlement.scale.services})\nTavern: ${settlement.tavern.name} (${settlement.tavern.vibe})\nTaproom Rumor: "${settlement.rumor.rumor}" (Authenticity: ${settlement.rumor.authenticity})`,
+        title: `${settlement.scale.name}: ${tavernName}`,
+        body: `Settlement out this tavern's window: ${settlement.scale.name}\nScale: Pop: ${settlement.scale.population} · Defenses: ${settlement.scale.defense} · Services: ${settlement.scale.services}\nTavern: ${tavernName}\nStreet Rumor: "${settlement.rumor.rumor}" (Authenticity: ${settlement.rumor.authenticity})`,
       },
       "Settlement recorded to Campaign Chronicle",
     );
@@ -1588,16 +1599,15 @@ function SanctuaryView({ state, act }: { state: CampaignState; act: Act }) {
     <div className="sanctuary-page surface-grid">
       <section className="panel sanctuary-main">
         <Title
-          eyebrow="Civilized Bastion & Downtime"
-          title="Sanctuary Hub"
+          title="Sanctuary"
           aside={state.campaign.regionName}
         />
 
         <div className="sanctuary-hero-banner">
           <p>
             Between expeditions, the adventuring company recovers in sanctuary.
-            Procure supplies, hire retainers, carouse for rumors, and consult the
-            city oracle.
+            Procure supplies, hire retainers, carouse for rumors, and survey the
+            settlement outside this tavern's window.
           </p>
           {(state.me.role === "host" || state.me.isCaller) && (
             <button
@@ -1805,19 +1815,19 @@ function SanctuaryView({ state, act }: { state: CampaignState; act: Act }) {
             </article>
           )}
 
-          {/* City & Settlement Oracle */}
+          {/* Settlement outside tavern */}
           <article className="sub-panel settlement-card">
             <div className="sub-panel-header">
               <div>
-                <div className="eyebrow">Procedural City Generator</div>
-                <h3>Settlement & Tavern</h3>
+                <div className="eyebrow">Haven Surroundings</div>
+                <h3>Settlement out this tavern's window</h3>
               </div>
               <button
                 className="primary"
                 disabled={busy}
                 onClick={generateSettlementAction}
               >
-                <Castle size={16} /> Consult City Oracle
+                <Castle size={16} /> Define Settlement
               </button>
             </div>
 
@@ -1843,9 +1853,10 @@ function SanctuaryView({ state, act }: { state: CampaignState; act: Act }) {
 
                 <div className="tavern-box">
                   <div className="tavern-name">
-                    <span className="badge-tag">TAVERN</span>
-                    <strong>{settlement.tavern.name}</strong>
-                    <small>({settlement.tavern.vibe})</small>
+                    <span className="badge-tag">STREET RUMOR</span>
+                    <small style={{ color: "var(--muted)" }}>
+                      Outside {state.campaign.tavernEstablishment?.name || settlement.tavern.name}
+                    </small>
                   </div>
                   <div className="rumor-callout">
                     <ScrollText size={15} />
@@ -1867,8 +1878,8 @@ function SanctuaryView({ state, act }: { state: CampaignState; act: Act }) {
               </div>
             ) : (
               <p className="empty-prompt">
-                Consult the city oracle to reveal local defenses, tavern
-                atmosphere, and active street rumors.
+                Define the settlement to reveal the scale, defenses,
+                services, and street rumors outside this tavern's window.
               </p>
             )}
           </article>
