@@ -84,11 +84,7 @@ button {
   padding: clamp(24px, 4vw, 48px);
   border: 1px solid var(--line);
   border-radius: 4px;
-  background: linear-gradient(
-    150deg,
-    rgba(31, 34, 27, 0.96),
-    rgba(20, 22, 18, 0.96)
-  );
+  background: var(--color-bg-surface);
   box-shadow: 0 20px 80px rgba(0, 0, 0, 0.25);
 }
 .eyebrow {
@@ -130,7 +126,7 @@ p {
   height: 64px;
   margin: -7px 0;
   border: 1px solid var(--line);
-  background: #141611;
+  background: var(--color-bg-subtle);
   clip-path: polygon(25% 6%, 75% 6%, 100% 50%, 75% 94%, 25% 94%, 0 50%);
   color: #5b5e50;
   cursor: pointer;
@@ -156,7 +152,7 @@ input {
   padding: 14px;
   border: 1px solid var(--line);
   border-radius: 3px;
-  background: #10120e;
+  background: var(--color-bg-subtle);
   color: var(--ink);
 }
 .button-row {
@@ -174,20 +170,20 @@ button {
   padding: 10px 14px;
   border: 1px solid var(--line);
   border-radius: 3px;
-  background: #24271f;
+  background: var(--color-bg-subtle);
   cursor: pointer;
 }
 button.primary {
   border-color: #c76530;
   background: var(--ember);
-  color: #18120e;
+  color: #FFFFFF;
   font-weight: 700;
 }
 .result {
   margin-top: 24px;
   padding: 20px;
   border-left: 3px solid var(--ember);
-  background: #141611;
+  background: var(--color-bg-subtle);
 }
 .result strong {
   font-family: Georgia, serif;
@@ -243,7 +239,7 @@ textarea {
   border: 1px solid var(--line);
   border-radius: 3px;
   outline: none;
-  background: #10120e;
+  background: var(--color-bg-subtle);
   color: var(--ink);
 }
 input,
@@ -309,13 +305,7 @@ button:disabled {
   justify-content: space-between;
   min-height: 100vh;
   padding: clamp(30px, 6vw, 90px);
-  background:
-    radial-gradient(
-      circle at 75% 20%,
-      rgba(101, 117, 64, 0.22),
-      transparent 30%
-    ),
-    linear-gradient(150deg, #1f231a, #11130f 70%);
+  background: var(--color-bg-base);
   border-right: 1px solid var(--line);
 }
 .brand.large span {
@@ -354,7 +344,7 @@ button:disabled {
   flex-direction: column;
   justify-content: center;
   padding: clamp(28px, 5vw, 72px);
-  background: #151712;
+  background: var(--color-bg-subtle);
 }
 .welcome-form form {
   display: grid;
@@ -406,7 +396,7 @@ button:disabled {
   gap: 20px;
   padding: 0 24px;
   border-bottom: 1px solid var(--line);
-  background: rgba(17, 19, 15, 0.96);
+  background: var(--color-bg-surface);
   backdrop-filter: blur(16px);
 }
 .campaign-title {
@@ -472,7 +462,7 @@ button:disabled {
   gap: 5px;
   padding: 18px 10px;
   border-right: 1px solid var(--line);
-  background: #141611;
+  background: var(--color-bg-subtle);
 }
 .app-nav button {
   position: relative;
@@ -487,7 +477,7 @@ button:disabled {
 }
 .app-nav button.active {
   border-color: #4d553d;
-  background: #23271c;
+  background: var(--color-bg-subtle);
   color: var(--ink);
 }
 .app-nav button.active svg {
@@ -634,7 +624,7 @@ button:disabled {
   position: relative;
   padding: 22px;
   border: 1px solid var(--line);
-  background: #151712;
+  background: var(--color-bg-subtle);
 }
 .room-list article > span {
   color: var(--ember);
@@ -672,7 +662,7 @@ button:disabled {
   margin-top: 30px;
   padding: 24px;
   border-left: 3px solid var(--ember);
-  background: #12140f;
+  background: var(--color-bg-subtle);
 }
 .oracle-result > span {
   display: grid;
@@ -879,7 +869,7 @@ button:disabled {
   display: grid;
   justify-items: center;
   padding: 8px 2px;
-  background: #11130f;
+  background: var(--color-bg-subtle);
 }
 .ability-row span,
 .ability-row small {
@@ -962,7 +952,7 @@ button:disabled {
 .hp-bar {
   height: 5px;
   margin: 9px 0 5px;
-  background: #0c0e0b;
+  background: var(--color-bg-subtle);
 }
 .hp-bar i {
   display: block;
@@ -989,7 +979,7 @@ button:disabled {
   align-items: start;
   gap: 7px;
   padding: 8px 10px;
-  background: #12140f;
+  background: var(--color-bg-subtle);
   font-size: 10px;
 }
 .revealed-stats {
@@ -1060,7 +1050,7 @@ button:disabled {
   gap: 12px;
   padding: 18px;
   border: 1px solid var(--line);
-  background: #171a14;
+  background: var(--color-bg-subtle);
   box-shadow: 0 20px 60px #000;
 }
 .pressure-empty {
@@ -1100,7 +1090,7 @@ button:disabled {
   gap: 18px;
   padding: 18px;
   border: 1px solid var(--line);
-  background: #151712;
+  background: var(--color-bg-subtle);
 }
 .pressure-list article.reached {
   border-color: var(--ember);
@@ -2253,7 +2243,7 @@ button:disabled {
   gap: 8px;
 }
 .dungeon-map-container {
-  background: #0d0f0c;
+  background: var(--color-bg-subtle);
   border: 1px solid var(--line);
   border-radius: 6px;
   max-height: 420px;

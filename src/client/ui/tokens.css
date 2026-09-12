@@ -5,6 +5,7 @@
  */
 
 :root {
+  color-scheme: light;
   /* Surface & Background */
   --color-bg-base: #FBFAF8;
   --color-bg-surface: #FFFFFF;
@@ -55,38 +56,6 @@
   /* Transitions - compositor only */
   --transition-fast: opacity 120ms ease, transform 120ms ease;
   --transition-normal: opacity 200ms ease, transform 200ms ease;
-}
-
-/* Dark Mode / Night Dungeon Mode */
-@media (prefers-color-scheme: dark) {
-  :root {
-    --color-bg-base: #13171E;
-    --color-bg-surface: #1B212B;
-    --color-bg-subtle: #242B38;
-    --color-bg-card: #1E2530;
-    --color-bg-overlay: rgba(5, 7, 10, 0.8);
-
-    --color-text-primary: #F3F1ED;
-    --color-text-secondary: #CBD5E1;
-    --color-text-muted: #94A3B8;
-    --color-text-inverse: #1C1917;
-
-    --color-border-subtle: #2D3748;
-    --color-border-strong: #3E4C5F;
-
-    --color-ember: #E0581E;
-    --color-ember-glow: #F97316;
-    --color-ember-light: #3D2214;
-    --color-ember-border: #7C3615;
-
-    --color-bloodied: #EF4444;
-    --color-bloodied-bg: #3F1315;
-    --color-bloodied-border: #7F1D1D;
-    --color-injured: #F59E0B;
-    --color-injured-bg: #3B2A10;
-    --color-unharmed: #22C55E;
-    --color-unharmed-bg: #0F331E;
-  }
 }
 
 /* Touch-optimized button reset adhering to 44pt minimum */
