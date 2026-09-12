@@ -184,7 +184,7 @@ These deeds feed the authored tracks; do not replace the tracks with a second nu
 
 **Three acts:** discover contact and first-arrival conditions → exploit a banishment interval and test protection → execute either permanent remedy. Source binding remains possible before a manifestation; arrival is never mandatory.
 
-**Player procedure.** Apply the [approved player mechanics](09_outer_power_player_mechanics.md#6a-cthulhu--dream-contact-and-safe-recovery), including the benefit/price record, monster objectives, independent clue routes, and actual remedy completion events. Seed at least one recurring choice in the opening expedition and make it consequential by the third. Provide both remedies for every antagonist variant; adapt its dependency and rite rather than simply changing the name.
+**Player procedure.** Apply the [approved player mechanics](09_outer_power_player_mechanics.md#6a-cthulhu-dream-contact-and-safe-recovery), including the benefit/price record, monster objectives, independent clue routes, and actual remedy completion events. Seed at least one recurring choice in the opening expedition and make it consequential by the third. Provide both remedies for every antagonist variant; adapt its dependency and rite rather than simply changing the name.
 
 **Success A — Coastal exclusion:** complete permanent exclusion works at every committed arrival site and discharge the active intersection. **Success B — Source binding:** reach the submerged source and complete its binding through one declared conjunction interval, preventing projection through otherwise intact arrival sites. Neither requires the other. Both end this incursion; killing the manifestation alone does not.
 
@@ -201,7 +201,7 @@ These deeds feed the authored tracks; do not replace the tracks with a second nu
 
 **Opening pair.** A charitable patron requests a public accusation against a reformer in return for rescuing a companion. The reformer independently asks the party to protect a witness at a tollhouse. Both address real harm; neither exhausts the party's available choices. Receipts and independent testimony reveal who benefits.
 
-**Player procedure.** Apply the [approved player mechanics](09_outer_power_player_mechanics.md#6b-nyarlathotep--endorsements-and-divided-interests), including the benefit/price record, monster objectives, independent clue routes, and actual remedy completion events. Seed at least one recurring choice in the opening expedition and make it consequential by the third. Provide both remedies for every antagonist variant; adapt its dependency and rite rather than simply changing the name.
+**Player procedure.** Apply the [approved player mechanics](09_outer_power_player_mechanics.md#6b-nyarlathotep-endorsements-and-divided-interests), including the benefit/price record, monster objectives, independent clue routes, and actual remedy completion events. Seed at least one recurring choice in the opening expedition and make it consequential by the third. Provide both remedies for every antagonist variant; adapt its dependency and rite rather than simply changing the name.
 
 **Success A — Revoke the incarnation:** expose the common beneficiary to the actual issuers, revoke the three mandates, and complete a public severance at the site; its old endorsements can no longer sustain this incarnation. **Success B — Bind the mask:** use the discovered true designation and prepared vessel to trap and banish the local incarnation during its acceptance, even if the institutions still believe its public identities. Collecting the designation alone is insufficient.
 
@@ -232,7 +232,7 @@ These deeds feed the authored tracks; do not replace the tracks with a second nu
 
 **Three acts:** save communities and discover useful gifts → provision, cure, or isolate dependencies → sever or stabilise reproduction.
 
-**Player procedure.** Apply the [approved player mechanics](09_outer_power_player_mechanics.md#6c-shub-niggurath--gifts-with-appetites), including the benefit/price record, monster objectives, independent clue routes, and actual remedy completion events. Seed at least one recurring choice in the opening expedition and make it consequential by the third. Provide both remedies for every antagonist variant; adapt its dependency and rite rather than simply changing the name.
+**Player procedure.** Apply the [approved player mechanics](09_outer_power_player_mechanics.md#6c-shub-niggurath-gifts-with-appetites), including the benefit/price record, monster objectives, independent clue routes, and actual remedy completion events. Seed at least one recurring choice in the opening expedition and make it consequential by the third. Provide both remedies for every antagonist variant; adapt its dependency and rite rather than simply changing the name.
 
 **Success A — Sever propagation:** disable the Mother Gate and every independent forced-propagation source so no compulsory expansion remains possible. **Success B — Bound the ecology:** replace each divine reproductive dependency with the demonstrated regulator, supply its bounded population, and complete one full birth/feeding cycle without tribute or compelled propagation. The sources can remain alive under B. Neither requires killing transformed civilians or curing every voluntary gift.
 
@@ -263,7 +263,7 @@ These deeds feed the authored tracks; do not replace the tracks with a second nu
 
 **Three acts:** discover desirable privileges → recover personal identities and role terms → dissolve participation or perform restoration.
 
-**Player procedure.** Apply the [approved player mechanics](09_outer_power_player_mechanics.md#6d-hastur--roles-recognition-and-audiences), including the benefit/price record, monster objectives, independent clue routes, and actual remedy completion events. Seed at least one recurring choice in the opening expedition and make it consequential by the third. Provide both remedies for every antagonist variant; adapt its dependency and rite rather than simply changing the name.
+**Player procedure.** Apply the [approved player mechanics](09_outer_power_player_mechanics.md#6d-hastur-roles-recognition-and-audiences), including the benefit/price record, monster objectives, independent clue routes, and actual remedy completion events. Seed at least one recurring choice in the opening expedition and make it consequential by the third. Provide both remedies for every antagonist variant; adapt its dependency and rite rather than simply changing the name.
 
 **Success A — Dissolve the cast:** enable an indispensable participant to withdraw and complete that role's dissolution rite at its originating venue, so a replacement audition cannot restore it. **Success B — Counter-performance:** recover the original names and rite and complete a willing counter-performance that restores all linked venues and cancels the work's claims, even with its cast still assembled. Neither is merely burning a book or murdering a performer.
 
@@ -294,7 +294,7 @@ These deeds feed the authored tracks; do not replace the tracks with a second nu
 
 **Three acts:** prove impossible routes → exploit and carry connections → cut or redirect the circuit.
 
-**Player procedure.** Apply the [approved player mechanics](09_outer_power_player_mechanics.md#6e-yog-sothoth--the-map-as-equipment), including the benefit/price record, monster objectives, independent clue routes, and actual remedy completion events. Seed at least one recurring choice in the opening expedition and make it consequential by the third. Provide both remedies for every antagonist variant; adapt its dependency and rite rather than simply changing the name.
+**Player procedure.** Apply the [approved player mechanics](09_outer_power_player_mechanics.md#6e-yog-sothoth-the-map-as-equipment), including the benefit/price record, monster objectives, independent clue routes, and actual remedy completion events. Seed at least one recurring choice in the opening expedition and make it consequential by the third. Provide both remedies for every antagonist variant; adapt its dependency and rite rather than simply changing the name.
 
 **Success A — Cut and seal:** isolate an indispensable junction, safely discharge its stored power, and permanently seal its circuit function. **Success B — Complete into containment:** key the verified uninhabited destination, redirect the required edges, complete the conjunction there, and close the return connection. B can succeed with all original junctions intact. Both leave unrelated routes available according to the resulting graph.
 
@@ -311,7 +311,7 @@ These deeds feed the authored tracks; do not replace the tracks with a second nu
 
 **Opening pair.** A drover's sister pays for a missing-person search; a salt merchant needs a vanished cart recovered. A nearby hospice offers guarded rest at a stated delivery price. Ordinary independent shelter remains available through provisioning, and successful searches earn normal rewards.
 
-**Player procedure.** Apply the [approved player mechanics](09_outer_power_player_mechanics.md#6f-tsathoggua--rest-deferred-prices-and-preserved-strength), including the benefit/price record, monster objectives, independent clue routes, and actual remedy completion events. Seed at least one recurring choice in the opening expedition and make it consequential by the third. Provide both remedies for every antagonist variant; adapt its dependency and rite rather than simply changing the name.
+**Player procedure.** Apply the [approved player mechanics](09_outer_power_player_mechanics.md#6f-tsathoggua-rest-deferred-prices-and-preserved-strength), including the benefit/price record, monster objectives, independent clue routes, and actual remedy completion events. Seed at least one recurring choice in the opening expedition and make it consequential by the third. Provide both remedies for every antagonist variant; adapt its dependency and rite rather than simply changing the name.
 
 **Success A — Exhaust the emergence:** destroy or recover the indispensable stored assets and collapse the dedicated conduits, leaving no legal operation capable of supplying the committed occupation. **Success B — End the claim:** release the pledged servants, cancel all three sustaining tribute agreements, and complete the severance rite, expelling the incursion even with physical caches intact. The agreements cannot be renewed by simply appointing another collector after severance.
 
@@ -342,7 +342,7 @@ These deeds feed the authored tracks; do not replace the tracks with a second nu
 
 **Three acts:** provision and map the first winter → spend the short thaw or earn winter access → destroy transmission or exploit a full discharge.
 
-**Player procedure.** Apply the [approved player mechanics](09_outer_power_player_mechanics.md#6g-ithaqua--warmth-hauling-and-exceptional-access), including the benefit/price record, monster objectives, independent clue routes, and actual remedy completion events. Seed at least one recurring choice in the opening expedition and make it consequential by the third. Provide both remedies for every antagonist variant; adapt its dependency and rite rather than simply changing the name.
+**Player procedure.** Apply the [approved player mechanics](09_outer_power_player_mechanics.md#6g-ithaqua-warmth-hauling-and-exceptional-access), including the benefit/price record, monster objectives, independent clue routes, and actual remedy completion events. Seed at least one recurring choice in the opening expedition and make it consequential by the third. Provide both remedies for every antagonist variant; adapt its dependency and rite rather than simply changing the name.
 
 **Success A — End transmission:** destroy all functioning banking/transmission anchors and sever their connection so the system cannot suppress the returning thaw. **Success B — Drain and sever:** lure the whole reserve into the prepared sink and permanently sever the replenishment source during its declared exposed interval. B may leave the anchors intact but inert. Neither simple endurance nor a discharge without permanent severance wins.
 
@@ -373,7 +373,7 @@ These deeds feed the authored tracks; do not replace the tracks with a second nu
 
 **Three acts:** establish real benefits and costs → deliver alternatives or prepare chapter defection → terminate collection through either route below.
 
-**Player procedure.** Apply the [approved player mechanics](09_outer_power_player_mechanics.md#6h-tcho-tcho-compact--the-material-ability-to-refuse), including the benefit/price record, monster objectives, independent clue routes, and actual remedy completion events. Seed at least one recurring choice in the opening expedition and make it consequential by the third. Provide both remedies for every antagonist variant; adapt its dependency and rite rather than simply changing the name.
+**Player procedure.** Apply the [approved player mechanics](09_outer_power_player_mechanics.md#6h-tcho-tcho-compact-the-material-ability-to-refuse), including the benefit/price record, monster objectives, independent clue routes, and actual remedy completion events. Seed at least one recurring choice in the opening expedition and make it consequential by the third. Provide both remedies for every antagonist variant; adapt its dependency and rite rather than simply changing the name.
 
 **Success A — Independent provision:** replace all five services with operational independent providers, survive the next scheduled collection without losing essential care, and execute the contract's termination procedure so collective tribute is unenforceable. **Success B — Collective defection:** obtain all chapters' valid withdrawal, transfer necessary tools and mundane expertise to their communities, and perform the shared severance rite. B keeps the former chapter providers rather than requiring competing institutions; patron-only benefits have known substitutes before withdrawal. Killing the patron's local avatar is not required by either route.
 
@@ -404,7 +404,7 @@ These deeds feed the authored tracks; do not replace the tracks with a second nu
 
 **Three acts:** correlate useful power with emissions → choose, ground, or replace hazardous utilities → disconnect or stabilise through the conjunction.
 
-**Player procedure.** Apply the [approved player mechanics](09_outer_power_player_mechanics.md#6i-azathoth--useful-power-and-its-external-cost), including the benefit/price record, monster objectives, independent clue routes, and actual remedy completion events. Seed at least one recurring choice in the opening expedition and make it consequential by the third. Provide both remedies for every antagonist variant; adapt its dependency and rite rather than simply changing the name.
+**Player procedure.** Apply the [approved player mechanics](09_outer_power_player_mechanics.md#6i-azathoth-useful-power-and-its-external-cost), including the benefit/price record, monster objectives, independent clue routes, and actual remedy completion events. Seed at least one recurring choice in the opening expedition and make it consequential by the third. Provide both remedies for every antagonist variant; adapt its dependency and rite rather than simply changing the name.
 
 **Success A — Disconnect and discharge:** isolate every collector from the invocation network and safely discharge its stored harmonics, leaving the local invocation circuit inoperable. **Success B — Restore separation:** complete the counter-pattern and sustain it throughout the committed conjunction, permanently excluding this resonance from the region even with collectors intact. Neither requires defeating Azathoth in combat. The finale can be a repair/defence operation under changing physical conditions.
 

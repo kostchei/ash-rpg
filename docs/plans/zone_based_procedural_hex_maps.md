@@ -97,7 +97,7 @@ There is also a source-fidelity issue. Examples needing correction or provenance
 - Labels such as “Coven of Bittermold,” “Jungle Rangers,” and “Deep Delver Guild” should be marked as ASH adaptations unless reconciled with the source. Do not promote manifest inventions into published canon.
 - A static audit of `data/bestiary/monsters.json` found unmatched manifest IDs in every zone, including all eight entries in `city_of_masks`, `howler` in the Gloaming, and `basilisk_cultists` in Black River. This is a reference audit, not a full assessment of stat-block correctness or runtime fallback coverage. Resolve aliases and validate the final loaded catalog before relying on these pools.
 
-Relevant files: [generator](../../src/server/generators/hex-map.ts), [database](../../src/server/database.ts), [event handlers](../../src/server/app.ts), [shared types](../../src/shared/types.ts), [zone writer](../../scripts/ingest/create-zones.ts), [existing map tests](../../tests/hex-map.test.ts), [zone tests](../../tests/zones.test.ts).
+Relevant files: [generator](https://github.com/kostchei/ash-rpg/blob/main/src/server/generators/hex-map.ts), [database](https://github.com/kostchei/ash-rpg/blob/main/src/server/database.ts), [event handlers](https://github.com/kostchei/ash-rpg/blob/main/src/server/app.ts), [shared types](https://github.com/kostchei/ash-rpg/blob/main/src/shared/types.ts), [zone writer](https://github.com/kostchei/ash-rpg/blob/main/scripts/ingest/create-zones.ts), [existing map tests](https://github.com/kostchei/ash-rpg/blob/main/tests/hex-map.test.ts), [zone tests](https://github.com/kostchei/ash-rpg/blob/main/tests/zones.test.ts).
 
 ## 4. What the Hexcrawl Guidebook changes
 

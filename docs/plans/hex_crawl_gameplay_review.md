@@ -16,7 +16,7 @@ The remediation document's opening re-verification is stale for the working tree
 
 These are foundations, not evidence that R1–R7 or G1–G6 are complete. In particular:
 
-- Preview and campaign creation remain separate generation requests. With a blank seed, creation does not reuse the preview's minted seed. The preview is not a committed candidate. See [App.tsx](../../src/client/App.tsx#L235).
+- Preview and campaign creation remain separate generation requests. With a blank seed, creation does not reuse the preview's minted seed. The preview is not a committed candidate. See [App.tsx](https://github.com/kostchei/ash-rpg/blob/main/src/client/App.tsx#L235).
 - `travel:move` exists, so the old claim that there is no movement handler is no longer correct. Its implementation still fails the spatial-travel acceptance criteria below.
 - `zone:exit` no longer always selects Oakhaven, but it reads a `homeZoneId` that campaign state does not provide, then falls back to the current zone. It can return the coordinates home while keeping the wrong zone.
 - Additional saved structural cells/layers do not make them accessible through the current 19-hex client projection.
@@ -25,7 +25,7 @@ These are foundations, not evidence that R1–R7 or G1–G6 are complete. In par
 
 ### A. Make tavern leads point to real, persistent opportunities
 
-**Current:** Sanctuary's settlement/tavern result lives in component state. `settlement:generate` runs the standalone settlement oracle, with no haven, region, or target-site context. Generated regions separately save four rumor records with target IDs, but campaign state does not publish that list. The haven exposes only one rumor string. Map-linked rumor templates also assert guardians or treasure without creating those facts. See [SanctuaryView](../../src/client/App.tsx#L906), [settlement handler](../../src/server/app.ts#L461), [region rumors](../../src/server/generators/procedural-region.ts#L876), and [campaign state](../../src/server/database.ts#L1272).
+**Current:** Sanctuary's settlement/tavern result lives in component state. `settlement:generate` runs the standalone settlement oracle, with no haven, region, or target-site context. Generated regions separately save four rumor records with target IDs, but campaign state does not publish that list. The haven exposes only one rumor string. Map-linked rumor templates also assert guardians or treasure without creating those facts. See [SanctuaryView](https://github.com/kostchei/ash-rpg/blob/main/src/client/App.tsx#L906), [settlement handler](https://github.com/kostchei/ash-rpg/blob/main/src/server/app.ts#L461), [region rumors](https://github.com/kostchei/ash-rpg/blob/main/src/server/generators/procedural-region.ts#L876), and [campaign state](https://github.com/kostchei/ash-rpg/blob/main/src/server/database.ts#L1272).
 
 **Required:** persist the home establishment and present at least three distinct leads grounded in actual sites. Each lead needs its claim, source, known direction/route, uncertainty, and private target reference. Give the party useful differences in distance, preparation, danger, and opportunity. Selecting a lead should establish an expedition objective and show known approaches; it should not reveal the target's secrets or prevent choosing another direction.
 
@@ -33,7 +33,7 @@ These are foundations, not evidence that R1–R7 or G1–G6 are complete. In par
 
 ### B. Connect the map controls to a safe movement action
 
-**Current:** clicking a hex changes `selectedId`. The map does not read `partyLocation`, display a party marker, or emit `travel:move`. Its travel button still emits `wilderness:watch` with a manually selected forest/marsh/mountain biome. Revealing a hex is independent of moving. See [MapView](../../src/client/App.tsx#L1266), [hex selection](../../src/client/App.tsx#L1446), and [watch control](../../src/client/App.tsx#L1720).
+**Current:** clicking a hex changes `selectedId`. The map does not read `partyLocation`, display a party marker, or emit `travel:move`. Its travel button still emits `wilderness:watch` with a manually selected forest/marsh/mountain biome. Revealing a hex is independent of moving. See [MapView](https://github.com/kostchei/ash-rpg/blob/main/src/client/App.tsx#L1266), [hex selection](https://github.com/kostchei/ash-rpg/blob/main/src/client/App.tsx#L1446), and [watch control](https://github.com/kostchei/ash-rpg/blob/main/src/client/App.tsx#L1720).
 
 **Required:** show the current party location separately from the inspected hex; offer valid next steps and known routes; let the party select destination/direction, travel mode, and the relevant action. Show known cost, requirements, progress, and arrival. Connect departure and arrival to the campaign phase. Establish who can commit a shared party action, with protection against stale or duplicate submissions from multiple devices.
 
@@ -41,7 +41,7 @@ These are foundations, not evidence that R1–R7 or G1–G6 are complete. In par
 
 ### C. Enforce geography using saved world truth
 
-**Current:** [travel:move](../../src/server/app.ts#L912) accepts any destination among the projected hexes, without checking adjacency or requiring a valid connection. `fromHexId` can affect origin selection. The requested mode is logged but does not enforce the saved edge's allowed modes, requirements, or direction. Every arrival writes `layerId: "surface"`.
+**Current:** [travel:move](https://github.com/kostchei/ash-rpg/blob/main/src/server/app.ts#L912) accepts any destination among the projected hexes, without checking adjacency or requiring a valid connection. `fromHexId` can affect origin selection. The requested mode is logged but does not enforce the saved edge's allowed modes, requirements, or direction. Every arrival writes `layerId: "surface"`.
 
 The handler uses the role-filtered `getState()` projection as its rules input. An unexplored target has no biome even for the host, so movement can use the fallback `Wilderness` terrain. Connection visibility can also differ by role. A player's knowledge must not determine physical cost or passability.
 
@@ -51,7 +51,7 @@ The handler uses the role-filtered `getState()` projection as its rules input. A
 
 ### D. Resolve travel one watch at a time
 
-**Current:** the movement handler calculates or reads a watch cost, immediately writes the destination, and logs the number. There is no persistent travel progress or campaign watch clock. It trusts a client-provided `watchesTraveledToday`, defaulting to zero, and evaluates fatigue once with default character inputs. It does not apply fatigue to characters or consume supplies. `wilderness:watch` separately rolls weather and encounter text without advancing time or movement. See [movement resolution](../../src/server/app.ts#L945), [wilderness handler](../../src/server/app.ts#L893), and [travel helpers](../../src/server/rules.ts#L282).
+**Current:** the movement handler calculates or reads a watch cost, immediately writes the destination, and logs the number. There is no persistent travel progress or campaign watch clock. It trusts a client-provided `watchesTraveledToday`, defaulting to zero, and evaluates fatigue once with default character inputs. It does not apply fatigue to characters or consume supplies. `wilderness:watch` separately rolls weather and encounter text without advancing time or movement. See [movement resolution](https://github.com/kostchei/ash-rpg/blob/main/src/server/app.ts#L945), [wilderness handler](https://github.com/kostchei/ash-rpg/blob/main/src/server/app.ts#L893), and [travel helpers](https://github.com/kostchei/ash-rpg/blob/main/src/server/rules.ts#L282).
 
 **Required:** save the calendar/watch, action in progress, remaining travel effort, daily weather, and applicable party/character resources. Resolve navigation, delays, hazards, discoveries, and encounters at the proper intervals. A multi-watch crossing must allow interruption and continuation. Apply forced-march checks to the traveling characters using persisted history and their actual abilities. Charge daily rations/water at the defined boundary, once, including rest and waiting; apply environmental modifiers only when relevant.
 
@@ -61,17 +61,17 @@ The documentation already describes four six-hour watches. The exploration rules
 
 ### E. Make discovery and encounters interactive, local procedures
 
-**Current:** hidden-site filtering has improved, but [site:discover](../../src/server/app.ts#L981) accepts a supplied site ID without checking the party's position, the site's campaign/active-region ownership, search eligibility, or action cost. There is no corresponding search control. Revealed connection summaries are returned without filtering hidden destination knowledge. Travel does not invoke local hazards or encounters; the separate wilderness roller uses three generic tables.
+**Current:** hidden-site filtering has improved, but [site:discover](https://github.com/kostchei/ash-rpg/blob/main/src/server/app.ts#L981) accepts a supplied site ID without checking the party's position, the site's campaign/active-region ownership, search eligibility, or action cost. There is no corresponding search control. Revealed connection summaries are returned without filtering hidden destination knowledge. Travel does not invoke local hazards or encounters; the separate wilderness roller uses three generic tables.
 
 **Required:** add deliberate actions such as travel, search, forage, camp, wait, and retreat. Distinguish noticing a visible landmark from discovering a hidden site. Derive events from local terrain, zone, season, and faction activity. Present warning signs and choices to avoid, investigate, negotiate, or fight. Connect a triggered encounter to persistent encounter state and pause travel until its outcome permits continuation.
 
-Keep danger attached to the place. The current encounter generator can scale a variant using average party level; it should not redefine an established site's threat when the party arrives. See [encounter:start](../../src/server/app.ts#L1019). Authored adventure paths also specify encounter budgets and party-size limits, including hazard costs and reinforcement waves. Preserve those explicit path rules when creating eligible encounters; distinguish them from silently rescaling an already established creature or site.
+Keep danger attached to the place. The current encounter generator can scale a variant using average party level; it should not redefine an established site's threat when the party arrives. See [encounter:start](https://github.com/kostchei/ash-rpg/blob/main/src/server/app.ts#L1019). Authored adventure paths also specify encounter budgets and party-size limits, including hazard costs and reinforcement waves. Preserve those explicit path rules when creating eligible encounters; distinguish them from silently rescaling an already established creature or site.
 
 **Gate:** a remote hidden site cannot be discovered from home; scouting does not reveal every secret; a local threat can be detected and avoided; an encounter interrupts the journey and its resolution persists.
 
 ### F. Enter and revisit the actual adventure site
 
-**Current:** the map's sites are a list of names/kinds. There is no site-entry action. `dungeon:generate` creates a generic next room without a site reference. Rooms are stored as a campaign-wide sequence, and the phase control can change to dungeon without arriving at an entrance. See [site list](../../src/client/App.tsx#L1596), [dungeon handler](../../src/server/app.ts#L997), and [room persistence](../../src/server/database.ts#L149).
+**Current:** the map's sites are a list of names/kinds. There is no site-entry action. `dungeon:generate` creates a generic next room without a site reference. Rooms are stored as a campaign-wide sequence, and the phase control can change to dungeon without arriving at an entrance. See [site list](https://github.com/kostchei/ash-rpg/blob/main/src/client/App.tsx#L1596), [dungeon handler](https://github.com/kostchei/ash-rpg/blob/main/src/server/app.ts#L997), and [room persistence](https://github.com/kostchei/ash-rpg/blob/main/src/server/database.ts#L149).
 
 **Required:** persist the active site, entrance/exit location, and its adventure state. Bind rooms, occupants, hazards, treasure, discoveries, and resolved changes to that site. Validate arrival and access before entering. Allow the same site to be left and revisited without regenerating its rooms or restoring taken treasure. Support ruins, shrines, settlements, and other encounters without requiring every destination to become a dungeon.
 
@@ -79,7 +79,7 @@ Keep danger attached to the place. The current encounter generator can scale a v
 
 ### G. Make return, rest, and the next expedition part of the same world
 
-**Current:** `zone:enter` changes a label without traveling; `zone:exit` teleports to home coordinates and can retain the wrong zone. `party:rest` restores all HP without checking physical sanctuary or elapsed time. Movement does not update the phase or derive the zone from location. See [zone transitions](../../src/server/app.ts#L410) and [rest](../../src/server/app.ts#L577).
+**Current:** `zone:enter` changes a label without traveling; `zone:exit` teleports to home coordinates and can retain the wrong zone. `party:rest` restores all HP without checking physical sanctuary or elapsed time. Movement does not update the phase or derive the zone from location. See [zone transitions](https://github.com/kostchei/ash-rpg/blob/main/src/server/app.ts#L410) and [rest](https://github.com/kostchei/ash-rpg/blob/main/src/server/app.ts#L577).
 
 **Required:** use the same route/watch procedure for the return journey. Derive active zone and normal phase transitions from actual location and site context. Save the full home reference independently. Gate safe recovery/resupply by location and resolved time. Keep any host relocation tool explicitly administrative. Update journal knowledge, expended sites, and relevant faction/route changes on the existing world between expeditions.
 
@@ -91,7 +91,7 @@ Keep danger attached to the place. The current encounter generator can scale a v
 
 **Existing design:** the [engine framework](../oracles/07_adventure_path_engines.md) defines distinct world processes, antagonist Requirements, asymmetric win conditions, recurring counterplay, permanent consequences, and path-specific forms of record keeping. The authored paths supply environments, clues, NPC roles, access opportunities, and outcomes. [Domains of Dread](../adventure_paths/01_domains_of_dread.md#implementation-in-the-table-companion) explicitly proposes optional hidden path insertions into settlement, wilderness, dungeon, encounter, rumor, and NPC generation. Ordinary campaign pressures are a separate supporting mechanism.
 
-**Existing code:** [mind-below.ts](../../src/server/generators/mind-below.ts) supplies path creation across surface/cave/end environments, encounter premises and budgets, progress updates, per-character aquatic-access checks, and boss structure. [Its tests](../../tests/mind-below.test.ts) exercise these helpers. Inspection found no runtime imports from the app, database, client, or region generator. The current `campaign:complication` action uses the generic campaign oracle, not this path system. The other authored paths' state specifications are not implemented in the inspected runtime.
+**Existing code:** [mind-below.ts](https://github.com/kostchei/ash-rpg/blob/main/src/server/generators/mind-below.ts) supplies path creation across surface/cave/end environments, encounter premises and budgets, progress updates, per-character aquatic-access checks, and boss structure. [Its tests](https://github.com/kostchei/ash-rpg/blob/main/tests/mind-below.test.ts) exercise these helpers. Inspection found no runtime imports from the app, database, client, or region generator. The current `campaign:complication` action uses the generic campaign oracle, not this path system. The other authored paths' state specifications are not implemented in the inspected runtime.
 
 **Required integration:**
 
@@ -106,7 +106,7 @@ Keep danger attached to the place. The current encounter generator can scale a v
 
 ## 3. Broader map work that still affects travel
 
-Do not mark layered travel complete because layer rows exist. Public connection projection reduces endpoints to initial-window hex IDs using coordinates without preserving the layer; out-of-window endpoints become `??`. `getState()` reads the 19 public hex rows, and movement only searches those rows. The distant-journey connection points at a region that has not been materialized. See [endpoint projection](../../src/server/generators/procedural-region.ts#L951), [distant connection](../../src/server/generators/procedural-region.ts#L849), and [map state](../../src/server/database.ts#L1159).
+Do not mark layered travel complete because layer rows exist. Public connection projection reduces endpoints to initial-window hex IDs using coordinates without preserving the layer; out-of-window endpoints become `??`. `getState()` reads the 19 public hex rows, and movement only searches those rows. The distant-journey connection points at a region that has not been materialized. See [endpoint projection](https://github.com/kostchei/ash-rpg/blob/main/src/server/generators/procedural-region.ts#L951), [distant connection](https://github.com/kostchei/ash-rpg/blob/main/src/server/generators/procedural-region.ts#L849), and [map state](https://github.com/kostchei/ash-rpg/blob/main/src/server/database.ts#L1159).
 
 Before offering these journeys, expose reachable saved layers/regions with unambiguous locations, build real destination maps, enforce passage and transport requirements, and distinguish district scale from regional scale. The initial playable expedition can be implemented in one valid surface region while these remain explicit outstanding original-plan requirements.
 
@@ -127,7 +127,7 @@ Using Red Sands seed `travel_audit_20260903`:
 | Compare generated rumors with delivered state | Four rumor records saved; no rumor list in campaign state. |
 | Inspect room schema | No region, site, or entrance reference; rooms belong only to the campaign. |
 
-The current movement test checks a successful response, a positive cost, and a returned location object; its return-home check only asserts success. It does not prove path validity, clock changes, correct return zone, supply effects, or persistent site play. See [remediation test](../../tests/remediation.test.ts#L424).
+The current movement test checks a successful response, a positive cost, and a returned location object; its return-home check only asserts success. It does not prove path validity, clock changes, correct return zone, supply effects, or persistent site play. See [remediation test](https://github.com/kostchei/ash-rpg/blob/main/tests/remediation.test.ts#L424).
 
 ## 5. Completion sequence and end-to-end gate
 

@@ -4,7 +4,7 @@ Status: initial table-assisted runtime implementation, 2026-09-07. All nine oute
 
 ## What Is Implemented
 
-The [catalogue](../../src/server/paths/encounters/catalog.ts) supplies nine packs with seven sites each: a haven, two independent evidence sites, two preparation sites, and two remedy sites. There are **63 site situations**, each with an NPC, quest, and concrete interactions; six sites per pack contain a monster group, using three authored monster roles per path. The resulting 54 groups include counts, AC, HP, attacks, morale, objectives, tactics, and ways to end interference without killing them. These are initial ASH encounter statistics requiring playtesting, not copied board-game statistics or a complete bestiary.
+The [catalogue](https://github.com/kostchei/ash-rpg/blob/main/src/server/paths/encounters/catalog.ts) supplies nine packs with seven sites each: a haven, two independent evidence sites, two preparation sites, and two remedy sites. There are **63 site situations**, each with an NPC, quest, and concrete interactions; six sites per pack contain a monster group, using three authored monster roles per path. The resulting 54 groups include counts, AC, HP, attacks, morale, objectives, tactics, and ways to end interference without killing them. These are initial ASH encounter statistics requiring playtesting, not copied board-game statistics or a complete bestiary.
 
 Each pack has six sourced clue records. Four establish two independently discoverable remedies; the other two reveal the routes unlocked by tested preparation. Either initial evidence site can establish either remedy. Essential evidence does not depend on accepting supernatural help, winning combat, or passing one persuasion/search roll.
 
@@ -32,9 +32,9 @@ Each pack has six sourced clue records. Four establish two independently discove
 
 ## Shared State and Authority
 
-The [engine](../../src/server/paths/encounters/engine.ts) maintains separate known and visited sites, clue provenance, facts, completed actions, resolved groups, materials, accepted/released benefit history, work minutes, victories, Toll, and a journal. These records support the different authored mechanics; they are not a generic Doom track.
+The [engine](https://github.com/kostchei/ash-rpg/blob/main/src/server/paths/encounters/engine.ts) maintains separate known and visited sites, clue provenance, facts, completed actions, resolved groups, materials, accepted/released benefit history, work minutes, victories, Toll, and a journal. These records support the different authored mechanics; they are not a generic Doom track.
 
-The [service](../../src/server/paths/encounters/service.ts) stores definitions and state in SQLite's `path_encounter_packs`. Socket mutations use the existing campaign revision and transactional receipt mechanism. Retries do not repeat resource changes; stale requests and unauthorised players cannot commit changes. Read-only requests neither advance revision nor broadcast recursively.
+The [service](https://github.com/kostchei/ash-rpg/blob/main/src/server/paths/encounters/service.ts) stores definitions and state in SQLite's `path_encounter_packs`. Socket mutations use the existing campaign revision and transactional receipt mechanism. Retries do not repeat resource changes; stale requests and unauthorised players cannot commit changes. Read-only requests neither advance revision nor broadcast recursively.
 
 All viewers receive only the public projection: known destinations, current occupants, revealed evidence, public procedures and failure stakes, and recorded outcomes. Future occupants, undiscovered clues, internal effect definitions, and success predicates stay server-side. Only the host receives the initial pack catalogue; ordinary players and the caller see the saved fiction after selection. The caller or host can commit table outcomes; selecting the initial pack remains host-only.
 
@@ -50,6 +50,6 @@ Future integration should bind each site to persistent regional coordinates, fee
 
 ## Verification
 
-[Content and persistence tests](../../tests/path-encounters.test.ts) exercise all nine packs, both remedy branches through either evidence source without a bargain, remote-action rejection, hidden-information filtering, recovery after failure, rescue completion, alternative group resolution, material idempotence, and database reload.
+[Content and persistence tests](https://github.com/kostchei/ash-rpg/blob/main/tests/path-encounters.test.ts) exercise all nine packs, both remedy branches through either evidence source without a bargain, remote-action rejection, hidden-information filtering, recovery after failure, rescue completion, alternative group resolution, material idempotence, and database reload.
 
-[Socket tests](../../tests/path-encounter-sockets.test.ts) exercise host/caller authority, private catalogue access, read-only refresh, transactional retries, stale revisions, and invalid remote completions. These checks establish the implemented recording behaviour; they are not a claim of combat balance or physical-table playtest completion.
+[Socket tests](https://github.com/kostchei/ash-rpg/blob/main/tests/path-encounter-sockets.test.ts) exercise host/caller authority, private catalogue access, read-only refresh, transactional retries, stale revisions, and invalid remote completions. These checks establish the implemented recording behaviour; they are not a claim of combat balance or physical-table playtest completion.

@@ -6,10 +6,10 @@ Reviewed implementation: `48fb3ad` — `map betaa`.
 
 **Re-verified 2026-09-03 against current `HEAD` (still `48fb3ad`; no fixing commits landed since this document was written).** Independent code inspection reconfirmed the core blockers without needing to re-run the generator:
 
-- R1: `Welcome`'s create-campaign form ([App.tsx:181-204](../../src/client/App.tsx#L181-L204)) has no zone/border picker at all and posts only `name`/`regionName`/`pin`; `createCampaign()` ([database.ts:628-663](../../src/server/database.ts#L628-L663)) falls straight to `generateLegacyHexMap({ legacy: true })` whenever `generationConfig` is absent, so every campaign created through the UI today is still the fixed Oakhaven map. The six-setting/border selector, live preview, and `/api/regions/preview` endpoint exist only in the API layer — nothing in the client calls them.
-- R4: `regionId` is built as `reg_${campaignId}_${baseSeed.slice(0, 8)}` ([procedural-region.ts:269](../../src/server/generators/procedural-region.ts#L269)); two distinct seeds sharing an 8-character prefix collide, and `saveGeneratedRegion` writes the region row with `INSERT OR REPLACE` ([database.ts:407-411](../../src/server/database.ts#L406-L411)), so a same-campaign regeneration silently destroys the previous region and every row that references it.
-- R7: generated resource sites are tagged `visibility: "hidden"` ([procedural-region.ts:430](../../src/server/generators/procedural-region.ts#L420-L433)), but the only filter applied when building the public site summary is `isSecret: s.visibility === "secret"` — `"hidden"` never matches, so hidden resource caches are visible to players from the moment a hex is generated, regardless of reveal state.
-- G3/G4: `zone:exit` unconditionally calls `db.setActiveZone(identity.campaignId, "oakhaven_borderlands")` ([app.ts:362-377](../../src/server/app.ts#L362-L377)) — a desert-oasis or underground-refuge campaign is teleported back to Oakhaven on "return to sanctuary." There is still no `travel:` socket handler; the only movement-adjacent handlers are `hex:reveal` (a host-triggered flag flip) and `wilderness:watch`, which still hard-codes a three-biome (`forest | marsh | mountain`) table in [rules.ts:213-273](../../src/server/rules.ts#L213-L273) and ignores the party's actual hex, connections, or the new `calculateTravelWatches`/`evaluateWatchFatigue` helpers sitting unused lower in the same file.
+- R1: `Welcome`'s create-campaign form ([App.tsx:181-204](https://github.com/kostchei/ash-rpg/blob/main/src/client/App.tsx#L181-L204)) has no zone/border picker at all and posts only `name`/`regionName`/`pin`; `createCampaign()` ([database.ts:628-663](https://github.com/kostchei/ash-rpg/blob/main/src/server/database.ts#L628-L663)) falls straight to `generateLegacyHexMap({ legacy: true })` whenever `generationConfig` is absent, so every campaign created through the UI today is still the fixed Oakhaven map. The six-setting/border selector, live preview, and `/api/regions/preview` endpoint exist only in the API layer — nothing in the client calls them.
+- R4: `regionId` is built as `reg_${campaignId}_${baseSeed.slice(0, 8)}` ([procedural-region.ts:269](https://github.com/kostchei/ash-rpg/blob/main/src/server/generators/procedural-region.ts#L269)); two distinct seeds sharing an 8-character prefix collide, and `saveGeneratedRegion` writes the region row with `INSERT OR REPLACE` ([database.ts:407-411](https://github.com/kostchei/ash-rpg/blob/main/src/server/database.ts#L406-L411)), so a same-campaign regeneration silently destroys the previous region and every row that references it.
+- R7: generated resource sites are tagged `visibility: "hidden"` ([procedural-region.ts:430](https://github.com/kostchei/ash-rpg/blob/main/src/server/generators/procedural-region.ts#L420-L433)), but the only filter applied when building the public site summary is `isSecret: s.visibility === "secret"` — `"hidden"` never matches, so hidden resource caches are visible to players from the moment a hex is generated, regardless of reveal state.
+- G3/G4: `zone:exit` unconditionally calls `db.setActiveZone(identity.campaignId, "oakhaven_borderlands")` ([app.ts:362-377](https://github.com/kostchei/ash-rpg/blob/main/src/server/app.ts#L362-L377)) — a desert-oasis or underground-refuge campaign is teleported back to Oakhaven on "return to sanctuary." There is still no `travel:` socket handler; the only movement-adjacent handlers are `hex:reveal` (a host-triggered flag flip) and `wilderness:watch`, which still hard-codes a three-biome (`forest | marsh | mountain`) table in [rules.ts:213-273](https://github.com/kostchei/ash-rpg/blob/main/src/server/rules.ts#L213-L273) and ignores the party's actual hex, connections, or the new `calculateTravelWatches`/`evaluateWatchFatigue` helpers sitting unused lower in the same file.
 
 No corrections to the analysis below were needed; the milestones, acceptance criteria, and definition of done remain the right target.
 
@@ -68,7 +68,7 @@ Containment before completion: stop committing invalid candidates immediately; r
 
 ### R1 — Wire zone and border selection through the client
 
-Primary files: [App.tsx](../../src/client/App.tsx), [app.ts](../../src/server/app.ts), [database.ts](../../src/server/database.ts), [hex-map.ts](../../src/server/generators/hex-map.ts).
+Primary files: [App.tsx](https://github.com/kostchei/ash-rpg/blob/main/src/client/App.tsx), [app.ts](https://github.com/kostchei/ash-rpg/blob/main/src/server/app.ts), [database.ts](https://github.com/kostchei/ash-rpg/blob/main/src/server/database.ts), [hex-map.ts](https://github.com/kostchei/ash-rpg/blob/main/src/server/generators/hex-map.ts).
 
 - Add a shared client configuration for single-zone or border selection, with seed and season under optional settings.
 - Present the six Cursed Scroll settings. Keep Oakhaven available only as an explicitly labeled example/legacy choice rather than the implicit world for all campaigns.
@@ -90,7 +90,7 @@ Acceptance:
 
 ### R2 — Build actual map strategies and second-zone connections
 
-Primary files: [procedural-region.ts](../../src/server/generators/procedural-region.ts), [zone-profiles.ts](../../src/shared/zone-profiles.ts), [types.ts](../../src/shared/types.ts), database and map client.
+Primary files: [procedural-region.ts](https://github.com/kostchei/ash-rpg/blob/main/src/server/generators/procedural-region.ts), [zone-profiles.ts](https://github.com/kostchei/ash-rpg/blob/main/src/shared/zone-profiles.ts), [types.ts](https://github.com/kostchei/ash-rpg/blob/main/src/shared/types.ts), database and map client.
 
 Replace the current single `surface` layer construction with explicit topology strategies:
 
@@ -120,7 +120,7 @@ Acceptance:
 
 ### R3 — Generate physically eligible terrain before inhabitants and roads
 
-Primary files: [procedural-region.ts](../../src/server/generators/procedural-region.ts), [hydrology.ts](../../src/server/generators/hydrology.ts), [zone-profiles.ts](../../src/shared/zone-profiles.ts).
+Primary files: [procedural-region.ts](https://github.com/kostchei/ash-rpg/blob/main/src/server/generators/procedural-region.ts), [hydrology.ts](https://github.com/kostchei/ash-rpg/blob/main/src/server/generators/hydrology.ts), [zone-profiles.ts](https://github.com/kostchei/ash-rpg/blob/main/src/shared/zone-profiles.ts).
 
 Reorder generation into explicit stages:
 
@@ -155,7 +155,7 @@ Acceptance:
 
 ### R4 — Preserve region identity, revisions, and references
 
-Primary files: [database.ts](../../src/server/database.ts), [procedural-region.ts](../../src/server/generators/procedural-region.ts), [types.ts](../../src/shared/types.ts).
+Primary files: [database.ts](https://github.com/kostchei/ash-rpg/blob/main/src/server/database.ts), [procedural-region.ts](https://github.com/kostchei/ash-rpg/blob/main/src/server/generators/procedural-region.ts), [types.ts](https://github.com/kostchei/ash-rpg/blob/main/src/shared/types.ts).
 
 - Separate deterministic generation-local keys from persistence identity. A seed is generation input, not a unique database primary key.
 - Allocate stable region-instance and revision IDs independent of seed prefixes. A full-seed hash alone is insufficient when the same seed can be intentionally reused.
@@ -177,7 +177,7 @@ Acceptance:
 
 ### R5 — Validate requests and reject invalid candidates
 
-Primary files: [app.ts](../../src/server/app.ts), [database.ts](../../src/server/database.ts), [types.ts](../../src/shared/types.ts), generation modules.
+Primary files: [app.ts](https://github.com/kostchei/ash-rpg/blob/main/src/server/app.ts), [database.ts](https://github.com/kostchei/ash-rpg/blob/main/src/server/database.ts), [types.ts](https://github.com/kostchei/ash-rpg/blob/main/src/shared/types.ts), generation modules.
 
 - Define one runtime schema for selection, known zone IDs, distinct border IDs, compatible pairing/mode, seed type/length, scale, radius, season, source mode, and rules profile.
 - Normalize defaults on the server. Share the validated shape with clients rather than using `z.any()` or a type cast as validation.
@@ -199,7 +199,7 @@ Acceptance:
 
 ### R6 — Correct hydrology accumulation and classification
 
-Primary file: [hydrology.ts](../../src/server/generators/hydrology.ts).
+Primary file: [hydrology.ts](https://github.com/kostchei/ash-rpg/blob/main/src/server/generators/hydrology.ts).
 
 - Assign an acyclic downstream graph using elevation and a stable flat-drainage rank.
 - Accumulate catchment in topological order: process upstream contributions completely before propagating a node's accumulated value downstream.
@@ -218,7 +218,7 @@ Acceptance:
 
 ### R7 — Separate site discovery from geographic knowledge
 
-Primary files: [types.ts](../../src/shared/types.ts), [procedural-region.ts](../../src/server/generators/procedural-region.ts), [database.ts](../../src/server/database.ts), map client.
+Primary files: [types.ts](https://github.com/kostchei/ash-rpg/blob/main/src/shared/types.ts), [procedural-region.ts](https://github.com/kostchei/ash-rpg/blob/main/src/server/generators/procedural-region.ts), [database.ts](https://github.com/kostchei/ash-rpg/blob/main/src/server/database.ts), map client.
 
 - Preserve distinct `visible`, `hidden`, and `secret` world properties. Do not collapse them into a boolean that treats hidden resources as public.
 - Add persisted party discovery records keyed to sites/features. Mapping a hex and discovering a site are separate operations.

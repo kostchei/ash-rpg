@@ -2,7 +2,7 @@
 
 Status: **historical opening-expedition engineering plan; this document does not implement or certify the release.** The [table assistant campaign requirements](table_assistant_campaign_requirements.md) supersede conflicting scope below: the complete product supports one to six people, two characters per player, and a three-act level 1–10 campaign. The four-core-class level 1–3 milestone below is an incremental delivery slice. Its baseline predates commit `9c1b2e0`; use the new document's assessment for current implementation status.
 
-Prepared 2026-09-06 from inspection of the current working tree, including uncommitted changes. The product scope is summarized in the [README](../../README.md#the-next-playable-release-a-companion-for-the-physical-table).
+Prepared 2026-09-06 from inspection of the current working tree, including uncommitted changes. The product scope is summarized in the [README](https://github.com/kostchei/ash-rpg/blob/main/README.md#the-next-playable-release-a-companion-for-the-physical-table).
 
 ## 1. Outcome and scope
 

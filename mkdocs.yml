@@ -113,9 +113,29 @@ nav:
   - "Adventure Paths":
       - "Adventure Path Engines": oracles/07_adventure_path_engines.md
       - "Populating Adventure Path Engines": oracles/08_adventure_path_population.md
+      - "Outer-Power Incursions: Player Mechanics": oracles/09_outer_power_player_mechanics.md
+      - "Connected Path Encounters": oracles/10_connected_path_encounters.md
+      - "Objectives, Clues, and Lead Spawning": oracles/11_objectives_clues_and_lead_spawning.md
+      - "Procedural Objective Pools": oracles/12_procedural_objective_pools.md
+      - "Per-Site Objective Selector": oracles/13_per_site_objective_selector.md
       - "Adventure Path 1: Domains of Dread": adventure_paths/01_domains_of_dread.md
       - "Adventure Path 2: The Night Below": adventure_paths/02_the_mind_below.md
       - "Adventure Path 3: The Eternal Cycle": adventure_paths/03_the_vanishing_middle.md
+      - "Adventure Path 4: The Stolen Dawn": adventure_paths/04_the_stolen_dawn.md
   - "Monsternomicon":
       - "Lore DCs & Harvesting Rules": bestiary/index.md
       - "Creature Compendium": bestiary/creatures.md
+
+not_in_nav: |
+  hex-map-art.md
+  quest-reward-guidance.md
+  plans/*
+
+validation:
+  nav:
+    omitted_files: info
+    not_found: warn
+  links:
+    not_found: ignore
+    anchors: warn
+

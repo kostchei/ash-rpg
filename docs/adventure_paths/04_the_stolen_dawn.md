@@ -20,7 +20,7 @@ Do not silently funnel all three routes into killing the sovereign. A living sov
 
 ## Geography: Three Acts, Two Cursed Scroll Zones
 
-Use the project's existing [zone profiles](../../src/shared/zone-profiles.ts). Their source themes supply regional material; the supernatural winter and buried dawn machinery are authored overlays, not claims about the published scrolls.
+Use the project's existing [zone profiles](https://github.com/kostchei/ash-rpg/blob/main/src/shared/zone-profiles.ts). Their source themes supply regional material; the supernatural winter and buried dawn machinery are authored overlays, not claims about the published scrolls.
 
 | Act | Levels | Primary territory | Cursed Scroll profile | Expedition scale |
 | --- | --- | --- | --- | --- |

@@ -18,7 +18,7 @@ Current authored treasure-package probabilities yield mean XP per real find of *
 
 ## Simulation
 
-[Audit script](../../scripts/audit-site-count.py): 10,000 deterministic-seed campaigns per scenario, source-by-source XP reset, one site-completion award per site, and exactly one award for each of the first two acts. Act boundaries are assumed to occur when their level budget is met; actual story timing is not simulated. All simulated sites achieve their story objective. No carousing, clever-play XP, unrelated boons, or final-boss rewards.
+[Audit script](https://github.com/kostchei/ash-rpg/blob/main/scripts/audit-site-count.py): 10,000 deterministic-seed campaigns per scenario, source-by-source XP reset, one site-completion award per site, and exactly one award for each of the first two acts. Act boundaries are assumed to occur when their level budget is met; actual story timing is not simulated. All simulated sites achieve their story objective. No carousing, clever-play XP, unrelated boons, or final-boss rewards.
 
 | Rooms per site | Expected loot sources before recovery | Mean completed sites with all loot recovered | Mean completed sites with 80% loot recovered | Sites sufficient in 90% of the 80%-recovery simulations |
 | --- | ---: | ---: | ---: | ---: |

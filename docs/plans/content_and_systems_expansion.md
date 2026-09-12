@@ -36,7 +36,7 @@ OGL-adjacent than Shadowdark core.
 
 ## 1. Monsternomicon population (bestiary ingestion pipeline)
 
-**Current state:** `MONSTERS` in [src/shared/content.ts:230-285](../../src/shared/content.ts) has 3
+**Current state:** `MONSTERS` in [src/shared/content.ts:230-285](https://github.com/kostchei/ash-rpg/blob/main/src/shared/content.ts) has 3
 hand-written entries. `loreTier()` in `src/server/rules.ts` implements the
 4-tier Monsternomicon *mechanic* but has almost nothing to unlock.
 
@@ -180,7 +180,7 @@ socket events. Gate generator availability by current phase (e.g. the room
 generator only fires in `dungeon` phase) and have zone-scoped generators
 (wandering monsters, hazards) pull from the active zone's manifest instead of
 the single always-on global table used today. `HEX_DEFINITIONS`
-([content.ts:37-228](../../src/shared/content.ts)) becomes the default/example
+([content.ts:37-228](https://github.com/kostchei/ash-rpg/blob/main/src/shared/content.ts)) becomes the default/example
 zone rather than the only one.
 
 **Sequencing dependency:** this workstream should come *after* workstream 2's
@@ -193,7 +193,7 @@ re-plumbing once the generators land.
 ## 4. Class talents and the 1-36 level curve
 
 **Current state:** `CLASSES` in
-[src/shared/content.ts:24-35](../../src/shared/content.ts) is just
+[src/shared/content.ts:24-35](https://github.com/kostchei/ash-rpg/blob/main/src/shared/content.ts) is just
 `{name, hitDie}` — no talents, no level-1 features, no progression, despite
 `docs/rules/05_classes_core.md` and `06_classes_*.md` describing rich
 per-class mechanics.
