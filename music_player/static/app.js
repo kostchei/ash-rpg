@@ -10,7 +10,9 @@ const state = {
   activeTrack: null, // { filename, title, isLocal, ytId }
   playlist: [],
   currentIndex: -1,
-  loopMode: 'track', // 'track' | 'set' | 'none'
+  loopMode: 'shuffle', // 'shuffle' (default) | 'track' | 'linear'
+  shuffledIndices: [],
+  shufflePointer: 0,
   vaultFilterQuery: '',
   vaultFilterMode: 'all', // 'all' | 'looped' | 'full'
   activeJobs: [],
@@ -40,6 +42,7 @@ const el = {
   videoWrapper: document.getElementById('video-wrapper'),
 
   // Header & Vault actions
+  btnHeroShuffle: document.getElementById('btn-hero-shuffle'),
   btnPlayRandom: document.getElementById('btn-play-random'),
   btnShuffleVault: document.getElementById('btn-shuffle-vault'),
   vaultFilterInput: document.getElementById('vault-filter-input'),
@@ -165,12 +168,37 @@ function bindEvents() {
       el.mediaPlayer.requestFullscreen().catch(() => {});
     }
   });
+  if (el.btnHeroShuffle) el.btnHeroShuffle.addEventListener('click', playRandomTrack);
+  if (el.visualizerOverlay) el.visualizerOverlay.addEventListener('click', playRandomTrack);
+}
+
+function buildShuffledQueue() {
+  if (state.library.length === 0) return;
+  const indices = state.library.map((_, i) => i);
+  for (let i = indices.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [indices[i], indices[j]] = [indices[j], indices[i]];
+  }
+  state.shuffledIndices = indices;
+  state.shufflePointer = 0;
 }
 
 function playRandomTrack() {
   if (state.library.length === 0) return;
-  const randIdx = Math.floor(Math.random() * state.library.length);
-  playLocalTrack(state.library[randIdx], randIdx);
+  state.loopMode = 'shuffle';
+  el.loopModeIcon.textContent = '🔀';
+  el.loopModeLabel.textContent = 'Shuffle All';
+  el.btnLoopMode.classList.add('active');
+
+  if (!state.shuffledIndices || state.shuffledIndices.length !== state.library.length) {
+    buildShuffledQueue();
+  }
+  if (state.shufflePointer >= state.shuffledIndices.length) {
+    buildShuffledQueue();
+  }
+
+  const idx = state.shuffledIndices[state.shufflePointer++];
+  playLocalTrack(state.library[idx], idx);
 }
 
 // ---------------------------------------------------------------------------
@@ -179,7 +207,11 @@ function playRandomTrack() {
 function initPlayer() {
   const player = el.mediaPlayer;
   player.volume = parseFloat(el.volSlider.value);
-  player.loop = true; // default track loop
+  player.loop = false; // default is shuffle through all vault albums!
+
+  el.loopModeIcon.textContent = '🔀';
+  el.loopModeLabel.textContent = 'Shuffle All';
+  el.btnLoopMode.classList.add('active');
 
   player.addEventListener('play', () => {
     el.btnPlayPause.textContent = '⏸';
@@ -205,10 +237,12 @@ function initPlayer() {
 
   // End of media handling based on Loop Mode
   player.addEventListener('ended', () => {
-    if (state.loopMode === 'track') {
+    if (state.loopMode === 'shuffle') {
+      playRandomTrack(); // plays next random album continuously!
+    } else if (state.loopMode === 'track') {
       player.currentTime = 0;
       player.play();
-    } else if (state.loopMode === 'set') {
+    } else if (state.loopMode === 'linear') {
       playNext();
     } else {
       el.btnPlayPause.textContent = '▶';
@@ -218,9 +252,7 @@ function initPlayer() {
   // Controls
   el.btnPlayPause.addEventListener('click', () => {
     if (!player.src) {
-      if (state.library.length > 0) {
-        playLocalTrack(state.library[0], 0);
-      }
+      playRandomTrack();
       return;
     }
     if (player.paused) {
@@ -243,25 +275,25 @@ function initPlayer() {
     player.volume = parseFloat(el.volSlider.value);
   });
 
-  // Cycle loop modes: 'track' -> 'set' -> 'none' -> 'track'
+  // Cycle loop modes: 'shuffle' -> 'track' -> 'linear' -> 'shuffle'
   el.btnLoopMode.addEventListener('click', () => {
-    if (state.loopMode === 'track') {
-      state.loopMode = 'set';
-      player.loop = false;
-      el.loopModeIcon.textContent = '🔁';
-      el.loopModeLabel.textContent = 'Loop Set';
-      el.btnLoopMode.classList.add('active');
-    } else if (state.loopMode === 'set') {
-      state.loopMode = 'none';
-      player.loop = false;
-      el.loopModeIcon.textContent = '➡️';
-      el.loopModeLabel.textContent = 'No Loop';
-      el.btnLoopMode.classList.remove('active');
-    } else {
+    if (state.loopMode === 'shuffle') {
       state.loopMode = 'track';
       player.loop = true;
       el.loopModeIcon.textContent = '🔂';
       el.loopModeLabel.textContent = 'Loop Track';
+      el.btnLoopMode.classList.add('active');
+    } else if (state.loopMode === 'track') {
+      state.loopMode = 'linear';
+      player.loop = false;
+      el.loopModeIcon.textContent = '🔁';
+      el.loopModeLabel.textContent = 'Linear Set';
+      el.btnLoopMode.classList.add('active');
+    } else {
+      state.loopMode = 'shuffle';
+      player.loop = false;
+      el.loopModeIcon.textContent = '🔀';
+      el.loopModeLabel.textContent = 'Shuffle All';
       el.btnLoopMode.classList.add('active');
     }
   });
@@ -277,8 +309,13 @@ function playLocalTrack(item, index = -1) {
   player.currentTime = 0;
 
   el.playerTitle.textContent = item.title || item.filename;
-  el.playerBadge.textContent = item.is_looped ? `LOOPED ${item.loop_count || 1}X` : 'LOCAL MP4';
-  el.playerBadge.style.color = item.is_looped ? '#ff9f43' : '#c59b27';
+  el.playerBadge.textContent = state.loopMode === 'shuffle' ? '🔀 SHUFFLE' : (item.is_looped ? `LOOPED ${item.loop_count || 1}X` : 'LOCAL MP4');
+  el.playerBadge.style.color = state.loopMode === 'shuffle' ? '#2ecc71' : (item.is_looped ? '#ff9f43' : '#c59b27');
+
+  if (el.btnHeroShuffle) {
+    const currentNum = state.shufflePointer || 1;
+    el.btnHeroShuffle.innerHTML = `<span class="icon">⏭</span> NEXT RANDOM ALBUM (${currentNum}/${state.library.length})`;
+  }
 
   player.play().catch(e => console.log('Autoplay deferred:', e));
 
@@ -290,13 +327,25 @@ function playLocalTrack(item, index = -1) {
 
 function playPrev() {
   if (state.library.length === 0) return;
-  let nextIdx = state.currentIndex - 1;
-  if (nextIdx < 0) nextIdx = state.library.length - 1;
-  playLocalTrack(state.library[nextIdx], nextIdx);
+  if (state.loopMode === 'shuffle') {
+    if (state.shuffledIndices && state.shufflePointer > 1) {
+      state.shufflePointer -= 2;
+      const idx = state.shuffledIndices[state.shufflePointer++];
+      playLocalTrack(state.library[idx], idx);
+      return;
+    }
+  }
+  let prevIdx = state.currentIndex - 1;
+  if (prevIdx < 0) prevIdx = state.library.length - 1;
+  playLocalTrack(state.library[prevIdx], prevIdx);
 }
 
 function playNext() {
   if (state.library.length === 0) return;
+  if (state.loopMode === 'shuffle') {
+    playRandomTrack();
+    return;
+  }
   let nextIdx = state.currentIndex + 1;
   if (nextIdx >= state.library.length) nextIdx = 0;
   playLocalTrack(state.library[nextIdx], nextIdx);
@@ -493,8 +542,12 @@ async function loadLibrary() {
     const res = await fetch('/api/library');
     const data = await res.json();
     state.library = data.library || [];
+    buildShuffledQueue();
     renderLibrary();
     renderPresets(); // Update preset cards with Play buttons!
+    if (!state.activeTrack && state.library.length > 0) {
+      el.playerTitle.textContent = `${state.library.length} albums ready • Press Play or Shuffle to start`;
+    }
   } catch (err) {
     console.error('Failed to load library:', err);
   }

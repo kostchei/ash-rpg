@@ -43,17 +43,22 @@
             <div id="yt-preview-wrapper" class="yt-preview-wrapper hidden">
               <iframe id="yt-iframe" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
             </div>
-            <div id="visualizer-overlay" class="visualizer-overlay">
-              <div class="metal-seal">⚡</div>
-              <div class="screen-glitch-text">READY FOR PLAYBACK</div>
+            <div id="visualizer-overlay" class="visualizer-overlay" title="Click to start random playback">
+              <div class="metal-seal">🎲</div>
+              <div class="screen-glitch-text">CLICK TO PLAY RANDOM ALBUM</div>
             </div>
           </div>
 
           <!-- Player Controls Bar -->
           <div class="player-controls">
+            <!-- Big Shuffle Play Button -->
+            <button id="btn-hero-shuffle" class="btn btn-gold btn-hero-shuffle" title="Play your 66 recorded albums in random shuffle order">
+              <span class="icon">🎲</span> PLAY RANDOM MUSIC (66 ALBUMS)
+            </button>
+
             <div class="now-playing-info">
-              <span id="player-badge" class="badge-tag">IDLE</span>
-              <span id="player-title" class="track-title">Select a track or recorded MP4 to play</span>
+              <span id="player-badge" class="badge-tag">SHUFFLE READY</span>
+              <span id="player-title" class="track-title">Press Play Random Music to start</span>
             </div>
 
             <!-- Scrubber Timeline -->
@@ -68,9 +73,9 @@
               <div class="controls-left">
                 <button id="btn-prev" class="btn-ctrl" title="Previous Track">⏮</button>
                 <button id="btn-play-pause" class="btn-ctrl btn-play" title="Play/Pause">▶</button>
-                <button id="btn-next" class="btn-ctrl" title="Next Track">⏭</button>
-                <button id="btn-loop-mode" class="btn-ctrl btn-toggle active" title="Toggle Loop Mode">
-                  <span id="loop-mode-icon">🔁</span> <span id="loop-mode-label">Loop Track</span>
+                <button id="btn-next" class="btn-ctrl" title="Next Random Track">⏭</button>
+                <button id="btn-loop-mode" class="btn-ctrl btn-toggle active" title="Toggle Loop / Shuffle Mode">
+                  <span id="loop-mode-icon">🔀</span> <span id="loop-mode-label">Shuffle All</span>
                 </button>
               </div>
 

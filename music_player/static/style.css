@@ -197,12 +197,19 @@ body {
   gap: 12px;
   background: radial-gradient(circle at center, #1b1313 0%, #08080a 80%);
   z-index: 1;
+  cursor: pointer;
+}
+
+.visualizer-overlay:hover .metal-seal {
+  transform: scale(1.15);
+  filter: drop-shadow(0 0 24px var(--gold-glow));
 }
 
 .metal-seal {
   font-size: 3.5rem;
   filter: drop-shadow(0 0 15px var(--gold-glow));
   animation: pulseSeal 3s infinite ease-in-out;
+  transition: transform 0.2s ease;
 }
 
 @keyframes pulseSeal {
@@ -226,6 +233,30 @@ body {
   display: flex;
   flex-direction: column;
   gap: 12px;
+}
+
+.btn-hero-shuffle {
+  width: 100%;
+  padding: 12px 18px;
+  font-size: 0.92rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  border-radius: var(--radius-md);
+  box-shadow: 0 4px 18px rgba(241, 196, 15, 0.25);
+  transition: all 0.2s ease;
+}
+
+.btn-hero-shuffle:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 24px rgba(241, 196, 15, 0.4);
+}
+
+.btn-hero-shuffle:active {
+  transform: scale(0.98);
 }
 
 .now-playing-info {
