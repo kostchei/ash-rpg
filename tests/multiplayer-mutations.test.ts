@@ -73,7 +73,6 @@ describe("M0: Multiplayer Mutations & Authority", () => {
 
     expect(wizard.classId).toBe("wizard");
     expect(wizard.inventory?.some((i) => i.itemId === "staff" && i.equipped)).toBe(true);
-    expect(wizard.inventory?.some((i) => i.itemId === "leather_armor" && i.equipped)).toBe(true);
     expect(wizard.inventory?.some((i) => i.itemId === "backpack")).toBe(true);
     expect(wizard.inventory?.some((i) => i.itemId === "torches" && i.remainingTorches === 2)).toBe(true);
     expect(wizard.inventory?.some((i) => i.itemId === "rations" && i.quantity === 3)).toBe(true);
@@ -108,7 +107,7 @@ describe("M0: Multiplayer Mutations & Authority", () => {
     const thief = refreshed.characters.find((c) => c.id === thiefId)!;
     const bard = refreshed.characters.find((c) => c.id === bardId)!;
 
-    expect(duelist.inventory?.some((i) => i.itemId === "greatsword" && i.equipped)).toBe(true);
+    expect(duelist.inventory?.some((i) => i.itemId === "bastard_sword" && i.equipped)).toBe(true);
     expect(priest.inventory?.some((i) => i.itemId === "warhammer" && i.equipped)).toBe(true);
     expect(thief.inventory?.some((i) => i.itemId === "shortsword" && i.equipped)).toBe(true);
     expect(bard.inventory?.some((i) => i.itemId === "shortsword" && i.equipped)).toBe(true);

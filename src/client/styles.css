@@ -514,20 +514,24 @@ button:disabled {
 }
 .toast {
   position: fixed;
-  z-index: 50;
+  z-index: 99999;
   right: 24px;
   bottom: 24px;
-  max-width: min(380px, calc(100vw - 48px));
-  padding: 12px 18px;
-  border: 1px solid #789254;
-  border-left: 4px solid var(--ember);
-  background: #1c2217;
-  color: #f5f5f4;
-  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.65);
+  max-width: min(400px, calc(100vw - 48px));
+  padding: 14px 20px;
+  border: 1px solid #8fad66;
+  border-left: 5px solid var(--ember);
+  background: #171d13 !important;
+  color: #ffffff !important;
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.8);
   font-size: 13px;
   font-weight: 600;
   letter-spacing: 0.02em;
   border-radius: 4px;
+  pointer-events: auto;
+}
+.toast * {
+  color: #ffffff !important;
 }
 
 .surface-grid {
@@ -1505,24 +1509,45 @@ button:disabled {
   z-index: 1000;
   padding: 20px;
 }
-.zone-modal {
+.zone-modal,
+.modal-panel,
+.camp-modal-card {
   max-width: 680px;
   width: 100%;
   max-height: 90vh;
   overflow-y: auto;
-  border-color: var(--moss);
+  background: #191e16 !important;
+  color: #f5f5f4 !important;
+  border: 1px solid var(--moss);
+  border-radius: 8px;
   padding: 24px;
+  box-shadow: 0 20px 80px rgba(0, 0, 0, 0.85);
+}
+.zone-modal h1, .zone-modal h2, .zone-modal h3, .zone-modal h4,
+.modal-panel h1, .modal-panel h2, .modal-panel h3, .modal-panel h4,
+.camp-modal-card h1, .camp-modal-card h2, .camp-modal-card h3, .camp-modal-card h4 {
+  color: #f5f5f4 !important;
+}
+.zone-modal p, .zone-modal li,
+.modal-panel p, .modal-panel li,
+.camp-modal-card p, .camp-modal-card li {
+  color: #d6d3d1 !important;
+}
+.zone-modal b, .zone-modal strong,
+.modal-panel b, .modal-panel strong,
+.camp-modal-card b, .camp-modal-card strong {
+  color: #ffffff !important;
 }
 .modal-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  border-bottom: 1px solid var(--line);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
   padding-bottom: 12px;
   margin-bottom: 16px;
 }
 .zone-theme {
-  color: var(--moss);
+  color: #8fad66;
   font-style: italic;
   margin: 4px 0 0 0;
   font-size: 14px;
@@ -1539,7 +1564,7 @@ button:disabled {
 .zone-stat-strip > div span {
   display: block;
   font-size: 11px;
-  color: var(--muted);
+  color: #a8a29e;
   text-transform: uppercase;
 }
 .zone-section {
@@ -1547,18 +1572,18 @@ button:disabled {
 }
 .zone-section h3 {
   font-size: 14px;
-  color: var(--ink);
+  color: #f5f5f4;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   margin: 0 0 8px 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
   padding-bottom: 4px;
 }
 .zone-section ul {
   margin: 0;
   padding-left: 20px;
   font-size: 13px;
-  color: var(--muted);
+  color: #d6d3d1;
 }
 .zone-section li {
   margin-bottom: 4px;
@@ -1571,8 +1596,8 @@ button:disabled {
 .faction-card {
   padding: 10px;
   border-radius: 4px;
-  border: 1px solid var(--line);
-  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(0, 0, 0, 0.35);
 }
 .faction-head {
   display: flex;
@@ -1605,7 +1630,7 @@ button:disabled {
 .faction-card p {
   margin: 0;
   font-size: 12px;
-  color: var(--muted);
+  color: #d6d3d1;
 }
 .flora-chips {
   display: flex;
