@@ -66,11 +66,7 @@ const releaseMeta = {
 
 writeFileSync(join(out, 'release.json'), JSON.stringify(releaseMeta, null, 2));
 
-console.log('4. Updating release ZIP archive...');
-const quote = s => "'" + s.replaceAll("'", "''") + "'";
-execFileSync('powershell.exe', ['-NoProfile', '-Command', `Compress-Archive -Force -LiteralPath ${quote(out)} -DestinationPath ${quote(out + '.zip')}`], { stdio: 'inherit' });
-
-console.log('5. Updating Desktop shortcut...');
+console.log('4. Updating Desktop shortcut...');
 try {
   const targetCmd = join(out, 'Start ASH.cmd').replaceAll('\\', '\\\\');
   const targetDir = out.replaceAll('\\', '\\\\');
@@ -87,6 +83,18 @@ try {
   console.log('  Desktop shortcut created/updated: Start ASH.lnk');
 } catch (e) {
   console.log('  Notice: Could not automatically update desktop shortcut:', e.message);
+}
+
+console.log('5. Updating release ZIP archive (excluding transient media downloads)...');
+try {
+  // Use Windows built-in tar for fast multi-threaded zip creation, excluding transient downloaded media
+  const zipPath = out + '.zip';
+  execFileSync('tar.exe', ['-a', '-c', '-f', zipPath, '--exclude=music_player/media/*', '-C', resolve('releases'), name], { stdio: 'inherit' });
+  console.log('  Release ZIP updated successfully.');
+} catch (err) {
+  console.log('  Fallback to Compress-Archive...');
+  const quote = s => "'" + s.replaceAll("'", "''") + "'";
+  execFileSync('powershell.exe', ['-NoProfile', '-Command', `Compress-Archive -Force -LiteralPath ${quote(out)} -DestinationPath ${quote(out + '.zip')}`], { stdio: 'inherit' });
 }
 
 console.log(`\nRelease updated successfully to commit ${gitCommit}!`);
