@@ -28,21 +28,27 @@ for (const folder of ['dist/client', 'dist/server']) {
   cpSync(folder, dest, { recursive: true });
 }
 
-for (const folder of ['zones', 'data/bestiary', 'data/classes', 'data/oracles', 'data/treasure', 'music_player']) {
+for (const folder of ['zones', 'data/bestiary', 'data/classes', 'data/oracles', 'data/treasure']) {
   if (existsSync(folder)) {
-    if (folder === 'music_player') {
-      cpSync(folder, join(out, folder), {
-        recursive: true,
-        filter: (src, dest) => {
-          if (src.includes('media') && existsSync(dest)) {
-            return false;
-          }
-          return true;
-        }
-      });
-    } else {
-      cpSync(folder, join(out, folder), { recursive: true });
-    }
+    cpSync(folder, join(out, folder), { recursive: true });
+  }
+}
+
+// Sync music player code/static assets, preserving media as shared junction or directory
+const relMusic = join(out, 'music_player');
+mkdirSync(relMusic, { recursive: true });
+for (const item of ['static', 'server.py', 'record_looped_set.py', 'run_player.bat', 'README.md']) {
+  const itemPath = join('music_player', item);
+  if (existsSync(itemPath)) {
+    cpSync(itemPath, join(relMusic, item), { recursive: true });
+  }
+}
+const relMedia = join(relMusic, 'media');
+if (!existsSync(relMedia)) {
+  try {
+    execSync(`powershell.exe -Command "New-Item -ItemType Junction -Path '${relMedia}' -Target '${resolve('music_player/media')}'"`, { stdio: 'ignore' });
+  } catch {
+    mkdirSync(relMedia, { recursive: true });
   }
 }
 
@@ -99,14 +105,12 @@ try {
 
 console.log('5. Updating release ZIP archive (excluding transient media downloads)...');
 try {
-  // Use Windows built-in tar for fast multi-threaded zip creation, excluding transient downloaded media
-  const zipPath = out + '.zip';
-  execFileSync('tar.exe', ['-a', '-c', '-f', zipPath, '--exclude=music_player/media/*', '-C', resolve('releases'), name], { stdio: 'inherit' });
+  // Use Windows built-in tar with relative path to avoid drive-letter remote host parsing issues
+  const zipRel = `.\\releases\\${name}.zip`;
+  execFileSync('tar.exe', ['-a', '-c', '-f', zipRel, '--exclude=*.mp4', '--exclude=*media/*', '-C', 'releases', name], { stdio: 'inherit' });
   console.log('  Release ZIP updated successfully.');
 } catch (err) {
-  console.log('  Fallback to Compress-Archive...');
-  const quote = s => "'" + s.replaceAll("'", "''") + "'";
-  execFileSync('powershell.exe', ['-NoProfile', '-Command', `Compress-Archive -Force -LiteralPath ${quote(out)} -DestinationPath ${quote(out + '.zip')}`], { stdio: 'inherit' });
+  console.log('  Notice: Could not create ZIP archive with tar:', err.message);
 }
 
 console.log(`\nRelease updated successfully to commit ${gitCommit}!`);
