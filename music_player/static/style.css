@@ -479,6 +479,115 @@ input[type="range"]::-webkit-slider-thumb {
   gap: 8px;
 }
 
+/* Vault Filter Bar */
+.vault-filter-bar {
+  padding: 12px 18px;
+  background: #11151e;
+  border-bottom: 1px solid var(--border-muted);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.vault-search-box {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.vault-search-icon {
+  position: absolute;
+  left: 12px;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+#vault-filter-input {
+  width: 100%;
+  padding: 8px 32px 8px 34px;
+  background: #090c12;
+  border: 1px solid var(--border-muted);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-size: 0.82rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+#vault-filter-input:focus {
+  border-color: var(--gold-main);
+}
+
+.vault-filter-chips {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.chip-filter {
+  cursor: pointer;
+  background: #161b26;
+  border: 1px solid var(--border-muted);
+  color: var(--text-secondary);
+  border-radius: 999px;
+  padding: 3px 10px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  transition: all 0.15s;
+}
+
+.chip-filter:hover {
+  color: #fff;
+  border-color: var(--gold-main);
+}
+
+.chip-filter.active {
+  background: #2a2216;
+  color: var(--gold-main);
+  border-color: var(--gold-main);
+}
+
+/* Studio & Batch Utilities */
+.studio-utilities {
+  margin-top: 14px;
+  background: #10131a;
+  border: 1px solid var(--border-muted);
+  border-radius: var(--radius-md);
+  padding: 10px 14px;
+}
+
+.studio-utilities summary {
+  cursor: pointer;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  font-weight: 600;
+  user-select: none;
+}
+
+.studio-utilities summary:hover {
+  color: var(--text-secondary);
+}
+
+.studio-body {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid #1c222e;
+}
+
+.studio-desc {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+  line-height: 1.4;
+}
+
+.studio-btn-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
 /* Presets Shelf */
 .presets-section {
   background: var(--bg-panel);

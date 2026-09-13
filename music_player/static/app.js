@@ -11,6 +11,8 @@ const state = {
   playlist: [],
   currentIndex: -1,
   loopMode: 'track', // 'track' | 'set' | 'none'
+  vaultFilterQuery: '',
+  vaultFilterMode: 'all', // 'all' | 'looped' | 'full'
   activeJobs: [],
   pollingInterval: null
 };
@@ -36,6 +38,13 @@ const el = {
   volSlider: document.getElementById('vol-slider'),
   btnCinema: document.getElementById('btn-cinema'),
   videoWrapper: document.getElementById('video-wrapper'),
+
+  // Header & Vault actions
+  btnPlayRandom: document.getElementById('btn-play-random'),
+  btnShuffleVault: document.getElementById('btn-shuffle-vault'),
+  vaultFilterInput: document.getElementById('vault-filter-input'),
+  btnClearFilter: document.getElementById('btn-clear-filter'),
+  vaultFilterChips: document.querySelectorAll('.chip-filter'),
 
   // Presets & Search
   presetsGrid: document.getElementById('presets-grid'),
@@ -106,10 +115,43 @@ function bindEvents() {
 
   // Library buttons
   el.btnRefreshLibrary.addEventListener('click', loadLibrary);
-  el.btnCompileMaster.addEventListener('click', handleCompileMasterSet);
+  if (el.btnCompileMaster) el.btnCompileMaster.addEventListener('click', handleCompileMasterSet);
 
-  // Batch record all 7
-  el.btnBatchAll.addEventListener('click', handleBatchRecordAll);
+  // Play Random / Shuffle
+  if (el.btnPlayRandom) el.btnPlayRandom.addEventListener('click', playRandomTrack);
+  if (el.btnShuffleVault) el.btnShuffleVault.addEventListener('click', playRandomTrack);
+
+  // Vault Filtering
+  if (el.vaultFilterInput) {
+    el.vaultFilterInput.addEventListener('input', () => {
+      state.vaultFilterQuery = el.vaultFilterInput.value;
+      if (el.btnClearFilter) el.btnClearFilter.classList.toggle('hidden', !state.vaultFilterQuery);
+      renderLibrary();
+    });
+  }
+
+  if (el.btnClearFilter) {
+    el.btnClearFilter.addEventListener('click', () => {
+      el.vaultFilterInput.value = '';
+      state.vaultFilterQuery = '';
+      el.btnClearFilter.classList.add('hidden');
+      renderLibrary();
+    });
+  }
+
+  if (el.vaultFilterChips) {
+    el.vaultFilterChips.forEach(chip => {
+      chip.addEventListener('click', () => {
+        el.vaultFilterChips.forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+        state.vaultFilterMode = chip.getAttribute('data-filter') || 'all';
+        renderLibrary();
+      });
+    });
+  }
+
+  // Batch record
+  if (el.btnBatchAll) el.btnBatchAll.addEventListener('click', handleBatchRecordAll);
 
   // Modal
   el.modalClose.addEventListener('click', closeModal);
@@ -123,6 +165,12 @@ function bindEvents() {
       el.mediaPlayer.requestFullscreen().catch(() => {});
     }
   });
+}
+
+function playRandomTrack() {
+  if (state.library.length === 0) return;
+  const randIdx = Math.floor(Math.random() * state.library.length);
+  playLocalTrack(state.library[randIdx], randIdx);
 }
 
 // ---------------------------------------------------------------------------
@@ -169,7 +217,12 @@ function initPlayer() {
 
   // Controls
   el.btnPlayPause.addEventListener('click', () => {
-    if (!player.src) return;
+    if (!player.src) {
+      if (state.library.length > 0) {
+        playLocalTrack(state.library[0], 0);
+      }
+      return;
+    }
     if (player.paused) {
       player.play().catch(e => console.warn('Play interrupted:', e));
     } else {
@@ -292,21 +345,53 @@ async function loadPresets() {
 function renderPresets() {
   el.presetsGrid.innerHTML = '';
   state.presets.forEach(band => {
+    // Check if this band has matching tracks in local library
+    const bandMatches = state.library.filter(track => {
+      const lower = (track.title || '').toLowerCase();
+      const bandLower = band.name.toLowerCase();
+      const idLower = (band.id || '').replace(/_/g, ' ').toLowerCase();
+      return lower.includes(bandLower) || (idLower && lower.includes(idLower));
+    });
+    const hasLocal = bandMatches.length > 0;
+
     const card = document.createElement('div');
-    card.className = 'preset-card';
+    card.className = 'preset-card' + (hasLocal ? ' has-local' : '');
     card.innerHTML = `
       <div class="preset-top">
         <h4 class="preset-name">${escapeHtml(band.name)}</h4>
-        <span class="preset-badge">${escapeHtml(band.badge)}</span>
+        <span class="preset-badge">${hasLocal ? 'Ready (' + bandMatches.length + ')' : escapeHtml(band.badge)}</span>
       </div>
       <p class="preset-desc">${escapeHtml(band.description)}</p>
       <div class="preset-btn-row">
-        <button class="btn btn-secondary btn-sm btn-preset-search" style="flex:1">🔍 Find</button>
-        <button class="btn btn-crimson btn-sm btn-preset-rec" title="Record top full album with 3x loop">📼 Record &amp; Loop</button>
+        ${hasLocal 
+          ? `<button class="btn btn-gold btn-sm btn-preset-play" style="flex:1" title="Play recorded album from local vault">▶ Play Album</button>
+             <button class="btn btn-secondary btn-sm btn-preset-search" title="Find more on YouTube">🔍</button>`
+          : `<button class="btn btn-secondary btn-sm btn-preset-search" style="flex:1">🔍 Find</button>
+             <button class="btn btn-crimson btn-sm btn-preset-rec" title="Record top full album with 3x loop">📼 Record</button>`
+        }
       </div>
     `;
 
-    // Click anywhere on card (except record button) searches YouTube
+    if (hasLocal) {
+      card.querySelector('.btn-preset-play').addEventListener('click', (e) => {
+        e.stopPropagation();
+        const trackToPlay = bandMatches.find(t => t.is_looped) || bandMatches[0];
+        const idx = state.library.indexOf(trackToPlay);
+        playLocalTrack(trackToPlay, idx);
+      });
+      card.addEventListener('click', () => {
+        const trackToPlay = bandMatches.find(t => t.is_looped) || bandMatches[0];
+        const idx = state.library.indexOf(trackToPlay);
+        playLocalTrack(trackToPlay, idx);
+      });
+    } else {
+      card.addEventListener('click', () => {
+        el.searchInput.value = band.query;
+        el.btnClearSearch.classList.remove('hidden');
+        performSearch(band.query);
+      });
+    }
+
     card.querySelector('.btn-preset-search').addEventListener('click', (e) => {
       e.stopPropagation();
       el.searchInput.value = band.query;
@@ -314,16 +399,12 @@ function renderPresets() {
       performSearch(band.query);
     });
 
-    card.querySelector('.btn-preset-rec').addEventListener('click', (e) => {
-      e.stopPropagation();
-      quickRecordPreset(band);
-    });
-
-    card.addEventListener('click', () => {
-      el.searchInput.value = band.query;
-      el.btnClearSearch.classList.remove('hidden');
-      performSearch(band.query);
-    });
+    if (!hasLocal && card.querySelector('.btn-preset-rec')) {
+      card.querySelector('.btn-preset-rec').addEventListener('click', (e) => {
+        e.stopPropagation();
+        quickRecordPreset(band);
+      });
+    }
 
     el.presetsGrid.appendChild(card);
   });
@@ -413,13 +494,34 @@ async function loadLibrary() {
     const data = await res.json();
     state.library = data.library || [];
     renderLibrary();
+    renderPresets(); // Update preset cards with Play buttons!
   } catch (err) {
     console.error('Failed to load library:', err);
   }
 }
 
 function renderLibrary() {
-  el.libraryCount.textContent = `${state.library.length} file${state.library.length === 1 ? '' : 's'}`;
+  const query = (state.vaultFilterQuery || '').toLowerCase().trim();
+  const mode = state.vaultFilterMode || 'all';
+
+  const filtered = state.library.filter(item => {
+    // Mode filter: 'all', 'looped', 'full'
+    if (mode === 'looped' && !item.is_looped) return false;
+    if (mode === 'full' && item.is_looped) return false;
+
+    // Search query filter
+    if (query) {
+      const matchTitle = (item.title || '').toLowerCase().includes(query);
+      const matchFile = (item.filename || '').toLowerCase().includes(query);
+      if (!matchTitle && !matchFile) return false;
+    }
+    return true;
+  });
+
+  const countStr = filtered.length === state.library.length 
+    ? `${state.library.length} file${state.library.length === 1 ? '' : 's'}`
+    : `${filtered.length} of ${state.library.length} files`;
+  el.libraryCount.textContent = countStr;
 
   if (state.library.length === 0) {
     el.libraryList.innerHTML = `
@@ -431,8 +533,18 @@ function renderLibrary() {
     return;
   }
 
+  if (filtered.length === 0) {
+    el.libraryList.innerHTML = `
+      <div class="empty-state">
+        <p>No recorded albums match your filter "${escapeHtml(query)}".</p>
+      </div>
+    `;
+    return;
+  }
+
   el.libraryList.innerHTML = '';
-  state.library.forEach((item, index) => {
+  filtered.forEach((item) => {
+    const originalIndex = state.library.indexOf(item);
     const row = document.createElement('div');
     row.className = 'library-item';
     row.setAttribute('data-filename', item.filename);
@@ -441,7 +553,7 @@ function renderLibrary() {
     }
 
     const icon = item.is_master_set ? '👑' : (item.is_looped ? '🔁' : '🎵');
-    const loopTag = item.is_looped ? `<span class="tag-loop">[Looped ${item.loop_count || 1}x]</span>` : '';
+    const loopTag = item.is_looped ? `<span class="tag-loop">[Looped ${item.loop_count || 3}x]</span>` : '';
 
     row.innerHTML = `
       <div class="item-left">
@@ -455,14 +567,21 @@ function renderLibrary() {
         </div>
       </div>
       <div class="item-actions">
-        <button class="btn btn-secondary btn-sm btn-play-local">▶ Play</button>
+        <button class="btn btn-gold btn-sm btn-play-local">▶ Play</button>
         <a href="/media/${encodeURIComponent(item.filename)}" download class="btn btn-secondary btn-sm" title="Save file">💾</a>
         <button class="btn btn-danger btn-sm btn-del-local" title="Delete file">🗑</button>
       </div>
     `;
 
-    row.querySelector('.btn-play-local').addEventListener('click', () => {
-      playLocalTrack(item, index);
+    row.querySelector('.btn-play-local').addEventListener('click', (e) => {
+      e.stopPropagation();
+      playLocalTrack(item, originalIndex);
+    });
+
+    row.addEventListener('click', (e) => {
+      if (!e.target.closest('.item-actions')) {
+        playLocalTrack(item, originalIndex);
+      }
     });
 
     row.querySelector('.btn-del-local').addEventListener('click', async (e) => {
@@ -542,7 +661,7 @@ async function quickRecordPreset(band) {
 }
 
 async function handleBatchRecordAll() {
-  if (confirm("Start batch recording and loop generation for all 7 bands in the background?")) {
+  if (confirm("Start batch recording and loop generation for all 17 bands in the background?\n\n(Note: You already have 66 albums downloaded and ready to play in your vault!)")) {
     try {
       const res = await fetch('/api/record_all_presets', {
         method: 'POST',

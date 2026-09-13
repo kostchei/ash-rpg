@@ -24,8 +24,8 @@
         <div id="server-status" class="status-pill online">
           <span class="status-dot"></span> <span id="status-text">Server Online</span>
         </div>
-        <button id="btn-batch-all" class="btn btn-crimson" title="Record and generate a looped set of all bands automatically">
-          <span class="icon">⚡</span> Batch Record All Bands (17)
+        <button id="btn-play-random" class="btn btn-gold" title="Play a random album from your recorded vault">
+          <span class="icon">🎲</span> Play Random Album
         </button>
       </div>
     </header>
@@ -91,10 +91,23 @@
               <span id="library-count" class="badge-count">0 files</span>
             </div>
             <div class="header-buttons">
-              <button id="btn-compile-master" class="btn btn-secondary btn-sm" title="Stitch all recorded tracks into one master looped MP4">
-                ⚔️ Compile Master Looped Set
+              <button id="btn-shuffle-vault" class="btn btn-gold btn-sm" title="Shuffle vault tracks">
+                🎲 Shuffle
               </button>
               <button id="btn-refresh-library" class="btn btn-icon btn-sm" title="Refresh local files">🔄</button>
+            </div>
+          </div>
+
+          <div class="vault-filter-bar">
+            <div class="vault-search-box">
+              <span class="vault-search-icon">🔍</span>
+              <input type="text" id="vault-filter-input" placeholder="Filter 66 albums by band or title..." autocomplete="off">
+              <button type="button" id="btn-clear-filter" class="btn-clear hidden">✕</button>
+            </div>
+            <div class="vault-filter-chips">
+              <button class="chip-filter active" data-filter="all">All</button>
+              <button class="chip-filter" data-filter="looped">Looped Ambience</button>
+              <button class="chip-filter" data-filter="full">Full Albums</button>
             </div>
           </div>
           
@@ -172,10 +185,26 @@
             </div>
             <div id="results-list" class="results-list">
               <div class="empty-state">
-                <p>Select one of the 7 band presets above or enter a search query.</p>
+                <p>Select one of the 17 band presets above or enter a search query.</p>
               </div>
             </div>
           </div>
+
+          <!-- Studio & Batch Utilities (Collapsible) -->
+          <details class="studio-utilities">
+            <summary>🛠️ Studio &amp; Batch Utilities</summary>
+            <div class="studio-body">
+              <p class="studio-desc">You already have 66 albums ready to play in the vault. Use these only if you want to batch re-download all bands or compile a master stitched set.</p>
+              <div class="studio-btn-row">
+                <button id="btn-batch-all" class="btn btn-crimson btn-sm" title="Record and generate a looped set of all bands automatically">
+                  <span class="icon">⚡</span> Batch Re-Record All Bands (17)
+                </button>
+                <button id="btn-compile-master" class="btn btn-secondary btn-sm" title="Stitch all recorded tracks into one master looped MP4">
+                  ⚔️ Compile Master Looped Set
+                </button>
+              </div>
+            </div>
+          </details>
         </div>
 
       </section>
