@@ -96,7 +96,10 @@
               <span id="library-count" class="badge-count">0 files</span>
             </div>
             <div class="header-buttons">
-              <button id="btn-shuffle-vault" class="btn btn-gold btn-sm" title="Shuffle vault tracks">
+              <button id="btn-open-add-url" class="btn btn-gold btn-sm" title="Add one or more YouTube MP4s to your vault">
+                <span class="icon">➕</span> Add YouTube MP4
+              </button>
+              <button id="btn-shuffle-vault" class="btn btn-secondary btn-sm" title="Shuffle vault tracks">
                 🎲 Shuffle
               </button>
               <button id="btn-refresh-library" class="btn btn-icon btn-sm" title="Refresh local files">🔄</button>
@@ -106,7 +109,7 @@
           <div class="vault-filter-bar">
             <div class="vault-search-box">
               <span class="vault-search-icon">🔍</span>
-              <input type="text" id="vault-filter-input" placeholder="Filter 66 albums by band or title..." autocomplete="off">
+              <input type="text" id="vault-filter-input" placeholder="Filter albums by band or title..." autocomplete="off">
               <button type="button" id="btn-clear-filter" class="btn-clear hidden">✕</button>
             </div>
             <div class="vault-filter-chips">
@@ -129,6 +132,30 @@
       <!-- Right Column: Presets & YouTube Search -->
       <section class="discovery-panel">
         
+        <!-- Add YouTube MP4s Card -->
+        <div class="add-url-card">
+          <div class="section-title-row">
+            <h2 class="section-title">➕ Add YouTube MP4 to Library</h2>
+            <span class="section-hint">Paste 1 or multiple URLs to download</span>
+          </div>
+          <div class="add-url-body">
+            <textarea id="add-url-input" class="add-url-textarea" rows="2" placeholder="Paste YouTube link(s) here, e.g.:&#10;https://www.youtube.com/watch?v=...&#10;(Paste multiple URLs on separate lines to add several at once)" autocomplete="off"></textarea>
+            <div class="add-url-controls">
+              <div class="format-choice">
+                <label for="add-url-format" class="format-label">Format:</label>
+                <select id="add-url-format" class="select-styled">
+                  <option value="1" selected>Single Track / Album (Standard MP4)</option>
+                  <option value="2">Looped 2x (Seamless)</option>
+                  <option value="3">Looped 3x (Ambience)</option>
+                </select>
+              </div>
+              <button type="button" id="btn-submit-add-urls" class="btn btn-gold">
+                <span class="icon">⬇️</span> Download &amp; Add to List
+              </button>
+            </div>
+          </div>
+        </div>
+
         <!-- Band Presets (The 7 Pillars) -->
         <div class="presets-section">
           <div class="section-title-row">
@@ -213,8 +240,41 @@
         </div>
 
       </section>
-
     </main>
+
+    <!-- Modal for Adding YouTube URLs -->
+    <div id="add-url-modal" class="modal hidden">
+      <div class="modal-backdrop"></div>
+      <div class="modal-card">
+        <div class="modal-header">
+          <h3 class="modal-title"><span class="icon">➕</span> Add YouTube MP4(s) to Library</h3>
+          <button id="add-url-modal-close" class="modal-close-btn">✕</button>
+        </div>
+        <div class="modal-body">
+          <p class="modal-desc" style="color: var(--text-secondary); font-size: 0.88rem; margin-bottom: 12px;">
+            Paste one or multiple YouTube links below. Titles are automatically resolved from YouTube and converted to MP4.
+          </p>
+          <div class="form-group">
+            <label class="form-label" for="modal-add-url-input">YouTube Link(s):</label>
+            <textarea id="modal-add-url-input" class="add-url-textarea" rows="3" placeholder="https://www.youtube.com/watch?v=...&#10;https://youtu.be/...&#10;(Separate multiple URLs with new lines)"></textarea>
+          </div>
+          <div class="form-group" style="margin-top: 14px;">
+            <label class="form-label" for="modal-add-url-format">Format:</label>
+            <select id="modal-add-url-format" class="select-styled" style="width: 100%;">
+              <option value="1" selected>Single Track / Full Album (Standard MP4)</option>
+              <option value="2">Looped 2x (Seamless)</option>
+              <option value="3">Looped 3x (Ambience)</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button id="btn-add-url-modal-cancel" class="btn btn-secondary">Cancel</button>
+          <button id="btn-add-url-modal-confirm" class="btn btn-gold">
+            <span class="icon">⬇️</span> Download &amp; Add to Vault
+          </button>
+        </div>
+      </div>
+    </div>
 
     <!-- Modal for Record Options -->
     <div id="record-modal" class="modal hidden">

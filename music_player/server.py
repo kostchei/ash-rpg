@@ -308,6 +308,25 @@ def sanitize_filename(name):
     return clean[:120] or "track"
 
 
+def get_youtube_title(url):
+    """Quickly extracts the actual video title from YouTube using yt-dlp."""
+    try:
+        cmd = [
+            "yt-dlp",
+            "--js-runtimes", f"node:{NODE_PATH}",
+            "--no-update",
+            "--no-playlist",
+            "--print", "%(title)s",
+            url
+        ]
+        proc = subprocess.run(cmd, capture_output=True, text=True, errors="replace", timeout=20)
+        if proc.returncode == 0 and proc.stdout.strip():
+            return proc.stdout.strip().split("\n")[0].strip()
+    except Exception as e:
+        print(f"[Title Resolution Error] {e}")
+    return None
+
+
 def run_yt_search(query, limit=8):
     """Executes yt-dlp to search YouTube or inspect direct URL, returning list of metadata dicts."""
     is_direct_url = query.startswith("http://") or query.startswith("https://") or "youtube.com/" in query or "youtu.be/" in query
@@ -367,9 +386,20 @@ def run_yt_search(query, limit=8):
         return []
 
 
-def record_video_task(job_id, url, title_hint="Track", loop_count=1, make_looped_copy=True):
-    """Downloads video via yt-dlp, standardizes to MP4, and creates looped set version."""
+def record_video_task(job_id, url, title_hint="Track", loop_count=1, make_looped_copy=False):
+    """Downloads video via yt-dlp, standardizes to MP4, and optionally creates looped set version."""
     try:
+        # If title_hint is generic or a URL, resolve real title from YouTube
+        clean_hint = (title_hint or "").strip()
+        if not clean_hint or clean_hint.lower() in ("track", "youtube", "unknown", "youtube video") or clean_hint.startswith("http://") or clean_hint.startswith("https://") or "youtube" in clean_hint.lower():
+            update_job(job_id, status="resolving", progress=5, message="Resolving video title from YouTube...")
+            real_title = get_youtube_title(url)
+            if real_title:
+                title_hint = real_title
+                update_job(job_id, title=title_hint)
+            elif not clean_hint or clean_hint.startswith("http"):
+                title_hint = "YouTube Track"
+
         update_job(job_id, status="downloading", progress=15, message="Downloading media stream from YouTube...")
         raw_slug = sanitize_filename(title_hint)
         unique_prefix = uuid.uuid4().hex[:6]
@@ -459,9 +489,10 @@ def record_video_task(job_id, url, title_hint="Track", loop_count=1, make_looped
         for fname in files_recorded:
             fpath = MEDIA_DIR / fname
             is_loop_file = "looped_" in fname
+            display_title = f"{title_hint} (Looped {loop_count}x)" if is_loop_file else title_hint
             meta[fname] = {
                 "filename": fname,
-                "title": f"{title_hint} ({'Looped ' + str(loop_count) + 'x' if is_loop_file else 'Single Track'})",
+                "title": display_title,
                 "original_title": title_hint,
                 "url": url,
                 "size_mb": round(fpath.stat().st_size / (1024 * 1024), 2) if fpath.exists() else 0,
@@ -683,37 +714,57 @@ class MusicPlayerHandler(BaseHTTPRequestHandler):
             self.send_json({"error": "Invalid JSON payload"}, status=HTTPStatus.BAD_REQUEST)
             return
 
-        if path == "/api/record":
-            url = data.get("url")
-            title = data.get("title", "Track")
-            loop_count = int(data.get("loop_count", 3))
-            make_looped = bool(data.get("make_looped", True))
+        if path in ("/api/record", "/api/add_urls"):
+            raw_urls = data.get("urls")
+            single_url = data.get("url")
+            urls = []
+            if isinstance(raw_urls, list):
+                urls.extend([u.strip() for u in raw_urls if isinstance(u, str) and u.strip()])
+            elif isinstance(raw_urls, str) and raw_urls.strip():
+                urls.extend([u.strip() for u in raw_urls.splitlines() if u.strip()])
 
-            if not url:
-                self.send_json({"error": "Missing 'url' field"}, status=HTTPStatus.BAD_REQUEST)
+            if single_url and isinstance(single_url, str) and single_url.strip() and single_url.strip() not in urls:
+                urls.append(single_url.strip())
+
+            title = data.get("title", "")
+            loop_count = int(data.get("loop_count", 1))
+            make_looped = bool(data.get("make_looped", loop_count > 1))
+
+            if not urls:
+                self.send_json({"error": "Missing 'url' or 'urls' parameter"}, status=HTTPStatus.BAD_REQUEST)
                 return
 
-            job_id = uuid.uuid4().hex[:8]
-            with JOBS_LOCK:
-                JOBS[job_id] = {
-                    "id": job_id,
-                    "type": "record",
-                    "title": title,
-                    "url": url,
-                    "status": "queued",
-                    "progress": 0,
-                    "message": "Enqueued download...",
-                    "created_at": time.time()
-                }
+            jobs_created = []
+            for item_url in urls:
+                job_id = uuid.uuid4().hex[:8]
+                display_title = title if (title and len(urls) == 1) else "YouTube Video"
+                with JOBS_LOCK:
+                    JOBS[job_id] = {
+                        "id": job_id,
+                        "type": "record",
+                        "title": display_title,
+                        "url": item_url,
+                        "status": "queued",
+                        "progress": 0,
+                        "message": "Enqueued download...",
+                        "created_at": time.time()
+                    }
 
-            t = threading.Thread(
-                target=record_video_task,
-                args=(job_id, url, title, loop_count, make_looped),
-                daemon=True
-            )
-            t.start()
+                t = threading.Thread(
+                    target=record_video_task,
+                    args=(job_id, item_url, display_title, loop_count, make_looped),
+                    daemon=True
+                )
+                t.start()
+                jobs_created.append({"job_id": job_id, "url": item_url, "title": display_title})
 
-            self.send_json({"status": "accepted", "job_id": job_id, "title": title})
+            self.send_json({
+                "status": "accepted",
+                "job_id": jobs_created[0]["job_id"] if len(jobs_created) == 1 else None,
+                "jobs": jobs_created,
+                "count": len(jobs_created),
+                "title": jobs_created[0]["title"] if len(jobs_created) == 1 else f"{len(jobs_created)} tracks"
+            })
             return
 
         if path == "/api/record_all_presets":

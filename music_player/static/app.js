@@ -70,6 +70,18 @@ const el = {
   jobsList: document.getElementById('jobs-list'),
   btnBatchAll: document.getElementById('btn-batch-all'),
 
+  // Add YouTube MP4s
+  btnAddUrlOpen: document.getElementById('btn-open-add-url'),
+  addUrlInput: document.getElementById('add-url-input'),
+  addUrlFormat: document.getElementById('add-url-format'),
+  btnSubmitAddUrls: document.getElementById('btn-submit-add-urls'),
+  addUrlModal: document.getElementById('add-url-modal'),
+  addUrlModalClose: document.getElementById('add-url-modal-close'),
+  btnAddUrlModalCancel: document.getElementById('btn-add-url-modal-cancel'),
+  btnAddUrlModalConfirm: document.getElementById('btn-add-url-modal-confirm'),
+  modalAddUrlInput: document.getElementById('modal-add-url-input'),
+  modalAddUrlFormat: document.getElementById('modal-add-url-format'),
+
   // Modal
   recordModal: document.getElementById('record-modal'),
   modalClose: document.getElementById('modal-close'),
@@ -156,7 +168,56 @@ function bindEvents() {
   // Batch record
   if (el.btnBatchAll) el.btnBatchAll.addEventListener('click', handleBatchRecordAll);
 
-  // Modal
+  // Add YouTube MP4 Modal (from Vault Header)
+  if (el.btnAddUrlOpen) {
+    el.btnAddUrlOpen.addEventListener('click', () => {
+      if (el.addUrlModal) {
+        el.modalAddUrlInput.value = '';
+        el.addUrlModal.classList.remove('hidden');
+        el.modalAddUrlInput.focus();
+      }
+    });
+  }
+
+  if (el.addUrlModalClose) {
+    el.addUrlModalClose.addEventListener('click', () => {
+      el.addUrlModal.classList.add('hidden');
+    });
+  }
+  if (el.btnAddUrlModalCancel) {
+    el.btnAddUrlModalCancel.addEventListener('click', () => {
+      el.addUrlModal.classList.add('hidden');
+    });
+  }
+
+  if (el.btnAddUrlModalConfirm) {
+    el.btnAddUrlModalConfirm.addEventListener('click', () => {
+      const text = el.modalAddUrlInput.value.trim();
+      const format = parseInt(el.modalAddUrlFormat.value || '1', 10);
+      if (text) {
+        el.addUrlModal.classList.add('hidden');
+        handleAddUrls(text, format);
+      } else {
+        alert('Please paste at least one YouTube link.');
+      }
+    });
+  }
+
+  // Add YouTube MP4 from Discovery Panel Card
+  if (el.btnSubmitAddUrls) {
+    el.btnSubmitAddUrls.addEventListener('click', () => {
+      const text = el.addUrlInput.value.trim();
+      const format = parseInt(el.addUrlFormat.value || '1', 10);
+      if (text) {
+        handleAddUrls(text, format);
+        el.addUrlInput.value = '';
+      } else {
+        alert('Please paste at least one YouTube link.');
+      }
+    });
+  }
+
+  // Modal (Single Track Record)
   el.modalClose.addEventListener('click', closeModal);
   el.btnModalCancel.addEventListener('click', closeModal);
   el.btnModalConfirm.addEventListener('click', submitRecordModal);
@@ -511,15 +572,20 @@ function renderSearchResults(items, query) {
           <span class="result-channel">${escapeHtml(item.channel)}</span>
         </div>
         <div class="result-actions">
-          <button class="btn btn-secondary btn-sm btn-play-yt">▶ Preview</button>
-          <button class="btn btn-gold btn-sm btn-rec-modal">📼 Record MP4</button>
-          <button class="btn btn-crimson btn-sm btn-quick-loop">⚡ 3x Loop</button>
+          <button class="btn btn-secondary btn-sm btn-play-yt" title="Stream preview iframe">▶ Preview</button>
+          <button class="btn btn-gold btn-sm btn-add-mp4" title="Download standard MP4 directly into your vault">➕ Add to List</button>
+          <button class="btn btn-crimson btn-sm btn-quick-loop" title="Download and create 3x looped ambience set">⚡ 3x Loop</button>
+          <button class="btn btn-secondary btn-sm btn-rec-modal" title="Choose custom loop options">⚙️ Options</button>
         </div>
       </div>
     `;
 
     card.querySelector('.btn-play-yt').addEventListener('click', () => {
       startYtPreview(item.id, item.title);
+    });
+
+    card.querySelector('.btn-add-mp4').addEventListener('click', () => {
+      enqueueDownload(item.url, item.title, 1, false);
     });
 
     card.querySelector('.btn-rec-modal').addEventListener('click', () => {
@@ -545,8 +611,18 @@ async function loadLibrary() {
     buildShuffledQueue();
     renderLibrary();
     renderPresets(); // Update preset cards with Play buttons!
-    if (!state.activeTrack && state.library.length > 0) {
-      el.playerTitle.textContent = `${state.library.length} albums ready • Press Play or Shuffle to start`;
+
+    const count = state.library.length;
+    if (el.btnHeroShuffle) {
+      el.btnHeroShuffle.innerHTML = `<span class="icon">🎲</span> PLAY RANDOM MUSIC (${count} ALBUMS)`;
+      el.btnHeroShuffle.title = `Play your ${count} recorded albums in random shuffle order`;
+    }
+    if (el.vaultFilterInput) {
+      el.vaultFilterInput.placeholder = `Filter ${count} albums by band or title...`;
+    }
+
+    if (!state.activeTrack && count > 0) {
+      el.playerTitle.textContent = `${count} albums ready • Press Play or Shuffle to start`;
     }
   } catch (err) {
     console.error('Failed to load library:', err);
@@ -662,6 +738,53 @@ async function deleteLocalFile(filename) {
 // ---------------------------------------------------------------------------
 // Recording & Background Jobs
 // ---------------------------------------------------------------------------
+function extractYoutubeUrls(rawText) {
+  if (!rawText) return [];
+  const lines = rawText.split(/[\r\n,]+/);
+  const urls = [];
+  for (let line of lines) {
+    let u = line.trim();
+    if (!u) continue;
+    if (u.includes('youtube.com/') || u.includes('youtu.be/') || u.startsWith('http://') || u.startsWith('https://')) {
+      urls.push(u);
+    } else if (u.length >= 8 && !u.includes(' ')) {
+      urls.push(`https://www.youtube.com/watch?v=${u}`);
+    } else {
+      urls.push(u);
+    }
+  }
+  return urls;
+}
+
+async function handleAddUrls(urlsText, loopCount = 1) {
+  const urls = extractYoutubeUrls(urlsText);
+  if (urls.length === 0) {
+    alert('Please enter at least one valid YouTube URL.');
+    return;
+  }
+
+  try {
+    const res = await fetch('/api/record', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        urls: urls,
+        loop_count: loopCount,
+        make_looped: loopCount > 1
+      })
+    });
+    const data = await res.json();
+    if (data.status === 'accepted') {
+      showJobsDrawer();
+      pollJobs();
+    } else {
+      alert(`Failed to enqueue: ${data.error || 'Unknown error'}`);
+    }
+  } catch (err) {
+    alert(`Error: ${err.message}`);
+  }
+}
+
 function openRecordModal(url, title) {
   el.modalTrackUrl.value = url;
   el.modalTrackTitle.textContent = title;
@@ -680,7 +803,7 @@ function submitRecordModal() {
   enqueueDownload(url, title, loopCount, loopCount > 1);
 }
 
-async function enqueueDownload(url, title, loopCount, makeLooped) {
+async function enqueueDownload(url, title, loopCount = 1, makeLooped = false) {
   try {
     const res = await fetch('/api/record', {
       method: 'POST',
@@ -691,6 +814,8 @@ async function enqueueDownload(url, title, loopCount, makeLooped) {
     if (data.status === 'accepted') {
       showJobsDrawer();
       pollJobs();
+    } else {
+      alert(`Failed to enqueue: ${data.error || 'Unknown error'}`);
     }
   } catch (err) {
     alert(`Failed to enqueue record: ${err.message}`);
@@ -775,7 +900,7 @@ async function pollJobs() {
       el.jobsContainer.classList.remove('hidden');
       renderJobs(active);
     } else {
-      // If we had active jobs previously, refresh library
+      // If we had active jobs running, refresh library
       if (!el.jobsContainer.classList.contains('hidden') && jobs.length > 0) {
         loadLibrary();
       }
@@ -790,15 +915,17 @@ function renderJobs(jobs) {
   el.jobsList.innerHTML = '';
   jobs.forEach(job => {
     const item = document.createElement('div');
-    item.className = 'job-item';
+    const isFailed = job.status === 'failed';
+    item.className = `job-item ${isFailed ? 'failed' : ''}`;
+    const statusMsg = isFailed ? `❌ Error: ${job.error || 'Download failed'}` : (job.message || job.status);
     item.innerHTML = `
       <div class="job-top">
         <span>${escapeHtml(job.title)}</span>
-        <span>${job.progress || 0}%</span>
+        <span>${isFailed ? 'Failed' : `${job.progress || 0}%`}</span>
       </div>
-      <div class="job-msg">${escapeHtml(job.message || job.status)}</div>
+      <div class="job-msg" style="${isFailed ? 'color: var(--crimson-main);' : ''}">${escapeHtml(statusMsg)}</div>
       <div class="job-bar">
-        <div class="job-progress" style="width: ${job.progress || 0}%"></div>
+        <div class="job-progress" style="width: ${job.progress || 0}%; ${isFailed ? 'background: var(--crimson-main);' : ''}"></div>
       </div>
     `;
     el.jobsList.appendChild(item);
