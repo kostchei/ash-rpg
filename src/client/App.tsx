@@ -705,7 +705,6 @@ function Campaign({
         >
           🎒 Party Ledger
         </button>
-        <MusicServerControl state={musicServer} />
         <button className="icon-button" onClick={leave}>
           <LogOut size={18} />
         </button>
