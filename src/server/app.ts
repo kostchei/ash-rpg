@@ -5274,10 +5274,23 @@ export async function createAshServer(options: AshServerOptions = {}) {
       app.use(vite.middlewares);
     } else {
       const clientPath = resolve("dist/client");
-      app.use(express.static(clientPath));
-      app.use((_request, response) =>
-        response.sendFile(resolve(clientPath, "index.html")),
+      app.use(
+        express.static(clientPath, {
+          setHeaders: (res, filePath) => {
+            if (filePath.endsWith(".html")) {
+              res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+              res.setHeader("Pragma", "no-cache");
+              res.setHeader("Expires", "0");
+            }
+          },
+        }),
       );
+      app.use((_request, response) => {
+        response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+        response.setHeader("Pragma", "no-cache");
+        response.setHeader("Expires", "0");
+        response.sendFile(resolve(clientPath, "index.html"));
+      });
     }
   }
 

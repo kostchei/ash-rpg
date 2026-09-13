@@ -30,7 +30,19 @@ for (const folder of ['dist/client', 'dist/server']) {
 
 for (const folder of ['zones', 'data/bestiary', 'data/classes', 'data/oracles', 'data/treasure', 'music_player']) {
   if (existsSync(folder)) {
-    cpSync(folder, join(out, folder), { recursive: true });
+    if (folder === 'music_player') {
+      cpSync(folder, join(out, folder), {
+        recursive: true,
+        filter: (src, dest) => {
+          if (src.includes('media') && existsSync(dest)) {
+            return false;
+          }
+          return true;
+        }
+      });
+    } else {
+      cpSync(folder, join(out, folder), { recursive: true });
+    }
   }
 }
 
@@ -68,15 +80,15 @@ writeFileSync(join(out, 'release.json'), JSON.stringify(releaseMeta, null, 2));
 
 console.log('4. Updating Desktop shortcut...');
 try {
-  const targetCmd = join(out, 'Start ASH.cmd').replaceAll('\\', '\\\\');
-  const targetDir = out.replaceAll('\\', '\\\\');
+  const targetCmd = join(out, 'Start ASH.cmd');
+  const targetDir = out;
   const psCmd = `
     $WshShell = New-Object -ComObject WScript.Shell;
     $desktop = [System.Environment]::GetFolderPath('Desktop');
     $shortcut = $WshShell.CreateShortcut("$desktop\\Start ASH.lnk");
-    $shortcut.TargetPath = "${targetCmd}";
-    $shortcut.WorkingDirectory = "${targetDir}";
-    $shortcut.Description = "Launch Automata for Swords and Hexes (ASH RPG)";
+    $shortcut.TargetPath = '${targetCmd.replaceAll("'", "''")}';
+    $shortcut.WorkingDirectory = '${targetDir.replaceAll("'", "''")}';
+    $shortcut.Description = 'Launch Automata for Swords and Hexes (ASH RPG)';
     $shortcut.Save();
   `;
   execFileSync('powershell.exe', ['-NoProfile', '-Command', psCmd], { stdio: 'inherit' });
