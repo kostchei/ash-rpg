@@ -17,7 +17,12 @@ import { createActionId, fetchOlderNotes, fetchOlderRolls, sendMutation } from "
 
 import { CodexModal } from "./CodexModal";
 import { DirectoryModal } from "./DirectoryModal";
-import { MusicServerControl } from "./MusicServerControl";
+import {
+  MusicServerControl,
+  MusicSidebarButton,
+  MusicSideDrawer,
+  useMusicServer,
+} from "./MusicServerControl";
 import { AlertTriangle, BookOpen, Castle, ChevronRight, CircleDot, Compass, Copy, Dices, DoorOpen, Flame, Heart, LogOut, Map, Menu, Plus, ScrollText, Sparkles, Users, X } from "lucide-react";
 import { io, type Socket } from "socket.io-client";
 import { buildStateFromSlices, patchStateWithSlices, type SlicesUpdate } from "../shared/slices";
@@ -167,6 +172,7 @@ function Welcome({
   );
   const [busy, setBusy] = useState(false),
     [error, setError] = useState("");
+  const musicServer = useMusicServer();
   const [form, setForm] = useState({
     name: "The Torchbearer Company",
     regionName: "The Western Reaches",
@@ -286,7 +292,7 @@ function Welcome({
           </span>
         </div>
         <div style={{ marginTop: 16, display: "flex", alignItems: "center", gap: 8 }}>
-          <MusicServerControl />
+          <MusicServerControl state={musicServer} />
         </div>
       </section>
       <section className="welcome-form">
@@ -520,6 +526,7 @@ function Welcome({
           <CircleDot size={14} /> Campaign data stays on this computer.
         </p>
       </section>
+      <MusicSideDrawer state={musicServer} />
     </main>
   );
 }
@@ -564,6 +571,7 @@ function Campaign({
   const [mapFocus, setMapFocus] = useState<{ id: string; revision: number }>({ id: "00", revision: 0 });
   const openDirectory = (hexId?: string) => { setDirectoryHex(hexId); setShowDirectoryModal(true); };
   const [toast, setToast] = useState("");
+  const musicServer = useMusicServer();
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -643,7 +651,7 @@ function Campaign({
   ];
 
   return (
-    <div className="campaign-shell">
+    <div className={`campaign-shell ${musicServer.drawerOpen && musicServer.pinned ? "music-pinned" : ""}`}>
       <header className="app-header">
         <button
           className="mobile-menu icon-button"
@@ -697,7 +705,7 @@ function Campaign({
         >
           🎒 Party Ledger
         </button>
-        <MusicServerControl />
+        <MusicServerControl state={musicServer} />
         <button className="icon-button" onClick={leave}>
           <LogOut size={18} />
         </button>
@@ -729,7 +737,12 @@ function Campaign({
             <span>{text}</span>
           </button>
         ))}
+
+        <div className="nav-spacer" />
+        <MusicSidebarButton state={musicServer} />
       </nav>
+
+      <MusicSideDrawer state={musicServer} />
       <section className="main-content">
         {!state.campaign.started ? (
           tab === "party" ? (
