@@ -1,6 +1,6 @@
 export interface CodexEntry {
   id: string;
-  category: "conditions" | "procedures" | "gear" | "spells" | "talents" | "discoveries";
+  category: "conditions" | "procedures" | "gear" | "spells" | "talents" | "discoveries" | "monsters";
   title: string;
   subtitle?: string;
   tags: string[];

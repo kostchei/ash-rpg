@@ -418,6 +418,7 @@ export interface EncounterMonster {
   morale?: number;
   level?: number;
   family?: string;
+  source?: string;
   move?: string;
   abilities?: Record<"str" | "dex" | "con" | "int" | "wis" | "cha", number>;
   alignment?: string;

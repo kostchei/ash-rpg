@@ -1,6 +1,6 @@
 import { writeFileSync, mkdirSync } from "node:fs";
 import { resolve } from "node:path";
-import { loadExtractedPdf, type ExtractedPdf, type ParsedMonsterStatBlock } from "./lib/pages.js";
+import { loadExtractedPdf, type ExtractedPdf } from "./lib/pages.js";
 
 export interface MonsterSchema {
   id: string;
@@ -69,6 +69,18 @@ function generateHarvest(name: string, level: number, traits: string[]): Array<{
   ];
 }
 
+// Known full-page or legendary monsters where heading in PDF layout is detached from stat block
+const PAGE_SPECIAL_NAMES: Record<string, string> = {
+  "Shadowdark_RPG_-_V4-8.json:238": "Mordanticus the Flayed",
+  "Shadowdark_RPG_-_V4-8.json:242": "Obe-Ixx of Azarumme",
+  "Shadowdark_RPG_-_V4-8.json:250": "Rathgamnon",
+  "Shadowdark_RPG_-_V4-8.json:260": "The Tarrasque",
+  "Shadowdark_RPG_-_V4-8.json:261": "The Ten-Eyed Oracle",
+  "Shadowdark_RPG_-_V4-8.json:262": "The Wandering Merchant",
+  "Cursed_Scroll_1_-_Diablerie_V4-3.json:48:13": "Weeping Father",
+  "Cursed_Scroll_2_-_Red_Sands_V2-2.json:43:18": "The Scourge",
+};
+
 export function extractShadowdarkCoreMonsters(): MonsterSchema[] {
   const pdf = loadExtractedPdf("Shadowdark_RPG_-_V4-8.json");
   const monsterPages = pdf.pages.filter((p) => p.page_num >= 198 && p.page_num <= 269);
@@ -93,7 +105,8 @@ export function extractShadowdarkCoreMonsters(): MonsterSchema[] {
     }
   }
 
-  const statRegex = /AC\s+(\d+),\s*HP\s+(\d+),\s*ATK\s+([\s\S]+?),\s*MV\s+([\s\S]+?),\s*S\s+([+-]?\d+),\s*D\s+([+-]?\d+),\s*C\s+([+-]?\d+),\s*I\s+([+-]?\d+),\s*W\s+([+-]?\d+),\s*Ch\s+([+-]?\d+),\s*AL\s+([LNCU]),\s*LV\s+(\d+)/gi;
+  // Regex handles AC with optional armor text in parentheses e.g. "AC 15 (chainmail + shield)"
+  const statRegex = /AC\s+(\d+)(?:\s*\([^)]+\))?,\s*HP\s+(\d+),\s*ATK\s+([\s\S]+?),\s*MV\s+([\s\S]+?),\s*S\s+([+-]?\d+),\s*D\s+([+-]?\d+),\s*C\s+([+-]?\d+),\s*I\s+([+-]?\d+),\s*W\s+([+-]?\d+),\s*Ch\s+([+-]?\d+),\s*AL\s+([LNCU]),\s*LV\s+(\d+)/gi;
 
   const matches = [...combinedText.matchAll(statRegex)];
   const monsters: MonsterSchema[] = [];
@@ -115,17 +128,44 @@ export function extractShadowdarkCoreMonsters(): MonsterSchema[] {
     const alignment = match[11].toUpperCase() as "L" | "N" | "C" | "U";
     const level = parseInt(match[12], 10);
 
+    // Approximate page
+    let charSum = 0;
+    let pageNum = 198;
+    for (const p of monsterPages) {
+      charSum += p.text.length + 2;
+      if (charSum >= matchIndex) {
+        pageNum = p.page_num;
+        break;
+      }
+    }
+
     const textBefore = combinedText.slice(i === 0 ? 0 : (matches[i - 1].index ?? 0) + matches[i - 1][0].length, matchIndex).trim();
     const linesBefore = textBefore.split("\n").map((l) => l.trim()).filter(Boolean);
 
     let name = "UNKNOWN";
     let flavor = "";
 
-    if (linesBefore.length > 0) {
+    // Check special legendaries
+    const specialKey = `Shadowdark_RPG_-_V4-8.json:${pageNum}`;
+    if (PAGE_SPECIAL_NAMES[specialKey]) {
+      name = PAGE_SPECIAL_NAMES[specialKey];
+      flavor = linesBefore.join(" ");
+    } else if (linesBefore.length > 0) {
       let nameIndex = -1;
+      // Search backwards for TOC match or all-caps header
       for (let j = linesBefore.length - 1; j >= 0; j--) {
         const line = linesBefore[j];
-        if (line.length >= 2 && line === line.toUpperCase() && !line.includes("TABLE") && !line.includes("CHAPTER") && !line.startsWith("PAGE") && !/^\d+$/.test(line)) {
+        const clean = line.replace(/^\d+\s*/, "").replace(/[,\.]/g, "").trim();
+        
+        // Exact match with a TOC title
+        const tocMatch = tocEntries.find((t) => t.title.toUpperCase() === clean.toUpperCase());
+        if (tocMatch) {
+          nameIndex = j;
+          break;
+        }
+
+        // All-caps header
+        if (clean.length >= 2 && clean === clean.toUpperCase() && !clean.includes("TABLE") && !clean.includes("CHAPTER") && !clean.startsWith("PAGE") && !/^\d+$/.test(clean) && !clean.startsWith("AC ") && !clean.startsWith("LV ")) {
           nameIndex = j;
           break;
         }
@@ -142,7 +182,7 @@ export function extractShadowdarkCoreMonsters(): MonsterSchema[] {
 
     name = name.replace(/^\d+\s*/, "").replace(/[,\.]/g, "").trim();
     if (!name || name === "UNKNOWN" || name.length < 2) {
-      continue;
+      name = `Monster_LV${level}`;
     }
 
     const nextStart = i + 1 < matches.length ? (matches[i + 1].index ?? combinedText.length) : combinedText.length;
@@ -206,11 +246,12 @@ export function extractCursedScrollMonsters(zineNumber: number, filename: string
   const monsterPages = pdf.pages.filter((p) => p.page_num >= startPage && p.page_num <= endPage);
   const combinedText = monsterPages.map((p) => p.text).join("\n\n");
 
-  const statRegex = /AC\s+(\d+),\s*HP\s+(\d+),\s*ATK\s+([\s\S]+?),\s*MV\s+([\s\S]+?),\s*S\s+([+-]?\d+),\s*D\s+([+-]?\d+),\s*C\s+([+-]?\d+),\s*I\s+([+-]?\d+),\s*W\s+([+-]?\d+),\s*Ch\s+([+-]?\d+),\s*AL\s+([LNCU]),\s*LV\s+(\d+)/gi;
+  const statRegex = /AC\s+(\d+)(?:\s*\([^)]+\))?,\s*HP\s+(\d+),\s*ATK\s+([\s\S]+?),\s*MV\s+([\s\S]+?),\s*S\s+([+-]?\d+),\s*D\s+([+-]?\d+),\s*C\s+([+-]?\d+),\s*I\s+([+-]?\d+),\s*W\s+([+-]?\d+),\s*Ch\s+([+-]?\d+),\s*AL\s+([LNCU]),\s*LV\s+(\d+)/gi;
 
   const matches = [...combinedText.matchAll(statRegex)];
   const monsters: MonsterSchema[] = [];
   const sourceName = `cursed_scroll_${zineNumber}`;
+  const seenIds = new Set<string>();
 
   for (let i = 0; i < matches.length; i++) {
     const match = matches[i];
@@ -228,17 +269,36 @@ export function extractCursedScrollMonsters(zineNumber: number, filename: string
     const alignment = match[11].toUpperCase() as "L" | "N" | "C" | "U";
     const level = parseInt(match[12], 10);
 
+    let charSum = 0;
+    let pageNum = startPage;
+    for (const p of monsterPages) {
+      charSum += p.text.length + 2;
+      if (charSum >= matchIndex) {
+        pageNum = p.page_num;
+        break;
+      }
+    }
+
     const textBefore = combinedText.slice(i === 0 ? 0 : (matches[i - 1].index ?? 0) + matches[i - 1][0].length, matchIndex).trim();
     const linesBefore = textBefore.split("\n").map((l) => l.trim()).filter(Boolean);
 
     let name = "UNKNOWN";
     let flavor = "";
 
-    if (linesBefore.length > 0) {
+    const specialKeyLevel = `${filename}:${pageNum}:${level}`;
+    const specialKey = `${filename}:${pageNum}`;
+    if (PAGE_SPECIAL_NAMES[specialKeyLevel]) {
+      name = PAGE_SPECIAL_NAMES[specialKeyLevel];
+      flavor = linesBefore.join(" ");
+    } else if (PAGE_SPECIAL_NAMES[specialKey]) {
+      name = PAGE_SPECIAL_NAMES[specialKey];
+      flavor = linesBefore.join(" ");
+    } else if (linesBefore.length > 0) {
       let nameIndex = -1;
       for (let j = linesBefore.length - 1; j >= 0; j--) {
         const line = linesBefore[j];
-        if (line.length >= 2 && line === line.toUpperCase() && !line.includes("TABLE") && !line.includes("CHAPTER") && !line.startsWith("PAGE") && !/^\d+$/.test(line)) {
+        const clean = line.replace(/^\d+\s*/, "").replace(/[,\.]/g, "").trim();
+        if (clean.length >= 2 && clean === clean.toUpperCase() && !clean.includes("TABLE") && !clean.includes("CHAPTER") && !clean.startsWith("PAGE") && !/^\d+$/.test(clean) && !clean.startsWith("AC ") && !clean.startsWith("LV ")) {
           nameIndex = j;
           break;
         }
@@ -255,7 +315,7 @@ export function extractCursedScrollMonsters(zineNumber: number, filename: string
 
     name = name.replace(/^\d+\s*/, "").replace(/[,\.]/g, "").trim();
     if (!name || name === "UNKNOWN" || name.length < 2) {
-      continue;
+      name = `Monster_LV${level}`;
     }
 
     const nextStart = i + 1 < matches.length ? (matches[i + 1].index ?? combinedText.length) : combinedText.length;
@@ -276,7 +336,12 @@ export function extractCursedScrollMonsters(zineNumber: number, filename: string
     }
     if (currentTrait) traits.push(currentTrait);
 
-    const id = slugify(name);
+    let id = slugify(name);
+    if (seenIds.has(id)) {
+      id = `${id}_${level}`;
+    }
+    seenIds.add(id);
+
     const attacks = atkRaw.split(/\s+or\s+|\s*,\s*(?=\d+\s)/i).map((a) => a.trim());
     const morale = Math.min(12, Math.max(5, 7 + Math.floor(level / 2) + Math.max(0, cha)));
 
@@ -310,15 +375,14 @@ export function runMonsterIngestion(): {
   const coreMonsters = extractShadowdarkCoreMonsters();
   console.log(`Extracted ${coreMonsters.length} core monsters.`);
 
-  console.log("Extracting monsters from Cursed Scrolls 1-6...");
+  console.log("Extracting monsters from Cursed Scrolls 1-5...");
   const cs1 = extractCursedScrollMonsters(1, "Cursed_Scroll_1_-_Diablerie_V4-3.json", 45, 48);
   const cs2 = extractCursedScrollMonsters(2, "Cursed_Scroll_2_-_Red_Sands_V2-2.json", 39, 44);
   const cs3 = extractCursedScrollMonsters(3, "Cursed_Scroll_3_-_Midnight_Sun_V3-5.json", 43, 48);
   const cs4 = extractCursedScrollMonsters(4, "Cursed_Scroll_4_-_River_of_Night_V1-4.json", 59, 65);
   const cs5 = extractCursedScrollMonsters(5, "Cursed_Scroll_5_-_Dwellers_in_the_Deep_V1-3.json", 33, 36);
-  const cs6 = extractCursedScrollMonsters(6, "Cursed_Scroll_6_-_City_of_Masks_V1-1.json", 67, 67);
 
-  const csMonsters = [...cs1, ...cs2, ...cs3, ...cs4, ...cs5, ...cs6];
+  const csMonsters = [...cs1, ...cs2, ...cs3, ...cs4, ...cs5];
   console.log(`Extracted ${csMonsters.length} Cursed Scroll monsters.`);
 
   const allMonstersMap = new Map<string, MonsterSchema>();
@@ -334,7 +398,58 @@ export function runMonsterIngestion(): {
   writeFileSync(resolve(outDir, "cursed-scrolls.json"), JSON.stringify(csMonsters, null, 2), "utf-8");
   writeFileSync(resolve(outDir, "monsters.json"), JSON.stringify(allMonsters, null, 2), "utf-8");
 
-  console.log(`Saved ${allMonsters.length} total monsters to data/bestiary/monsters.json.`);
+  // Also write a bundled TypeScript export in src/shared/bestiary-data.ts for client access
+  const tsContent = `// Auto-generated bestiary reference data from Shadowdark Core and Cursed Scrolls 1-6
+export interface BestiaryReferenceEntry {
+  id: string;
+  name: string;
+  source: string;
+  family?: string;
+  level: number;
+  ac: number;
+  hp: number;
+  morale: number;
+  attacks: string[];
+  move: string;
+  abilities: {
+    str: number;
+    dex: number;
+    con: number;
+    int: number;
+    wis: number;
+    cha: number;
+  };
+  alignment: "L" | "N" | "C" | "U";
+  traits: string[];
+  lore: string[];
+  harvest: Array<{ reagent: string; dc: number; effect: string }>;
+}
+
+export const BESTIARY_ENTRIES: BestiaryReferenceEntry[] = ${JSON.stringify(
+    allMonsters.map((m) => ({
+      id: m.id,
+      name: m.name,
+      source: m.source,
+      family: m.family,
+      level: m.level,
+      ac: m.ac,
+      hp: m.hp,
+      morale: m.morale,
+      attacks: m.attacks,
+      move: m.move,
+      abilities: m.abilities,
+      alignment: m.alignment,
+      traits: m.traits,
+      lore: [m.loreTiers.common, m.loreTiers.field, m.loreTiers.obscure, m.loreTiers.arcane],
+      harvest: m.harvest,
+    })),
+    null,
+    2
+  )};
+`;
+
+  writeFileSync(resolve("src/shared/bestiary-data.ts"), tsContent, "utf-8");
+  console.log(`Saved ${allMonsters.length} total monsters to data/bestiary/monsters.json and src/shared/bestiary-data.ts.`);
   return { core: coreMonsters, cursedScrolls: csMonsters, total: allMonsters.length };
 }
 

@@ -1,4 +1,30 @@
-[
+// Auto-generated bestiary reference data from Shadowdark Core and Cursed Scrolls 1-6
+export interface BestiaryReferenceEntry {
+  id: string;
+  name: string;
+  source: string;
+  family?: string;
+  level: number;
+  ac: number;
+  hp: number;
+  morale: number;
+  attacks: string[];
+  move: string;
+  abilities: {
+    str: number;
+    dex: number;
+    con: number;
+    int: number;
+    wis: number;
+    cha: number;
+  };
+  alignment: "L" | "N" | "C" | "U";
+  traits: string[];
+  lore: string[];
+  harvest: Array<{ reagent: string; dc: number; effect: string }>;
+}
+
+export const BESTIARY_ENTRIES: BestiaryReferenceEntry[] = [
   {
     "id": "aboleth",
     "name": "ABOLETH",
@@ -26,12 +52,12 @@
       "Enslave. In place of attacks, one creature within far DC 15 WIS or aboleth controls for 1d4 rounds.",
       "Telepathic. Read the thoughts of all creatures within far. Monster Statistics ACOLYTE A religious trainee who knows basic rites and rituals."
     ],
-    "loreTiers": {
-      "common": "Enormous, antediluvian catfish covered in slime and tentacles. They hate all intelligent beings.",
-      "field": "Tactical combat behavior: Curse. DC 15 CON or target gains a magical curse, turning into a deep one over 2d10 days.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Enormous, antediluvian catfish covered in slime and tentacles. They hate all intelligent beings.",
+      "Tactical combat behavior: Curse. DC 15 CON or target gains a magical curse, turning into a deep one over 2d10 days.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "ABOLETH Pelt / Chitin / Essence",
@@ -65,12 +91,12 @@
     "traits": [
       "Healing Touch (WIS Spell). DC 11. Heal one creature within close for 1d4 HP. 195 ANGEL, SERAPH Beautiful, luminous humanoids with white-feathered wings."
     ],
-    "loreTiers": {
-      "common": "A religious trainee who knows basic rites and rituals.",
-      "field": "Tactical combat behavior: Healing Touch (WIS Spell). DC 11. Heal one creature within close for 1d4 HP. 195 ANGEL, SERAPH Beautiful, luminous humanoids with white-feathered wings.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "A religious trainee who knows basic rites and rituals.",
+      "Tactical combat behavior: Healing Touch (WIS Spell). DC 11. Heal one creature within close for 1d4 HP. 195 ANGEL, SERAPH Beautiful, luminous humanoids with white-feathered wings.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "ACOLYTE Pelt / Chitin / Essence",
@@ -103,12 +129,12 @@
     "traits": [
       "Bless. 3/day, touch one target to give it a luck token. ANGEL, DOMINI Winged, flawless humans glowing with bronze sunlight."
     ],
-    "loreTiers": {
-      "common": "Beautiful, luminous humanoids with white-feathered wings.",
-      "field": "Tactical combat behavior: Bless. 3/day, touch one target to give it a luck token. ANGEL, DOMINI Winged, flawless humans glowing with bronze sunlight.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Beautiful, luminous humanoids with white-feathered wings.",
+      "Tactical combat behavior: Bless. 3/day, touch one target to give it a luck token. ANGEL, DOMINI Winged, flawless humans glowing with bronze sunlight.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "ANGEL SERAPH Pelt / Chitin / Essence",
@@ -142,12 +168,12 @@
     "traits": [
       "Horn. All enemies in near DC 15 CHA or paralyzed 1d4 rounds. ANGEL, PRINCIPI Serene humans sculpted from alabaster. Golden orbs for eyes."
     ],
-    "loreTiers": {
-      "common": "Winged, flawless humans glowing with bronze sunlight.",
-      "field": "Tactical combat behavior: Horn. All enemies in near DC 15 CHA or paralyzed 1d4 rounds. ANGEL, PRINCIPI Serene humans sculpted from alabaster. Golden orbs for eyes.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Winged, flawless humans glowing with bronze sunlight.",
+      "Tactical combat behavior: Horn. All enemies in near DC 15 CHA or paralyzed 1d4 rounds. ANGEL, PRINCIPI Serene humans sculpted from alabaster. Golden orbs for eyes.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "ANGEL DOMINI Pelt / Chitin / Essence",
@@ -181,12 +207,12 @@
       "Moonlight Aura. Hostile spells targeting the principi are DC 15.",
       "Truesight. Can see all invisible creatures and objects. ARCHANGEL A radiant being with a crown of fire, snowy wings, golden armor, and a blazing greatsword."
     ],
-    "loreTiers": {
-      "common": "Serene humans sculpted from alabaster. Golden orbs for eyes.",
-      "field": "Tactical combat behavior: Moonlight Aura. Hostile spells targeting the principi are DC 15.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Serene humans sculpted from alabaster. Golden orbs for eyes.",
+      "Tactical combat behavior: Moonlight Aura. Hostile spells targeting the principi are DC 15.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "ANGEL PRINCIPI Pelt / Chitin / Essence",
@@ -221,12 +247,12 @@
       "Command. DC 18 CHA to resist an archangel's command.",
       "Crown of Fire. Hostile spells targeting the archangel are extreme (DC 18) to cast. ANGELS Angels are the divine host of lawful and neutral gods. They appear as winged, beautiful humanoids who radiate light and are suffused with their gods' energies and symbols. Seraphim are the lowest sphere of angel and often walk among mortals. Domini are their lords, and the powerful principi govern over the domini. Above all stand the mighty archangels. 196 APE, SNOW White-haired, carnivorous gorillas that stalk the high mountains and live in caves."
     ],
-    "loreTiers": {
-      "common": "A radiant being with a crown of fire, snowy wings, golden armor, and a blazing greatsword.",
-      "field": "Tactical combat behavior: Command. DC 18 CHA to resist an archangel's command.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "A radiant being with a crown of fire, snowy wings, golden armor, and a blazing greatsword.",
+      "Tactical combat behavior: Command. DC 18 CHA to resist an archangel's command.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "ARCHANGEL Pelt / Chitin / Essence",
@@ -260,12 +286,12 @@
     "traits": [
       "Thick Fur. Cold immune. APE Hooting, omnivorous apes that live in trees."
     ],
-    "loreTiers": {
-      "common": "White-haired, carnivorous gorillas that stalk the high mountains and live in caves.",
-      "field": "Tactical combat behavior: Thick Fur. Cold immune. APE Hooting, omnivorous apes that live in trees.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "White-haired, carnivorous gorillas that stalk the high mountains and live in caves.",
+      "Tactical combat behavior: Thick Fur. Cold immune. APE Hooting, omnivorous apes that live in trees.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "APE SNOW Pelt / Chitin / Essence",
@@ -299,12 +325,12 @@
     "traits": [
       "ANKHEG Horse-sized, rust-brown insects. They burrow vast, underground warrens into the bedrock."
     ],
-    "loreTiers": {
-      "common": "Hooting, omnivorous apes that live in trees.",
-      "field": "Tactical combat behavior: ANKHEG Horse-sized, rust-brown insects. They burrow vast, underground warrens into the bedrock.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Hooting, omnivorous apes that live in trees.",
+      "Tactical combat behavior: ANKHEG Horse-sized, rust-brown insects. They burrow vast, underground warrens into the bedrock.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "APE Pelt / Chitin / Essence",
@@ -338,12 +364,12 @@
     "traits": [
       "ANIMATED ARMOR An old suit of armor magically animated by a vengeful spirit."
     ],
-    "loreTiers": {
-      "common": "Horse-sized, rust-brown insects. They burrow vast, underground warrens into the bedrock.",
-      "field": "Tactical combat behavior: ANIMATED ARMOR An old suit of armor magically animated by a vengeful spirit.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Horse-sized, rust-brown insects. They burrow vast, underground warrens into the bedrock.",
+      "Tactical combat behavior: ANIMATED ARMOR An old suit of armor magically animated by a vengeful spirit.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "ANKHEG Pelt / Chitin / Essence",
@@ -376,12 +402,12 @@
     "traits": [
       "Statue. When standing still, looks exactly like a suit of armor. APPRENTICE A cloaked magician with a thin, freshly bound spellbook."
     ],
-    "loreTiers": {
-      "common": "An old suit of armor magically animated by a vengeful spirit.",
-      "field": "Tactical combat behavior: Statue. When standing still, looks exactly like a suit of armor. APPRENTICE A cloaked magician with a thin, freshly bound spellbook.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "An old suit of armor magically animated by a vengeful spirit.",
+      "Tactical combat behavior: Statue. When standing still, looks exactly like a suit of armor. APPRENTICE A cloaked magician with a thin, freshly bound spellbook.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "ANIMATED ARMOR Pelt / Chitin / Essence",
@@ -415,12 +441,12 @@
     "traits": [
       "Beguile (INT Spell). DC 11. Focus. One target in near of LV 2 or less is stupefied for the duration. Magic Bolt (INT Spell). DC 11. 1d4 damage to one target within far. 197 ARCHMAGE A wizened magic-user crackling with arcane power."
     ],
-    "loreTiers": {
-      "common": "A cloaked magician with a thin, freshly bound spellbook.",
-      "field": "Tactical combat behavior: Beguile (INT Spell). DC 11. Focus. One target in near of LV 2 or less is stupefied for the duration. Magic Bolt (INT Spell). DC 11. 1d4 damage to one target within far. 197 ARCHMAGE A wizened magic-user crackling with arcane power.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "A cloaked magician with a thin, freshly bound spellbook.",
+      "Tactical combat behavior: Beguile (INT Spell). DC 11. Focus. One target in near of LV 2 or less is stupefied for the duration. Magic Bolt (INT Spell). DC 11. 1d4 damage to one target within far. 197 ARCHMAGE A wizened magic-user crackling with arcane power.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "APPRENTICE Pelt / Chitin / Essence",
@@ -454,12 +480,12 @@
       "Death Bolt (INT Spell). DC 15. One target of LV 9 or less within near DC 15 CON or go to 0 HP. Enervate (INT Spell). DC 14.",
       "Focus. One target within near is stupefied for the duration. Fireblast (INT Spell). DC 14. 4d6 damage to all within a near- sized cube within far. Float (INT Spell). Self. DC 14. Fly double near for 5 rounds. Mithralskin (INT Spell). Self. DC 14. AC becomes 18 for 5 rounds. Void Step (INT Spell). Self and up to 4 willing targets. DC 15. Teleport up to 100 miles. ASSASSIN A black-cloaked, skulking killer."
     ],
-    "loreTiers": {
-      "common": "A wizened magic-user crackling with arcane power.",
-      "field": "Tactical combat behavior: Death Bolt (INT Spell). DC 15. One target of LV 9 or less within near DC 15 CON or go to 0 HP. Enervate (INT Spell). DC 14.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "A wizened magic-user crackling with arcane power.",
+      "Tactical combat behavior: Death Bolt (INT Spell). DC 15. One target of LV 9 or less within near DC 15 CON or go to 0 HP. Enervate (INT Spell). DC 14.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "ARCHMAGE Pelt / Chitin / Essence",
@@ -493,12 +519,12 @@
       "Execute. Deals x3 damage against surprised targets. AZER Dwarves with bronze, metallic skin and flames in place of hair.",
       "Gifted blacksmiths."
     ],
-    "loreTiers": {
-      "common": "A black-cloaked, skulking killer.",
-      "field": "Tactical combat behavior: Execute. Deals x3 damage against surprised targets. AZER Dwarves with bronze, metallic skin and flames in place of hair.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "A black-cloaked, skulking killer.",
+      "Tactical combat behavior: Execute. Deals x3 damage against surprised targets. AZER Dwarves with bronze, metallic skin and flames in place of hair.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "ASSASSIN Pelt / Chitin / Essence",
@@ -532,12 +558,12 @@
     "traits": [
       "Impervious. Fire immune. BADGER Fierce, clawed burrowers with black-and-white face stripes."
     ],
-    "loreTiers": {
-      "common": "Dwarves with bronze, metallic skin and flames in place of hair. Gifted blacksmiths.",
-      "field": "Tactical combat behavior: Impervious. Fire immune. BADGER Fierce, clawed burrowers with black-and-white face stripes.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Dwarves with bronze, metallic skin and flames in place of hair. Gifted blacksmiths.",
+      "Tactical combat behavior: Impervious. Fire immune. BADGER Fierce, clawed burrowers with black-and-white face stripes.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "AZER Pelt / Chitin / Essence",
@@ -570,12 +596,12 @@
     "traits": [
       "Rage. 1/day, immune to morale checks, +1d4 damage (3 rounds). BANDIT Hard-bitten rogue in tattered leathers and a hooded cloak."
     ],
-    "loreTiers": {
-      "common": "Fierce, clawed burrowers with black-and-white face stripes.",
-      "field": "Tactical combat behavior: Rage. 1/day, immune to morale checks, +1d4 damage (3 rounds). BANDIT Hard-bitten rogue in tattered leathers and a hooded cloak.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Fierce, clawed burrowers with black-and-white face stripes.",
+      "Tactical combat behavior: Rage. 1/day, immune to morale checks, +1d4 damage (3 rounds). BANDIT Hard-bitten rogue in tattered leathers and a hooded cloak.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "BADGER Pelt / Chitin / Essence",
@@ -609,12 +635,12 @@
     "traits": [
       "Ambush. Deal an extra die of damage when undetected. 198 BASILISK Massive, muscled lizards with six legs and gray, tough hide."
     ],
-    "loreTiers": {
-      "common": "Hard-bitten rogue in tattered leathers and a hooded cloak.",
-      "field": "Tactical combat behavior: Ambush. Deal an extra die of damage when undetected. 198 BASILISK Massive, muscled lizards with six legs and gray, tough hide.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Hard-bitten rogue in tattered leathers and a hooded cloak.",
+      "Tactical combat behavior: Ambush. Deal an extra die of damage when undetected. 198 BASILISK Massive, muscled lizards with six legs and gray, tough hide.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "BANDIT Pelt / Chitin / Essence",
@@ -647,12 +673,12 @@
     "traits": [
       "Petrify. Any creature that touches the basilisk or meets its gaze, DC 15 CON or petrified. BAT, GIANT Leathery, eagle-sized mammal with a taste for flesh."
     ],
-    "loreTiers": {
-      "common": "Massive, muscled lizards with six legs and gray, tough hide.",
-      "field": "Tactical combat behavior: Petrify. Any creature that touches the basilisk or meets its gaze, DC 15 CON or petrified. BAT, GIANT Leathery, eagle-sized mammal with a taste for flesh.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Massive, muscled lizards with six legs and gray, tough hide.",
+      "Tactical combat behavior: Petrify. Any creature that touches the basilisk or meets its gaze, DC 15 CON or petrified. BAT, GIANT Leathery, eagle-sized mammal with a taste for flesh.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "BASILISK Pelt / Chitin / Essence",
@@ -685,12 +711,12 @@
     "traits": [
       "BAT, SWARM A whirling cloud of screeching, bloodthirsty bats."
     ],
-    "loreTiers": {
-      "common": "Leathery, eagle-sized mammal with a taste for flesh.",
-      "field": "Tactical combat behavior: BAT, SWARM A whirling cloud of screeching, bloodthirsty bats.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Leathery, eagle-sized mammal with a taste for flesh.",
+      "Tactical combat behavior: BAT, SWARM A whirling cloud of screeching, bloodthirsty bats.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "BAT GIANT Pelt / Chitin / Essence",
@@ -723,12 +749,12 @@
     "traits": [
       "BEAR, BROWN A hulking, swaying brute with claws as long as a finger."
     ],
-    "loreTiers": {
-      "common": "A whirling cloud of screeching, bloodthirsty bats.",
-      "field": "Tactical combat behavior: BEAR, BROWN A hulking, swaying brute with claws as long as a finger.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "A whirling cloud of screeching, bloodthirsty bats.",
+      "Tactical combat behavior: BEAR, BROWN A hulking, swaying brute with claws as long as a finger.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "BAT SWARM Pelt / Chitin / Essence",
@@ -762,12 +788,12 @@
       "Crush. Deals an extra die of damage if it hits the same target with both claws.",
       "Thick Fur. Cold immune. BEASTMAN A cave hominid with scraggly fur and a stone-tipped spear."
     ],
-    "loreTiers": {
-      "common": "A hulking, swaying brute with claws as long as a finger.",
-      "field": "Tactical combat behavior: Crush. Deals an extra die of damage if it hits the same target with both claws.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "A hulking, swaying brute with claws as long as a finger.",
+      "Tactical combat behavior: Crush. Deals an extra die of damage if it hits the same target with both claws.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "BEAR BROWN Pelt / Chitin / Essence",
@@ -800,12 +826,12 @@
     "traits": [
       "Brutal. +1 damage with melee weapons (included). 199 BERSERKER Howling, battleraging warriors."
     ],
-    "loreTiers": {
-      "common": "A cave hominid with scraggly fur and a stone-tipped spear.",
-      "field": "Tactical combat behavior: Brutal. +1 damage with melee weapons (included). 199 BERSERKER Howling, battleraging warriors.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "A cave hominid with scraggly fur and a stone-tipped spear.",
+      "Tactical combat behavior: Brutal. +1 damage with melee weapons (included). 199 BERSERKER Howling, battleraging warriors.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "BEASTMAN Pelt / Chitin / Essence",
@@ -839,12 +865,12 @@
     "traits": [
       "Rage. 1/day, immune to morale checks, +1d4 damage (3 rounds). BOAR Ornery wild pig with bristly, russet hair and yellowed tusks."
     ],
-    "loreTiers": {
-      "common": "Howling, battleraging warriors.",
-      "field": "Tactical combat behavior: Rage. 1/day, immune to morale checks, +1d4 damage (3 rounds). BOAR Ornery wild pig with bristly, russet hair and yellowed tusks.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Howling, battleraging warriors.",
+      "Tactical combat behavior: Rage. 1/day, immune to morale checks, +1d4 damage (3 rounds). BOAR Ornery wild pig with bristly, russet hair and yellowed tusks.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "BERSERKER Pelt / Chitin / Essence",
@@ -877,12 +903,12 @@
     "traits": [
       "Gore. Deals an extra die of damage if it hits the same target with both tusks. BLACK PUDDING A black, ice-cold mass of sludge."
     ],
-    "loreTiers": {
-      "common": "Ornery wild pig with bristly, russet hair and yellowed tusks.",
-      "field": "Tactical combat behavior: Gore. Deals an extra die of damage if it hits the same target with both tusks. BLACK PUDDING A black, ice-cold mass of sludge.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Ornery wild pig with bristly, russet hair and yellowed tusks.",
+      "Tactical combat behavior: Gore. Deals an extra die of damage if it hits the same target with both tusks. BLACK PUDDING A black, ice-cold mass of sludge.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "BOAR Pelt / Chitin / Essence",
@@ -916,12 +942,12 @@
       "Impervious. Only damaged by fire.",
       "Corrosive. Wood or metal that touches the ooze dissolves on a d6 roll of 1-3. BRAIN EATER Purple, gaunt humanoids with squidlike heads and four face tentacles. They live in complex, alien societies underground and eat humanoid brains."
     ],
-    "loreTiers": {
-      "common": "A black, ice-cold mass of sludge.",
-      "field": "Tactical combat behavior: Impervious. Only damaged by fire.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "A black, ice-cold mass of sludge.",
+      "Tactical combat behavior: Impervious. Only damaged by fire.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "BLACK PUDDING Pelt / Chitin / Essence",
@@ -959,12 +985,12 @@
       "Mind Blast. Fills a near-sized cube extending from brain eater. DC 15 INT or 3d6 damage and paralyzed 1d4 rounds.",
       "Mind Control. One target in near DC 15 CHA or brain eater controls for 1d4 rounds. 200 BUGBEAR Brutish, bat-eared goblinoids covered in brown fur."
     ],
-    "loreTiers": {
-      "common": "Purple, gaunt humanoids with squidlike heads and four face tentacles. They live in complex, alien societies underground and eat humanoid brains.",
-      "field": "Tactical combat behavior: Hear Thoughts. Can hear the surface thoughts of all intelligent creatures within near.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Purple, gaunt humanoids with squidlike heads and four face tentacles. They live in complex, alien societies underground and eat humanoid brains.",
+      "Tactical combat behavior: Hear Thoughts. Can hear the surface thoughts of all intelligent creatures within near.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "BRAIN EATER Pelt / Chitin / Essence",
@@ -997,12 +1023,12 @@
     "traits": [
       "Stealthy. ADV on checks to sneak and hide. BULETTE A hulking, shark-sized lizard with a steely, arrow-shaped carapace and a massive gullet."
     ],
-    "loreTiers": {
-      "common": "Brutish, bat-eared goblinoids covered in brown fur.",
-      "field": "Tactical combat behavior: Stealthy. ADV on checks to sneak and hide. BULETTE A hulking, shark-sized lizard with a steely, arrow-shaped carapace and a massive gullet.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Brutish, bat-eared goblinoids covered in brown fur.",
+      "Tactical combat behavior: Stealthy. ADV on checks to sneak and hide. BULETTE A hulking, shark-sized lizard with a steely, arrow-shaped carapace and a massive gullet.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "BUGBEAR Pelt / Chitin / Essence",
@@ -1036,12 +1062,12 @@
     "traits": [
       "Leap. Jump up to near in height and double near in distance, then make 2 bite attacks. CAMEL Ornery, tan-furred desert beasts."
     ],
-    "loreTiers": {
-      "common": "A hulking, shark-sized lizard with a steely, arrow-shaped carapace and a massive gullet.",
-      "field": "Tactical combat behavior: Leap. Jump up to near in height and double near in distance, then make 2 bite attacks. CAMEL Ornery, tan-furred desert beasts.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "A hulking, shark-sized lizard with a steely, arrow-shaped carapace and a massive gullet.",
+      "Tactical combat behavior: Leap. Jump up to near in height and double near in distance, then make 2 bite attacks. CAMEL Ornery, tan-furred desert beasts.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "BULETTE Pelt / Chitin / Essence",
@@ -1075,12 +1101,12 @@
     "traits": [
       "CAVE BRUTE A hulking, insectoid beast with long mandibles, four eyes, and thick arms covered in bristles."
     ],
-    "loreTiers": {
-      "common": "Ornery, tan-furred desert beasts.",
-      "field": "Tactical combat behavior: CAVE BRUTE A hulking, insectoid beast with long mandibles, four eyes, and thick arms covered in bristles.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Ornery, tan-furred desert beasts.",
+      "Tactical combat behavior: CAVE BRUTE A hulking, insectoid beast with long mandibles, four eyes, and thick arms covered in bristles.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "CAMEL Pelt / Chitin / Essence",
@@ -1113,12 +1139,12 @@
     "traits": [
       "Bewilder. Creatures within near that see the cave brute's eyes, DC 12 CHA at start of their turn or dazed and no action. CAVE CREEPER Chittering, green centipedes the size of horses. Their grasping tentacles are coated in a paralytic venom."
     ],
-    "loreTiers": {
-      "common": "A hulking, insectoid beast with long mandibles, four eyes, and thick arms covered in bristles.",
-      "field": "Tactical combat behavior: Bewilder. Creatures within near that see the cave brute's eyes, DC 12 CHA at start of their turn or dazed and no action. CAVE CREEPER Chittering, green centipedes the size of horses. Their grasping tentacles are coated in a paralytic venom.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "A hulking, insectoid beast with long mandibles, four eyes, and thick arms covered in bristles.",
+      "Tactical combat behavior: Bewilder. Creatures within near that see the cave brute's eyes, DC 12 CHA at start of their turn or dazed and no action. CAVE CREEPER Chittering, green centipedes the size of horses. Their grasping tentacles are coated in a paralytic venom.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "CAVE BRUTE Pelt / Chitin / Essence",
@@ -1151,12 +1177,12 @@
     "traits": [
       "Toxin. DC 12 CON or paralyzed 1d4 rounds. 201 CENTAUR Herd-dwelling beings with the upper body of a human and lower body of a horse."
     ],
-    "loreTiers": {
-      "common": "Chittering, green centipedes the size of horses. Their grasping tentacles are coated in a paralytic venom.",
-      "field": "Tactical combat behavior: Toxin. DC 12 CON or paralyzed 1d4 rounds. 201 CENTAUR Herd-dwelling beings with the upper body of a human and lower body of a horse.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Chittering, green centipedes the size of horses. Their grasping tentacles are coated in a paralytic venom.",
+      "Tactical combat behavior: Toxin. DC 12 CON or paralyzed 1d4 rounds. 201 CENTAUR Herd-dwelling beings with the upper body of a human and lower body of a horse.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "CAVE CREEPER Pelt / Chitin / Essence",
@@ -1190,12 +1216,12 @@
     "traits": [
       "CENTIPEDE, GIANT Blood-red, feathery centipedes the size of a human arm. Their bite injects a burning poison that cramps muscles."
     ],
-    "loreTiers": {
-      "common": "Herd-dwelling beings with the upper body of a human and lower body of a horse.",
-      "field": "Tactical combat behavior: CENTIPEDE, GIANT Blood-red, feathery centipedes the size of a human arm. Their bite injects a burning poison that cramps muscles.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Herd-dwelling beings with the upper body of a human and lower body of a horse.",
+      "Tactical combat behavior: CENTIPEDE, GIANT Blood-red, feathery centipedes the size of a human arm. Their bite injects a burning poison that cramps muscles.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "CENTAUR Pelt / Chitin / Essence",
@@ -1228,12 +1254,12 @@
     "traits": [
       "Poison. DC 12 CON or paralyzed 1d4 rounds. CENTIPEDE, SWARM A crawling mass of weaving, sinuous centipedes."
     ],
-    "loreTiers": {
-      "common": "Blood-red, feathery centipedes the size of a human arm. Their bite injects a burning poison that cramps muscles.",
-      "field": "Tactical combat behavior: Poison. DC 12 CON or paralyzed 1d4 rounds. CENTIPEDE, SWARM A crawling mass of weaving, sinuous centipedes.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Blood-red, feathery centipedes the size of a human arm. Their bite injects a burning poison that cramps muscles.",
+      "Tactical combat behavior: Poison. DC 12 CON or paralyzed 1d4 rounds. CENTIPEDE, SWARM A crawling mass of weaving, sinuous centipedes.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "CENTIPEDE GIANT Pelt / Chitin / Essence",
@@ -1266,12 +1292,12 @@
     "traits": [
       "Poison. DC 12 CON or paralyzed 1d4 rounds. CHIMERA A monstrous beast with a half-goat, half-lion body, wide dragon wings, and the heads of a goat, lion, and dragon."
     ],
-    "loreTiers": {
-      "common": "A crawling mass of weaving, sinuous centipedes.",
-      "field": "Tactical combat behavior: Poison. DC 12 CON or paralyzed 1d4 rounds. CHIMERA A monstrous beast with a half-goat, half-lion body, wide dragon wings, and the heads of a goat, lion, and dragon.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "A crawling mass of weaving, sinuous centipedes.",
+      "Tactical combat behavior: Poison. DC 12 CON or paralyzed 1d4 rounds. CHIMERA A monstrous beast with a half-goat, half-lion body, wide dragon wings, and the heads of a goat, lion, and dragon.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "CENTIPEDE SWARM Pelt / Chitin / Essence",
@@ -1304,12 +1330,12 @@
     "traits": [
       "Fire Breath. Fills a near-sized cube extending from chimera. DC 15 DEX or 4d6 damage. CHUUL Brown, horse-sized lobster bugs with tentacles and pincers."
     ],
-    "loreTiers": {
-      "common": "A monstrous beast with a half-goat, half-lion body, wide dragon wings, and the heads of a goat, lion, and dragon.",
-      "field": "Tactical combat behavior: Fire Breath. Fills a near-sized cube extending from chimera. DC 15 DEX or 4d6 damage. CHUUL Brown, horse-sized lobster bugs with tentacles and pincers.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "A monstrous beast with a half-goat, half-lion body, wide dragon wings, and the heads of a goat, lion, and dragon.",
+      "Tactical combat behavior: Fire Breath. Fills a near-sized cube extending from chimera. DC 15 DEX or 4d6 damage. CHUUL Brown, horse-sized lobster bugs with tentacles and pincers.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "CHIMERA Pelt / Chitin / Essence",
@@ -1342,12 +1368,12 @@
     "traits": [
       "Grab. DC 15 STR or held in pincer. DC 15 STR on turn to break free. 202 CLOAKER A midnight blue manta ray with a bony tail and crescent-shaped maw above its belly. It swoops through deep, lightless caverns."
     ],
-    "loreTiers": {
-      "common": "Brown, horse-sized lobster bugs with tentacles and pincers.",
-      "field": "Tactical combat behavior: Grab. DC 15 STR or held in pincer. DC 15 STR on turn to break free. 202 CLOAKER A midnight blue manta ray with a bony tail and crescent-shaped maw above its belly. It swoops through deep, lightless caverns.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Brown, horse-sized lobster bugs with tentacles and pincers.",
+      "Tactical combat behavior: Grab. DC 15 STR or held in pincer. DC 15 STR on turn to break free. 202 CLOAKER A midnight blue manta ray with a bony tail and crescent-shaped maw above its belly. It swoops through deep, lightless caverns.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "CHUUL Pelt / Chitin / Essence",
@@ -1382,12 +1408,12 @@
       "Phantoms. 1/day, in place of attacks. Create 3 illusory duplicates that disappear when hit. Determine randomly if an attack hits cloaker or illusions.",
       "Screech. Enemies within double near DC 15 WIS or DISADV on attacks and checks 1d4 rounds. COCKATRICE A molting, lizard-chicken hybrid with a crimson, razorlike crest."
     ],
-    "loreTiers": {
-      "common": "A midnight blue manta ray with a bony tail and crescent-shaped maw above its belly. It swoops through deep, lightless caverns.",
-      "field": "Tactical combat behavior: Phantoms. 1/day, in place of attacks. Create 3 illusory duplicates that disappear when hit. Determine randomly if an attack hits cloaker or illusions.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "A midnight blue manta ray with a bony tail and crescent-shaped maw above its belly. It swoops through deep, lightless caverns.",
+      "Tactical combat behavior: Phantoms. 1/day, in place of attacks. Create 3 illusory duplicates that disappear when hit. Determine randomly if an attack hits cloaker or illusions.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "CLOAKER Pelt / Chitin / Essence",
@@ -1420,12 +1446,12 @@
     "traits": [
       "Petrify. DC 12 CON or petrified. COUATL A human-sized snake with scales made of jewels and a corona of iridescent feathers."
     ],
-    "loreTiers": {
-      "common": "A molting, lizard-chicken hybrid with a crimson, razorlike crest.",
-      "field": "Tactical combat behavior: Petrify. DC 12 CON or petrified. COUATL A human-sized snake with scales made of jewels and a corona of iridescent feathers.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "A molting, lizard-chicken hybrid with a crimson, razorlike crest.",
+      "Tactical combat behavior: Petrify. DC 12 CON or petrified. COUATL A human-sized snake with scales made of jewels and a corona of iridescent feathers.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "COCKATRICE Pelt / Chitin / Essence",
@@ -1460,12 +1486,12 @@
       "Poison. DC 15 CON or fall into natural, deep sleep for 1d8 hours.",
       "Restore. In place of attacks, touch one creature to remove a curse, affliction, or heal 3d8 HP. CRAB, GIANT A wagon-sized, armored crab with two crushing pincers."
     ],
-    "loreTiers": {
-      "common": "A human-sized snake with scales made of jewels and a corona of iridescent feathers.",
-      "field": "Tactical combat behavior: Change Shape. In place of attacks, transform into any similarly-sized creature.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "A human-sized snake with scales made of jewels and a corona of iridescent feathers.",
+      "Tactical combat behavior: Change Shape. In place of attacks, transform into any similarly-sized creature.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "COUATL Pelt / Chitin / Essence",
@@ -1498,12 +1524,12 @@
     "traits": [
       "Crush. DC 15 STR or target takes 1d8 damage. 203 CROCODILE Fat, scaly reptiles with stumpy legs and long, thrashing tails."
     ],
-    "loreTiers": {
-      "common": "A wagon-sized, armored crab with two crushing pincers.",
-      "field": "Tactical combat behavior: Crush. DC 15 STR or target takes 1d8 damage. 203 CROCODILE Fat, scaly reptiles with stumpy legs and long, thrashing tails.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "A wagon-sized, armored crab with two crushing pincers.",
+      "Tactical combat behavior: Crush. DC 15 STR or target takes 1d8 damage. 203 CROCODILE Fat, scaly reptiles with stumpy legs and long, thrashing tails.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "CRAB GIANT Pelt / Chitin / Essence",
@@ -1536,12 +1562,12 @@
     "traits": [
       "CULTIST A cloaked, wild-eyed zealot chanting the guttural prayers of a dark god."
     ],
-    "loreTiers": {
-      "common": "Fat, scaly reptiles with stumpy legs and long, thrashing tails.",
-      "field": "Tactical combat behavior: CULTIST A cloaked, wild-eyed zealot chanting the guttural prayers of a dark god.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Fat, scaly reptiles with stumpy legs and long, thrashing tails.",
+      "Tactical combat behavior: CULTIST A cloaked, wild-eyed zealot chanting the guttural prayers of a dark god.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "CROCODILE Pelt / Chitin / Essence",
@@ -1575,12 +1601,12 @@
     "traits": [
       "Fearless. Immune to morale checks. Deathtouch (WIS Spell). DC 12. 2d4 damage to one creature within close. CYCLOPS Reclusive, one-eyed giants towering 20' high. They live simply on remote farmlands."
     ],
-    "loreTiers": {
-      "common": "A cloaked, wild-eyed zealot chanting the guttural prayers of a dark god.",
-      "field": "Tactical combat behavior: Fearless. Immune to morale checks. Deathtouch (WIS Spell). DC 12. 2d4 damage to one creature within close. CYCLOPS Reclusive, one-eyed giants towering 20' high. They live simply on remote farmlands.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "A cloaked, wild-eyed zealot chanting the guttural prayers of a dark god.",
+      "Tactical combat behavior: Fearless. Immune to morale checks. Deathtouch (WIS Spell). DC 12. 2d4 damage to one creature within close. CYCLOPS Reclusive, one-eyed giants towering 20' high. They live simply on remote farmlands.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "CULTIST Pelt / Chitin / Essence",
@@ -1615,12 +1641,12 @@
       "DARKMANTLE A floating, black octopus with rows of red eyes and a webbed skirt of tentacles. AC 13, HP 4 ATK 1 bite +3 (1d4) or 1 darkness, MV near (fly), S -2, D +3, C +0, I -3, W +0, Ch -3, AL N, LV 1",
       "Darkness. Extinguish all light sources in near. DEEP ONE Cultish, amphibious fish-people with bulbous eyes. They lurk in deep water and sunless caverns."
     ],
-    "loreTiers": {
-      "common": "Reclusive, one-eyed giants towering 20' high. They live simply on remote farmlands.",
-      "field": "Tactical combat behavior: DARKMANTLE A floating, black octopus with rows of red eyes and a webbed skirt of tentacles. AC 13, HP 4 ATK 1 bite +3 (1d4) or 1 darkness, MV near (fly), S -2, D +3, C +0, I -3, W +0, Ch -3, AL N, LV 1",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Reclusive, one-eyed giants towering 20' high. They live simply on remote farmlands.",
+      "Tactical combat behavior: DARKMANTLE A floating, black octopus with rows of red eyes and a webbed skirt of tentacles. AC 13, HP 4 ATK 1 bite +3 (1d4) or 1 darkness, MV near (fly), S -2, D +3, C +0, I -3, W +0, Ch -3, AL N, LV 1",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "CYCLOPS Pelt / Chitin / Essence",
@@ -1654,12 +1680,12 @@
       "Sunblind. Blinded in bright light. 204 DEMONS Demons are Chaos incarnate, born from the violent roil and madness of the Dark Realms. They watch from the liminal space between worlds, hoping to find a way into the Light",
       "Realms to wreak destruction. Most demons are utterly unique in their powers and can take any form. However, some lesser demons share a common appearance and set of abilities. The most recognized of these lesser demons are listed here. DEMON, BALOR Colossal, horned bat-beasts wreathed in the flames of hell itself. Their mighty swords and cracking whips of fire can slice through stone."
     ],
-    "loreTiers": {
-      "common": "Cultish, amphibious fish-people with bulbous eyes. They lurk in deep water and sunless caverns.",
-      "field": "Tactical combat behavior: Sunblind. Blinded in bright light. 204 DEMONS Demons are Chaos incarnate, born from the violent roil and madness of the Dark Realms. They watch from the liminal space between worlds, hoping to find a way into the Light",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Cultish, amphibious fish-people with bulbous eyes. They lurk in deep water and sunless caverns.",
+      "Tactical combat behavior: Sunblind. Blinded in bright light. 204 DEMONS Demons are Chaos incarnate, born from the violent roil and madness of the Dark Realms. They watch from the liminal space between worlds, hoping to find a way into the Light",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "DEEP ONE Pelt / Chitin / Essence",
@@ -1694,12 +1720,12 @@
       "Grab. DC 18 STR or target bound in whip. 2d6 damage per round held, DC 18 STR on turn to break free. In place of fire whip attack, balor can fling a grabbed target double near on its turn.",
       "Hellfire. DC 18 DEX or 2d8 damage per round until flames extinguished. DEMON, GLABREZU Horse-headed, fanged creatures who walk upright and have four arms; two shriveled, and two ending in hulking pincers."
     ],
-    "loreTiers": {
-      "common": "Colossal, horned bat-beasts wreathed in the flames of hell itself. Their mighty swords and cracking whips of fire can slice through stone.",
-      "field": "Tactical combat behavior: Impervious. Fire immune. Only damaged by magical sources.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Colossal, horned bat-beasts wreathed in the flames of hell itself. Their mighty swords and cracking whips of fire can slice through stone.",
+      "Tactical combat behavior: Impervious. Fire immune. Only damaged by magical sources.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "DEMON BALOR Pelt / Chitin / Essence",
@@ -1732,12 +1758,12 @@
     "traits": [
       "Crush. DC 15 STR or target takes 2d8 damage. DEMON, DRETCH Green, pig-faced demons with thick claws and an oily stench."
     ],
-    "loreTiers": {
-      "common": "Horse-headed, fanged creatures who walk upright and have four arms; two shriveled, and two ending in hulking pincers.",
-      "field": "Tactical combat behavior: Crush. DC 15 STR or target takes 2d8 damage. DEMON, DRETCH Green, pig-faced demons with thick claws and an oily stench.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Horse-headed, fanged creatures who walk upright and have four arms; two shriveled, and two ending in hulking pincers.",
+      "Tactical combat behavior: Crush. DC 15 STR or target takes 2d8 damage. DEMON, DRETCH Green, pig-faced demons with thick claws and an oily stench.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "DEMON GLABREZU Pelt / Chitin / Essence",
@@ -1771,12 +1797,12 @@
     "traits": [
       "Gas. All in near DC 12 CON or blinded for 1d4 rounds. 205 DEMON, MARILITH Hissing, armored women with six limbs and the lower bodies of giant snakes. Six whirling blades flash in their hands."
     ],
-    "loreTiers": {
-      "common": "Green, pig-faced demons with thick claws and an oily stench.",
-      "field": "Tactical combat behavior: Gas. All in near DC 12 CON or blinded for 1d4 rounds. 205 DEMON, MARILITH Hissing, armored women with six limbs and the lower bodies of giant snakes. Six whirling blades flash in their hands.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Green, pig-faced demons with thick claws and an oily stench.",
+      "Tactical combat behavior: Gas. All in near DC 12 CON or blinded for 1d4 rounds. 205 DEMON, MARILITH Hissing, armored women with six limbs and the lower bodies of giant snakes. Six whirling blades flash in their hands.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "DEMON DRETCH Pelt / Chitin / Essence",
@@ -1809,12 +1835,12 @@
     "traits": [
       "Parry. Trade 2 longsword attacks next round to deflect a melee attack that would hit. DEMON, VROCK Wagon-sized, filthy vultures with four limbs, midnight-blue skin, and a rash of mangy feathers."
     ],
-    "loreTiers": {
-      "common": "Hissing, armored women with six limbs and the lower bodies of giant snakes. Six whirling blades flash in their hands.",
-      "field": "Tactical combat behavior: Parry. Trade 2 longsword attacks next round to deflect a melee attack that would hit. DEMON, VROCK Wagon-sized, filthy vultures with four limbs, midnight-blue skin, and a rash of mangy feathers.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Hissing, armored women with six limbs and the lower bodies of giant snakes. Six whirling blades flash in their hands.",
+      "Tactical combat behavior: Parry. Trade 2 longsword attacks next round to deflect a melee attack that would hit. DEMON, VROCK Wagon-sized, filthy vultures with four limbs, midnight-blue skin, and a rash of mangy feathers.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "DEMON MARILITH Pelt / Chitin / Essence",
@@ -1850,12 +1876,12 @@
       "Screech. All enemies in double near DC 12 WIS or DISADV on checks and attacks for 1d4 rounds. 206 DEVILS Devils are the vile reflection of angels, forming the unholy hosts of chaotic gods and sovereign archdevils. Their endless wars rage across the blasted layers of hell, fed by the constant influx of evil souls that turn into devils. Tiny imps and beautiful cubi secure humanoid souls with promises of power or delight. Barbed and horned devils are hell's cruel soldiers; darkly angelic erinyes are its generals.",
       "Wicked archdevils rule over all. ARCHDEVIL A stunningly beautiful, horned human with burning, red eyes and a halo of seven black stars. Two stitched-up gashes weep blood from its shoulder blades."
     ],
-    "loreTiers": {
-      "common": "Wagon-sized, filthy vultures with four limbs, midnight-blue skin, and a rash of mangy feathers.",
-      "field": "Tactical combat behavior: Carrion Mist. Each time vrock is hit, 3:6 chance of carrion mist in near-sized cube centered on vrock. All enemies DC 15 CON or violent vomiting 1d4 rounds.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Wagon-sized, filthy vultures with four limbs, midnight-blue skin, and a rash of mangy feathers.",
+      "Tactical combat behavior: Carrion Mist. Each time vrock is hit, 3:6 chance of carrion mist in near-sized cube centered on vrock. All enemies DC 15 CON or violent vomiting 1d4 rounds.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "DEMON VROCK Pelt / Chitin / Essence",
@@ -1892,12 +1918,12 @@
       "Crown of Darkness. All hostile spells are reflected at caster with a spellcasting check less than 20.",
       "Soulbind. All targets within near DC 20 CHA or fall under control of archdevil for 1d4 rounds. DC 20 CHA on turn to end the effect. DEVIL, BARBED Lanky, green-mottled fiends bristling with hooked spines."
     ],
-    "loreTiers": {
-      "common": "A stunningly beautiful, horned human with burning, red eyes and a halo of seven black stars. Two stitched-up gashes weep blood from its shoulder blades.",
-      "field": "Tactical combat behavior: Impervious. Fire immune. Only damaged by magical sources.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "A stunningly beautiful, horned human with burning, red eyes and a halo of seven black stars. Two stitched-up gashes weep blood from its shoulder blades.",
+      "Tactical combat behavior: Impervious. Fire immune. Only damaged by magical sources.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "ARCHDEVIL Pelt / Chitin / Essence",
@@ -1932,12 +1958,12 @@
       "Barb. Each spine sticks, dealing 1d4 damage each round. DC 12",
       "STR check on turn to remove. 207 DEVIL, CUBI Entrancing humanoids with bat wings and devilish charm."
     ],
-    "loreTiers": {
-      "common": "Lanky, green-mottled fiends bristling with hooked spines.",
-      "field": "Tactical combat behavior: Barb. Each spine sticks, dealing 1d4 damage each round. DC 12",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Lanky, green-mottled fiends bristling with hooked spines.",
+      "Tactical combat behavior: Barb. Each spine sticks, dealing 1d4 damage each round. DC 12",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "DEVIL BARBED Pelt / Chitin / Essence",
@@ -1973,12 +1999,12 @@
       "Charm. One humanoid in near DC 15 CHA or bewitched by cubi for 1d6 hours.",
       "Drain. The target takes 1d6 WIS damage. A target reduced to 0 WIS this way swears its soul to an archdevil. DEVIL, ERINYES Raven-winged, resplendent beings in polished, black armor and helms with curved horns."
     ],
-    "loreTiers": {
-      "common": "Entrancing humanoids with bat wings and devilish charm.",
-      "field": "Tactical combat behavior: Change Shape. In place of attacks, transform into any similarly-sized humanoid.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Entrancing humanoids with bat wings and devilish charm.",
+      "Tactical combat behavior: Change Shape. In place of attacks, transform into any similarly-sized humanoid.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "DEVIL CUBI Pelt / Chitin / Essence",
@@ -2013,12 +2039,12 @@
       "Poison. DC 15 CON or target's eyes go jet black and it turns on its allies for 1d4 rounds. DC 15",
       "WIS on turn to end effect. DEVIL, HORNED Iron-scaled hellions as big as ogres with weighty ram horns, lashing tails, and leathery wings. They are opportunistic and craven in battle."
     ],
-    "loreTiers": {
-      "common": "Raven-winged, resplendent beings in polished, black armor and helms with curved horns.",
-      "field": "Tactical combat behavior: Poison. DC 15 CON or target's eyes go jet black and it turns on its allies for 1d4 rounds. DC 15",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Raven-winged, resplendent beings in polished, black armor and helms with curved horns.",
+      "Tactical combat behavior: Poison. DC 15 CON or target's eyes go jet black and it turns on its allies for 1d4 rounds. DC 15",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "DEVIL ERINYES Pelt / Chitin / Essence",
@@ -2052,12 +2078,12 @@
     "traits": [
       "Iron Hide. Half damage from non-magical weapons. DEVIL, IMP Cat-sized, red devils with oversized wings and tail, tiny horns, and cowardly demeanors."
     ],
-    "loreTiers": {
-      "common": "Iron-scaled hellions as big as ogres with weighty ram horns, lashing tails, and leathery wings. They are opportunistic and craven in battle.",
-      "field": "Tactical combat behavior: Iron Hide. Half damage from non-magical weapons. DEVIL, IMP Cat-sized, red devils with oversized wings and tail, tiny horns, and cowardly demeanors.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Iron-scaled hellions as big as ogres with weighty ram horns, lashing tails, and leathery wings. They are opportunistic and craven in battle.",
+      "Tactical combat behavior: Iron Hide. Half damage from non-magical weapons. DEVIL, IMP Cat-sized, red devils with oversized wings and tail, tiny horns, and cowardly demeanors.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "DEVIL HORNED Pelt / Chitin / Essence",
@@ -2093,12 +2119,12 @@
       "Charisma checks.",
       "Poison. DC 12 CON or fitful sleep for 1d4 hours. 208 DINOSAURS PTERODACTYL Long-beaked beasts with wide, triangular wings. Large enough to carry off a human."
     ],
-    "loreTiers": {
-      "common": "Cat-sized, red devils with oversized wings and tail, tiny horns, and cowardly demeanors.",
-      "field": "Tactical combat behavior: Impervious. Fire immune.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Cat-sized, red devils with oversized wings and tail, tiny horns, and cowardly demeanors.",
+      "Tactical combat behavior: Impervious. Fire immune.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "DEVIL IMP Pelt / Chitin / Essence",
@@ -2133,12 +2159,12 @@
       "Grab. DC 15 STR or held. DC 15",
       "STR on turn to break free. TYRANNOSAURUS Towering, bipedal lizards with a massive head, jaws, and neck."
     ],
-    "loreTiers": {
-      "common": "Long-beaked beasts with wide, triangular wings. Large enough to carry off a human.",
-      "field": "Tactical combat behavior: Grab. DC 15 STR or held. DC 15",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Long-beaked beasts with wide, triangular wings. Large enough to carry off a human.",
+      "Tactical combat behavior: Grab. DC 15 STR or held. DC 15",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "PTERODACTYL Pelt / Chitin / Essence",
@@ -2172,12 +2198,12 @@
     "traits": [
       "TRICERATOPS Plodding herbivores with a wide, bony skull frill and three horns."
     ],
-    "loreTiers": {
-      "common": "Towering, bipedal lizards with a massive head, jaws, and neck.",
-      "field": "Tactical combat behavior: TRICERATOPS Plodding herbivores with a wide, bony skull frill and three horns.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Towering, bipedal lizards with a massive head, jaws, and neck.",
+      "Tactical combat behavior: TRICERATOPS Plodding herbivores with a wide, bony skull frill and three horns.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "TYRANNOSAURUS Pelt / Chitin / Essence",
@@ -2212,12 +2238,12 @@
     "traits": [
       "Charge. Move up to double near in straight line and make 1 horn attack. If hit, x3 damage. BRACHIOSAURUS Colossal, long-necked tree grazers. Slow and peaceful."
     ],
-    "loreTiers": {
-      "common": "Plodding herbivores with a wide, bony skull frill and three horns.",
-      "field": "Tactical combat behavior: Charge. Move up to double near in straight line and make 1 horn attack. If hit, x3 damage. BRACHIOSAURUS Colossal, long-necked tree grazers. Slow and peaceful.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Plodding herbivores with a wide, bony skull frill and three horns.",
+      "Tactical combat behavior: Charge. Move up to double near in straight line and make 1 horn attack. If hit, x3 damage. BRACHIOSAURUS Colossal, long-necked tree grazers. Slow and peaceful.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "TRICERATOPS Pelt / Chitin / Essence",
@@ -2251,12 +2277,12 @@
     "traits": [
       "PLESIOSAURUS Aquatic reptiles as big as elephants. Flat flippers and narrow, toothy maws on long necks."
     ],
-    "loreTiers": {
-      "common": "Colossal, long-necked tree grazers. Slow and peaceful.",
-      "field": "Tactical combat behavior: PLESIOSAURUS Aquatic reptiles as big as elephants. Flat flippers and narrow, toothy maws on long necks.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Colossal, long-necked tree grazers. Slow and peaceful.",
+      "Tactical combat behavior: PLESIOSAURUS Aquatic reptiles as big as elephants. Flat flippers and narrow, toothy maws on long necks.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "BRACHIOSAURUS Pelt / Chitin / Essence",
@@ -2290,12 +2316,12 @@
     "traits": [
       "VELOCIRAPTOR Fast, turkey-sized raptors with vicious toe claws. Pack hunters."
     ],
-    "loreTiers": {
-      "common": "Aquatic reptiles as big as elephants. Flat flippers and narrow, toothy maws on long necks.",
-      "field": "Tactical combat behavior: VELOCIRAPTOR Fast, turkey-sized raptors with vicious toe claws. Pack hunters.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Aquatic reptiles as big as elephants. Flat flippers and narrow, toothy maws on long necks.",
+      "Tactical combat behavior: VELOCIRAPTOR Fast, turkey-sized raptors with vicious toe claws. Pack hunters.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "PLESIOSAURUS Pelt / Chitin / Essence",
@@ -2330,12 +2356,12 @@
       "Clever. +1d4 damage when attacking with surprise. 209 DJINNI Azure-blue, jovial humanoids made of air and roiling wind.",
       "Infused with potent magic."
     ],
-    "loreTiers": {
-      "common": "Fast, turkey-sized raptors with vicious toe claws. Pack hunters.",
-      "field": "Tactical combat behavior: Clever. +1d4 damage when attacking with surprise. 209 DJINNI Azure-blue, jovial humanoids made of air and roiling wind.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Fast, turkey-sized raptors with vicious toe claws. Pack hunters.",
+      "Tactical combat behavior: Clever. +1d4 damage when attacking with surprise. 209 DJINNI Azure-blue, jovial humanoids made of air and roiling wind.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "VELOCIRAPTOR Pelt / Chitin / Essence",
@@ -2371,12 +2397,12 @@
       "Whirlwind. Transform into a lashing tornado. All enemies within near DC 18 DEX or thrown 2d100 feet in a random direction.",
       "Wish. Cast wish once a week for a mortal, no spellcasting check. DOPPELGANGER Gray, featureless humanoids that delight in sowing chaos."
     ],
-    "loreTiers": {
-      "common": "Azure-blue, jovial humanoids made of air and roiling wind. Infused with potent magic.",
-      "field": "Tactical combat behavior: Impervious. Only damaged by magical sources.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Azure-blue, jovial humanoids made of air and roiling wind. Infused with potent magic.",
+      "Tactical combat behavior: Impervious. Only damaged by magical sources.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "DJINNI Pelt / Chitin / Essence",
@@ -2410,12 +2436,12 @@
       "Change Shape. In place of attacks, transform into any similarly-sized humanoid.",
       "Telepathy. Can secretly hear the surface thoughts of all humanoids within near. 210 DRAGONS Dragons are winged, formidable reptiles who carry the ancient magic of the land in their blood. Evil dragons are vain and cunning, while good dragons are noble and sagacious. They can live for many thousands of years. All dragons love treasure and hoard it in their remote, well- protected lairs deep within their favored environ. A dragon's lair has its level x 100 in gold pieces and 1d4 items from the 80-100 range on its treasure table. DRAGON, DESERT The smell of ozone precedes this desert-dwelling dragon. Its dazzling scales of brass and lapis lazuli shimmer in the baking heat."
     ],
-    "loreTiers": {
-      "common": "Gray, featureless humanoids that delight in sowing chaos.",
-      "field": "Tactical combat behavior: Change Shape. In place of attacks, transform into any similarly-sized humanoid.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Gray, featureless humanoids that delight in sowing chaos.",
+      "Tactical combat behavior: Change Shape. In place of attacks, transform into any similarly-sized humanoid.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "DOPPELGANGER Pelt / Chitin / Essence",
@@ -2451,12 +2477,12 @@
       "Lightning Breath. A straight line (5' wide) extending double near from dragon. DC 15 DEX or 4d8 damage (DISADV on check if wearing metal armor).",
       "Mirage. 1/day, in place of attacks. Create 3 illusory duplicates that disappear when hit. Determine randomly if an attack hits dragon or illusions. DRAGON, FIRE Blood-red scales cover the hide of this mighty, volcanic wyrm. Leaping flames glow at the back of its throat."
     ],
-    "loreTiers": {
-      "common": "The smell of ozone precedes this desert-dwelling dragon. Its dazzling scales of brass and lapis lazuli shimmer in the baking heat.",
-      "field": "Tactical combat behavior: Stormblood. Electricity immune.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "The smell of ozone precedes this desert-dwelling dragon. Its dazzling scales of brass and lapis lazuli shimmer in the baking heat.",
+      "Tactical combat behavior: Stormblood. Electricity immune.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "DRAGON DESERT Pelt / Chitin / Essence",
@@ -2491,12 +2517,12 @@
       "Fireblood. Fire immune.",
       "Fire Breath. Fills a double near- sized cube extending from dragon. DC 15 DEX or 6d10 damage. 211 DRAGON, FOREST The smell of wet loam follows this dragon. Its jade scales bristle with barbed thorns."
     ],
-    "loreTiers": {
-      "common": "Blood-red scales cover the hide of this mighty, volcanic wyrm. Leaping flames glow at the back of its throat.",
-      "field": "Tactical combat behavior: Fireblood. Fire immune.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Blood-red scales cover the hide of this mighty, volcanic wyrm. Leaping flames glow at the back of its throat.",
+      "Tactical combat behavior: Fireblood. Fire immune.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "DRAGON FIRE Pelt / Chitin / Essence",
@@ -2531,12 +2557,12 @@
       "Animate Plants. 1/day, in place of attacks. Vines grab at all enemies within double near of dragon. DC 15 DEX or unable to move 1d4 rounds.",
       "Poison Breath. Fills a near-sized cube extending from dragon. DC 15 CON or 3d8 damage. DRAGON, FROST Prismatic ice lines the horns, spines, and wings of this pearly dragon. Clouds of steam hiss from its ice-rimed jaws."
     ],
-    "loreTiers": {
-      "common": "The smell of wet loam follows this dragon. Its jade scales bristle with barbed thorns.",
-      "field": "Tactical combat behavior: Animate Plants. 1/day, in place of attacks. Vines grab at all enemies within double near of dragon. DC 15 DEX or unable to move 1d4 rounds.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "The smell of wet loam follows this dragon. Its jade scales bristle with barbed thorns.",
+      "Tactical combat behavior: Animate Plants. 1/day, in place of attacks. Vines grab at all enemies within double near of dragon. DC 15 DEX or unable to move 1d4 rounds.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "DRAGON FOREST Pelt / Chitin / Essence",
@@ -2571,12 +2597,12 @@
       "Frostblood. Cold immune.",
       "Ice Breath. Fills a double near- sized cube extending from dragon. DC 15 DEX or 4d8 damage and frozen for 1 round. DRAGON, SEA A warm sea breeze blows around this amphibious, gold- scaled wyrm. A beard of tendrils covers its snout, and a blue mane billows along its neck."
     ],
-    "loreTiers": {
-      "common": "Prismatic ice lines the horns, spines, and wings of this pearly dragon. Clouds of steam hiss from its ice-rimed jaws.",
-      "field": "Tactical combat behavior: Frostblood. Cold immune.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Prismatic ice lines the horns, spines, and wings of this pearly dragon. Clouds of steam hiss from its ice-rimed jaws.",
+      "Tactical combat behavior: Frostblood. Cold immune.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "DRAGON FROST Pelt / Chitin / Essence",
@@ -2612,12 +2638,12 @@
       "Steam Breath. Fills a double near-sized cube extending from dragon. DC 15 DEX or 4d12 damage.",
       "Water Spout. Fills a near-sized cube within far. DC 15 STR or creatures inside flung 2d100 feet in a random direction. DRAGON, SWAMP This black, wingless beast slithers through dank swamps."
     ],
-    "loreTiers": {
-      "common": "A warm sea breeze blows around this amphibious, gold- scaled wyrm. A beard of tendrils covers its snout, and a blue mane billows along its neck.",
-      "field": "Tactical combat behavior: Steam Breath. Fills a double near-sized cube extending from dragon. DC 15 DEX or 4d12 damage.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "A warm sea breeze blows around this amphibious, gold- scaled wyrm. A beard of tendrils covers its snout, and a blue mane billows along its neck.",
+      "Tactical combat behavior: Steam Breath. Fills a double near-sized cube extending from dragon. DC 15 DEX or 4d12 damage.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "DRAGON SEA Pelt / Chitin / Essence",
@@ -2651,12 +2677,12 @@
     "traits": [
       "Smog Breath. Fills a near-sized cube extending from dragon. DC 15 CON or 2d10 damage and blinded for 1 round. 212 DROW Lithe, subterranean elves with ebon skin, white hair, and red eyes that see in the dark. They are stealthy and cunning. Drow live in strikingly decadent, matriarchal societies centered around the worship of their cruel spider-demon goddess. DROW A graceful, shadowy elf that pounces like a spider."
     ],
-    "loreTiers": {
-      "common": "This black, wingless beast slithers through dank swamps.",
-      "field": "Tactical combat behavior: Smog Breath. Fills a near-sized cube extending from dragon. DC 15 CON or 2d10 damage and blinded for 1 round. 212 DROW Lithe, subterranean elves with ebon skin, white hair, and red eyes that see in the dark. They are stealthy and cunning. Drow live in strikingly decadent, matriarchal societies centered around the worship of their cruel spider-demon goddess. DROW A graceful, shadowy elf that pounces like a spider.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "This black, wingless beast slithers through dank swamps.",
+      "Tactical combat behavior: Smog Breath. Fills a near-sized cube extending from dragon. DC 15 CON or 2d10 damage and blinded for 1 round. 212 DROW Lithe, subterranean elves with ebon skin, white hair, and red eyes that see in the dark. They are stealthy and cunning. Drow live in strikingly decadent, matriarchal societies centered around the worship of their cruel spider-demon goddess. DROW A graceful, shadowy elf that pounces like a spider.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "DRAGON SWAMP Pelt / Chitin / Essence",
@@ -2692,12 +2718,12 @@
       "Poison. DC 15 CON or sleep.",
       "Sunblind. Blinded in bright light. DROW, PRIESTESS A statuesque female drow with a crown of metal spider webs and an imperious gaze."
     ],
-    "loreTiers": {
-      "common": "A graceful, shadowy elf that pounces like a spider.",
-      "field": "Tactical combat behavior: Poison. DC 15 CON or sleep.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "A graceful, shadowy elf that pounces like a spider.",
+      "Tactical combat behavior: Poison. DC 15 CON or sleep.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "DROW Pelt / Chitin / Essence",
@@ -2732,12 +2758,12 @@
       "Poison. DC 15 CON or paralyzed 1d4 rounds.",
       "Sunblind. Blinded in bright light. Snuff (WIS Spell). DC 12. Extinguish all light sources (even magical) within near. Summon Spiders (WIS Spell). DC 14. Summon 2d4 loyal giant spiders that appear within near. They stay for 5 rounds. Web (WIS Spell). DC 13. A near- sized cube of webs within far immobilizes all inside it for 5 rounds. DC 15 STR on turn to break free. DROW, DRIDER A monstrosity with the body of a giant spider and torso of a drow."
     ],
-    "loreTiers": {
-      "common": "A statuesque female drow with a crown of metal spider webs and an imperious gaze.",
-      "field": "Tactical combat behavior: Poison. DC 15 CON or paralyzed 1d4 rounds.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "A statuesque female drow with a crown of metal spider webs and an imperious gaze.",
+      "Tactical combat behavior: Poison. DC 15 CON or paralyzed 1d4 rounds.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "DROW PRIESTESS Pelt / Chitin / Essence",
@@ -2772,12 +2798,12 @@
       "Poison. DC 15 CON or paralyzed 1d4 rounds.",
       "Sunblind. Blinded in bright light. 213 DRUID A wizard of the wilds holding a knotted staff and wearing a mossy cloak of deep viridian."
     ],
-    "loreTiers": {
-      "common": "A monstrosity with the body of a giant spider and torso of a drow.",
-      "field": "Tactical combat behavior: Poison. DC 15 CON or paralyzed 1d4 rounds.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "A monstrosity with the body of a giant spider and torso of a drow.",
+      "Tactical combat behavior: Poison. DC 15 CON or paralyzed 1d4 rounds.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "DROW DRIDER Pelt / Chitin / Essence",
@@ -2811,12 +2837,12 @@
     "traits": [
       "Barkskin (INT Spell). Self. DC 13. AC becomes 15 for 5 rounds. Conjure Flames (INT Spell). DC 12. One target in far takes 2d6 damage. Imbue (INT Spell). Self. DC 13. Staff becomes a +3 magic weapon for 10 rounds. Summon Bear (INT Spell). DC 14. Summon a loyal brown bear that appears within near. It stays for 5 rounds. Thunderclap (INT Spell). DC 13. Fills a near-sized cube extending from druid. Creatures within are thrown 2d20 feet in a random direction. DRYAD A coy, emerald-skinned fey covered in leaves. It bonds with and protects a tree."
     ],
-    "loreTiers": {
-      "common": "A wizard of the wilds holding a knotted staff and wearing a mossy cloak of deep viridian.",
-      "field": "Tactical combat behavior: Barkskin (INT Spell). Self. DC 13. AC becomes 15 for 5 rounds. Conjure Flames (INT Spell). DC 12. One target in far takes 2d6 damage. Imbue (INT Spell). Self. DC 13. Staff becomes a +3 magic weapon for 10 rounds. Summon Bear (INT Spell). DC 14. Summon a loyal brown bear that appears within near. It stays for 5 rounds. Thunderclap (INT Spell). DC 13. Fills a near-sized cube extending from druid. Creatures within are thrown 2d20 feet in a random direction. DRYAD A coy, emerald-skinned fey covered in leaves. It bonds with and protects a tree.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "A wizard of the wilds holding a knotted staff and wearing a mossy cloak of deep viridian.",
+      "Tactical combat behavior: Barkskin (INT Spell). Self. DC 13. AC becomes 15 for 5 rounds. Conjure Flames (INT Spell). DC 12. One target in far takes 2d6 damage. Imbue (INT Spell). Self. DC 13. Staff becomes a +3 magic weapon for 10 rounds. Summon Bear (INT Spell). DC 14. Summon a loyal brown bear that appears within near. It stays for 5 rounds. Thunderclap (INT Spell). DC 13. Fills a near-sized cube extending from druid. Creatures within are thrown 2d20 feet in a random direction. DRYAD A coy, emerald-skinned fey covered in leaves. It bonds with and protects a tree.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "DRUID Pelt / Chitin / Essence",
@@ -2851,12 +2877,12 @@
       "Charm. Near, one creature, DC 14 CHA or friendship for 1d8 days.",
       "Meld. Step inside bonded tree. DUERGAR Gray-skinned, greedy dwarves with bald pates and white beards. They dwell in somber castles deep within the earth filled with stolen treasures and enslaved prisoners."
     ],
-    "loreTiers": {
-      "common": "A coy, emerald-skinned fey covered in leaves. It bonds with and protects a tree.",
-      "field": "Tactical combat behavior: Charm. Near, one creature, DC 14 CHA or friendship for 1d8 days.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "A coy, emerald-skinned fey covered in leaves. It bonds with and protects a tree.",
+      "Tactical combat behavior: Charm. Near, one creature, DC 14 CHA or friendship for 1d8 days.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "DRYAD Pelt / Chitin / Essence",
@@ -2891,12 +2917,12 @@
       "Invisibility. 1/day, turn invisible for 3 rounds. Ends if duergar attacks.",
       "Sunblind. Blinded in bright light. 214 DUNG BEETLE, GIANT A trundling, barrel-sized beetle with a T-shaped horn."
     ],
-    "loreTiers": {
-      "common": "Gray-skinned, greedy dwarves with bald pates and white beards. They dwell in somber castles deep within the earth filled with stolen treasures and enslaved prisoners.",
-      "field": "Tactical combat behavior: Enlarge. 1/day, +1d6 damage on melee attacks and ADV on STR checks for 3 rounds.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Gray-skinned, greedy dwarves with bald pates and white beards. They dwell in somber castles deep within the earth filled with stolen treasures and enslaved prisoners.",
+      "Tactical combat behavior: Enlarge. 1/day, +1d6 damage on melee attacks and ADV on STR checks for 3 rounds.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "DUERGAR Pelt / Chitin / Essence",
@@ -2929,12 +2955,12 @@
     "traits": [
       "Knock. DC 9 STR or pushed a close distance and fall down. EFREETI Blood-red, towering humanoids formed of lava and ash. Short, black horns and snarling grins."
     ],
-    "loreTiers": {
-      "common": "A trundling, barrel-sized beetle with a T-shaped horn.",
-      "field": "Tactical combat behavior: Knock. DC 9 STR or pushed a close distance and fall down. EFREETI Blood-red, towering humanoids formed of lava and ash. Short, black horns and snarling grins.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "A trundling, barrel-sized beetle with a T-shaped horn.",
+      "Tactical combat behavior: Knock. DC 9 STR or pushed a close distance and fall down. EFREETI Blood-red, towering humanoids formed of lava and ash. Short, black horns and snarling grins.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "DUNG BEETLE GIANT Pelt / Chitin / Essence",
@@ -2982,12 +3008,12 @@
       "Impervious. Only damaged by magical sources.",
       "Whirlpool. All within close DC 15 STR or immobilized inside water elemental (treat as underwater). DC 15 STR on turn to escape. Elementals are semi-humanoid beings of pure energy that speak rudimentary Primordial. Earth and air are anathema to each other, as are fire and water. Lesser elementals are LV 6 and their slam deals 2 dice of damage. Greater elementals are LV 9 and their slam deals 3 dice of damage. 216 ELEPHANT Mighty mammals with tough hide, flappy ears, and a trunk."
     ],
-    "loreTiers": {
-      "common": "Blood-red, towering humanoids formed of lava and ash. Short, black horns and snarling grins.",
-      "field": "Tactical combat behavior: Impervious. Only damaged by magical sources. Fire immune.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Blood-red, towering humanoids formed of lava and ash. Short, black horns and snarling grins.",
+      "Tactical combat behavior: Impervious. Only damaged by magical sources. Fire immune.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "EFREETI Pelt / Chitin / Essence",
@@ -3020,12 +3046,12 @@
     "traits": [
       "Charge. Move up to double near in straight line and make 1 tusks attack. If hit, x3 damage. ELF Ethereal, ageless fey-people infused with ancient magic."
     ],
-    "loreTiers": {
-      "common": "Mighty mammals with tough hide, flappy ears, and a trunk.",
-      "field": "Tactical combat behavior: Charge. Move up to double near in straight line and make 1 tusks attack. If hit, x3 damage. ELF Ethereal, ageless fey-people infused with ancient magic.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Mighty mammals with tough hide, flappy ears, and a trunk.",
+      "Tactical combat behavior: Charge. Move up to double near in straight line and make 1 tusks attack. If hit, x3 damage. ELF Ethereal, ageless fey-people infused with ancient magic.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "ELEPHANT Pelt / Chitin / Essence",
@@ -3059,12 +3085,12 @@
     "traits": [
       "Feyblood. ADV on DEX checks while in the natural wilds. ETTERCAP Bipedal, eight-eyed spiderfolk with spindly legs and purple fur."
     ],
-    "loreTiers": {
-      "common": "Ethereal, ageless fey-people infused with ancient magic.",
-      "field": "Tactical combat behavior: Feyblood. ADV on DEX checks while in the natural wilds. ETTERCAP Bipedal, eight-eyed spiderfolk with spindly legs and purple fur.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Ethereal, ageless fey-people infused with ancient magic.",
+      "Tactical combat behavior: Feyblood. ADV on DEX checks while in the natural wilds. ETTERCAP Bipedal, eight-eyed spiderfolk with spindly legs and purple fur.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "ELF Pelt / Chitin / Essence",
@@ -3098,12 +3124,12 @@
     "traits": [
       "Poison Web. One target stuck in place and 1d4 damage/round. DC 12 DEX on turn to escape. FAIRY Miniature fey folk with fluttering moth or butterfly wings."
     ],
-    "loreTiers": {
-      "common": "Bipedal, eight-eyed spiderfolk with spindly legs and purple fur.",
-      "field": "Tactical combat behavior: Poison Web. One target stuck in place and 1d4 damage/round. DC 12 DEX on turn to escape. FAIRY Miniature fey folk with fluttering moth or butterfly wings.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Bipedal, eight-eyed spiderfolk with spindly legs and purple fur.",
+      "Tactical combat behavior: Poison Web. One target stuck in place and 1d4 damage/round. DC 12 DEX on turn to escape. FAIRY Miniature fey folk with fluttering moth or butterfly wings.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "ETTERCAP Pelt / Chitin / Essence",
@@ -3136,12 +3162,12 @@
     "traits": [
       "Poison. DC 12 CON or fall into deep sleep for 1d4 hours. FROG, GIANT Human-sized frogs with warty skin and long, sticky tongues."
     ],
-    "loreTiers": {
-      "common": "Miniature fey folk with fluttering moth or butterfly wings.",
-      "field": "Tactical combat behavior: Poison. DC 12 CON or fall into deep sleep for 1d4 hours. FROG, GIANT Human-sized frogs with warty skin and long, sticky tongues.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Miniature fey folk with fluttering moth or butterfly wings.",
+      "Tactical combat behavior: Poison. DC 12 CON or fall into deep sleep for 1d4 hours. FROG, GIANT Human-sized frogs with warty skin and long, sticky tongues.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "FAIRY Pelt / Chitin / Essence",
@@ -3175,12 +3201,12 @@
       "Tongue. 1 creature in near DC 12",
       "DEX or pulled to close range. GARGOYLE Leering, winged fiends that look like stone statues. They can hold perfectly still for long stretches of time."
     ],
-    "loreTiers": {
-      "common": "Human-sized frogs with warty skin and long, sticky tongues.",
-      "field": "Tactical combat behavior: Tongue. 1 creature in near DC 12",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Human-sized frogs with warty skin and long, sticky tongues.",
+      "Tactical combat behavior: Tongue. 1 creature in near DC 12",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "FROG GIANT Pelt / Chitin / Essence",
@@ -3213,12 +3239,12 @@
     "traits": [
       "Impervious. Only damaged by magical sources. 217 GELATINOUS CUBE A translucent cube of slime that silently mows through tunnels."
     ],
-    "loreTiers": {
-      "common": "Leering, winged fiends that look like stone statues. They can hold perfectly still for long stretches of time.",
-      "field": "Tactical combat behavior: Impervious. Only damaged by magical sources. 217 GELATINOUS CUBE A translucent cube of slime that silently mows through tunnels.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Leering, winged fiends that look like stone statues. They can hold perfectly still for long stretches of time.",
+      "Tactical combat behavior: Impervious. Only damaged by magical sources. 217 GELATINOUS CUBE A translucent cube of slime that silently mows through tunnels.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "GARGOYLE Pelt / Chitin / Essence",
@@ -3253,12 +3279,12 @@
       "Rubbery. Half damage from stabbing weapons.",
       "Toxin. DC 15 CON or paralyzed 1d4 rounds. GHAST Greater ghouls who retain the intelligence they had in life."
     ],
-    "loreTiers": {
-      "common": "A translucent cube of slime that silently mows through tunnels.",
-      "field": "Tactical combat behavior: Engulf. DC 12 STR or trapped inside cube. Touch attack auto- hits engulfed targets each round. DC 12 STR on turn to escape. Fail checks if paralyzed.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "A translucent cube of slime that silently mows through tunnels.",
+      "Tactical combat behavior: Engulf. DC 12 STR or trapped inside cube. Touch attack auto- hits engulfed targets each round. DC 12 STR on turn to escape. Fail checks if paralyzed.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "GELATINOUS CUBE Pelt / Chitin / Essence",
@@ -3293,12 +3319,12 @@
       "Carrion Stench. Living creatures DC 12 CON the first time within near or DISADV on attacks and spellcasting for 5 rounds.",
       "Paralyze. DC 12 CON or paralyzed 1d4 rounds. GHOUL Gray-skinned, slavering undead with whipping tongues and flat, reptilian faces."
     ],
-    "loreTiers": {
-      "common": "Greater ghouls who retain the intelligence they had in life.",
-      "field": "Tactical combat behavior: Undead. Immune to morale checks.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Greater ghouls who retain the intelligence they had in life.",
+      "Tactical combat behavior: Undead. Immune to morale checks.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "GHAST Pelt / Chitin / Essence",
@@ -3332,12 +3358,12 @@
       "Undead. Immune to morale checks.",
       "Paralyze. DC 12 CON or paralyzed 1d4 rounds. GHOST A wavering spirit with a face contorted in rage or sadness."
     ],
-    "loreTiers": {
-      "common": "Gray-skinned, slavering undead with whipping tongues and flat, reptilian faces.",
-      "field": "Tactical combat behavior: Undead. Immune to morale checks.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Gray-skinned, slavering undead with whipping tongues and flat, reptilian faces.",
+      "Tactical combat behavior: Undead. Immune to morale checks.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "GHOUL Pelt / Chitin / Essence",
@@ -3375,12 +3401,12 @@
       "Possess. Must be corporeal. One target, close range. Contested",
       "CHA check. If ghost wins, it inhabits target's body and controls it for 2d4 rounds. 218 GIANTS Giants once ruled the earth long ago, warring with dragons for supremacy over the seas and skies. But the weariness of eons eventually caused their glorious societies to erode. Now, they live in reclusive clans, wary of outsiders and withdrawn from the younger civilizations. Hill and goat giants are brutish louts who ally with goblinkind. Fire giants build enclaves in volcanoes, frost giants in frozen wastes. Stone giants live deep underground, while cloud giants occupy lofty mountain castles. Mighty storm giants dwell in majestic, deep-sea strongholds. GIANT, CLOUD Pale, angular giants with blue-gray hair, light eyes, and silk robes. They do not allow outsiders into their enclaves."
     ],
-    "loreTiers": {
-      "common": "A wavering spirit with a face contorted in rage or sadness.",
-      "field": "Tactical combat behavior: Greater Undead. Immune to morale checks. Only damaged by silver or magical sources.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "A wavering spirit with a face contorted in rage or sadness.",
+      "Tactical combat behavior: Greater Undead. Immune to morale checks. Only damaged by silver or magical sources.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "GHOST Pelt / Chitin / Essence",
@@ -3413,12 +3439,12 @@
     "traits": [
       "Alert. ADV on checks to detect sneaking or hiding creatures. GIANT, FIRE Bulky, muscled giants with coppery skin and red hair. Heavily armored in iron plate mail studded with bronze rivets."
     ],
-    "loreTiers": {
-      "common": "Pale, angular giants with blue-gray hair, light eyes, and silk robes. They do not allow outsiders into their enclaves.",
-      "field": "Tactical combat behavior: Alert. ADV on checks to detect sneaking or hiding creatures. GIANT, FIRE Bulky, muscled giants with coppery skin and red hair. Heavily armored in iron plate mail studded with bronze rivets.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Pale, angular giants with blue-gray hair, light eyes, and silk robes. They do not allow outsiders into their enclaves.",
+      "Tactical combat behavior: Alert. ADV on checks to detect sneaking or hiding creatures. GIANT, FIRE Bulky, muscled giants with coppery skin and red hair. Heavily armored in iron plate mail studded with bronze rivets.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "GIANT CLOUD Pelt / Chitin / Essence",
@@ -3451,12 +3477,12 @@
     "traits": [
       "Fireblood. Fire immune. 219 GIANT, FROST Blue-skinned warriors with broad shoulders and braided hair. They sound war horns during their frequent raids to pillage nearby settlements."
     ],
-    "loreTiers": {
-      "common": "Bulky, muscled giants with coppery skin and red hair. Heavily armored in iron plate mail studded with bronze rivets.",
-      "field": "Tactical combat behavior: Fireblood. Fire immune. 219 GIANT, FROST Blue-skinned warriors with broad shoulders and braided hair. They sound war horns during their frequent raids to pillage nearby settlements.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Bulky, muscled giants with coppery skin and red hair. Heavily armored in iron plate mail studded with bronze rivets.",
+      "Tactical combat behavior: Fireblood. Fire immune. 219 GIANT, FROST Blue-skinned warriors with broad shoulders and braided hair. They sound war horns during their frequent raids to pillage nearby settlements.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "GIANT FIRE Pelt / Chitin / Essence",
@@ -3489,12 +3515,12 @@
     "traits": [
       "Frostblood. Cold immune. GIANT, STONE Lean, sinewy giants with stony skin and deep-set eyes. They are quiet and poised, often sitting motionless for days at a time."
     ],
-    "loreTiers": {
-      "common": "Blue-skinned warriors with broad shoulders and braided hair. They sound war horns during their frequent raids to pillage nearby settlements.",
-      "field": "Tactical combat behavior: Frostblood. Cold immune. GIANT, STONE Lean, sinewy giants with stony skin and deep-set eyes. They are quiet and poised, often sitting motionless for days at a time.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Blue-skinned warriors with broad shoulders and braided hair. They sound war horns during their frequent raids to pillage nearby settlements.",
+      "Tactical combat behavior: Frostblood. Cold immune. GIANT, STONE Lean, sinewy giants with stony skin and deep-set eyes. They are quiet and poised, often sitting motionless for days at a time.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "GIANT FROST Pelt / Chitin / Essence",
@@ -3528,12 +3554,12 @@
     "traits": [
       "Stone Hide. Half damage from stabbing and cutting weapons. GIANT, GOAT Highland-dwelling, barbaric giants with goatlike legs, horns, and horizontal pupils."
     ],
-    "loreTiers": {
-      "common": "Lean, sinewy giants with stony skin and deep-set eyes. They are quiet and poised, often sitting motionless for days at a time.",
-      "field": "Tactical combat behavior: Stone Hide. Half damage from stabbing and cutting weapons. GIANT, GOAT Highland-dwelling, barbaric giants with goatlike legs, horns, and horizontal pupils.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Lean, sinewy giants with stony skin and deep-set eyes. They are quiet and poised, often sitting motionless for days at a time.",
+      "Tactical combat behavior: Stone Hide. Half damage from stabbing and cutting weapons. GIANT, GOAT Highland-dwelling, barbaric giants with goatlike legs, horns, and horizontal pupils.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "GIANT STONE Pelt / Chitin / Essence",
@@ -3567,12 +3593,12 @@
     "traits": [
       "GIANT, STORM Regal titans with sea-green skin, flowing white hair, and thundering voices. They breathe water as easily as air."
     ],
-    "loreTiers": {
-      "common": "Highland-dwelling, barbaric giants with goatlike legs, horns, and horizontal pupils.",
-      "field": "Tactical combat behavior: GIANT, STORM Regal titans with sea-green skin, flowing white hair, and thundering voices. They breathe water as easily as air.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Highland-dwelling, barbaric giants with goatlike legs, horns, and horizontal pupils.",
+      "Tactical combat behavior: GIANT, STORM Regal titans with sea-green skin, flowing white hair, and thundering voices. They breathe water as easily as air.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "GIANT GOAT Pelt / Chitin / Essence",
@@ -3607,12 +3633,12 @@
       "Stormblood. Electricity immune.",
       "Lightning Bolt. 3/day, 5' wide line extending far from giant. All creatures in line DC 15 DEX or 5d10 damage. DISADV on check if in water. GIANT, HILL Fleshy hulks with leathery skin and broad, sloping foreheads. Cruel, boorish, and dim-witted."
     ],
-    "loreTiers": {
-      "common": "Regal titans with sea-green skin, flowing white hair, and thundering voices. They breathe water as easily as air.",
-      "field": "Tactical combat behavior: Stormblood. Electricity immune.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Regal titans with sea-green skin, flowing white hair, and thundering voices. They breathe water as easily as air.",
+      "Tactical combat behavior: Stormblood. Electricity immune.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "GIANT STORM Pelt / Chitin / Essence",
@@ -3646,12 +3672,12 @@
     "traits": [
       "220 GIBBERING MOUTHER Crawling masses of slime with dozens of screeching, lipless mouths and wet eyeballs."
     ],
-    "loreTiers": {
-      "common": "Fleshy hulks with leathery skin and broad, sloping foreheads. Cruel, boorish, and dim-witted.",
-      "field": "Tactical combat behavior: 220 GIBBERING MOUTHER Crawling masses of slime with dozens of screeching, lipless mouths and wet eyeballs.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Fleshy hulks with leathery skin and broad, sloping foreheads. Cruel, boorish, and dim-witted.",
+      "Tactical combat behavior: 220 GIBBERING MOUTHER Crawling masses of slime with dozens of screeching, lipless mouths and wet eyeballs.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "GIANT HILL Pelt / Chitin / Essence",
@@ -3686,12 +3712,12 @@
       "Latch. Attach to bitten target; bites auto-hit next round. DC 12",
       "STR on turn to tear off. GLADIATOR Veteran warriors seasoned in arena fights to the death."
     ],
-    "loreTiers": {
-      "common": "Crawling masses of slime with dozens of screeching, lipless mouths and wet eyeballs.",
-      "field": "Tactical combat behavior: Gibbering. Creatures within near DC 12 WIS on turn or take a random action (d8): 1-3. do nothing, 4-5. move in random direction, 6-7. attack nearest creature, 8. flee.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Crawling masses of slime with dozens of screeching, lipless mouths and wet eyeballs.",
+      "Tactical combat behavior: Gibbering. Creatures within near DC 12 WIS on turn or take a random action (d8): 1-3. do nothing, 4-5. move in random direction, 6-7. attack nearest creature, 8. flee.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "GIBBERING MOUTHER Pelt / Chitin / Essence",
@@ -3725,12 +3751,12 @@
     "traits": [
       "GNOLL Barbaric, opportunistic hyena- folk who range in large packs."
     ],
-    "loreTiers": {
-      "common": "Veteran warriors seasoned in arena fights to the death.",
-      "field": "Tactical combat behavior: GNOLL Barbaric, opportunistic hyena- folk who range in large packs.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Veteran warriors seasoned in arena fights to the death.",
+      "Tactical combat behavior: GNOLL Barbaric, opportunistic hyena- folk who range in large packs.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "GLADIATOR Pelt / Chitin / Essence",
@@ -3764,12 +3790,12 @@
     "traits": [
       "Rage. 1/day, immune to morale checks, +1d4 damage (3 rounds). GNOME, DEEP Gray-skinned, white-haired fey the size of halflings. They hunt for gems and rare cave flora."
     ],
-    "loreTiers": {
-      "common": "Barbaric, opportunistic hyena- folk who range in large packs.",
-      "field": "Tactical combat behavior: Rage. 1/day, immune to morale checks, +1d4 damage (3 rounds). GNOME, DEEP Gray-skinned, white-haired fey the size of halflings. They hunt for gems and rare cave flora.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Barbaric, opportunistic hyena- folk who range in large packs.",
+      "Tactical combat behavior: Rage. 1/day, immune to morale checks, +1d4 damage (3 rounds). GNOME, DEEP Gray-skinned, white-haired fey the size of halflings. They hunt for gems and rare cave flora.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "GNOLL Pelt / Chitin / Essence",
@@ -3803,12 +3829,12 @@
     "traits": [
       "Stone Meld. 2/day, underground only. Turn invisible for 3 rounds. 221 GOBLINS Goblins are the smallest and most numerous of the goblinoids, often serving hobgoblins, bugbears, or even hill giants as replaceable lackeys. They live in filthy, subterranean warrens built of scavenged materials. The goblin boss rules by cruelty and strength, and the shaman wields cryptic sorcery. GOBLIN A short, hairless humanoid with green skin and pointy ears."
     ],
-    "loreTiers": {
-      "common": "Gray-skinned, white-haired fey the size of halflings. They hunt for gems and rare cave flora.",
-      "field": "Tactical combat behavior: Stone Meld. 2/day, underground only. Turn invisible for 3 rounds. 221 GOBLINS Goblins are the smallest and most numerous of the goblinoids, often serving hobgoblins, bugbears, or even hill giants as replaceable lackeys. They live in filthy, subterranean warrens built of scavenged materials. The goblin boss rules by cruelty and strength, and the shaman wields cryptic sorcery. GOBLIN A short, hairless humanoid with green skin and pointy ears.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Gray-skinned, white-haired fey the size of halflings. They hunt for gems and rare cave flora.",
+      "Tactical combat behavior: Stone Meld. 2/day, underground only. Turn invisible for 3 rounds. 221 GOBLINS Goblins are the smallest and most numerous of the goblinoids, often serving hobgoblins, bugbears, or even hill giants as replaceable lackeys. They live in filthy, subterranean warrens built of scavenged materials. The goblin boss rules by cruelty and strength, and the shaman wields cryptic sorcery. GOBLIN A short, hairless humanoid with green skin and pointy ears.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "GNOME DEEP Pelt / Chitin / Essence",
@@ -3843,12 +3869,12 @@
     "traits": [
       "Keen Senses. Can't be surprised. GOBLIN, BOSS A scarred goblin with knotted muscles and a crown of iron."
     ],
-    "loreTiers": {
-      "common": "A short, hairless humanoid with green skin and pointy ears.",
-      "field": "Tactical combat behavior: Keen Senses. Can't be surprised. GOBLIN, BOSS A scarred goblin with knotted muscles and a crown of iron.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "A short, hairless humanoid with green skin and pointy ears.",
+      "Tactical combat behavior: Keen Senses. Can't be surprised. GOBLIN, BOSS A scarred goblin with knotted muscles and a crown of iron.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "GOBLIN Pelt / Chitin / Essence",
@@ -3881,12 +3907,12 @@
     "traits": [
       "Keen Senses. Can't be surprised. GOBLIN, SHAMAN A swaying, chanting goblin wearing necklaces of teeth and a robe of musty rat pelts."
     ],
-    "loreTiers": {
-      "common": "A scarred goblin with knotted muscles and a crown of iron.",
-      "field": "Tactical combat behavior: Keen Senses. Can't be surprised. GOBLIN, SHAMAN A swaying, chanting goblin wearing necklaces of teeth and a robe of musty rat pelts.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "A scarred goblin with knotted muscles and a crown of iron.",
+      "Tactical combat behavior: Keen Senses. Can't be surprised. GOBLIN, SHAMAN A swaying, chanting goblin wearing necklaces of teeth and a robe of musty rat pelts.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "GOBLIN BOSS Pelt / Chitin / Essence",
@@ -3920,12 +3946,12 @@
     "traits": [
       "Keen Senses. Can't be surprised. Bug Brain (WIS Spell). DC 13. Near range, one target. Target's INT drops to 1 for 1d4 rounds. Skitter (WIS Spell). DC 12. Self. Climb like a spider for 5 rounds. Stink Bomb (WIS Spell). DC 12. One target within far 2d4 damage and DC 12 CON or DISADV on next check/attack. 222 GOLEMS Creatures constructed from various materials and imbued with a rudimentary sentience. Making a golem requires rare, expensive materials and a series of complicated rituals. GOLEM, CLAY A towering, faceless humanoid shaped from glistening clay."
     ],
-    "loreTiers": {
-      "common": "A swaying, chanting goblin wearing necklaces of teeth and a robe of musty rat pelts.",
-      "field": "Tactical combat behavior: Keen Senses. Can't be surprised. Bug Brain (WIS Spell). DC 13. Near range, one target. Target's INT drops to 1 for 1d4 rounds. Skitter (WIS Spell). DC 12. Self. Climb like a spider for 5 rounds. Stink Bomb (WIS Spell). DC 12. One target within far 2d4 damage and DC 12 CON or DISADV on next check/attack. 222 GOLEMS Creatures constructed from various materials and imbued with a rudimentary sentience. Making a golem requires rare, expensive materials and a series of complicated rituals. GOLEM, CLAY A towering, faceless humanoid shaped from glistening clay.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "A swaying, chanting goblin wearing necklaces of teeth and a robe of musty rat pelts.",
+      "Tactical combat behavior: Keen Senses. Can't be surprised. Bug Brain (WIS Spell). DC 13. Near range, one target. Target's INT drops to 1 for 1d4 rounds. Skitter (WIS Spell). DC 12. Self. Climb like a spider for 5 rounds. Stink Bomb (WIS Spell). DC 12. One target within far 2d4 damage and DC 12 CON or DISADV on next check/attack. 222 GOLEMS Creatures constructed from various materials and imbued with a rudimentary sentience. Making a golem requires rare, expensive materials and a series of complicated rituals. GOLEM, CLAY A towering, faceless humanoid shaped from glistening clay.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "GOBLIN SHAMAN Pelt / Chitin / Essence",
@@ -3959,12 +3985,12 @@
       "Golem. Immune to damage from fire, cold, electricity, or non-magical sources. Healed by acid.",
       "Curse. Slam damage can only be healed by level 5+ priest. GOLEM, FLESH A ghastly monstrosity made of sewn-together corpses."
     ],
-    "loreTiers": {
-      "common": "A towering, faceless humanoid shaped from glistening clay.",
-      "field": "Tactical combat behavior: Golem. Immune to damage from fire, cold, electricity, or non-magical sources. Healed by acid.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "A towering, faceless humanoid shaped from glistening clay.",
+      "Tactical combat behavior: Golem. Immune to damage from fire, cold, electricity, or non-magical sources. Healed by acid.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "GOLEM CLAY Pelt / Chitin / Essence",
@@ -3998,12 +4024,12 @@
       "Golem. Immune to damage from fire, cold, or non-magical sources. Healed by electricity.",
       "Berserk. When at or below 20 HP, +1 slam attack and slams deal double damage. GOLEM, IRON A bulky iron suit that squeals and sparks with each step."
     ],
-    "loreTiers": {
-      "common": "A ghastly monstrosity made of sewn-together corpses.",
-      "field": "Tactical combat behavior: Golem. Immune to damage from fire, cold, or non-magical sources. Healed by electricity.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "A ghastly monstrosity made of sewn-together corpses.",
+      "Tactical combat behavior: Golem. Immune to damage from fire, cold, or non-magical sources. Healed by electricity.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "GOLEM FLESH Pelt / Chitin / Essence",
@@ -4038,12 +4064,12 @@
       "Golem. Immune to damage from cold or non-magical sources. Healed by fire.",
       "Poison Breath. All within near, DC 15 CON or 8d6 damage. GOLEM, STONE A wide-limbed, lumbering statue that shakes the ground."
     ],
-    "loreTiers": {
-      "common": "A bulky iron suit that squeals and sparks with each step.",
-      "field": "Tactical combat behavior: Golem. Immune to damage from cold or non-magical sources. Healed by fire.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "A bulky iron suit that squeals and sparks with each step.",
+      "Tactical combat behavior: Golem. Immune to damage from cold or non-magical sources. Healed by fire.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "GOLEM IRON Pelt / Chitin / Essence",
@@ -4077,12 +4103,12 @@
       "Golem. Immune to damage from fire, cold, electricity, or non-magical sources.",
       "Slow. Far range, one target. DC 15 CON or speed halved 1d4 rds. 223 GORGON A snorting bull made entirely of iron plating. A cloud of green fog billows from its nostrils."
     ],
-    "loreTiers": {
-      "common": "A wide-limbed, lumbering statue that shakes the ground.",
-      "field": "Tactical combat behavior: Golem. Immune to damage from fire, cold, electricity, or non-magical sources.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "A wide-limbed, lumbering statue that shakes the ground.",
+      "Tactical combat behavior: Golem. Immune to damage from fire, cold, electricity, or non-magical sources.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "GOLEM STONE Pelt / Chitin / Essence",
@@ -4118,12 +4144,12 @@
       "Charge. Move up to double near in straight line and make 1 gore attack. If hit, x3 damage.",
       "Petrifying Breath. Fills a near- sized cube extending from gorgon. DC 15 CON or petrified (gorgons immune). GORILLA Mighty, jungle-dwelling apes."
     ],
-    "loreTiers": {
-      "common": "A snorting bull made entirely of iron plating. A cloud of green fog billows from its nostrils.",
-      "field": "Tactical combat behavior: Charge. Move up to double near in straight line and make 1 gore attack. If hit, x3 damage.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "A snorting bull made entirely of iron plating. A cloud of green fog billows from its nostrils.",
+      "Tactical combat behavior: Charge. Move up to double near in straight line and make 1 gore attack. If hit, x3 damage.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "GORGON Pelt / Chitin / Essence",
@@ -4157,12 +4183,12 @@
       "GRAY OOZE",
       "Slick puddles the color of stone."
     ],
-    "loreTiers": {
-      "common": "Mighty, jungle-dwelling apes.",
-      "field": "Tactical combat behavior: GRAY OOZE",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Mighty, jungle-dwelling apes.",
+      "Tactical combat behavior: GRAY OOZE",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "GORILLA Pelt / Chitin / Essence",
@@ -4196,12 +4222,12 @@
       "Impervious. Immune to damage from acid, cold, or fire.",
       "Corrosive. Nonmagical metal that touches the ooze dissolves on a d6 roll of 1-3. GRICK A huge worm with four suckered tentacles and a snapping beak."
     ],
-    "loreTiers": {
-      "common": "Slick puddles the color of stone.",
-      "field": "Tactical combat behavior: Impervious. Immune to damage from acid, cold, or fire.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Slick puddles the color of stone.",
+      "Tactical combat behavior: Impervious. Immune to damage from acid, cold, or fire.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "GRAY OOZE Pelt / Chitin / Essence",
@@ -4236,12 +4262,12 @@
       "Grab. Target is immobilized. DC 15 Strength check on turn to break free. 224 GRIFFON Winged hunters with the head of an eagle and body of a lion.",
       "Their favored food is horses."
     ],
-    "loreTiers": {
-      "common": "A huge worm with four suckered tentacles and a snapping beak.",
-      "field": "Tactical combat behavior: Camouflage. Hard to see in cave terrain or rocks.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "A huge worm with four suckered tentacles and a snapping beak.",
+      "Tactical combat behavior: Camouflage. Hard to see in cave terrain or rocks.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "GRICK Pelt / Chitin / Essence",
@@ -4274,12 +4300,12 @@
     "traits": [
       "GRIMLOW A tall, oval-shaped mammal. A giant, half-moon maw hides on its belly beneath its gray fur."
     ],
-    "loreTiers": {
-      "common": "Winged hunters with the head of an eagle and body of a lion. Their favored food is horses.",
-      "field": "Tactical combat behavior: GRIMLOW A tall, oval-shaped mammal. A giant, half-moon maw hides on its belly beneath its gray fur.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Winged hunters with the head of an eagle and body of a lion. Their favored food is horses.",
+      "Tactical combat behavior: GRIMLOW A tall, oval-shaped mammal. A giant, half-moon maw hides on its belly beneath its gray fur.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "GRIFFON Pelt / Chitin / Essence",
@@ -4312,12 +4338,12 @@
     "traits": [
       "Grab. One target in near DC 15 STR or wrapped in grimlow's tongue and pulled into its mouth. Bite attacks automatically hit the target. Can only grab 1 target at a time. DC 15 STR on turn to break free. GUARD A sentry equipped with sturdy weapons and armor."
     ],
-    "loreTiers": {
-      "common": "A tall, oval-shaped mammal. A giant, half-moon maw hides on its belly beneath its gray fur.",
-      "field": "Tactical combat behavior: Grab. One target in near DC 15 STR or wrapped in grimlow's tongue and pulled into its mouth. Bite attacks automatically hit the target. Can only grab 1 target at a time. DC 15 STR on turn to break free. GUARD A sentry equipped with sturdy weapons and armor.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "A tall, oval-shaped mammal. A giant, half-moon maw hides on its belly beneath its gray fur.",
+      "Tactical combat behavior: Grab. One target in near DC 15 STR or wrapped in grimlow's tongue and pulled into its mouth. Bite attacks automatically hit the target. Can only grab 1 target at a time. DC 15 STR on turn to break free. GUARD A sentry equipped with sturdy weapons and armor.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "GRIMLOW Pelt / Chitin / Essence",
@@ -4351,12 +4377,12 @@
     "traits": [
       "225 HAGS Sinister crones who rose out of the black bogs of the Unseelie realms long ago. They are wretched beings of hatred and evil, suffused with cursed magic. Sea hags haunt dank ocean caves and grottoes. Night hags are drawn to places of depravity and woe, while weald hags fester in deep, boggy woods. HAG, WEALD Eyes dark as moonless nights, skin made of rotting wood, hair of tangled roots and vines."
     ],
-    "loreTiers": {
-      "common": "A sentry equipped with sturdy weapons and armor.",
-      "field": "Tactical combat behavior: 225 HAGS Sinister crones who rose out of the black bogs of the Unseelie realms long ago. They are wretched beings of hatred and evil, suffused with cursed magic. Sea hags haunt dank ocean caves and grottoes. Night hags are drawn to places of depravity and woe, while weald hags fester in deep, boggy woods. HAG, WEALD Eyes dark as moonless nights, skin made of rotting wood, hair of tangled roots and vines.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "A sentry equipped with sturdy weapons and armor.",
+      "Tactical combat behavior: 225 HAGS Sinister crones who rose out of the black bogs of the Unseelie realms long ago. They are wretched beings of hatred and evil, suffused with cursed magic. Sea hags haunt dank ocean caves and grottoes. Night hags are drawn to places of depravity and woe, while weald hags fester in deep, boggy woods. HAG, WEALD Eyes dark as moonless nights, skin made of rotting wood, hair of tangled roots and vines.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "GUARD Pelt / Chitin / Essence",
@@ -4391,12 +4417,12 @@
       "Drink Pain. Near range. DC 12 CHA to deal 2d4 damage to a creature; regain that many HP.",
       "Shapechange. Instantly change to look like any other humanoid. HAG, NIGHT A purple-skinned, stooped woman with stringy, white hair and a mouth full of iron teeth."
     ],
-    "loreTiers": {
-      "common": "Eyes dark as moonless nights, skin made of rotting wood, hair of tangled roots and vines.",
-      "field": "Tactical combat behavior: Drink Pain. Near range. DC 12 CHA to deal 2d4 damage to a creature; regain that many HP.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Eyes dark as moonless nights, skin made of rotting wood, hair of tangled roots and vines.",
+      "Tactical combat behavior: Drink Pain. Near range. DC 12 CHA to deal 2d4 damage to a creature; regain that many HP.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "HAG WEALD Pelt / Chitin / Essence",
@@ -4431,12 +4457,12 @@
       "Shapechange. Instantly change to look like any other humanoid. HAG, SEA A green, sunken-faced woman.",
       "Seaweed hair and oozing flesh."
     ],
-    "loreTiers": {
-      "common": "A purple-skinned, stooped woman with stringy, white hair and a mouth full of iron teeth.",
-      "field": "Tactical combat behavior: Blind. One target within near DC 15 CHA or blinded for 1d4 days.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "A purple-skinned, stooped woman with stringy, white hair and a mouth full of iron teeth.",
+      "Tactical combat behavior: Blind. One target within near DC 15 CHA or blinded for 1d4 days.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "HAG NIGHT Pelt / Chitin / Essence",
@@ -4470,12 +4496,12 @@
       "Shapechange. Instantly change to look like any other humanoid.",
       "Terrify. A creature who first sees her true form DC 15 CHA or DISADV on attacks 1d4 rounds. 226 HARPY Horrific, winged women with vulture-like lower bodies. They keen a hypnotic song."
     ],
-    "loreTiers": {
-      "common": "A green, sunken-faced woman. Seaweed hair and oozing flesh.",
-      "field": "Tactical combat behavior: Shapechange. Instantly change to look like any other humanoid.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "A green, sunken-faced woman. Seaweed hair and oozing flesh.",
+      "Tactical combat behavior: Shapechange. Instantly change to look like any other humanoid.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "HAG SEA Pelt / Chitin / Essence",
@@ -4509,12 +4535,12 @@
     "traits": [
       "Song. Enemies who can hear within double near DC 12 CHA or dazed and drawn to harpy for 1d4 rounds. Immune for 1 day if passed check. HELL HOUND Black wolfhounds with red eyes and jaws dripping with flames."
     ],
-    "loreTiers": {
-      "common": "Horrific, winged women with vulture-like lower bodies. They keen a hypnotic song.",
-      "field": "Tactical combat behavior: Song. Enemies who can hear within double near DC 12 CHA or dazed and drawn to harpy for 1d4 rounds. Immune for 1 day if passed check. HELL HOUND Black wolfhounds with red eyes and jaws dripping with flames.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Horrific, winged women with vulture-like lower bodies. They keen a hypnotic song.",
+      "Tactical combat behavior: Song. Enemies who can hear within double near DC 12 CHA or dazed and drawn to harpy for 1d4 rounds. Immune for 1 day if passed check. HELL HOUND Black wolfhounds with red eyes and jaws dripping with flames.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "HARPY Pelt / Chitin / Essence",
@@ -4549,12 +4575,12 @@
       "Impervious. Fire immune.",
       "Fire Breath. Fills a near-sized cube extending from hell hound. DC 15 DEX or 3d8 damage. Cannot use again for 1d4 rounds. HIPPOGRIFF Fierce, winged creatures with the lower body of a horse and upper body of a giant eagle."
     ],
-    "loreTiers": {
-      "common": "Black wolfhounds with red eyes and jaws dripping with flames.",
-      "field": "Tactical combat behavior: Impervious. Fire immune.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Black wolfhounds with red eyes and jaws dripping with flames.",
+      "Tactical combat behavior: Impervious. Fire immune.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "HELL HOUND Pelt / Chitin / Essence",
@@ -4587,12 +4613,12 @@
     "traits": [
       "HIPPOPOTAMUS Ornery river-beasts as large as cows with round, purple bodies and bulbous snouts."
     ],
-    "loreTiers": {
-      "common": "Fierce, winged creatures with the lower body of a horse and upper body of a giant eagle.",
-      "field": "Tactical combat behavior: HIPPOPOTAMUS Ornery river-beasts as large as cows with round, purple bodies and bulbous snouts.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Fierce, winged creatures with the lower body of a horse and upper body of a giant eagle.",
+      "Tactical combat behavior: HIPPOPOTAMUS Ornery river-beasts as large as cows with round, purple bodies and bulbous snouts.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "HIPPOGRIFF Pelt / Chitin / Essence",
@@ -4625,12 +4651,12 @@
     "traits": [
       "Stumpy. ADV on STR checks to grab or drag other creatures. 227 HOBGOBLIN A sturdy, tall goblin with russet skin. Militant and strategic."
     ],
-    "loreTiers": {
-      "common": "Ornery river-beasts as large as cows with round, purple bodies and bulbous snouts.",
-      "field": "Tactical combat behavior: Stumpy. ADV on STR checks to grab or drag other creatures. 227 HOBGOBLIN A sturdy, tall goblin with russet skin. Militant and strategic.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Ornery river-beasts as large as cows with round, purple bodies and bulbous snouts.",
+      "Tactical combat behavior: Stumpy. ADV on STR checks to grab or drag other creatures. 227 HOBGOBLIN A sturdy, tall goblin with russet skin. Militant and strategic.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "HIPPOPOTAMUS Pelt / Chitin / Essence",
@@ -4664,12 +4690,12 @@
     "traits": [
       "Phalanx. +1 to attacks and AC when in close range of an allied hobgoblin. HORSE Powerful, swift herd animals that roam open plains."
     ],
-    "loreTiers": {
-      "common": "A sturdy, tall goblin with russet skin. Militant and strategic.",
-      "field": "Tactical combat behavior: Phalanx. +1 to attacks and AC when in close range of an allied hobgoblin. HORSE Powerful, swift herd animals that roam open plains.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "A sturdy, tall goblin with russet skin. Militant and strategic.",
+      "Tactical combat behavior: Phalanx. +1 to attacks and AC when in close range of an allied hobgoblin. HORSE Powerful, swift herd animals that roam open plains.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "HOBGOBLIN Pelt / Chitin / Essence",
@@ -4703,12 +4729,12 @@
       "HYDRA A towering, amphibious reptile with a bouquet of snake heads writhing on long necks. AC 15, HP *, ATK 1 bite (near) +6 (1d8), MV near (swim), S +5, D +1, C +2, I -2, W +1, Ch -2, AL N, LV *",
       "Heads. Choose how many heads the hydra has. Each is LV 2, AC 15, HP 11, and can make 1 bite attack. A killed head sprouts into two new heads at the start of the hydra's turn unless cauterized beforehand. The hydra's LV is all the heads combined. INVISIBLE STALKER Intelligent creatures made of flowing air. Often bound to the bidding of evil sorcerers for their peerless tracking ability."
     ],
-    "loreTiers": {
-      "common": "Powerful, swift herd animals that roam open plains.",
-      "field": "Tactical combat behavior: HYDRA A towering, amphibious reptile with a bouquet of snake heads writhing on long necks. AC 15, HP *, ATK 1 bite (near) +6 (1d8), MV near (swim), S +5, D +1, C +2, I -2, W +1, Ch -2, AL N, LV *",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Powerful, swift herd animals that roam open plains.",
+      "Tactical combat behavior: HYDRA A towering, amphibious reptile with a bouquet of snake heads writhing on long necks. AC 15, HP *, ATK 1 bite (near) +6 (1d8), MV near (swim), S +5, D +1, C +2, I -2, W +1, Ch -2, AL N, LV *",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "HORSE Pelt / Chitin / Essence",
@@ -4743,12 +4769,12 @@
       "Invisible. Naturally invisible.",
       "Tracking. Can always sense the direction of its chosen quarry. 228 JELLYFISH Hand-sized, purple sea jellies with stinging tentacles."
     ],
-    "loreTiers": {
-      "common": "Intelligent creatures made of flowing air. Often bound to the bidding of evil sorcerers for their peerless tracking ability.",
-      "field": "Tactical combat behavior: Bound. A secret, mundane contingency (such as the touch of a feather) ends the invisible stalker's magical servitude.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Intelligent creatures made of flowing air. Often bound to the bidding of evil sorcerers for their peerless tracking ability.",
+      "Tactical combat behavior: Bound. A secret, mundane contingency (such as the touch of a feather) ends the invisible stalker's magical servitude.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "INVISIBLE STALKER Pelt / Chitin / Essence",
@@ -4781,12 +4807,12 @@
     "traits": [
       "Toxin. DC 9 CON or paralyzed 1d4 rounds. KNIGHT A warrior in shining plate mail and the surcoat of a knightly order."
     ],
-    "loreTiers": {
-      "common": "Hand-sized, purple sea jellies with stinging tentacles.",
-      "field": "Tactical combat behavior: Toxin. DC 9 CON or paralyzed 1d4 rounds. KNIGHT A warrior in shining plate mail and the surcoat of a knightly order.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Hand-sized, purple sea jellies with stinging tentacles.",
+      "Tactical combat behavior: Toxin. DC 9 CON or paralyzed 1d4 rounds. KNIGHT A warrior in shining plate mail and the surcoat of a knightly order.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "JELLYFISH Pelt / Chitin / Essence",
@@ -4819,12 +4845,12 @@
     "traits": [
       "Oath. 3/day, ADV on a roll made in service of knight's order. KOBOLD Puny, scaled coyote-lizards that dwell underground."
     ],
-    "loreTiers": {
-      "common": "A warrior in shining plate mail and the surcoat of a knightly order.",
-      "field": "Tactical combat behavior: Oath. 3/day, ADV on a roll made in service of knight's order. KOBOLD Puny, scaled coyote-lizards that dwell underground.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "A warrior in shining plate mail and the surcoat of a knightly order.",
+      "Tactical combat behavior: Oath. 3/day, ADV on a roll made in service of knight's order. KOBOLD Puny, scaled coyote-lizards that dwell underground.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "KNIGHT Pelt / Chitin / Essence",
@@ -4857,12 +4883,12 @@
     "traits": [
       "Dodge. 1/day, an attack that would hit misses instead. KOBOLD, SORCERER A scaly dog-lizard painted with colorful stripes and rattling a hefty leg bone strung with beads and feathers."
     ],
-    "loreTiers": {
-      "common": "Puny, scaled coyote-lizards that dwell underground.",
-      "field": "Tactical combat behavior: Dodge. 1/day, an attack that would hit misses instead. KOBOLD, SORCERER A scaly dog-lizard painted with colorful stripes and rattling a hefty leg bone strung with beads and feathers.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Puny, scaled coyote-lizards that dwell underground.",
+      "Tactical combat behavior: Dodge. 1/day, an attack that would hit misses instead. KOBOLD, SORCERER A scaly dog-lizard painted with colorful stripes and rattling a hefty leg bone strung with beads and feathers.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "KOBOLD Pelt / Chitin / Essence",
@@ -4896,12 +4922,12 @@
     "traits": [
       "Dodge. 1/day, an attack that would hit misses instead. Scorpion Sting (CHA Spell). DC 11. Near range, one target. 1d6 damage and target has DISADV on next attack roll or check. Spider Swarm (CHA Spell). DC 12. A spider swarm appears within near. Stays 1d4 rounds. Follows sorcerer's commands. 229 KRAKEN Primordial, tentacled leviathans the size of war galleons. They live in the lightless depths of the deep ocean."
     ],
-    "loreTiers": {
-      "common": "A scaly dog-lizard painted with colorful stripes and rattling a hefty leg bone strung with beads and feathers.",
-      "field": "Tactical combat behavior: Dodge. 1/day, an attack that would hit misses instead. Scorpion Sting (CHA Spell). DC 11. Near range, one target. 1d6 damage and target has DISADV on next attack roll or check. Spider Swarm (CHA Spell). DC 12. A spider swarm appears within near. Stays 1d4 rounds. Follows sorcerer's commands. 229 KRAKEN Primordial, tentacled leviathans the size of war galleons. They live in the lightless depths of the deep ocean.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "A scaly dog-lizard painted with colorful stripes and rattling a hefty leg bone strung with beads and feathers.",
+      "Tactical combat behavior: Dodge. 1/day, an attack that would hit misses instead. Scorpion Sting (CHA Spell). DC 11. Near range, one target. 1d6 damage and target has DISADV on next attack roll or check. Spider Swarm (CHA Spell). DC 12. A spider swarm appears within near. Stays 1d4 rounds. Follows sorcerer's commands. 229 KRAKEN Primordial, tentacled leviathans the size of war galleons. They live in the lightless depths of the deep ocean.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "KOBOLD SORCERER Pelt / Chitin / Essence",
@@ -4939,12 +4965,12 @@
       "Lightning Bolt. Straight line (5' wide) extending far from kraken. DC 15 DEX or 6d6 damage.",
       "Storm. Seas become violently turbulent in 1 mile radius around kraken. Lasts 2d4 rounds. Seaborne vessels have a 1:6 chance of capsizing each round. LEECH, GIANT A glossy black, blood-drinking slug as large as a cat."
     ],
-    "loreTiers": {
-      "common": "Primordial, tentacled leviathans the size of war galleons. They live in the lightless depths of the deep ocean.",
-      "field": "Tactical combat behavior: Impervious. Electricity immune.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Primordial, tentacled leviathans the size of war galleons. They live in the lightless depths of the deep ocean.",
+      "Tactical combat behavior: Impervious. Electricity immune.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "KRAKEN Pelt / Chitin / Essence",
@@ -4977,12 +5003,12 @@
     "traits": [
       "Attach. Attach to target; bite auto-hits next round. DC 12 STR on turn to tear off. 230 LEPRECHAUN Impish fey who favor green garb and love fooling \"tall folk\" with promises of gold."
     ],
-    "loreTiers": {
-      "common": "A glossy black, blood-drinking slug as large as a cat.",
-      "field": "Tactical combat behavior: Attach. Attach to target; bite auto-hits next round. DC 12 STR on turn to tear off. 230 LEPRECHAUN Impish fey who favor green garb and love fooling \"tall folk\" with promises of gold.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "A glossy black, blood-drinking slug as large as a cat.",
+      "Tactical combat behavior: Attach. Attach to target; bite auto-hits next round. DC 12 STR on turn to tear off. 230 LEPRECHAUN Impish fey who favor green garb and love fooling \"tall folk\" with promises of gold.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "LEECH GIANT Pelt / Chitin / Essence",
@@ -5019,12 +5045,12 @@
       "Lasts until dismissed. Invisibility (CHA Spell). DC 12.",
       "Self. Become invisible for 2d4 rounds. LICH A wizard who has completed a necromantic ritual to become a mighty, undead sorcerer. Its withered body is draped in moldering, silk robes, and red marshlights burn in its eyes."
     ],
-    "loreTiers": {
-      "common": "Impish fey who favor green garb and love fooling \"tall folk\" with promises of gold.",
-      "field": "Tactical combat behavior: Alert. Cannot be surprised.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Impish fey who favor green garb and love fooling \"tall folk\" with promises of gold.",
+      "Tactical combat behavior: Alert. Cannot be surprised.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "LEPRECHAUN Pelt / Chitin / Essence",
@@ -5059,12 +5085,12 @@
       "Phylactery. Can't be killed while spirit vessel (an object) is intact.",
       "Paralysis. DC 15 CON or paralyzed 1d4 rounds. Flight (INT Spell). Self. DC 13. Fly double near for 5 rounds. Null (INT Spell). Self. DC 14. Hostile spells targeting lich are DC 18 to cast. Lasts 1d4 rounds. Shadow Leap (INT Spell). Self. DC 14. Teleport up to 100 miles. Sigil of Doom (INT Spell). DC 15. One target of LV 9 or less within near DC 15 CON or go to 0 HP. Wither (INT Spell). DC 14. 4d8 damage to enemies within a near-sized cube centered on lich. 231 LION Tawny great cats that hunt in open plains. Males have manes."
     ],
-    "loreTiers": {
-      "common": "A wizard who has completed a necromantic ritual to become a mighty, undead sorcerer. Its withered body is draped in moldering, silk robes, and red marshlights burn in its eyes.",
-      "field": "Tactical combat behavior: Supreme Undead. Immune to morale checks. Only damaged by magical sources.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "A wizard who has completed a necromantic ritual to become a mighty, undead sorcerer. Its withered body is draped in moldering, silk robes, and red marshlights burn in its eyes.",
+      "Tactical combat behavior: Supreme Undead. Immune to morale checks. Only damaged by magical sources.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "LICH Pelt / Chitin / Essence",
@@ -5098,12 +5124,12 @@
       "LIZARDFOLK Crocodilian humanoids with scaly faces, claws, and tails.",
       "They dwell in swamps and rivers."
     ],
-    "loreTiers": {
-      "common": "Tawny great cats that hunt in open plains. Males have manes.",
-      "field": "Tactical combat behavior: LIZARDFOLK Crocodilian humanoids with scaly faces, claws, and tails.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Tawny great cats that hunt in open plains. Males have manes.",
+      "Tactical combat behavior: LIZARDFOLK Crocodilian humanoids with scaly faces, claws, and tails.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "LION Pelt / Chitin / Essence",
@@ -5136,12 +5162,12 @@
     "traits": [
       "MAGE Trained wizards who are often members of a sorcerous order."
     ],
-    "loreTiers": {
-      "common": "Crocodilian humanoids with scaly faces, claws, and tails. They dwell in swamps and rivers.",
-      "field": "Tactical combat behavior: MAGE Trained wizards who are often members of a sorcerous order.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Crocodilian humanoids with scaly faces, claws, and tails. They dwell in swamps and rivers.",
+      "Tactical combat behavior: MAGE Trained wizards who are often members of a sorcerous order.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "LIZARDFOLK Pelt / Chitin / Essence",
@@ -5175,12 +5201,12 @@
       "Arcane Armor (INT Spell). Self. DC 12. AC 16 for 2d4 rounds. Blast (INT Spell). DC 12. Far, one target. 2d6 damage. Cancel (INT Spell). DC 13. End one spell affecting a target within near. Levitate (INT Spell). DC 12. Close.",
       "Focus. Hover near for duration, vertical movement only. Snare (INT Spell). DC 13. Focus. One humanoid target within near paralyzed for duration. MAMMOTH Massive, shaggy elephants with tusks that reach the ground."
     ],
-    "loreTiers": {
-      "common": "Trained wizards who are often members of a sorcerous order.",
-      "field": "Tactical combat behavior: Arcane Armor (INT Spell). Self. DC 12. AC 16 for 2d4 rounds. Blast (INT Spell). DC 12. Far, one target. 2d6 damage. Cancel (INT Spell). DC 13. End one spell affecting a target within near. Levitate (INT Spell). DC 12. Close.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Trained wizards who are often members of a sorcerous order.",
+      "Tactical combat behavior: Arcane Armor (INT Spell). Self. DC 12. AC 16 for 2d4 rounds. Blast (INT Spell). DC 12. Far, one target. 2d6 damage. Cancel (INT Spell). DC 13. End one spell affecting a target within near. Levitate (INT Spell). DC 12. Close.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "MAGE Pelt / Chitin / Essence",
@@ -5214,12 +5240,12 @@
       "Thick Fur. Cold immune.",
       "Charge. Move up to double near in straight line and make 1 tusks attack. If hit, x3 damage. 232 MANTA RAY, GIANT Swooping manta rays as large as longboats. Gentle and intelligent enough to be trained."
     ],
-    "loreTiers": {
-      "common": "Massive, shaggy elephants with tusks that reach the ground.",
-      "field": "Tactical combat behavior: Thick Fur. Cold immune.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Massive, shaggy elephants with tusks that reach the ground.",
+      "Tactical combat behavior: Thick Fur. Cold immune.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "MAMMOTH Pelt / Chitin / Essence",
@@ -5252,12 +5278,12 @@
     "traits": [
       "Poison. DC 15 CON or drop to 0 hit points in 1d4 rounds. MANTICORE Human-faced lions with bat wings and cruelly spiked tails. They speak halting Thanian and love devouring human flesh."
     ],
-    "loreTiers": {
-      "common": "Swooping manta rays as large as longboats. Gentle and intelligent enough to be trained.",
-      "field": "Tactical combat behavior: Poison. DC 15 CON or drop to 0 hit points in 1d4 rounds. MANTICORE Human-faced lions with bat wings and cruelly spiked tails. They speak halting Thanian and love devouring human flesh.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Swooping manta rays as large as longboats. Gentle and intelligent enough to be trained.",
+      "Tactical combat behavior: Poison. DC 15 CON or drop to 0 hit points in 1d4 rounds. MANTICORE Human-faced lions with bat wings and cruelly spiked tails. They speak halting Thanian and love devouring human flesh.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "MANTA RAY GIANT Pelt / Chitin / Essence",
@@ -5291,12 +5317,12 @@
     "traits": [
       "Spikes. Manticores have 4d6 tail spikes. They regrow each day. MASTIFF Muscled guard dogs with fierce loyalty to their pack or owners."
     ],
-    "loreTiers": {
-      "common": "Human-faced lions with bat wings and cruelly spiked tails. They speak halting Thanian and love devouring human flesh.",
-      "field": "Tactical combat behavior: Spikes. Manticores have 4d6 tail spikes. They regrow each day. MASTIFF Muscled guard dogs with fierce loyalty to their pack or owners.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Human-faced lions with bat wings and cruelly spiked tails. They speak halting Thanian and love devouring human flesh.",
+      "Tactical combat behavior: Spikes. Manticores have 4d6 tail spikes. They regrow each day. MASTIFF Muscled guard dogs with fierce loyalty to their pack or owners.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "MANTICORE Pelt / Chitin / Essence",
@@ -5329,12 +5355,12 @@
     "traits": [
       "MEDUSA Immortal women with coiling snakes for hair and scaled skin."
     ],
-    "loreTiers": {
-      "common": "Muscled guard dogs with fierce loyalty to their pack or owners.",
-      "field": "Tactical combat behavior: MEDUSA Immortal women with coiling snakes for hair and scaled skin.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Muscled guard dogs with fierce loyalty to their pack or owners.",
+      "Tactical combat behavior: MEDUSA Immortal women with coiling snakes for hair and scaled skin.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "MASTIFF Pelt / Chitin / Essence",
@@ -5369,12 +5395,12 @@
       "Petrify. Any creature (including medusa) who looks directly at medusa, DC 15 CON or petrified.",
       "Poison. DC 15 CON or go to 0 HP. MERFOLK Ocean dwellers with human upper bodies and long fish tails."
     ],
-    "loreTiers": {
-      "common": "Immortal women with coiling snakes for hair and scaled skin.",
-      "field": "Tactical combat behavior: Godborn. Hostile spells targeting the medusa are DC 15 to cast.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Immortal women with coiling snakes for hair and scaled skin.",
+      "Tactical combat behavior: Godborn. Hostile spells targeting the medusa are DC 15 to cast.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "MEDUSA Pelt / Chitin / Essence",
@@ -5408,12 +5434,12 @@
       "MIMIC",
       "Beasts that look like objects."
     ],
-    "loreTiers": {
-      "common": "Ocean dwellers with human upper bodies and long fish tails.",
-      "field": "Tactical combat behavior: MIMIC",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Ocean dwellers with human upper bodies and long fish tails.",
+      "Tactical combat behavior: MIMIC",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "MERFOLK Pelt / Chitin / Essence",
@@ -5447,12 +5473,12 @@
       "Stick. DC 15 STR or adhere to target; auto-hit with bite. DC 15",
       "STR on turn to remove. 233 MINOTAUR Ferocious bull-men with hooves and curved horns. They live in mazelike tunnels."
     ],
-    "loreTiers": {
-      "common": "Beasts that look like objects.",
-      "field": "Tactical combat behavior: Stick. DC 15 STR or adhere to target; auto-hit with bite. DC 15",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Beasts that look like objects.",
+      "Tactical combat behavior: Stick. DC 15 STR or adhere to target; auto-hit with bite. DC 15",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "MIMIC Pelt / Chitin / Essence",
@@ -5485,12 +5511,12 @@
     "traits": [
       "Charge. In place of attacks, move up to double near in a straight line and make 1 horn attack. If hit, x2 damage. MOOSE A towering, brown-haired grazer with weighty, flat antlers."
     ],
-    "loreTiers": {
-      "common": "Ferocious bull-men with hooves and curved horns. They live in mazelike tunnels.",
-      "field": "Tactical combat behavior: Charge. In place of attacks, move up to double near in a straight line and make 1 horn attack. If hit, x2 damage. MOOSE A towering, brown-haired grazer with weighty, flat antlers.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Ferocious bull-men with hooves and curved horns. They live in mazelike tunnels.",
+      "Tactical combat behavior: Charge. In place of attacks, move up to double near in a straight line and make 1 horn attack. If hit, x2 damage. MOOSE A towering, brown-haired grazer with weighty, flat antlers.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "MINOTAUR Pelt / Chitin / Essence",
@@ -5523,12 +5549,12 @@
     "traits": [
       "234 A skinless mummy-lich wearing a crown set with nine bright gems. Once the head of the ancient, wizardly order of Gehemna, Mordanticus now lives in secret within the sanctum of Gehemna's reigning archmage. He has served as an advisor and historian for centuries, but an enduring enchantment prevents him from speaking of two topics: his origins, and The Ten-Eyed Oracle."
     ],
-    "loreTiers": {
-      "common": "A towering, brown-haired grazer with weighty, flat antlers.",
-      "field": "Tactical combat behavior: 234 A skinless mummy-lich wearing a crown set with nine bright gems. Once the head of the ancient, wizardly order of Gehemna, Mordanticus now lives in secret within the sanctum of Gehemna's reigning archmage. He has served as an advisor and historian for centuries, but an enduring enchantment prevents him from speaking of two topics: his origins, and The Ten-Eyed Oracle.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "A towering, brown-haired grazer with weighty, flat antlers.",
+      "Tactical combat behavior: 234 A skinless mummy-lich wearing a crown set with nine bright gems. Once the head of the ancient, wizardly order of Gehemna, Mordanticus now lives in secret within the sanctum of Gehemna's reigning archmage. He has served as an advisor and historian for centuries, but an enduring enchantment prevents him from speaking of two topics: his origins, and The Ten-Eyed Oracle.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "MOOSE Pelt / Chitin / Essence",
@@ -5564,12 +5590,12 @@
       "Necrosis. DC 15 CON or go to 0 HP. Healing spells are DC 15 to cast on target while at 0 HP due to this effect.",
       "Phylactery. Cannot be killed while spirit vessel (a diamond) is intact. Absorb (INT Spell). DC 13. Near, one target. Target loses the ability to cast one random spell until completing a rest, and Mordanticus regains a lost spell of the same tier or less. Banish (INT Spell). DC 14. All extradimensional creatures within near DC 15 CHA or sent back to their home planes. Bind (INT Spell). DC 12. One humanoid in far paralyzed 1d4 rounds. Blast (INT Spell). DC 14. One creature in near takes 5d8 damage. Phase (INT Spell). DC 13. Self. Teleport up to one mile. True Name (INT Spell). DC 15. Near. Learn the True Name of target. MORDANTICUS THE FLAYED “Long have I held the weighty secrets of Gehemna, an age-old litany inscribed upon my weary soul.\" -Mordanticus the Flayed 236 MUMMY A desiccated, linen-wrapped zombie. It was created with an intricate embalming ritual used only upon the most worthy warriors or rulers."
     ],
-    "loreTiers": {
-      "common": "234 A skinless mummy-lich wearing a crown set with nine bright gems. Once the head of the ancient, wizardly order of Gehemna, Mordanticus now lives in secret within the sanctum of Gehemna's reigning archmage. He has served as an advisor and historian for centuries, but an enduring enchantment prevents him from speaking of two topics: his origins, and The Ten-Eyed Oracle.",
-      "field": "Tactical combat behavior: Legendary Undead. Immune to morale checks. Only damaged by magical sources. Hostile spells targeting Mordanticus are DC 18 to cast.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "234 A skinless mummy-lich wearing a crown set with nine bright gems. Once the head of the ancient, wizardly order of Gehemna, Mordanticus now lives in secret within the sanctum of Gehemna's reigning archmage. He has served as an advisor and historian for centuries, but an enduring enchantment prevents him from speaking of two topics: his origins, and The Ten-Eyed Oracle.",
+      "Tactical combat behavior: Legendary Undead. Immune to morale checks. Only damaged by magical sources. Hostile spells targeting Mordanticus are DC 18 to cast.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "Mordanticus the Flayed Pelt / Chitin / Essence",
@@ -5604,12 +5630,12 @@
       "Desiccated. Can be damaged by fire. Takes x2 damage from it.",
       "Necrosis. DC 15 CON or drop to 0 HP. Healing spells are DC 15 to cast on target while at 0 HP due to this effect. MUSHROOMFOLK Lumbering humanoids with spongy, elongated bodies and toadstools on their heads."
     ],
-    "loreTiers": {
-      "common": "A desiccated, linen-wrapped zombie. It was created with an intricate embalming ritual used only upon the most worthy warriors or rulers.",
-      "field": "Tactical combat behavior: Supreme Undead. Immune to morale checks. Only damaged by magical sources.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "A desiccated, linen-wrapped zombie. It was created with an intricate embalming ritual used only upon the most worthy warriors or rulers.",
+      "Tactical combat behavior: Supreme Undead. Immune to morale checks. Only damaged by magical sources.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "MUMMY Pelt / Chitin / Essence",
@@ -5643,12 +5669,12 @@
       "Sunblind. Blinded in bright light.",
       "Telepathic. Speak mentally with creatures within double near. 237 NAGA Magic-wielding cobras towering ten feet high. Once a dominant species, they are now rare and reclusive, bitter to the last."
     ],
-    "loreTiers": {
-      "common": "Lumbering humanoids with spongy, elongated bodies and toadstools on their heads.",
-      "field": "Tactical combat behavior: Sunblind. Blinded in bright light.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Lumbering humanoids with spongy, elongated bodies and toadstools on their heads.",
+      "Tactical combat behavior: Sunblind. Blinded in bright light.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "MUSHROOMFOLK Pelt / Chitin / Essence",
@@ -5682,12 +5708,12 @@
       "Poison. DC 15 CON or paralyzed 1d4 rounds. Agony (CHA Spell). DC 14. One target in near takes 3d8 damage. Hypnotize (CHA Spell). DC 13.",
       "Focus. One target in near range who can see naga is helplessly stupefied for duration. Whispers (CHA Spell). DC 12. Hostile spells cast on one target in near are DC 9 for 1d4 rounds. NAGA, BONE Mindless, skeletal husks of nagas reanimated by sorcery."
     ],
-    "loreTiers": {
-      "common": "Magic-wielding cobras towering ten feet high. Once a dominant species, they are now rare and reclusive, bitter to the last.",
-      "field": "Tactical combat behavior: Poison. DC 15 CON or paralyzed 1d4 rounds. Agony (CHA Spell). DC 14. One target in near takes 3d8 damage. Hypnotize (CHA Spell). DC 13.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Magic-wielding cobras towering ten feet high. Once a dominant species, they are now rare and reclusive, bitter to the last.",
+      "Tactical combat behavior: Poison. DC 15 CON or paralyzed 1d4 rounds. Agony (CHA Spell). DC 14. One target in near takes 3d8 damage. Hypnotize (CHA Spell). DC 13.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "NAGA Pelt / Chitin / Essence",
@@ -5720,12 +5746,12 @@
     "traits": [
       "Greater Undead. Immune to morale checks. Only damaged by silver or magical sources. NIGHTMARE Black warhorses with flaming manes, hooves, and eyes."
     ],
-    "loreTiers": {
-      "common": "Mindless, skeletal husks of nagas reanimated by sorcery.",
-      "field": "Tactical combat behavior: Greater Undead. Immune to morale checks. Only damaged by silver or magical sources. NIGHTMARE Black warhorses with flaming manes, hooves, and eyes.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Mindless, skeletal husks of nagas reanimated by sorcery.",
+      "Tactical combat behavior: Greater Undead. Immune to morale checks. Only damaged by silver or magical sources. NIGHTMARE Black warhorses with flaming manes, hooves, and eyes.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "NAGA BONE Pelt / Chitin / Essence",
@@ -5758,12 +5784,12 @@
     "traits": [
       "Impervious. Nightmare and its rider immune to fire. 238 A pale, angular woman in translucent plate mail fashioned from giant scorpion chitin. Obe-Ixx, daughter of Azarumme, rose up from the prehistoric barbarian tribes of Tal-Yool to conquer all in her path. One day, she stood at the steps of an obsidian ziggurat deep within the trackless jungle. Forty nights later, Obe-Ixx emerged as the ur-vampire, bloodlust made flesh. Her dynasty would rise and fall again and again over the coming millennia."
     ],
-    "loreTiers": {
-      "common": "Black warhorses with flaming manes, hooves, and eyes.",
-      "field": "Tactical combat behavior: Impervious. Nightmare and its rider immune to fire. 238 A pale, angular woman in translucent plate mail fashioned from giant scorpion chitin. Obe-Ixx, daughter of Azarumme, rose up from the prehistoric barbarian tribes of Tal-Yool to conquer all in her path. One day, she stood at the steps of an obsidian ziggurat deep within the trackless jungle. Forty nights later, Obe-Ixx emerged as the ur-vampire, bloodlust made flesh. Her dynasty would rise and fall again and again over the coming millennia.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Black warhorses with flaming manes, hooves, and eyes.",
+      "Tactical combat behavior: Impervious. Nightmare and its rider immune to fire. 238 A pale, angular woman in translucent plate mail fashioned from giant scorpion chitin. Obe-Ixx, daughter of Azarumme, rose up from the prehistoric barbarian tribes of Tal-Yool to conquer all in her path. One day, she stood at the steps of an obsidian ziggurat deep within the trackless jungle. Forty nights later, Obe-Ixx emerged as the ur-vampire, bloodlust made flesh. Her dynasty would rise and fall again and again over the coming millennia.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "NIGHTMARE Pelt / Chitin / Essence",
@@ -5803,12 +5829,12 @@
       "Ur-Vampire. Must sleep in sarcophagus at least once per moon cycle or loses 2d8 HP per day that cannot heal until sleeping in sarcophagus. Takes 3d8 damage each round while in direct sunlight. Cannot be killed unless pierced through heart while at 0",
       "HP with a wooden stake carved from a tree from the Tal-Yool jungle. OBE-IXX OF AZARUMME “By this blade, the empire of Azarumme shall rise again!\" -Obe-Ixx of Azarumme 239 OCHRE JELLY An orange puddle of quivering slime."
     ],
-    "loreTiers": {
-      "common": "Impervious. Nightmare and its rider immune to fire. 238 A pale, angular woman in translucent plate mail fashioned from giant scorpion chitin. Obe-Ixx, daughter of Azarumme, rose up from the prehistoric barbarian tribes of Tal-Yool to conquer all in her path. One day, she stood at the steps of an obsidian ziggurat deep within the trackless jungle. Forty nights later, Obe-Ixx emerged as the ur-vampire, bloodlust made flesh. Her dynasty would rise and fall again and again over the coming millennia.",
-      "field": "Tactical combat behavior: Legendary Undead. Immune to morale checks. Only damaged by magical sources. Hostile spells targeting Obe-Ixx are DC 18 to cast.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Impervious. Nightmare and its rider immune to fire. 238 A pale, angular woman in translucent plate mail fashioned from giant scorpion chitin. Obe-Ixx, daughter of Azarumme, rose up from the prehistoric barbarian tribes of Tal-Yool to conquer all in her path. One day, she stood at the steps of an obsidian ziggurat deep within the trackless jungle. Forty nights later, Obe-Ixx emerged as the ur-vampire, bloodlust made flesh. Her dynasty would rise and fall again and again over the coming millennia.",
+      "Tactical combat behavior: Legendary Undead. Immune to morale checks. Only damaged by magical sources. Hostile spells targeting Obe-Ixx are DC 18 to cast.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "Obe-Ixx of Azarumme Pelt / Chitin / Essence",
@@ -5843,12 +5869,12 @@
       "Can split up to four times. OCTOPUS, GIANT",
       "Octopi as large as sailing skiffs."
     ],
-    "loreTiers": {
-      "common": "An orange puddle of quivering slime.",
-      "field": "Tactical combat behavior: Split. If cut or chopped, split into two smaller oozes (divide remaining HP between both).",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "An orange puddle of quivering slime.",
+      "Tactical combat behavior: Split. If cut or chopped, split into two smaller oozes (divide remaining HP between both).",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "OCHRE JELLY Pelt / Chitin / Essence",
@@ -5884,12 +5910,12 @@
       "Ink. In place of attacks, ink cloud blinds all in near for 1d4 rounds. OGRE A massive, dim-witted brute with tusks and a heavy frame.",
       "Often lords over goblins or orcs."
     ],
-    "loreTiers": {
-      "common": "Octopi as large as sailing skiffs.",
-      "field": "Tactical combat behavior: Grab. DC 15 STR or immobilized.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Octopi as large as sailing skiffs.",
+      "Tactical combat behavior: Grab. DC 15 STR or immobilized.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "OCTOPUS GIANT Pelt / Chitin / Essence",
@@ -5922,12 +5948,12 @@
     "traits": [
       "ONI Cunning and sorcerous ogre- demons with shaggy white hair, blue skin, and yellow eyes."
     ],
-    "loreTiers": {
-      "common": "A massive, dim-witted brute with tusks and a heavy frame. Often lords over goblins or orcs.",
-      "field": "Tactical combat behavior: ONI Cunning and sorcerous ogre- demons with shaggy white hair, blue skin, and yellow eyes.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "A massive, dim-witted brute with tusks and a heavy frame. Often lords over goblins or orcs.",
+      "Tactical combat behavior: ONI Cunning and sorcerous ogre- demons with shaggy white hair, blue skin, and yellow eyes.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "OGRE Pelt / Chitin / Essence",
@@ -5961,12 +5987,12 @@
     "traits": [
       "Shapeshift. In place of attacks, turn into any humanoid or back into original form. Fade (CHA Spell). DC 13. Self. Become invisible for 1d4 rounds. Hellfrost (CHA Spell). DC 13. All within near-sized cube extending from oni 3d6 damage. Mist (CHA Spell). DC 13. Self. Turn into mist that can fly double near. Lasts 2d4 rounds. 240 ORC A tusked, tall humanoid with gray skin and pointed ears."
     ],
-    "loreTiers": {
-      "common": "Cunning and sorcerous ogre- demons with shaggy white hair, blue skin, and yellow eyes.",
-      "field": "Tactical combat behavior: Shapeshift. In place of attacks, turn into any humanoid or back into original form. Fade (CHA Spell). DC 13. Self. Become invisible for 1d4 rounds. Hellfrost (CHA Spell). DC 13. All within near-sized cube extending from oni 3d6 damage. Mist (CHA Spell). DC 13. Self. Turn into mist that can fly double near. Lasts 2d4 rounds. 240 ORC A tusked, tall humanoid with gray skin and pointed ears.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Cunning and sorcerous ogre- demons with shaggy white hair, blue skin, and yellow eyes.",
+      "Tactical combat behavior: Shapeshift. In place of attacks, turn into any humanoid or back into original form. Fade (CHA Spell). DC 13. Self. Become invisible for 1d4 rounds. Hellfrost (CHA Spell). DC 13. All within near-sized cube extending from oni 3d6 damage. Mist (CHA Spell). DC 13. Self. Turn into mist that can fly double near. Lasts 2d4 rounds. 240 ORC A tusked, tall humanoid with gray skin and pointed ears.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "ONI Pelt / Chitin / Essence",
@@ -5999,12 +6025,12 @@
     "traits": [
       "Rage. 1/day, immune to morale checks, +1d4 damage (3 rounds). ORC, CHIEFTAIN An imposing orc with scars crisscrossing its body."
     ],
-    "loreTiers": {
-      "common": "A tusked, tall humanoid with gray skin and pointed ears.",
-      "field": "Tactical combat behavior: Rage. 1/day, immune to morale checks, +1d4 damage (3 rounds). ORC, CHIEFTAIN An imposing orc with scars crisscrossing its body.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "A tusked, tall humanoid with gray skin and pointed ears.",
+      "Tactical combat behavior: Rage. 1/day, immune to morale checks, +1d4 damage (3 rounds). ORC, CHIEFTAIN An imposing orc with scars crisscrossing its body.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "ORC Pelt / Chitin / Essence",
@@ -6037,12 +6063,12 @@
     "traits": [
       "Rage. 1/day, immune to morale checks, +1d4 damage (3 rounds). OTYUGH Stumpy, three-legged beasts with barbed tentacles and vast mouths. Drawn by rot and filth."
     ],
-    "loreTiers": {
-      "common": "An imposing orc with scars crisscrossing its body.",
-      "field": "Tactical combat behavior: Rage. 1/day, immune to morale checks, +1d4 damage (3 rounds). OTYUGH Stumpy, three-legged beasts with barbed tentacles and vast mouths. Drawn by rot and filth.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "An imposing orc with scars crisscrossing its body.",
+      "Tactical combat behavior: Rage. 1/day, immune to morale checks, +1d4 damage (3 rounds). OTYUGH Stumpy, three-legged beasts with barbed tentacles and vast mouths. Drawn by rot and filth.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "ORC CHIEFTAIN Pelt / Chitin / Essence",
@@ -6075,12 +6101,12 @@
     "traits": [
       "Disease. DC 15 CON or infected. DC 15 CON each day or lose 1d6 HP (can't heal). Ends on success. 241 OUTSIDERS Alien horrors from the frozen, outer reaches of the cosmos or the Chaos-infused Dark Realms. Outsiders were born from the nightmares of gods and are unsettling to all other creatures. PRIMORDIAL SLIME A mass of clear ooze strobing with sick pulses of violet light."
     ],
-    "loreTiers": {
-      "common": "Stumpy, three-legged beasts with barbed tentacles and vast mouths. Drawn by rot and filth.",
-      "field": "Tactical combat behavior: Disease. DC 15 CON or infected. DC 15 CON each day or lose 1d6 HP (can't heal). Ends on success. 241 OUTSIDERS Alien horrors from the frozen, outer reaches of the cosmos or the Chaos-infused Dark Realms. Outsiders were born from the nightmares of gods and are unsettling to all other creatures. PRIMORDIAL SLIME A mass of clear ooze strobing with sick pulses of violet light.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Stumpy, three-legged beasts with barbed tentacles and vast mouths. Drawn by rot and filth.",
+      "Tactical combat behavior: Disease. DC 15 CON or infected. DC 15 CON each day or lose 1d6 HP (can't heal). Ends on success. 241 OUTSIDERS Alien horrors from the frozen, outer reaches of the cosmos or the Chaos-infused Dark Realms. Outsiders were born from the nightmares of gods and are unsettling to all other creatures. PRIMORDIAL SLIME A mass of clear ooze strobing with sick pulses of violet light.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "OTYUGH Pelt / Chitin / Essence",
@@ -6115,12 +6141,12 @@
       "Impervious. Only harmed by fire.",
       "Dissolve. One random piece of non-magical gear the target carries is destroyed. VOID SPAWN Scythe-like limbs jut from a purple bulb as big as an ogre. Its lower half is a nest of tentacles."
     ],
-    "loreTiers": {
-      "common": "A mass of clear ooze strobing with sick pulses of violet light.",
-      "field": "Tactical combat behavior: Impervious. Only harmed by fire.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "A mass of clear ooze strobing with sick pulses of violet light.",
+      "Tactical combat behavior: Impervious. Only harmed by fire.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "PRIMORDIAL SLIME Pelt / Chitin / Essence",
@@ -6155,12 +6181,12 @@
       "Impervious. Immune to cold.",
       "Toxin. DC 12 CON or paralyzed for 1d4 rounds. VOID SPIDER Pale, horse-sized arachnids that become ghostly and intangible."
     ],
-    "loreTiers": {
-      "common": "Scythe-like limbs jut from a purple bulb as big as an ogre. Its lower half is a nest of tentacles.",
-      "field": "Tactical combat behavior: Impervious. Immune to cold.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Scythe-like limbs jut from a purple bulb as big as an ogre. Its lower half is a nest of tentacles.",
+      "Tactical combat behavior: Impervious. Immune to cold.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "VOID SPAWN Pelt / Chitin / Essence",
@@ -6196,12 +6222,12 @@
       "Phase. Once per round, become corporeal or incorporeal.",
       "Poison. DC 12 CON or drop to 0 HP in 1d4 rounds. RIME WALKER Human-shaped beings formed from black space ice. Their eyes are two flickering, white lights."
     ],
-    "loreTiers": {
-      "common": "Pale, horse-sized arachnids that become ghostly and intangible.",
-      "field": "Tactical combat behavior: Impervious. Immune to cold.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Pale, horse-sized arachnids that become ghostly and intangible.",
+      "Tactical combat behavior: Impervious. Immune to cold.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "VOID SPIDER Pelt / Chitin / Essence",
@@ -6236,12 +6262,12 @@
       "Impervious. Immune to cold.",
       "Ice Aura. Enemies within near of rime walker DC 12 CON at start of turn or lose action. 242 OWLBEAR Cantankerous bears with owl eyes, beaks, and feathers."
     ],
-    "loreTiers": {
-      "common": "Human-shaped beings formed from black space ice. Their eyes are two flickering, white lights.",
-      "field": "Tactical combat behavior: Impervious. Immune to cold.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Human-shaped beings formed from black space ice. Their eyes are two flickering, white lights.",
+      "Tactical combat behavior: Impervious. Immune to cold.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "RIME WALKER Pelt / Chitin / Essence",
@@ -6274,12 +6300,12 @@
     "traits": [
       "Crush. Deals an extra die of damage if it hits the same target with both claws. PANTHER Supple large cats with blue- black fur. Stealthy hunters."
     ],
-    "loreTiers": {
-      "common": "Cantankerous bears with owl eyes, beaks, and feathers.",
-      "field": "Tactical combat behavior: Crush. Deals an extra die of damage if it hits the same target with both claws. PANTHER Supple large cats with blue- black fur. Stealthy hunters.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Cantankerous bears with owl eyes, beaks, and feathers.",
+      "Tactical combat behavior: Crush. Deals an extra die of damage if it hits the same target with both claws. PANTHER Supple large cats with blue- black fur. Stealthy hunters.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "OWLBEAR Pelt / Chitin / Essence",
@@ -6313,12 +6339,12 @@
       "PEASANT",
       "A commoner in worn clothes."
     ],
-    "loreTiers": {
-      "common": "Supple large cats with blue- black fur. Stealthy hunters.",
-      "field": "Tactical combat behavior: PEASANT",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Supple large cats with blue- black fur. Stealthy hunters.",
+      "Tactical combat behavior: PEASANT",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "PANTHER Pelt / Chitin / Essence",
@@ -6351,12 +6377,12 @@
     "traits": [
       "PEGASUS Winged horses with noble bearings and pearly white coats."
     ],
-    "loreTiers": {
-      "common": "A commoner in worn clothes.",
-      "field": "Tactical combat behavior: PEGASUS Winged horses with noble bearings and pearly white coats.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "A commoner in worn clothes.",
+      "Tactical combat behavior: PEGASUS Winged horses with noble bearings and pearly white coats.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "PEASANT Pelt / Chitin / Essence",
@@ -6389,12 +6415,12 @@
     "traits": [
       "243 PHOENIX Huge, soaring eagles made of searing flames. Intelligent and imbued with immortal magic."
     ],
-    "loreTiers": {
-      "common": "Winged horses with noble bearings and pearly white coats.",
-      "field": "Tactical combat behavior: 243 PHOENIX Huge, soaring eagles made of searing flames. Intelligent and imbued with immortal magic.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Winged horses with noble bearings and pearly white coats.",
+      "Tactical combat behavior: 243 PHOENIX Huge, soaring eagles made of searing flames. Intelligent and imbued with immortal magic.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "PEGASUS Pelt / Chitin / Essence",
@@ -6430,12 +6456,12 @@
       "Heat Aura. Creatures within near of phoenix at start of turn DC 15 CON or 2d6 damage.",
       "Rebirth. A red-hot egg remains after death. Phoenix hatches from it in 1d4 days. PIRANHA, SWARM A school of flat, silvery fish with vicious fangs."
     ],
-    "loreTiers": {
-      "common": "Huge, soaring eagles made of searing flames. Intelligent and imbued with immortal magic.",
-      "field": "Tactical combat behavior: Impervious. Immune to fire. Only damaged by magical sources.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Huge, soaring eagles made of searing flames. Intelligent and imbued with immortal magic.",
+      "Tactical combat behavior: Impervious. Immune to fire. Only damaged by magical sources.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "PHOENIX Pelt / Chitin / Essence",
@@ -6468,12 +6494,12 @@
     "traits": [
       "Savage. ADV on attacks against creatures below half their HP. PIRATE Seafaring scoundrels who live to steal and hoard treasure."
     ],
-    "loreTiers": {
-      "common": "A school of flat, silvery fish with vicious fangs.",
-      "field": "Tactical combat behavior: Savage. ADV on attacks against creatures below half their HP. PIRATE Seafaring scoundrels who live to steal and hoard treasure.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "A school of flat, silvery fish with vicious fangs.",
+      "Tactical combat behavior: Savage. ADV on attacks against creatures below half their HP. PIRATE Seafaring scoundrels who live to steal and hoard treasure.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "PIRANHA SWARM Pelt / Chitin / Essence",
@@ -6507,12 +6533,12 @@
     "traits": [
       "PRIEST A respected member of a clergy who leads holy rituals and rites."
     ],
-    "loreTiers": {
-      "common": "Seafaring scoundrels who live to steal and hoard treasure.",
-      "field": "Tactical combat behavior: PRIEST A respected member of a clergy who leads holy rituals and rites.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Seafaring scoundrels who live to steal and hoard treasure.",
+      "Tactical combat behavior: PRIEST A respected member of a clergy who leads holy rituals and rites.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "PIRATE Pelt / Chitin / Essence",
@@ -6548,12 +6574,12 @@
       "Self. Weapons ignite in magic flames and deal an additional 1d6 damage for 5 rounds. Rebuke (WIS Spell). DC 13.",
       "Focus. Chaotic creatures cannot attack priest or come within near range for duration. 244 PURPLE WORM A massive worm as tall as a castle keep. Has a rotating maw and is covered in purple chitin."
     ],
-    "loreTiers": {
-      "common": "A respected member of a clergy who leads holy rituals and rites.",
-      "field": "Tactical combat behavior: Anoint (WIS Spell). DC 12. Close. One weapon or armor becomes a magic +2 version for 10 rounds. Healing Touch (WIS Spell). DC 11. Heal one creature within close for 2d4 HP. Holy Flame (WIS Spell). DC 13.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "A respected member of a clergy who leads holy rituals and rites.",
+      "Tactical combat behavior: Anoint (WIS Spell). DC 12. Close. One weapon or armor becomes a magic +2 version for 10 rounds. Healing Touch (WIS Spell). DC 11. Heal one creature within close for 2d4 HP. Holy Flame (WIS Spell). DC 13.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "PRIEST Pelt / Chitin / Essence",
@@ -6587,12 +6613,12 @@
       "Poison. DC 15 CON or go to 0 HP.",
       "Swallow. On a natural attack roll of 18-20, target is swallowed. Total darkness inside and 2d10 damage per round. Worm regurgitates all swallowed if dealt at least 20 damage in one round to the inside of its gullet. RAKSHASA Demonic illusionists whose true form is of a humanlike great cat with backwards hands."
     ],
-    "loreTiers": {
-      "common": "A massive worm as tall as a castle keep. Has a rotating maw and is covered in purple chitin.",
-      "field": "Tactical combat behavior: Poison. DC 15 CON or go to 0 HP.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "A massive worm as tall as a castle keep. Has a rotating maw and is covered in purple chitin.",
+      "Tactical combat behavior: Poison. DC 15 CON or go to 0 HP.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "PURPLE WORM Pelt / Chitin / Essence",
@@ -6627,12 +6653,12 @@
       "Mesmerism. Can read the minds of all creatures within near. Can instantly take on the illusory appearance of any humanoid.",
       "Weakness. A crossbow bolt under the effects of the holy weapon spell kills the rakshasa. 245 RAT Rangy, plague-carrying rodents that infest underground places."
     ],
-    "loreTiers": {
-      "common": "Demonic illusionists whose true form is of a humanlike great cat with backwards hands.",
-      "field": "Tactical combat behavior: Impervious. Only damaged by magical sources. Immune to hostile spells of 3rd tier or lower.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Demonic illusionists whose true form is of a humanlike great cat with backwards hands.",
+      "Tactical combat behavior: Impervious. Only damaged by magical sources. Immune to hostile spells of 3rd tier or lower.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "RAKSHASA Pelt / Chitin / Essence",
@@ -6667,12 +6693,12 @@
       "Cunning rats as large as cats.",
       "Mangy fur and wormlike tails."
     ],
-    "loreTiers": {
-      "common": "Rangy, plague-carrying rodents that infest underground places.",
-      "field": "Tactical combat behavior: Disease. DC 9 CON or 1d4 CON damage (can't heal while ill). Repeat check once per day; ends on success. Die at 0 CON. RAT, GIANT",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Rangy, plague-carrying rodents that infest underground places.",
+      "Tactical combat behavior: Disease. DC 9 CON or 1d4 CON damage (can't heal while ill). Repeat check once per day; ends on success. Die at 0 CON. RAT, GIANT",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "RAT Pelt / Chitin / Essence",
@@ -6705,12 +6731,12 @@
     "traits": [
       "Disease. DC 12 CON or 1d4 CON damage (can't heal while ill). Repeat check once per day; ends on success. Die at 0 CON. RAT, DIRE Child-sized, savage rats bristling with bony face and spine ridges."
     ],
-    "loreTiers": {
-      "common": "Cunning rats as large as cats. Mangy fur and wormlike tails.",
-      "field": "Tactical combat behavior: Disease. DC 12 CON or 1d4 CON damage (can't heal while ill). Repeat check once per day; ends on success. Die at 0 CON. RAT, DIRE Child-sized, savage rats bristling with bony face and spine ridges.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Cunning rats as large as cats. Mangy fur and wormlike tails.",
+      "Tactical combat behavior: Disease. DC 12 CON or 1d4 CON damage (can't heal while ill). Repeat check once per day; ends on success. Die at 0 CON. RAT, DIRE Child-sized, savage rats bristling with bony face and spine ridges.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "RAT GIANT Pelt / Chitin / Essence",
@@ -6743,12 +6769,12 @@
     "traits": [
       "Disease. DC 12 CON or 1d4 CON damage (can't heal while ill). Repeat check once per day; ends on success. Die at 0 CON. RAT, SWARM A screeching tidal wave of clawing and biting rats."
     ],
-    "loreTiers": {
-      "common": "Child-sized, savage rats bristling with bony face and spine ridges.",
-      "field": "Tactical combat behavior: Disease. DC 12 CON or 1d4 CON damage (can't heal while ill). Repeat check once per day; ends on success. Die at 0 CON. RAT, SWARM A screeching tidal wave of clawing and biting rats.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Child-sized, savage rats bristling with bony face and spine ridges.",
+      "Tactical combat behavior: Disease. DC 12 CON or 1d4 CON damage (can't heal while ill). Repeat check once per day; ends on success. Die at 0 CON. RAT, SWARM A screeching tidal wave of clawing and biting rats.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "RAT DIRE Pelt / Chitin / Essence",
@@ -6781,12 +6807,12 @@
     "traits": [
       "Disease. DC 9 CON or 1d4 CON damage (can't heal while ill). Repeat check once per day; ends on success. Die at 0 CON. 246 A pearl-white lion with feathered wings that stands twenty feet tall. Rathgamnon is Madeera the Covenant's mightiest servant; his blank eyes see far into the depths of time and space. He spends all eternity watching the whirl of the stars from the highest mountain in the realm of mortals, waiting for the celestial alignments that prophesy epochs of weal and woe, titanic changes to the balance of power in the cosmos, or threats to the laws of reality itself."
     ],
-    "loreTiers": {
-      "common": "A screeching tidal wave of clawing and biting rats.",
-      "field": "Tactical combat behavior: Disease. DC 9 CON or 1d4 CON damage (can't heal while ill). Repeat check once per day; ends on success. Die at 0 CON. 246 A pearl-white lion with feathered wings that stands twenty feet tall. Rathgamnon is Madeera the Covenant's mightiest servant; his blank eyes see far into the depths of time and space. He spends all eternity watching the whirl of the stars from the highest mountain in the realm of mortals, waiting for the celestial alignments that prophesy epochs of weal and woe, titanic changes to the balance of power in the cosmos, or threats to the laws of reality itself.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "A screeching tidal wave of clawing and biting rats.",
+      "Tactical combat behavior: Disease. DC 9 CON or 1d4 CON damage (can't heal while ill). Repeat check once per day; ends on success. Die at 0 CON. 246 A pearl-white lion with feathered wings that stands twenty feet tall. Rathgamnon is Madeera the Covenant's mightiest servant; his blank eyes see far into the depths of time and space. He spends all eternity watching the whirl of the stars from the highest mountain in the realm of mortals, waiting for the celestial alignments that prophesy epochs of weal and woe, titanic changes to the balance of power in the cosmos, or threats to the laws of reality itself.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "RAT SWARM Pelt / Chitin / Essence",
@@ -6820,12 +6846,12 @@
       "Legendary. Only damaged by magical sources. Hostile spells targeting Rathgamnon are DC 18 to cast.",
       "Roar. In place of attacks, all creatures who can hear within far DC 18 CHA or be rendered blind and speechless for 1d4 days. Abjure (WIS Spell). DC 13. Self. End any hostile magical effects affecting Rathgamnon. Abolish (WIS Spell). DC 13. One target in far takes 5d8 damage. Anchor (WIS Spell). DC 14. One target in far DC 18 STR or bound and anchored by chains of golden runes for 1d4 rounds. Gate (WIS Spell). DC 14. Open a portal at a point within near to another location on any plane. Lasts 1d6 rounds or until dismissed. Portent (WIS Spell). DC 14. Lasts 2d4 rounds. One target in near has advantage or disadvantage on all attack rolls and checks. Time Stop (WIS Spell). DC 15. Self. Time freezes for everyone except Rathgamnon for 1d4 rounds. Everything that occurs during the time freeze happens simultaneously when the spell ends. RATHGAMNON “The stars told me of your arrival here many eons ago, long before the first of your people walked the earth.\" -Rathgamnon 247 REAVER A knight in blackened armor riddled with cruel barbs."
     ],
-    "loreTiers": {
-      "common": "Disease. DC 9 CON or 1d4 CON damage (can't heal while ill). Repeat check once per day; ends on success. Die at 0 CON. 246 A pearl-white lion with feathered wings that stands twenty feet tall. Rathgamnon is Madeera the Covenant's mightiest servant; his blank eyes see far into the depths of time and space. He spends all eternity watching the whirl of the stars from the highest mountain in the realm of mortals, waiting for the celestial alignments that prophesy epochs of weal and woe, titanic changes to the balance of power in the cosmos, or threats to the laws of reality itself.",
-      "field": "Tactical combat behavior: Legendary. Only damaged by magical sources. Hostile spells targeting Rathgamnon are DC 18 to cast.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Disease. DC 9 CON or 1d4 CON damage (can't heal while ill). Repeat check once per day; ends on success. Die at 0 CON. 246 A pearl-white lion with feathered wings that stands twenty feet tall. Rathgamnon is Madeera the Covenant's mightiest servant; his blank eyes see far into the depths of time and space. He spends all eternity watching the whirl of the stars from the highest mountain in the realm of mortals, waiting for the celestial alignments that prophesy epochs of weal and woe, titanic changes to the balance of power in the cosmos, or threats to the laws of reality itself.",
+      "Tactical combat behavior: Legendary. Only damaged by magical sources. Hostile spells targeting Rathgamnon are DC 18 to cast.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "Rathgamnon Pelt / Chitin / Essence",
@@ -6858,12 +6884,12 @@
     "traits": [
       "Bloodlust. +2 damage with melee weapons (included). REMORHAZ Massive, blue centipedes with neck hoods and red-hot spine spikes. Dwell in arctic climates."
     ],
-    "loreTiers": {
-      "common": "A knight in blackened armor riddled with cruel barbs.",
-      "field": "Tactical combat behavior: Bloodlust. +2 damage with melee weapons (included). REMORHAZ Massive, blue centipedes with neck hoods and red-hot spine spikes. Dwell in arctic climates.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "A knight in blackened armor riddled with cruel barbs.",
+      "Tactical combat behavior: Bloodlust. +2 damage with melee weapons (included). REMORHAZ Massive, blue centipedes with neck hoods and red-hot spine spikes. Dwell in arctic climates.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "REAVER Pelt / Chitin / Essence",
@@ -6898,12 +6924,12 @@
       "Melt. Non-magical metal objects that touch the remorhaz melt on a d6 roll of 1-3.",
       "Swallow. On a natural attack roll of 18-20, target is swallowed. Total darkness inside and 2d10 damage per round. Remorhaz regurgitates all swallowed if dealt at least 20 damage in one round to the inside of its gullet. 248 RHINOCEROS Gray-skinned bulls with single nose horns. Dwell in grasslands."
     ],
-    "loreTiers": {
-      "common": "Massive, blue centipedes with neck hoods and red-hot spine spikes. Dwell in arctic climates.",
-      "field": "Tactical combat behavior: Impervious. Immune to cold and fire.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Massive, blue centipedes with neck hoods and red-hot spine spikes. Dwell in arctic climates.",
+      "Tactical combat behavior: Impervious. Immune to cold and fire.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "REMORHAZ Pelt / Chitin / Essence",
@@ -6936,12 +6962,12 @@
     "traits": [
       "Charge. Move up to double near in straight line and make 1 horn attack. If hit, x3 damage. ROC Dragon-sized hawks that nest in remote mountains."
     ],
-    "loreTiers": {
-      "common": "Gray-skinned bulls with single nose horns. Dwell in grasslands.",
-      "field": "Tactical combat behavior: Charge. Move up to double near in straight line and make 1 horn attack. If hit, x3 damage. ROC Dragon-sized hawks that nest in remote mountains.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Gray-skinned bulls with single nose horns. Dwell in grasslands.",
+      "Tactical combat behavior: Charge. Move up to double near in straight line and make 1 horn attack. If hit, x3 damage. ROC Dragon-sized hawks that nest in remote mountains.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "RHINOCEROS Pelt / Chitin / Essence",
@@ -6974,12 +7000,12 @@
     "traits": [
       "Grab. DC 18 STR or target held. DC 18 STR on turn to break free. ROPER Ravenous monstrosities that look like cave rocks when their single eye and maw are closed."
     ],
-    "loreTiers": {
-      "common": "Dragon-sized hawks that nest in remote mountains.",
-      "field": "Tactical combat behavior: Grab. DC 18 STR or target held. DC 18 STR on turn to break free. ROPER Ravenous monstrosities that look like cave rocks when their single eye and maw are closed.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Dragon-sized hawks that nest in remote mountains.",
+      "Tactical combat behavior: Grab. DC 18 STR or target held. DC 18 STR on turn to break free. ROPER Ravenous monstrosities that look like cave rocks when their single eye and maw are closed.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "ROC Pelt / Chitin / Essence",
@@ -7015,12 +7041,12 @@
       "Pull. In place of a tendril attack, pull a grabbed target a near distance.",
       "Tendrils. Four total. AC 18 each. 4+ damage to one severs it. 249 ROT FLOWER Carnivorous flowers as large as a human. They reek of carrion."
     ],
-    "loreTiers": {
-      "common": "Ravenous monstrosities that look like cave rocks when their single eye and maw are closed.",
-      "field": "Tactical combat behavior: Impervious. Can only be damaged by magical sources.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Ravenous monstrosities that look like cave rocks when their single eye and maw are closed.",
+      "Tactical combat behavior: Impervious. Can only be damaged by magical sources.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "ROPER Pelt / Chitin / Essence",
@@ -7053,12 +7079,12 @@
     "traits": [
       "Toxin. DC 12 CON or unconscious for 1d4 rounds. RUST MONSTER A mud-brown insect as big as a wolf with two feathery antennae. Consumes metal."
     ],
-    "loreTiers": {
-      "common": "Carnivorous flowers as large as a human. They reek of carrion.",
-      "field": "Tactical combat behavior: Toxin. DC 12 CON or unconscious for 1d4 rounds. RUST MONSTER A mud-brown insect as big as a wolf with two feathery antennae. Consumes metal.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Carnivorous flowers as large as a human. They reek of carrion.",
+      "Tactical combat behavior: Toxin. DC 12 CON or unconscious for 1d4 rounds. RUST MONSTER A mud-brown insect as big as a wolf with two feathery antennae. Consumes metal.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "ROT FLOWER Pelt / Chitin / Essence",
@@ -7092,12 +7118,12 @@
       "Corrosive. Metal that touches the rust monster is destroyed on a d6 roll of 1-3. SAHUAGIN Humanoids with sea-green skin, webbed limbs, and shark teeth.",
       "Vicious hunters."
     ],
-    "loreTiers": {
-      "common": "A mud-brown insect as big as a wolf with two feathery antennae. Consumes metal.",
-      "field": "Tactical combat behavior: Corrosive. Metal that touches the rust monster is destroyed on a d6 roll of 1-3. SAHUAGIN Humanoids with sea-green skin, webbed limbs, and shark teeth.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "A mud-brown insect as big as a wolf with two feathery antennae. Consumes metal.",
+      "Tactical combat behavior: Corrosive. Metal that touches the rust monster is destroyed on a d6 roll of 1-3. SAHUAGIN Humanoids with sea-green skin, webbed limbs, and shark teeth.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "RUST MONSTER Pelt / Chitin / Essence",
@@ -7130,12 +7156,12 @@
     "traits": [
       "Half-Amphibious. Must be submerged in water every 4 hours or suffocates. SALAMANDER Fire-colored lizardfolk with long tails. Flame-like frills run down their backs."
     ],
-    "loreTiers": {
-      "common": "Humanoids with sea-green skin, webbed limbs, and shark teeth. Vicious hunters.",
-      "field": "Tactical combat behavior: Half-Amphibious. Must be submerged in water every 4 hours or suffocates. SALAMANDER Fire-colored lizardfolk with long tails. Flame-like frills run down their backs.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Humanoids with sea-green skin, webbed limbs, and shark teeth. Vicious hunters.",
+      "Tactical combat behavior: Half-Amphibious. Must be submerged in water every 4 hours or suffocates. SALAMANDER Fire-colored lizardfolk with long tails. Flame-like frills run down their backs.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "SAHUAGIN Pelt / Chitin / Essence",
@@ -7170,12 +7196,12 @@
       "Impervious. Fire immune.",
       "Heat Aura. Creatures in close DC 12 CON on turn or 1d8 damage. SCARAB, SWARM A chittering cloud of iridescent, oval-shaped beetles."
     ],
-    "loreTiers": {
-      "common": "Fire-colored lizardfolk with long tails. Flame-like frills run down their backs.",
-      "field": "Tactical combat behavior: Impervious. Fire immune.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Fire-colored lizardfolk with long tails. Flame-like frills run down their backs.",
+      "Tactical combat behavior: Impervious. Fire immune.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "SALAMANDER Pelt / Chitin / Essence",
@@ -7209,12 +7235,12 @@
       "SCARECROW Ragged clothes and a painted burlap head stuffed with straw.",
       "Possessed by a malicious spirit."
     ],
-    "loreTiers": {
-      "common": "A chittering cloud of iridescent, oval-shaped beetles.",
-      "field": "Tactical combat behavior: SCARECROW Ragged clothes and a painted burlap head stuffed with straw.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "A chittering cloud of iridescent, oval-shaped beetles.",
+      "Tactical combat behavior: SCARECROW Ragged clothes and a painted burlap head stuffed with straw.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "SCARAB SWARM Pelt / Chitin / Essence",
@@ -7248,12 +7274,12 @@
     "traits": [
       "Scream. Creatures who hear in double near DC 12 CHA or paralyzed for 1d4 rounds. 250 SCORPION Desert-dwelling arachnids with pincers and curved tail stingers."
     ],
-    "loreTiers": {
-      "common": "Ragged clothes and a painted burlap head stuffed with straw. Possessed by a malicious spirit.",
-      "field": "Tactical combat behavior: Scream. Creatures who hear in double near DC 12 CHA or paralyzed for 1d4 rounds. 250 SCORPION Desert-dwelling arachnids with pincers and curved tail stingers.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Ragged clothes and a painted burlap head stuffed with straw. Possessed by a malicious spirit.",
+      "Tactical combat behavior: Scream. Creatures who hear in double near DC 12 CHA or paralyzed for 1d4 rounds. 250 SCORPION Desert-dwelling arachnids with pincers and curved tail stingers.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "SCARECROW Pelt / Chitin / Essence",
@@ -7286,12 +7312,12 @@
     "traits": [
       "Poison. DC 9 CON or go to 0 HP. SCORPION, GIANT Chitin-plated scorpions as big as camels."
     ],
-    "loreTiers": {
-      "common": "Desert-dwelling arachnids with pincers and curved tail stingers.",
-      "field": "Tactical combat behavior: Poison. DC 9 CON or go to 0 HP. SCORPION, GIANT Chitin-plated scorpions as big as camels.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Desert-dwelling arachnids with pincers and curved tail stingers.",
+      "Tactical combat behavior: Poison. DC 9 CON or go to 0 HP. SCORPION, GIANT Chitin-plated scorpions as big as camels.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "SCORPION Pelt / Chitin / Essence",
@@ -7325,12 +7351,12 @@
       "Grab. DC 12 STR or target held. DC 12 STR on turn to break free.",
       "Poison. DC 12 CON or go to 0 HP. SHADOW Flitting, sentient shadows in the vague shape of a human."
     ],
-    "loreTiers": {
-      "common": "Chitin-plated scorpions as big as camels.",
-      "field": "Tactical combat behavior: Grab. DC 12 STR or target held. DC 12 STR on turn to break free.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Chitin-plated scorpions as big as camels.",
+      "Tactical combat behavior: Grab. DC 12 STR or target held. DC 12 STR on turn to break free.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "SCORPION GIANT Pelt / Chitin / Essence",
@@ -7363,12 +7389,12 @@
     "traits": [
       "Drain. Target takes 1 STR damage. At 0 STR, target dies and becomes a shadow. 251 SHAMBLING MOUND Fetid piles of slimy vegetation animated to life by lightning."
     ],
-    "loreTiers": {
-      "common": "Flitting, sentient shadows in the vague shape of a human.",
-      "field": "Tactical combat behavior: Drain. Target takes 1 STR damage. At 0 STR, target dies and becomes a shadow. 251 SHAMBLING MOUND Fetid piles of slimy vegetation animated to life by lightning.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Flitting, sentient shadows in the vague shape of a human.",
+      "Tactical combat behavior: Drain. Target takes 1 STR damage. At 0 STR, target dies and becomes a shadow. 251 SHAMBLING MOUND Fetid piles of slimy vegetation animated to life by lightning.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "SHADOW Pelt / Chitin / Essence",
@@ -7403,12 +7429,12 @@
       "Healed by electricity.",
       "Engulf. If a target is hit by both slams in same round, it is pulled into shambling mound's body and suffocates in 2d4 rounds. DC 15 STR on turn to escape. SHARK Bloodthirsty apex predators of the sea. Gray, torpedo-like body."
     ],
-    "loreTiers": {
-      "common": "Fetid piles of slimy vegetation animated to life by lightning.",
-      "field": "Tactical combat behavior: Impervious. Fire immune.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Fetid piles of slimy vegetation animated to life by lightning.",
+      "Tactical combat behavior: Impervious. Fire immune.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "SHAMBLING MOUND Pelt / Chitin / Essence",
@@ -7441,12 +7467,12 @@
     "traits": [
       "SHARK, MEGALODON Primordial sharks the size of whales. Savage hunters."
     ],
-    "loreTiers": {
-      "common": "Bloodthirsty apex predators of the sea. Gray, torpedo-like body.",
-      "field": "Tactical combat behavior: SHARK, MEGALODON Primordial sharks the size of whales. Savage hunters.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Bloodthirsty apex predators of the sea. Gray, torpedo-like body.",
+      "Tactical combat behavior: SHARK, MEGALODON Primordial sharks the size of whales. Savage hunters.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "SHARK Pelt / Chitin / Essence",
@@ -7479,12 +7505,12 @@
     "traits": [
       "Fearless. Immune to morale checks. SIREN Baleful fey with dove wings and iridescent fish scales. Their singing entrances listeners."
     ],
-    "loreTiers": {
-      "common": "Primordial sharks the size of whales. Savage hunters.",
-      "field": "Tactical combat behavior: Fearless. Immune to morale checks. SIREN Baleful fey with dove wings and iridescent fish scales. Their singing entrances listeners.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Primordial sharks the size of whales. Savage hunters.",
+      "Tactical combat behavior: Fearless. Immune to morale checks. SIREN Baleful fey with dove wings and iridescent fish scales. Their singing entrances listeners.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "SHARK MEGALODON Pelt / Chitin / Essence",
@@ -7518,12 +7544,12 @@
     "traits": [
       "Song. Enemies who can hear within double near DC 15 CHA or paralyzed 1d4 rounds. Immune for 1 day if passed check. SKELETON A bleach-boned skeleton with red pinpoints of light in its eyes."
     ],
-    "loreTiers": {
-      "common": "Baleful fey with dove wings and iridescent fish scales. Their singing entrances listeners.",
-      "field": "Tactical combat behavior: Song. Enemies who can hear within double near DC 15 CHA or paralyzed 1d4 rounds. Immune for 1 day if passed check. SKELETON A bleach-boned skeleton with red pinpoints of light in its eyes.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Baleful fey with dove wings and iridescent fish scales. Their singing entrances listeners.",
+      "Tactical combat behavior: Song. Enemies who can hear within double near DC 15 CHA or paralyzed 1d4 rounds. Immune for 1 day if passed check. SKELETON A bleach-boned skeleton with red pinpoints of light in its eyes.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "SIREN Pelt / Chitin / Essence",
@@ -7557,12 +7583,12 @@
     "traits": [
       "Undead. Immune to morale checks. SMILODON Prehistoric tigers with long canine fangs. They hunt in grasslands and ice fields."
     ],
-    "loreTiers": {
-      "common": "A bleach-boned skeleton with red pinpoints of light in its eyes.",
-      "field": "Tactical combat behavior: Undead. Immune to morale checks. SMILODON Prehistoric tigers with long canine fangs. They hunt in grasslands and ice fields.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "A bleach-boned skeleton with red pinpoints of light in its eyes.",
+      "Tactical combat behavior: Undead. Immune to morale checks. SMILODON Prehistoric tigers with long canine fangs. They hunt in grasslands and ice fields.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "SKELETON Pelt / Chitin / Essence",
@@ -7595,12 +7621,12 @@
     "traits": [
       "252 SNAKE, GIANT An enormous, mottled serpent that can swallow a cow whole."
     ],
-    "loreTiers": {
-      "common": "Prehistoric tigers with long canine fangs. They hunt in grasslands and ice fields.",
-      "field": "Tactical combat behavior: 252 SNAKE, GIANT An enormous, mottled serpent that can swallow a cow whole.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Prehistoric tigers with long canine fangs. They hunt in grasslands and ice fields.",
+      "Tactical combat behavior: 252 SNAKE, GIANT An enormous, mottled serpent that can swallow a cow whole.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "SMILODON Pelt / Chitin / Essence",
@@ -7633,12 +7659,12 @@
     "traits": [
       "Constrict. Contested STR to hold target immobile for one round. SNAKE, COBRA A weaving serpent with a neck hood and lethal venom."
     ],
-    "loreTiers": {
-      "common": "An enormous, mottled serpent that can swallow a cow whole.",
-      "field": "Tactical combat behavior: Constrict. Contested STR to hold target immobile for one round. SNAKE, COBRA A weaving serpent with a neck hood and lethal venom.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "An enormous, mottled serpent that can swallow a cow whole.",
+      "Tactical combat behavior: Constrict. Contested STR to hold target immobile for one round. SNAKE, COBRA A weaving serpent with a neck hood and lethal venom.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "SNAKE GIANT Pelt / Chitin / Essence",
@@ -7671,12 +7697,12 @@
     "traits": [
       "Poison. DC 18 CON or go to 0 HP with a death timer of 1. SNAKE, SWARM A roiling wave of snakes darting and flowing across the ground."
     ],
-    "loreTiers": {
-      "common": "A weaving serpent with a neck hood and lethal venom.",
-      "field": "Tactical combat behavior: Poison. DC 18 CON or go to 0 HP with a death timer of 1. SNAKE, SWARM A roiling wave of snakes darting and flowing across the ground.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "A weaving serpent with a neck hood and lethal venom.",
+      "Tactical combat behavior: Poison. DC 18 CON or go to 0 HP with a death timer of 1. SNAKE, SWARM A roiling wave of snakes darting and flowing across the ground.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "SNAKE COBRA Pelt / Chitin / Essence",
@@ -7709,12 +7735,12 @@
     "traits": [
       "Poison. DC 12 CON or go to 0 HP in 1d4 rounds. SOLDIER An armed footsoldier trained in the ways of battlefield combat."
     ],
-    "loreTiers": {
-      "common": "A roiling wave of snakes darting and flowing across the ground.",
-      "field": "Tactical combat behavior: Poison. DC 12 CON or go to 0 HP in 1d4 rounds. SOLDIER An armed footsoldier trained in the ways of battlefield combat.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "A roiling wave of snakes darting and flowing across the ground.",
+      "Tactical combat behavior: Poison. DC 12 CON or go to 0 HP in 1d4 rounds. SOLDIER An armed footsoldier trained in the ways of battlefield combat.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "SNAKE SWARM Pelt / Chitin / Essence",
@@ -7748,12 +7774,12 @@
     "traits": [
       "253 SPHINX A winged, leonine oracle who can see into time and space and often speaks in riddles. Lives in isolated mountains."
     ],
-    "loreTiers": {
-      "common": "An armed footsoldier trained in the ways of battlefield combat.",
-      "field": "Tactical combat behavior: 253 SPHINX A winged, leonine oracle who can see into time and space and often speaks in riddles. Lives in isolated mountains.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "An armed footsoldier trained in the ways of battlefield combat.",
+      "Tactical combat behavior: 253 SPHINX A winged, leonine oracle who can see into time and space and often speaks in riddles. Lives in isolated mountains.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "SOLDIER Pelt / Chitin / Essence",
@@ -7788,12 +7814,12 @@
       "Roar. In place of attacks, all creatures who can hear within far DC 18 CHA or paralyzed 1d4 rounds. Gate (WIS Spell). DC 14. Open a portal at a point within near to another location on any plane. Lasts 1d6 rounds or until dismissed. Omens (WIS Spell). DC 12.",
       "Self. ADV on all actions for 1d4 rounds. Riddle (WIS Spell). DC 12. One target in far DC 15 INT or stupefied 1d4 rounds. Time Bend (WIS Spell). DC 14. One target in near frozen in time for 1d4 rounds. Unmake (WIS Spell). DC 13. One target in far takes 3d8 damage. 254 SPIDER Silent, web-weaving arachnids with a flesh-dissolving venom."
     ],
-    "loreTiers": {
-      "common": "A winged, leonine oracle who can see into time and space and often speaks in riddles. Lives in isolated mountains.",
-      "field": "Tactical combat behavior: Roar. In place of attacks, all creatures who can hear within far DC 18 CHA or paralyzed 1d4 rounds. Gate (WIS Spell). DC 14. Open a portal at a point within near to another location on any plane. Lasts 1d6 rounds or until dismissed. Omens (WIS Spell). DC 12.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "A winged, leonine oracle who can see into time and space and often speaks in riddles. Lives in isolated mountains.",
+      "Tactical combat behavior: Roar. In place of attacks, all creatures who can hear within far DC 18 CHA or paralyzed 1d4 rounds. Gate (WIS Spell). DC 14. Open a portal at a point within near to another location on any plane. Lasts 1d6 rounds or until dismissed. Omens (WIS Spell). DC 12.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "SPHINX Pelt / Chitin / Essence",
@@ -7826,12 +7852,12 @@
     "traits": [
       "Poison. DC 9 CON or take 1d4 damage. SPIDER, GIANT Bulbous abdomen and eight, spindly legs. Dwells high in trees or caves and ambushes prey, capturing them to eat later."
     ],
-    "loreTiers": {
-      "common": "Silent, web-weaving arachnids with a flesh-dissolving venom.",
-      "field": "Tactical combat behavior: Poison. DC 9 CON or take 1d4 damage. SPIDER, GIANT Bulbous abdomen and eight, spindly legs. Dwells high in trees or caves and ambushes prey, capturing them to eat later.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Silent, web-weaving arachnids with a flesh-dissolving venom.",
+      "Tactical combat behavior: Poison. DC 9 CON or take 1d4 damage. SPIDER, GIANT Bulbous abdomen and eight, spindly legs. Dwells high in trees or caves and ambushes prey, capturing them to eat later.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "SPIDER Pelt / Chitin / Essence",
@@ -7865,12 +7891,12 @@
       "Poison. DC 12 CON or paralyzed 1d4 hours. SPIDER, SWARM",
       "A scurrying carpet of spiders."
     ],
-    "loreTiers": {
-      "common": "Bulbous abdomen and eight, spindly legs. Dwells high in trees or caves and ambushes prey, capturing them to eat later.",
-      "field": "Tactical combat behavior: Poison. DC 12 CON or paralyzed 1d4 hours. SPIDER, SWARM",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Bulbous abdomen and eight, spindly legs. Dwells high in trees or caves and ambushes prey, capturing them to eat later.",
+      "Tactical combat behavior: Poison. DC 12 CON or paralyzed 1d4 hours. SPIDER, SWARM",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "SPIDER GIANT Pelt / Chitin / Essence",
@@ -7903,12 +7929,12 @@
     "traits": [
       "Poison. DC 12 CON or paralyzed 1d4 rounds. STINGBAT Darting, orange insect-bat with four wings and needlelike beak."
     ],
-    "loreTiers": {
-      "common": "A scurrying carpet of spiders.",
-      "field": "Tactical combat behavior: Poison. DC 12 CON or paralyzed 1d4 rounds. STINGBAT Darting, orange insect-bat with four wings and needlelike beak.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "A scurrying carpet of spiders.",
+      "Tactical combat behavior: Poison. DC 12 CON or paralyzed 1d4 rounds. STINGBAT Darting, orange insect-bat with four wings and needlelike beak.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "SPIDER SWARM Pelt / Chitin / Essence",
@@ -7941,12 +7967,12 @@
     "traits": [
       "Blood Drain. Attach to bitten target; auto-hit the next round. DC 9 STR on turn to remove. STRANGLER A gray-skinned, gaunt creature with four ropy limbs tipped in sucker-lined claws."
     ],
-    "loreTiers": {
-      "common": "Darting, orange insect-bat with four wings and needlelike beak.",
-      "field": "Tactical combat behavior: Blood Drain. Attach to bitten target; auto-hit the next round. DC 9 STR on turn to remove. STRANGLER A gray-skinned, gaunt creature with four ropy limbs tipped in sucker-lined claws.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Darting, orange insect-bat with four wings and needlelike beak.",
+      "Tactical combat behavior: Blood Drain. Attach to bitten target; auto-hit the next round. DC 9 STR on turn to remove. STRANGLER A gray-skinned, gaunt creature with four ropy limbs tipped in sucker-lined claws.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "STINGBAT Pelt / Chitin / Essence",
@@ -7981,12 +8007,12 @@
       "Strangle. Deals x2 damage against surprised creatures. 255",
       "A floating mass of rubbery skin crusted with barnacles. Its ten eyestalks writhe like snakes, and a deep, circular scar mars its central body, blinding what was once a large eye above a lipless maw. The Ten-Eyed Oracle stalks the Shadowdark, burbling mad prophesies and somehow moving freely between the lightless fathoms of the earth. The keepers of the deep lore suspect The Ten-Eyed Oracle was once a benevolent ally of mankind, but an unknown calamity drove it to insanity and reckless hatred."
     ],
-    "loreTiers": {
-      "common": "A gray-skinned, gaunt creature with four ropy limbs tipped in sucker-lined claws.",
-      "field": "Tactical combat behavior: Stealthy. ADV on DEX checks to sneak and hide.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "A gray-skinned, gaunt creature with four ropy limbs tipped in sucker-lined claws.",
+      "Tactical combat behavior: Stealthy. ADV on DEX checks to sneak and hide.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "STRANGLER Pelt / Chitin / Essence",
@@ -8021,12 +8047,12 @@
       "Eyestalk Ray. Each ray can shoot once per round and target one creature or an object up to 1,000 pounds (up to four on same target). 1.",
       "Charm. DC 15 CHA or become ally for 1d4 rounds. 2.\t Hold. DC 15 STR or paralyzed 1d4 rounds. 3.\t Sleep. DC 15 WIS or asleep 1d4 rounds. 4.\t Polymorph. DC 15 INT or turned into vermin for 1d4 rounds. 5.\t Cancel. DC 15 DEX or all magical effects on target end. 6.\t Confusion. DC 15 WIS or attack a random ally within near. 7.\t Telekinesis. DC 15 STR or hover target up to double near. 8.\t Disintegrate. DC 15 DEX or 5d8 damage (object destroyed). 9.\t Petrify. DC 15 CON or petrified. 10.\t Death. DC 15 CON or drop to 0 HP with a death timer of 1. THE TEN-EYED ORACLE “The moon runs red into the sea, and the whispers of the watchers in darkness proclaim: Your time has come!\" -The Ten-Eyed Oracle 256 A colossal, four-legged reptile with crocodilian jaws, amber scales, and a diamond-hard, spiked carapace. It towers overhead like a mountain, able to swallow entire villages in one gulp. The tarrasque hibernates deep in the earth or at the bottom of the sea for centuries, only awakening long enough to fill its vast belly in an indiscriminate rampage of terror and destruction. There is only one tarrasque, and it is the most dreaded creature to walk the earth."
     ],
-    "loreTiers": {
-      "common": "sneak and hide. Strangle. Deals x2 damage against surprised creatures. 255 A floating mass of rubbery skin crusted with barnacles. Its ten eyestalks writhe like snakes, and a deep, circular scar mars its central body, blinding what was once a large eye above a lipless maw. The Ten-Eyed Oracle stalks the Shadowdark, burbling mad prophesies and somehow moving freely between the lightless fathoms of the earth. The keepers of the deep lore suspect The Ten-Eyed Oracle was once a benevolent ally of mankind, but an unknown calamity drove it to insanity and reckless hatred.",
-      "field": "Tactical combat behavior: Legendary. Only damaged by magical sources. Hostile spells targeting The Ten-Eyed Oracle are DC 18 to cast.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "sneak and hide. Strangle. Deals x2 damage against surprised creatures. 255 A floating mass of rubbery skin crusted with barnacles. Its ten eyestalks writhe like snakes, and a deep, circular scar mars its central body, blinding what was once a large eye above a lipless maw. The Ten-Eyed Oracle stalks the Shadowdark, burbling mad prophesies and somehow moving freely between the lightless fathoms of the earth. The keepers of the deep lore suspect The Ten-Eyed Oracle was once a benevolent ally of mankind, but an unknown calamity drove it to insanity and reckless hatred.",
+      "Tactical combat behavior: Legendary. Only damaged by magical sources. Hostile spells targeting The Ten-Eyed Oracle are DC 18 to cast.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "Stealthy ADV on DEX checks to Pelt / Chitin / Essence",
@@ -8066,12 +8092,12 @@
       "Sever. On a natural attack roll of 18+, the attack also severs a random limb. 1d6: 1. Head, 2-4. Arm, 5-6. Leg.",
       "Swallow. DC 18 STR or swallowed whole. Total darkness inside and 4d10 damage per round. Tarrasque regurgitates all swallowed if dealt at least 30 damage in one round to the inside of its gullet. THE TARRASQUE “RRRRRRAAAAAAAAAAAAAAAAGHHHHHH!\" -The Tarrasque 258 A cheerful merchant who appears to be a hale, middle-aged human man with a handlebar mustache. He wears a white shirt, breeches, and leather apron, and he hauls a towering backpack bursting at the seams. Few know the merchant's true nature and origins, though some theorize he is an immortal being or a god (they are not entirely incorrect). The Wandering Merchant always has something useful, far-flung, or incredible to sell at a reasonable price, and there's no telling when or where he'll show up next..."
     ],
-    "loreTiers": {
-      "common": "Legendary. Only damaged by magical sources. Hostile spells targeting The Ten-Eyed Oracle are DC 18 to cast. Eyestalk Ray. Each ray can shoot once per round and target one creature or an object up to 1,000 pounds (up to four on same target). 1. Charm. DC 15 CHA or become ally for 1d4 rounds. 2.\t Hold. DC 15 STR or paralyzed 1d4 rounds. 3.\t Sleep. DC 15 WIS or asleep 1d4 rounds. 4.\t Polymorph. DC 15 INT or turned into vermin for 1d4 rounds. 5.\t Cancel. DC 15 DEX or all magical effects on target end. 6.\t Confusion. DC 15 WIS or attack a random ally within near. 7.\t Telekinesis. DC 15 STR or hover target up to double near. 8.\t Disintegrate. DC 15 DEX or 5d8 damage (object destroyed). 9.\t Petrify. DC 15 CON or petrified. 10.\t Death. DC 15 CON or drop to 0 HP with a death timer of 1. THE TEN-EYED ORACLE “The moon runs red into the sea, and the whispers of the watchers in darkness proclaim: Your time has come!\" -The Ten-Eyed Oracle 256 A colossal, four-legged reptile with crocodilian jaws, amber scales, and a diamond-hard, spiked carapace. It towers overhead like a mountain, able to swallow entire villages in one gulp. The tarrasque hibernates deep in the earth or at the bottom of the sea for centuries, only awakening long enough to fill its vast belly in an indiscriminate rampage of terror and destruction. There is only one tarrasque, and it is the most dreaded creature to walk the earth.",
-      "field": "Tactical combat behavior: Legendary. Only damaged by magical sources. Hostile spells targeting the tarrasque are DC 18 to cast.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Legendary. Only damaged by magical sources. Hostile spells targeting The Ten-Eyed Oracle are DC 18 to cast. Eyestalk Ray. Each ray can shoot once per round and target one creature or an object up to 1,000 pounds (up to four on same target). 1. Charm. DC 15 CHA or become ally for 1d4 rounds. 2.\t Hold. DC 15 STR or paralyzed 1d4 rounds. 3.\t Sleep. DC 15 WIS or asleep 1d4 rounds. 4.\t Polymorph. DC 15 INT or turned into vermin for 1d4 rounds. 5.\t Cancel. DC 15 DEX or all magical effects on target end. 6.\t Confusion. DC 15 WIS or attack a random ally within near. 7.\t Telekinesis. DC 15 STR or hover target up to double near. 8.\t Disintegrate. DC 15 DEX or 5d8 damage (object destroyed). 9.\t Petrify. DC 15 CON or petrified. 10.\t Death. DC 15 CON or drop to 0 HP with a death timer of 1. THE TEN-EYED ORACLE “The moon runs red into the sea, and the whispers of the watchers in darkness proclaim: Your time has come!\" -The Ten-Eyed Oracle 256 A colossal, four-legged reptile with crocodilian jaws, amber scales, and a diamond-hard, spiked carapace. It towers overhead like a mountain, able to swallow entire villages in one gulp. The tarrasque hibernates deep in the earth or at the bottom of the sea for centuries, only awakening long enough to fill its vast belly in an indiscriminate rampage of terror and destruction. There is only one tarrasque, and it is the most dreaded creature to walk the earth.",
+      "Tactical combat behavior: Legendary. Only damaged by magical sources. Hostile spells targeting the tarrasque are DC 18 to cast.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "The Tarrasque Pelt / Chitin / Essence",
@@ -8113,12 +8139,12 @@
       "I just so happen to have this lovely rope for sale...\" -The Wandering Merchant 259 THIEF",
       "A cat burglar in a black cloak."
     ],
-    "loreTiers": {
-      "common": "Legendary. Only damaged by magical sources. Hostile spells targeting the tarrasque are DC 18 to cast. Deep Dweller. Immune to harm from fire and cold. Amphibious. Permanent Death. Cannot be permanently killed unless a wish spell is cast on it while it is at 0 HP. Rampage. In place of attacks, move far in a straight line and make one bite attack. On a hit, triple damage. Reflective Carapace. Immune to rays, blasts, or bolts of energy. 1:6 chance these are reflected back at their originator. Regeneration. Regains 4d10 lost HP at the beginning of its turn. Sever. On a natural attack roll of 18+, the attack also severs a random limb. 1d6: 1. Head, 2-4. Arm, 5-6. Leg. Swallow. DC 18 STR or swallowed whole. Total darkness inside and 4d10 damage per round. Tarrasque regurgitates all swallowed if dealt at least 30 damage in one round to the inside of its gullet. THE TARRASQUE “RRRRRRAAAAAAAAAAAAAAAAGHHHHHH!\" -The Tarrasque 258 A cheerful merchant who appears to be a hale, middle-aged human man with a handlebar mustache. He wears a white shirt, breeches, and leather apron, and he hauls a towering backpack bursting at the seams. Few know the merchant's true nature and origins, though some theorize he is an immortal being or a god (they are not entirely incorrect). The Wandering Merchant always has something useful, far-flung, or incredible to sell at a reasonable price, and there's no telling when or where he'll show up next...",
-      "field": "Tactical combat behavior: Legendary. Only damaged by magical sources. Hostile spells targeting The Wandering Merchant are DC 18 to cast.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Legendary. Only damaged by magical sources. Hostile spells targeting the tarrasque are DC 18 to cast. Deep Dweller. Immune to harm from fire and cold. Amphibious. Permanent Death. Cannot be permanently killed unless a wish spell is cast on it while it is at 0 HP. Rampage. In place of attacks, move far in a straight line and make one bite attack. On a hit, triple damage. Reflective Carapace. Immune to rays, blasts, or bolts of energy. 1:6 chance these are reflected back at their originator. Regeneration. Regains 4d10 lost HP at the beginning of its turn. Sever. On a natural attack roll of 18+, the attack also severs a random limb. 1d6: 1. Head, 2-4. Arm, 5-6. Leg. Swallow. DC 18 STR or swallowed whole. Total darkness inside and 4d10 damage per round. Tarrasque regurgitates all swallowed if dealt at least 30 damage in one round to the inside of its gullet. THE TARRASQUE “RRRRRRAAAAAAAAAAAAAAAAGHHHHHH!\" -The Tarrasque 258 A cheerful merchant who appears to be a hale, middle-aged human man with a handlebar mustache. He wears a white shirt, breeches, and leather apron, and he hauls a towering backpack bursting at the seams. Few know the merchant's true nature and origins, though some theorize he is an immortal being or a god (they are not entirely incorrect). The Wandering Merchant always has something useful, far-flung, or incredible to sell at a reasonable price, and there's no telling when or where he'll show up next...",
+      "Tactical combat behavior: Legendary. Only damaged by magical sources. Hostile spells targeting The Wandering Merchant are DC 18 to cast.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "The Wandering Merchant Pelt / Chitin / Essence",
@@ -8154,12 +8180,12 @@
       "Backstab. Deal x2 damage against surprised creatures. THUG",
       "A bruised and boorish ruffian."
     ],
-    "loreTiers": {
-      "common": "A cat burglar in a black cloak.",
-      "field": "Tactical combat behavior: Stealthy. ADV on DEX checks to sneak and hide.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "A cat burglar in a black cloak.",
+      "Tactical combat behavior: Stealthy. ADV on DEX checks to sneak and hide.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "THIEF Pelt / Chitin / Essence",
@@ -8192,12 +8218,12 @@
     "traits": [
       "TREANT Peaceful, slow-moving trees with merry eyes and tremulous voices. They protect the forest."
     ],
-    "loreTiers": {
-      "common": "A bruised and boorish ruffian.",
-      "field": "Tactical combat behavior: TREANT Peaceful, slow-moving trees with merry eyes and tremulous voices. They protect the forest.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "A bruised and boorish ruffian.",
+      "Tactical combat behavior: TREANT Peaceful, slow-moving trees with merry eyes and tremulous voices. They protect the forest.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "THUG Pelt / Chitin / Essence",
@@ -8231,12 +8257,12 @@
     "traits": [
       "Animate Tree. 2/day. In place of attacks, one tree within near awakens as a treant ally without this ability. Reverts back in 1 day. TROLL Green, lanky giants with warty skin and territorial rage. Lair in deep forests and swamps."
     ],
-    "loreTiers": {
-      "common": "Peaceful, slow-moving trees with merry eyes and tremulous voices. They protect the forest.",
-      "field": "Tactical combat behavior: Animate Tree. 2/day. In place of attacks, one tree within near awakens as a treant ally without this ability. Reverts back in 1 day. TROLL Green, lanky giants with warty skin and territorial rage. Lair in deep forests and swamps.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Peaceful, slow-moving trees with merry eyes and tremulous voices. They protect the forest.",
+      "Tactical combat behavior: Animate Tree. 2/day. In place of attacks, one tree within near awakens as a treant ally without this ability. Reverts back in 1 day. TROLL Green, lanky giants with warty skin and territorial rage. Lair in deep forests and swamps.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "TREANT Pelt / Chitin / Essence",
@@ -8269,12 +8295,12 @@
     "traits": [
       "Regenerate. Regains 2d6 HP on its turn unless its wounds are cauterized with fire or acid. 260 TROLL, FROST Rime-covered trolls with blue skin and flinty, black eyes. They stalk arctic lands and frozen boreal forests."
     ],
-    "loreTiers": {
-      "common": "Green, lanky giants with warty skin and territorial rage. Lair in deep forests and swamps.",
-      "field": "Tactical combat behavior: Regenerate. Regains 2d6 HP on its turn unless its wounds are cauterized with fire or acid. 260 TROLL, FROST Rime-covered trolls with blue skin and flinty, black eyes. They stalk arctic lands and frozen boreal forests.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Green, lanky giants with warty skin and territorial rage. Lair in deep forests and swamps.",
+      "Tactical combat behavior: Regenerate. Regains 2d6 HP on its turn unless its wounds are cauterized with fire or acid. 260 TROLL, FROST Rime-covered trolls with blue skin and flinty, black eyes. They stalk arctic lands and frozen boreal forests.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "TROLL Pelt / Chitin / Essence",
@@ -8308,12 +8334,12 @@
       "Impervious. Cold and fire immune.",
       "Regenerate. Regains 2d6 HP on its turn unless its wounds are cauterized with acid. UNICORN A silvery horse with a flowing mane and a single spiral horn."
     ],
-    "loreTiers": {
-      "common": "Rime-covered trolls with blue skin and flinty, black eyes. They stalk arctic lands and frozen boreal forests.",
-      "field": "Tactical combat behavior: Impervious. Cold and fire immune.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Rime-covered trolls with blue skin and flinty, black eyes. They stalk arctic lands and frozen boreal forests.",
+      "Tactical combat behavior: Impervious. Cold and fire immune.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "TROLL FROST Pelt / Chitin / Essence",
@@ -8347,12 +8373,12 @@
       "Healing Horn. A touch heals 2d6",
       "HP or ends one curse or disease. VAMPIRE Pale, blood-drinking undead of supreme power and wickedness. They loathe sunlight and protect their coffins at all costs."
     ],
-    "loreTiers": {
-      "common": "A silvery horse with a flowing mane and a single spiral horn.",
-      "field": "Tactical combat behavior: Healing Horn. A touch heals 2d6",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "A silvery horse with a flowing mane and a single spiral horn.",
+      "Tactical combat behavior: Healing Horn. A touch heals 2d6",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "UNICORN Pelt / Chitin / Essence",
@@ -8391,12 +8417,12 @@
       "Vampire. Must sleep in a coffin daily or loses 2d6 HP each day that can't be healed until resting in coffin. Takes 3d8 damage each round while in direct sunlight. Cannot be killed unless pierced through heart with a wooden stake while at 0 HP. 261 VAMPIRE SPAWN Lesser, feral vampires born from the bite of their vampiric sires.",
       "Bloodthirsty and savage. They rarely leave a victim alive."
     ],
-    "loreTiers": {
-      "common": "Pale, blood-drinking undead of supreme power and wickedness. They loathe sunlight and protect their coffins at all costs.",
-      "field": "Tactical combat behavior: Supreme Undead. Immune to morale checks. Only damaged by magical sources.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Pale, blood-drinking undead of supreme power and wickedness. They loathe sunlight and protect their coffins at all costs.",
+      "Tactical combat behavior: Supreme Undead. Immune to morale checks. Only damaged by magical sources.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "VAMPIRE Pelt / Chitin / Essence",
@@ -8431,12 +8457,12 @@
       "Blood Drain. Vampire heals 2d6 HP and target permanently loses 1d4 CON. At 0 CON, target dies and rises as a vampire spawn.",
       "Vampire. Must sleep in a coffin daily or loses 2d6 HP each day that can't be healed until resting in coffin. Takes 3d8 damage each round while in direct sunlight. Cannot be killed unless pierced through heart with a wooden stake while at 0 HP. VIOLET FUNGUS Child-sized, creeping fungi with neon purple caps. Their whiplike roots decompose living flesh."
     ],
-    "loreTiers": {
-      "common": "Lesser, feral vampires born from the bite of their vampiric sires. Bloodthirsty and savage. They rarely leave a victim alive.",
-      "field": "Tactical combat behavior: Greater Undead. Immune to morale checks. Only damaged by silver or magical sources.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Lesser, feral vampires born from the bite of their vampiric sires. Bloodthirsty and savage. They rarely leave a victim alive.",
+      "Tactical combat behavior: Greater Undead. Immune to morale checks. Only damaged by silver or magical sources.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "VAMPIRE SPAWN Pelt / Chitin / Essence",
@@ -8469,12 +8495,12 @@
     "traits": [
       "262 VIPERIANS A fallen and scattered civilization of snake-people who built their blood-soaked dynasties with sorcery and cunning. Their descendants fight for scraps of faded grandeur in the decaying ruins of their forgotten cities. Small circles of viperian wizards practice ancient magic and lead their enclaves. Viperian ophids are rare and much more snakelike than their brethren, serving as esteemed guardians and warriors. VIPERIAN Lithe, snake-headed people with cobra hoods and emerald green scales covering their bodies."
     ],
-    "loreTiers": {
-      "common": "Child-sized, creeping fungi with neon purple caps. Their whiplike roots decompose living flesh.",
-      "field": "Tactical combat behavior: 262 VIPERIANS A fallen and scattered civilization of snake-people who built their blood-soaked dynasties with sorcery and cunning. Their descendants fight for scraps of faded grandeur in the decaying ruins of their forgotten cities. Small circles of viperian wizards practice ancient magic and lead their enclaves. Viperian ophids are rare and much more snakelike than their brethren, serving as esteemed guardians and warriors. VIPERIAN Lithe, snake-headed people with cobra hoods and emerald green scales covering their bodies.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Child-sized, creeping fungi with neon purple caps. Their whiplike roots decompose living flesh.",
+      "Tactical combat behavior: 262 VIPERIANS A fallen and scattered civilization of snake-people who built their blood-soaked dynasties with sorcery and cunning. Their descendants fight for scraps of faded grandeur in the decaying ruins of their forgotten cities. Small circles of viperian wizards practice ancient magic and lead their enclaves. Viperian ophids are rare and much more snakelike than their brethren, serving as esteemed guardians and warriors. VIPERIAN Lithe, snake-headed people with cobra hoods and emerald green scales covering their bodies.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "VIOLET FUNGUS Pelt / Chitin / Essence",
@@ -8509,12 +8535,12 @@
     "traits": [
       "VIPERIAN, OPHID A giant anaconda body merges into a humanoid torso with a large snake head. It wears golden torcs and strings of glittering moonstones."
     ],
-    "loreTiers": {
-      "common": "Lithe, snake-headed people with cobra hoods and emerald green scales covering their bodies.",
-      "field": "Tactical combat behavior: VIPERIAN, OPHID A giant anaconda body merges into a humanoid torso with a large snake head. It wears golden torcs and strings of glittering moonstones.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Lithe, snake-headed people with cobra hoods and emerald green scales covering their bodies.",
+      "Tactical combat behavior: VIPERIAN, OPHID A giant anaconda body merges into a humanoid torso with a large snake head. It wears golden torcs and strings of glittering moonstones.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "VIPERIAN Pelt / Chitin / Essence",
@@ -8548,12 +8574,12 @@
     "traits": [
       "Impervious. Can only be harmed by magical sources. VIPERIAN, WIZARD Thin viperians with scales tinged in black. They wear silk robes and silver, serpentine jewelry."
     ],
-    "loreTiers": {
-      "common": "A giant anaconda body merges into a humanoid torso with a large snake head. It wears golden torcs and strings of glittering moonstones.",
-      "field": "Tactical combat behavior: Impervious. Can only be harmed by magical sources. VIPERIAN, WIZARD Thin viperians with scales tinged in black. They wear silk robes and silver, serpentine jewelry.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "A giant anaconda body merges into a humanoid torso with a large snake head. It wears golden torcs and strings of glittering moonstones.",
+      "Tactical combat behavior: Impervious. Can only be harmed by magical sources. VIPERIAN, WIZARD Thin viperians with scales tinged in black. They wear silk robes and silver, serpentine jewelry.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "VIPERIAN OPHID Pelt / Chitin / Essence",
@@ -8588,12 +8614,12 @@
       "Hiss (INT Spell). DC 12. End one spell within far. Summon Cobra (INT Spell). DC 13. Summon 1d4 loyal cobras that appear within near. They leave in 1d4 rounds. Venom (INT Spell). DC 12. One target in far takes 2d8 damage. Whispers (INT Spell). DC 14.",
       "Focus. All enemies within near of viperian wizard have DISADV on spellcasting checks for the duration. 263 VULTURE Scavenger birds with black feathers, hunched backs, and bald heads."
     ],
-    "loreTiers": {
-      "common": "Thin viperians with scales tinged in black. They wear silk robes and silver, serpentine jewelry.",
-      "field": "Tactical combat behavior: Hiss (INT Spell). DC 12. End one spell within far. Summon Cobra (INT Spell). DC 13. Summon 1d4 loyal cobras that appear within near. They leave in 1d4 rounds. Venom (INT Spell). DC 12. One target in far takes 2d8 damage. Whispers (INT Spell). DC 14.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Thin viperians with scales tinged in black. They wear silk robes and silver, serpentine jewelry.",
+      "Tactical combat behavior: Hiss (INT Spell). DC 12. End one spell within far. Summon Cobra (INT Spell). DC 13. Summon 1d4 loyal cobras that appear within near. They leave in 1d4 rounds. Venom (INT Spell). DC 12. One target in far takes 2d8 damage. Whispers (INT Spell). DC 14.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "VIPERIAN WIZARD Pelt / Chitin / Essence",
@@ -8626,12 +8652,12 @@
     "traits": [
       "Carrion Tracker. Can track dead flesh unerringly within a mile. WASP, GIANT Man-sized wasps with glossy, yellow-striped abdomens."
     ],
-    "loreTiers": {
-      "common": "Scavenger birds with black feathers, hunched backs, and bald heads.",
-      "field": "Tactical combat behavior: Carrion Tracker. Can track dead flesh unerringly within a mile. WASP, GIANT Man-sized wasps with glossy, yellow-striped abdomens.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Scavenger birds with black feathers, hunched backs, and bald heads.",
+      "Tactical combat behavior: Carrion Tracker. Can track dead flesh unerringly within a mile. WASP, GIANT Man-sized wasps with glossy, yellow-striped abdomens.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "VULTURE Pelt / Chitin / Essence",
@@ -8664,12 +8690,12 @@
     "traits": [
       "Venom. DC 9 CON or go to 0 HP. WEREWOLF A bipedal, wolf-faced humanoid covered in brown fur."
     ],
-    "loreTiers": {
-      "common": "Man-sized wasps with glossy, yellow-striped abdomens.",
-      "field": "Tactical combat behavior: Venom. DC 9 CON or go to 0 HP. WEREWOLF A bipedal, wolf-faced humanoid covered in brown fur.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Man-sized wasps with glossy, yellow-striped abdomens.",
+      "Tactical combat behavior: Venom. DC 9 CON or go to 0 HP. WEREWOLF A bipedal, wolf-faced humanoid covered in brown fur.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "WASP GIANT Pelt / Chitin / Essence",
@@ -8703,12 +8729,12 @@
       "Impervious. Only damaged by silver or magic sources.",
       "Lycanthropy. If 12 or more damage from the same werewolf, contract lycanthropy. WERERAT A slinking, rat-faced humanoid covered in mangy fur."
     ],
-    "loreTiers": {
-      "common": "A bipedal, wolf-faced humanoid covered in brown fur.",
-      "field": "Tactical combat behavior: Impervious. Only damaged by silver or magic sources.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "A bipedal, wolf-faced humanoid covered in brown fur.",
+      "Tactical combat behavior: Impervious. Only damaged by silver or magic sources.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "WEREWOLF Pelt / Chitin / Essence",
@@ -8742,12 +8768,12 @@
       "Impervious. Only damaged by silver or magic sources.",
       "Lycanthropy. If 12 or more damage from the same wererat, contract lycanthropy. WIGHT A pale, armored undead warrior with sinister intelligence."
     ],
-    "loreTiers": {
-      "common": "A slinking, rat-faced humanoid covered in mangy fur.",
-      "field": "Tactical combat behavior: Impervious. Only damaged by silver or magic sources.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "A slinking, rat-faced humanoid covered in mangy fur.",
+      "Tactical combat behavior: Impervious. Only damaged by silver or magic sources.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "WERERAT Pelt / Chitin / Essence",
@@ -8781,12 +8807,12 @@
       "Greater Undead. Immune to morale checks. Only damaged by silver or magical sources.",
       "Life Drain. 1d4 CON damage. Death if reduced to 0 CON. 264 WILL-O'-WISP A bobbing marsh light animated by an evil spirit. It tries to lead the living into danger."
     ],
-    "loreTiers": {
-      "common": "A pale, armored undead warrior with sinister intelligence.",
-      "field": "Tactical combat behavior: Greater Undead. Immune to morale checks. Only damaged by silver or magical sources.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "A pale, armored undead warrior with sinister intelligence.",
+      "Tactical combat behavior: Greater Undead. Immune to morale checks. Only damaged by silver or magical sources.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "WIGHT Pelt / Chitin / Essence",
@@ -8819,12 +8845,12 @@
     "traits": [
       "Life Drain. 1d4 CON damage. Death if reduced to 0 CON. WOLF A giant canine with a gray pelt, yellow eyes, and dripping jaws."
     ],
-    "loreTiers": {
-      "common": "A bobbing marsh light animated by an evil spirit. It tries to lead the living into danger.",
-      "field": "Tactical combat behavior: Life Drain. 1d4 CON damage. Death if reduced to 0 CON. WOLF A giant canine with a gray pelt, yellow eyes, and dripping jaws.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "A bobbing marsh light animated by an evil spirit. It tries to lead the living into danger.",
+      "Tactical combat behavior: Life Drain. 1d4 CON damage. Death if reduced to 0 CON. WOLF A giant canine with a gray pelt, yellow eyes, and dripping jaws.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "WILL-O'-WISP Pelt / Chitin / Essence",
@@ -8857,12 +8883,12 @@
     "traits": [
       "Pack Hunter. Deals +1 damage while an ally is close. WOLF, DIRE A massive wolf with spines of black bone along its brow ridge and back."
     ],
-    "loreTiers": {
-      "common": "A giant canine with a gray pelt, yellow eyes, and dripping jaws.",
-      "field": "Tactical combat behavior: Pack Hunter. Deals +1 damage while an ally is close. WOLF, DIRE A massive wolf with spines of black bone along its brow ridge and back.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "A giant canine with a gray pelt, yellow eyes, and dripping jaws.",
+      "Tactical combat behavior: Pack Hunter. Deals +1 damage while an ally is close. WOLF, DIRE A massive wolf with spines of black bone along its brow ridge and back.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "WOLF Pelt / Chitin / Essence",
@@ -8895,12 +8921,12 @@
     "traits": [
       "Pack Hunter. Deals +1 damage while an ally is close. WOLF, WINTER Sinister, white-pelted wolves with piercing blue eyes. From the fey realms of eternal winter."
     ],
-    "loreTiers": {
-      "common": "A massive wolf with spines of black bone along its brow ridge and back.",
-      "field": "Tactical combat behavior: Pack Hunter. Deals +1 damage while an ally is close. WOLF, WINTER Sinister, white-pelted wolves with piercing blue eyes. From the fey realms of eternal winter.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "A massive wolf with spines of black bone along its brow ridge and back.",
+      "Tactical combat behavior: Pack Hunter. Deals +1 damage while an ally is close. WOLF, WINTER Sinister, white-pelted wolves with piercing blue eyes. From the fey realms of eternal winter.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "WOLF DIRE Pelt / Chitin / Essence",
@@ -8935,12 +8961,12 @@
       "Impervious. Cold immune.",
       "Frost Breath. Fills a near-sized cube extending from winter wolf. DC 15 DEX or 3d8 damage. Cannot use again for 1d4 rounds. 265 WORG Bat-faced wolves that speak Goblin and often serve as war mounts for goblinkind."
     ],
-    "loreTiers": {
-      "common": "Sinister, white-pelted wolves with piercing blue eyes. From the fey realms of eternal winter.",
-      "field": "Tactical combat behavior: Impervious. Cold immune.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Sinister, white-pelted wolves with piercing blue eyes. From the fey realms of eternal winter.",
+      "Tactical combat behavior: Impervious. Cold immune.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "WOLF WINTER Pelt / Chitin / Essence",
@@ -8973,12 +8999,12 @@
     "traits": [
       "WRAITH A shadowy spirit seething with anger and malice. Its presence is unsettling to animals."
     ],
-    "loreTiers": {
-      "common": "Bat-faced wolves that speak Goblin and often serve as war mounts for goblinkind.",
-      "field": "Tactical combat behavior: WRAITH A shadowy spirit seething with anger and malice. Its presence is unsettling to animals.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Bat-faced wolves that speak Goblin and often serve as war mounts for goblinkind.",
+      "Tactical combat behavior: WRAITH A shadowy spirit seething with anger and malice. Its presence is unsettling to animals.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "WORG Pelt / Chitin / Essence",
@@ -9013,12 +9039,12 @@
       "Incorporeal. In place of attacks, become corporeal or incorporeal.",
       "Life Drain. 1d4 CON damage. Death if reduced to 0 CON. WYVERN Dragon-cousins with a large tail stinger, mottled lizard skin, and leathery wings."
     ],
-    "loreTiers": {
-      "common": "A shadowy spirit seething with anger and malice. Its presence is unsettling to animals.",
-      "field": "Tactical combat behavior: Greater Undead. Immune to morale checks. Only damaged by silver or magical sources.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "A shadowy spirit seething with anger and malice. Its presence is unsettling to animals.",
+      "Tactical combat behavior: Greater Undead. Immune to morale checks. Only damaged by silver or magical sources.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "WRAITH Pelt / Chitin / Essence",
@@ -9051,12 +9077,12 @@
     "traits": [
       "Poison. DC 15 CON or take 2d10 damage. ZOMBIE Lurching and decomposed undead that hunt in mobs."
     ],
-    "loreTiers": {
-      "common": "Dragon-cousins with a large tail stinger, mottled lizard skin, and leathery wings.",
-      "field": "Tactical combat behavior: Poison. DC 15 CON or take 2d10 damage. ZOMBIE Lurching and decomposed undead that hunt in mobs.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Dragon-cousins with a large tail stinger, mottled lizard skin, and leathery wings.",
+      "Tactical combat behavior: Poison. DC 15 CON or take 2d10 damage. ZOMBIE Lurching and decomposed undead that hunt in mobs.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "WYVERN Pelt / Chitin / Essence",
@@ -9090,12 +9116,12 @@
       "Undead. Immune to morale checks.",
       "Relentless. If zombie reduced to 0 HP by a non-magical source, DC 15 CON to go to 1 HP instead."
     ],
-    "loreTiers": {
-      "common": "Lurching and decomposed undead that hunt in mobs.",
-      "field": "Tactical combat behavior: Undead. Immune to morale checks.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Lurching and decomposed undead that hunt in mobs.",
+      "Tactical combat behavior: Undead. Immune to morale checks.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "ZOMBIE Pelt / Chitin / Essence",
@@ -9129,12 +9155,12 @@
     "traits": [
       "Rubbery. Half damage from stabbing weapons. BOGTHORN A skittering nest of nettles and thorns with marshlights for eyes."
     ],
-    "loreTiers": {
-      "common": "A staring, stooped human that scuttles along. Pale, wet skin.",
-      "field": "Tactical combat behavior: Rubbery. Half damage from stabbing weapons. BOGTHORN A skittering nest of nettles and thorns with marshlights for eyes.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "A staring, stooped human that scuttles along. Pale, wet skin.",
+      "Tactical combat behavior: Rubbery. Half damage from stabbing weapons. BOGTHORN A skittering nest of nettles and thorns with marshlights for eyes.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "BITTERMOLD Pelt / Chitin / Essence",
@@ -9168,12 +9194,12 @@
     "traits": [
       "Poison. DC 12 CON or paralyzed for 1d4 rounds. DRALECH As tall as two humans with a pair of curved horns, a shark's grin, and an axe of white bone."
     ],
-    "loreTiers": {
-      "common": "A skittering nest of nettles and thorns with marshlights for eyes.",
-      "field": "Tactical combat behavior: Poison. DC 12 CON or paralyzed for 1d4 rounds. DRALECH As tall as two humans with a pair of curved horns, a shark's grin, and an axe of white bone.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "A skittering nest of nettles and thorns with marshlights for eyes.",
+      "Tactical combat behavior: Poison. DC 12 CON or paralyzed for 1d4 rounds. DRALECH As tall as two humans with a pair of curved horns, a shark's grin, and an axe of white bone.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "BOGTHORN Pelt / Chitin / Essence",
@@ -9206,12 +9232,12 @@
     "traits": [
       "Shatter. Destroy one non-magic gear instead of dealing damage. GORDOCK BREEG A halfling with a distant gaze and black veins around his lips."
     ],
-    "loreTiers": {
-      "common": "As tall as two humans with a pair of curved horns, a shark's grin, and an axe of white bone.",
-      "field": "Tactical combat behavior: Shatter. Destroy one non-magic gear instead of dealing damage. GORDOCK BREEG A halfling with a distant gaze and black veins around his lips.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "As tall as two humans with a pair of curved horns, a shark's grin, and an axe of white bone.",
+      "Tactical combat behavior: Shatter. Destroy one non-magic gear instead of dealing damage. GORDOCK BREEG A halfling with a distant gaze and black veins around his lips.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "DRALECH Pelt / Chitin / Essence",
@@ -9245,12 +9271,12 @@
     "traits": [
       "Algae-Eater. Lose 1d4 HP to gain advantage on next check/attack. HEXLING A whispering, writhing shadow that coils and snaps like a whip."
     ],
-    "loreTiers": {
-      "common": "A halfling with a distant gaze and black veins around his lips.",
-      "field": "Tactical combat behavior: Algae-Eater. Lose 1d4 HP to gain advantage on next check/attack. HEXLING A whispering, writhing shadow that coils and snaps like a whip.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "A halfling with a distant gaze and black veins around his lips.",
+      "Tactical combat behavior: Algae-Eater. Lose 1d4 HP to gain advantage on next check/attack. HEXLING A whispering, writhing shadow that coils and snaps like a whip.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "GORDOCK BREEG Pelt / Chitin / Essence",
@@ -9283,12 +9309,12 @@
     "traits": [
       "Energy Drain. 1d4 CON damage. If reduced to 0, become hexling. HOWLER A lunging halfling with sharpened teeth wearing a cloak of coyote pelts."
     ],
-    "loreTiers": {
-      "common": "A whispering, writhing shadow that coils and snaps like a whip.",
-      "field": "Tactical combat behavior: Energy Drain. 1d4 CON damage. If reduced to 0, become hexling. HOWLER A lunging halfling with sharpened teeth wearing a cloak of coyote pelts.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "A whispering, writhing shadow that coils and snaps like a whip.",
+      "Tactical combat behavior: Energy Drain. 1d4 CON damage. If reduced to 0, become hexling. HOWLER A lunging halfling with sharpened teeth wearing a cloak of coyote pelts.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "HEXLING Pelt / Chitin / Essence",
@@ -9322,12 +9348,12 @@
     "traits": [
       "Mob. Deal +1 damage in melee when beside an ally. 47 ICHOR OOZE A trembling mass of filmy bile that slurps toward warmth."
     ],
-    "loreTiers": {
-      "common": "A lunging halfling with sharpened teeth wearing a cloak of coyote pelts.",
-      "field": "Tactical combat behavior: Mob. Deal +1 damage in melee when beside an ally. 47 ICHOR OOZE A trembling mass of filmy bile that slurps toward warmth.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "A lunging halfling with sharpened teeth wearing a cloak of coyote pelts.",
+      "Tactical combat behavior: Mob. Deal +1 damage in melee when beside an ally. 47 ICHOR OOZE A trembling mass of filmy bile that slurps toward warmth.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "HOWLER Pelt / Chitin / Essence",
@@ -9361,12 +9387,12 @@
       "Rubbery. Half damage from stabbing weapons.",
       "Corrosive. Metal or wood that touches the ooze is destroyed on a d6 roll of 1. MARROW FIEND A wolfish hulk of razor bone and sinewy muscle. Black marrow tree sap drips from its jaws and the gaps in its bony plating."
     ],
-    "loreTiers": {
-      "common": "A trembling mass of filmy bile that slurps toward warmth.",
-      "field": "Tactical combat behavior: Rubbery. Half damage from stabbing weapons.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "A trembling mass of filmy bile that slurps toward warmth.",
+      "Tactical combat behavior: Rubbery. Half damage from stabbing weapons.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "ICHOR OOZE Pelt / Chitin / Essence",
@@ -9401,12 +9427,12 @@
       "HP.",
       "Sap. DC 15 DEX check or stuck in place. Repeat check on turn to escape. MUGDULBLUB A roiling mass of stars floating in a whirlpool of purple goo."
     ],
-    "loreTiers": {
-      "common": "A wolfish hulk of razor bone and sinewy muscle. Black marrow tree sap drips from its jaws and the gaps in its bony plating.",
-      "field": "Tactical combat behavior: Devour. Use turn to devour a humanoid body to regain 3d8",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "A wolfish hulk of razor bone and sinewy muscle. Black marrow tree sap drips from its jaws and the gaps in its bony plating.",
+      "Tactical combat behavior: Devour. Use turn to devour a humanoid body to regain 3d8",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "MARROW FIEND Pelt / Chitin / Essence",
@@ -9441,12 +9467,12 @@
       "Mutagenic. Creatures within near 1:6 chance on their turn of a mutation. 1d4: 1. Extra eye, 2-3. Lost bone, 4. Extra finger",
       "Dissolve. One creature in far DC 15 CON or 1d4 CON damage. If reduced to 0, become ichor ooze under Mugdulblub's control. MUTANT CATFISH A slimy, enormous catfish with four limbs and webbed claws. Amphibious and dimly intelligent."
     ],
-    "loreTiers": {
-      "common": "A roiling mass of stars floating in a whirlpool of purple goo.",
-      "field": "Tactical combat behavior: Rubbery. Half damage from stabbing weapons.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "A roiling mass of stars floating in a whirlpool of purple goo.",
+      "Tactical combat behavior: Rubbery. Half damage from stabbing weapons.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "MUGDULBLUB Pelt / Chitin / Essence",
@@ -9480,12 +9506,12 @@
     "traits": [
       "Poison. DC 12 CON or paralyzed 1d4 rounds. 48 TAR BAT A pinwheeling bat that smells of sulfur. Excretes a black, tarry oil."
     ],
-    "loreTiers": {
-      "common": "A slimy, enormous catfish with four limbs and webbed claws. Amphibious and dimly intelligent.",
-      "field": "Tactical combat behavior: Poison. DC 12 CON or paralyzed 1d4 rounds. 48 TAR BAT A pinwheeling bat that smells of sulfur. Excretes a black, tarry oil.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "A slimy, enormous catfish with four limbs and webbed claws. Amphibious and dimly intelligent.",
+      "Tactical combat behavior: Poison. DC 12 CON or paralyzed 1d4 rounds. 48 TAR BAT A pinwheeling bat that smells of sulfur. Excretes a black, tarry oil.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "MUTANT CATFISH Pelt / Chitin / Essence",
@@ -9520,12 +9546,12 @@
       "PLOGRINA B.",
       "Lank-haired and moon-eyed. Purple ichor dribbles from the corners of her trembling mouth."
     ],
-    "loreTiers": {
-      "common": "A pinwheeling bat that smells of sulfur. Excretes a black, tarry oil.",
-      "field": "Tactical combat behavior: Pyro. Seeks open flames, ignites on contact with them to deal +1d4 damage. Immune to fire.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "A pinwheeling bat that smells of sulfur. Excretes a black, tarry oil.",
+      "Tactical combat behavior: Pyro. Seeks open flames, ignites on contact with them to deal +1d4 damage. Immune to fire.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "TAR BAT Pelt / Chitin / Essence",
@@ -9559,12 +9585,12 @@
       "Rubbery. Half damage from stabbing weapons.",
       "Slime Form. Turn into a puddle of slime that can climb walls for 1d4 rounds (does not use action). SKRELL A gobbling, scabby raptor with rolling eyes and hooked claws."
     ],
-    "loreTiers": {
-      "common": "Lank-haired and moon-eyed. Purple ichor dribbles from the corners of her trembling mouth.",
-      "field": "Tactical combat behavior: Rubbery. Half damage from stabbing weapons.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Lank-haired and moon-eyed. Purple ichor dribbles from the corners of her trembling mouth.",
+      "Tactical combat behavior: Rubbery. Half damage from stabbing weapons.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "PLOGRINA B Pelt / Chitin / Essence",
@@ -9597,12 +9623,12 @@
     "traits": [
       "Clever. Advantage on checks to do the same action on a consecutive turn. A pale, faceless man with elongated limbs and curved talons that rake the ground. Moves in quick stutters during each eyeblink."
     ],
-    "loreTiers": {
-      "common": "A gobbling, scabby raptor with rolling eyes and hooked claws.",
-      "field": "Tactical combat behavior: Clever. Advantage on checks to do the same action on a consecutive turn. A pale, faceless man with elongated limbs and curved talons that rake the ground. Moves in quick stutters during each eyeblink.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "A gobbling, scabby raptor with rolling eyes and hooked claws.",
+      "Tactical combat behavior: Clever. Advantage on checks to do the same action on a consecutive turn. A pale, faceless man with elongated limbs and curved talons that rake the ground. Moves in quick stutters during each eyeblink.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "SKRELL Pelt / Chitin / Essence",
@@ -9637,12 +9663,12 @@
       "Terrify. One target in near DC 15 CHA or paralyzed 1d4 rounds.",
       "Waking Nightmare. In place of attacks, all creatures within near DC 15 CHA or flee in a random direction for 1d4 rounds. THE WILLOWMAN"
     ],
-    "loreTiers": {
-      "common": "Clever. Advantage on checks to do the same action on a consecutive turn. A pale, faceless man with elongated limbs and curved talons that rake the ground. Moves in quick stutters during each eyeblink.",
-      "field": "Tactical combat behavior: Fearless. Immune to morale checks.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Clever. Advantage on checks to do the same action on a consecutive turn. A pale, faceless man with elongated limbs and curved talons that rake the ground. Moves in quick stutters during each eyeblink.",
+      "Tactical combat behavior: Fearless. Immune to morale checks.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "Weeping Father Pelt / Chitin / Essence",
@@ -9676,12 +9702,12 @@
       "Impervious. Only damaged by magical sources.",
       "Fling. In place of attacks, all within close DC 15 DEX or flung 1d100 feet in random direction. DUNEFIEND Demons that appear as claylike elves with jagged mouths and no other facial features."
     ],
-    "loreTiers": {
-      "common": "Whirling elementals of sand.",
-      "field": "Tactical combat behavior: Impervious. Only damaged by magical sources.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Whirling elementals of sand.",
+      "Tactical combat behavior: Impervious. Only damaged by magical sources.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "DUST DEVIL Pelt / Chitin / Essence",
@@ -9716,12 +9742,12 @@
       "Howl. Resting creatures who hear in far DC 12 CHA or no benefit from rest (immune 1 day if pass). CANYON APE Clawed apes with sandy, matted hair and reflective eyes.",
       "Carnivorous ambush hunters."
     ],
-    "loreTiers": {
-      "common": "Demons that appear as claylike elves with jagged mouths and no other facial features.",
-      "field": "Tactical combat behavior: Howl. Resting creatures who hear in far DC 12 CHA or no benefit from rest (immune 1 day if pass). CANYON APE Clawed apes with sandy, matted hair and reflective eyes.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Demons that appear as claylike elves with jagged mouths and no other facial features.",
+      "Tactical combat behavior: Howl. Resting creatures who hear in far DC 12 CHA or no benefit from rest (immune 1 day if pass). CANYON APE Clawed apes with sandy, matted hair and reflective eyes.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "DUNEFIEND Pelt / Chitin / Essence",
@@ -9755,12 +9781,12 @@
       "Ambush. Deals double damage against surprised foes.",
       "Stalk. ADV on DEX checks while in mountains and canyons. DONKEY Stocky, long-eared cousins of horses that are capable haulers."
     ],
-    "loreTiers": {
-      "common": "Clawed apes with sandy, matted hair and reflective eyes. Carnivorous ambush hunters.",
-      "field": "Tactical combat behavior: Ambush. Deals double damage against surprised foes.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Clawed apes with sandy, matted hair and reflective eyes. Carnivorous ambush hunters.",
+      "Tactical combat behavior: Ambush. Deals double damage against surprised foes.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "CANYON APE Pelt / Chitin / Essence",
@@ -9793,12 +9819,12 @@
     "traits": [
       "CAMEL, SILVER Rare camels with soft, silvery hair and affable dispositions."
     ],
-    "loreTiers": {
-      "common": "Stocky, long-eared cousins of horses that are capable haulers.",
-      "field": "Tactical combat behavior: CAMEL, SILVER Rare camels with soft, silvery hair and affable dispositions.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Stocky, long-eared cousins of horses that are capable haulers.",
+      "Tactical combat behavior: CAMEL, SILVER Rare camels with soft, silvery hair and affable dispositions.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "DONKEY Pelt / Chitin / Essence",
@@ -9832,12 +9858,12 @@
     "traits": [
       "41 HORSE, WAR Muscular destriers trained to carry warriors into combat."
     ],
-    "loreTiers": {
-      "common": "Rare camels with soft, silvery hair and affable dispositions.",
-      "field": "Tactical combat behavior: 41 HORSE, WAR Muscular destriers trained to carry warriors into combat.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Rare camels with soft, silvery hair and affable dispositions.",
+      "Tactical combat behavior: 41 HORSE, WAR Muscular destriers trained to carry warriors into combat.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "CAMEL SILVER Pelt / Chitin / Essence",
@@ -9870,12 +9896,12 @@
     "traits": [
       "RAS-GODAI Black-garbed assassins in demon masks. They move swiftly in bursts of smoke."
     ],
-    "loreTiers": {
-      "common": "Muscular destriers trained to carry warriors into combat.",
-      "field": "Tactical combat behavior: RAS-GODAI Black-garbed assassins in demon masks. They move swiftly in bursts of smoke.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Muscular destriers trained to carry warriors into combat.",
+      "Tactical combat behavior: RAS-GODAI Black-garbed assassins in demon masks. They move swiftly in bursts of smoke.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "HORSE WAR Pelt / Chitin / Essence",
@@ -9909,12 +9935,12 @@
       "Assassinate. Deals double damage against unaware foes. ROOKIE",
       "Inexperienced pit fighters."
     ],
-    "loreTiers": {
-      "common": "Black-garbed assassins in demon masks. They move swiftly in bursts of smoke.",
-      "field": "Tactical combat behavior: Assassinate. Deals double damage against unaware foes. ROOKIE",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Black-garbed assassins in demon masks. They move swiftly in bursts of smoke.",
+      "Tactical combat behavior: Assassinate. Deals double damage against unaware foes. ROOKIE",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "RAS-GODAI Pelt / Chitin / Essence",
@@ -9948,12 +9974,12 @@
     "traits": [
       "MIRAGE Sinister illusions made manifest by fever dreams and futile hope."
     ],
-    "loreTiers": {
-      "common": "Inexperienced pit fighters.",
-      "field": "Tactical combat behavior: MIRAGE Sinister illusions made manifest by fever dreams and futile hope.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Inexperienced pit fighters.",
+      "Tactical combat behavior: MIRAGE Sinister illusions made manifest by fever dreams and futile hope.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "ROOKIE Pelt / Chitin / Essence",
@@ -9987,12 +10013,12 @@
       "Delude. Has the illusory look and feel of what its viewers expect or want it to be (creature or small location). DC 18 INT to notice it's an illusion.",
       "Leech. One target in near, DC 18 CHA or 3d6 damage. Mirage creates plausible illusion to explain the injury. HERO High-ranked gladiators who have attained widespread fame."
     ],
-    "loreTiers": {
-      "common": "Sinister illusions made manifest by fever dreams and futile hope.",
-      "field": "Tactical combat behavior: Delude. Has the illusory look and feel of what its viewers expect or want it to be (creature or small location). DC 18 INT to notice it's an illusion.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Sinister illusions made manifest by fever dreams and futile hope.",
+      "Tactical combat behavior: Delude. Has the illusory look and feel of what its viewers expect or want it to be (creature or small location). DC 18 INT to notice it's an illusion.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "MIRAGE Pelt / Chitin / Essence",
@@ -10026,12 +10052,12 @@
     "traits": [
       "43 SCRAG, WAR Oversized scrag lizards trained to be unflinching in combat."
     ],
-    "loreTiers": {
-      "common": "High-ranked gladiators who have attained widespread fame.",
-      "field": "Tactical combat behavior: 43 SCRAG, WAR Oversized scrag lizards trained to be unflinching in combat.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "High-ranked gladiators who have attained widespread fame.",
+      "Tactical combat behavior: 43 SCRAG, WAR Oversized scrag lizards trained to be unflinching in combat.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "HERO Pelt / Chitin / Essence",
@@ -10064,12 +10090,12 @@
     "traits": [
       "SIRUUL Nomadic elves who glide as easily through the scorching desert as the winds."
     ],
-    "loreTiers": {
-      "common": "Oversized scrag lizards trained to be unflinching in combat.",
-      "field": "Tactical combat behavior: SIRUUL Nomadic elves who glide as easily through the scorching desert as the winds.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Oversized scrag lizards trained to be unflinching in combat.",
+      "Tactical combat behavior: SIRUUL Nomadic elves who glide as easily through the scorching desert as the winds.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "SCRAG WAR Pelt / Chitin / Essence",
@@ -10104,12 +10130,12 @@
       "Desert Born. ADV on DEX checks while in the wild desert.",
       "Mount. Loyal silver camel that refuses any other rider. SCRAG Tan monitor lizards as large as cows. They scamper low to the ground on wall-clinging feet."
     ],
-    "loreTiers": {
-      "common": "Nomadic elves who glide as easily through the scorching desert as the winds.",
-      "field": "Tactical combat behavior: Desert Born. ADV on DEX checks while in the wild desert.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Nomadic elves who glide as easily through the scorching desert as the winds.",
+      "Tactical combat behavior: Desert Born. ADV on DEX checks while in the wild desert.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "SIRUUL Pelt / Chitin / Essence",
@@ -10142,12 +10168,12 @@
     "traits": [
       "The Scourge writhes and screams in constant pain. Its brass and lapis scales are choked with a sickly, green patina. Blue lightning snaps and coils in the air around it, and thunderclouds follow wherever it flies, but no rain falls from the tormented skies."
     ],
-    "loreTiers": {
-      "common": "Tan monitor lizards as large as cows. They scamper low to the ground on wall-clinging feet.",
-      "field": "Tactical combat behavior: The Scourge writhes and screams in constant pain. Its brass and lapis scales are choked with a sickly, green patina. Blue lightning snaps and coils in the air around it, and thunderclouds follow wherever it flies, but no rain falls from the tormented skies.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Tan monitor lizards as large as cows. They scamper low to the ground on wall-clinging feet.",
+      "Tactical combat behavior: The Scourge writhes and screams in constant pain. Its brass and lapis scales are choked with a sickly, green patina. Blue lightning snaps and coils in the air around it, and thunderclouds follow wherever it flies, but no rain falls from the tormented skies.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "SCRAG Pelt / Chitin / Essence",
@@ -10184,12 +10210,12 @@
       "Lightning Breath. A straight line (5' wide) extending double near from dragon. DC 15 DEX or 5d8 damage (DISADV on check if wearing metal armor).",
       "Mirage. 1/day, in place of attacks. Create 3 illusory duplicates that disappear when hit. Determine randomly what an attack hits. THE SCOURGE"
     ],
-    "loreTiers": {
-      "common": "The Scourge writhes and screams in constant pain. Its brass and lapis scales are choked with a sickly, green patina. Blue lightning snaps and coils in the air around it, and thunderclouds follow wherever it flies, but no rain falls from the tormented skies.",
-      "field": "Tactical combat behavior: Stormblood. Electricity immune.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "The Scourge writhes and screams in constant pain. Its brass and lapis scales are choked with a sickly, green patina. Blue lightning snaps and coils in the air around it, and thunderclouds follow wherever it flies, but no rain falls from the tormented skies.",
+      "Tactical combat behavior: Stormblood. Electricity immune.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "The Scourge Pelt / Chitin / Essence",
@@ -10224,12 +10250,12 @@
       "Fireblood. Fire immune.",
       "Fire Gout. Fills a near-sized cube extending from drake. DC 12 DEX or 4d6 damage. DRAKE, LESSER Juvenile drakes whose dull, purple scales have not yet condensed into bright armor. They can't breathe full gouts of fire, but can spit bolts of flame."
     ],
-    "loreTiers": {
-      "common": "Mountainous, fire-breathing dragon-kin who are as fierce and wild as birds of prey. Tiny, round scales cover their scintillating, purple hide.",
-      "field": "Tactical combat behavior: Fireblood. Fire immune.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Mountainous, fire-breathing dragon-kin who are as fierce and wild as birds of prey. Tiny, round scales cover their scintillating, purple hide.",
+      "Tactical combat behavior: Fireblood. Fire immune.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "DRAKE GREATER Pelt / Chitin / Essence",
@@ -10264,12 +10290,12 @@
       "Fireblood. Fire immune.",
       "Fire Spit. One target in double near DC 12 DEX or 3d6 damage. 45 DRAUGR Ragged, undead warriors dripping with blue-black grave rot. A chill follows them, and they can swim through stone."
     ],
-    "loreTiers": {
-      "common": "Juvenile drakes whose dull, purple scales have not yet condensed into bright armor. They can't breathe full gouts of fire, but can spit bolts of flame.",
-      "field": "Tactical combat behavior: Fireblood. Fire immune.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Juvenile drakes whose dull, purple scales have not yet condensed into bright armor. They can't breathe full gouts of fire, but can spit bolts of flame.",
+      "Tactical combat behavior: Fireblood. Fire immune.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "DRAKE LESSER Pelt / Chitin / Essence",
@@ -10304,12 +10330,12 @@
       "Death Chill. Checks to stabilize dying creatures within near of the draugr are DC 18.",
       "Stone Swim. Draugr can pass through stone as if it were water. DVERG Stocky gnomes who dwell in mountain halls shaped by their peerless craftsmanship. They have rosy cheeks, sparkling eyes, and prodigious beards."
     ],
-    "loreTiers": {
-      "common": "Ragged, undead warriors dripping with blue-black grave rot. A chill follows them, and they can swim through stone.",
-      "field": "Tactical combat behavior: Greater Undead. Immune to morale checks. Only damaged by silver or magical sources.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Ragged, undead warriors dripping with blue-black grave rot. A chill follows them, and they can swim through stone.",
+      "Tactical combat behavior: Greater Undead. Immune to morale checks. Only damaged by silver or magical sources.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "DRAUGR Pelt / Chitin / Essence",
@@ -10342,12 +10368,12 @@
     "traits": [
       "Shapeshift. In place of attacks, turn into a small animal, or back into original form. NORD A powerful warrior used to the hardships of the stark north."
     ],
-    "loreTiers": {
-      "common": "Stocky gnomes who dwell in mountain halls shaped by their peerless craftsmanship. They have rosy cheeks, sparkling eyes, and prodigious beards.",
-      "field": "Tactical combat behavior: Shapeshift. In place of attacks, turn into a small animal, or back into original form. NORD A powerful warrior used to the hardships of the stark north.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Stocky gnomes who dwell in mountain halls shaped by their peerless craftsmanship. They have rosy cheeks, sparkling eyes, and prodigious beards.",
+      "Tactical combat behavior: Shapeshift. In place of attacks, turn into a small animal, or back into original form. NORD A powerful warrior used to the hardships of the stark north.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "DVERG Pelt / Chitin / Essence",
@@ -10381,12 +10407,12 @@
     "traits": [
       "Shield Wall. AC becomes 20 for 1 round. 46 TROLL, DEEP Wretched, subterranean trolls with inky hide and fiery eyes."
     ],
-    "loreTiers": {
-      "common": "A powerful warrior used to the hardships of the stark north.",
-      "field": "Tactical combat behavior: Shield Wall. AC becomes 20 for 1 round. 46 TROLL, DEEP Wretched, subterranean trolls with inky hide and fiery eyes.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "A powerful warrior used to the hardships of the stark north.",
+      "Tactical combat behavior: Shield Wall. AC becomes 20 for 1 round. 46 TROLL, DEEP Wretched, subterranean trolls with inky hide and fiery eyes.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "NORD Pelt / Chitin / Essence",
@@ -10419,12 +10445,12 @@
     "traits": [
       "Regenerate. Regains 2d6 HP on its turn unless injured by a cold iron weapon the prior round. SEA SERPENT Massive sea snakes with gauzy fins, scales, and serrated fangs."
     ],
-    "loreTiers": {
-      "common": "Wretched, subterranean trolls with inky hide and fiery eyes.",
-      "field": "Tactical combat behavior: Regenerate. Regains 2d6 HP on its turn unless injured by a cold iron weapon the prior round. SEA SERPENT Massive sea snakes with gauzy fins, scales, and serrated fangs.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Wretched, subterranean trolls with inky hide and fiery eyes.",
+      "Tactical combat behavior: Regenerate. Regains 2d6 HP on its turn unless injured by a cold iron weapon the prior round. SEA SERPENT Massive sea snakes with gauzy fins, scales, and serrated fangs.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "TROLL DEEP Pelt / Chitin / Essence",
@@ -10457,12 +10483,12 @@
     "traits": [
       "SEA NYMPH Blue-skinned elves with sleek fins on their arms and faces. They gather in desolate ocean bays to sing haunting melodies."
     ],
-    "loreTiers": {
-      "common": "Massive sea snakes with gauzy fins, scales, and serrated fangs.",
-      "field": "Tactical combat behavior: SEA NYMPH Blue-skinned elves with sleek fins on their arms and faces. They gather in desolate ocean bays to sing haunting melodies.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Massive sea snakes with gauzy fins, scales, and serrated fangs.",
+      "Tactical combat behavior: SEA NYMPH Blue-skinned elves with sleek fins on their arms and faces. They gather in desolate ocean bays to sing haunting melodies.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "SEA SERPENT Pelt / Chitin / Essence",
@@ -10497,12 +10523,12 @@
       "Sing. All creatures who hear in double near, DC 12 CHA or transfixed in place 1d4 rounds. ORCA Carnivorous whales with sleek, black hide and white bellies.",
       "They attack in small pods."
     ],
-    "loreTiers": {
-      "common": "Blue-skinned elves with sleek fins on their arms and faces. They gather in desolate ocean bays to sing haunting melodies.",
-      "field": "Tactical combat behavior: Sing. All creatures who hear in double near, DC 12 CHA or transfixed in place 1d4 rounds. ORCA Carnivorous whales with sleek, black hide and white bellies.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Blue-skinned elves with sleek fins on their arms and faces. They gather in desolate ocean bays to sing haunting melodies.",
+      "Tactical combat behavior: Sing. All creatures who hear in double near, DC 12 CHA or transfixed in place 1d4 rounds. ORCA Carnivorous whales with sleek, black hide and white bellies.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "SEA NYMPH Pelt / Chitin / Essence",
@@ -10535,12 +10561,12 @@
     "traits": [
       "Pod Hunter. Deals +2 damage when an ally is within near. ORACLE A far-eyed nord blessed with the gift of clairvoyant magic."
     ],
-    "loreTiers": {
-      "common": "Carnivorous whales with sleek, black hide and white bellies. They attack in small pods.",
-      "field": "Tactical combat behavior: Pod Hunter. Deals +2 damage when an ally is within near. ORACLE A far-eyed nord blessed with the gift of clairvoyant magic.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Carnivorous whales with sleek, black hide and white bellies. They attack in small pods.",
+      "Tactical combat behavior: Pod Hunter. Deals +2 damage when an ally is within near. ORACLE A far-eyed nord blessed with the gift of clairvoyant magic.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "ORCA Pelt / Chitin / Essence",
@@ -10575,12 +10601,12 @@
       "Berserk (WIS Spell). DC 13.",
       "Focus. All allies within near of oracle deal +1d4 damage on each attack. Fate (WIS Spell). DC 12. One target in near gains or loses a luck token. Mjolnir (WIS Spell). DC 13. Deal 2d6 damage to one target in near. Strike Blind (WIS Spell). DC 11. One target in near stricken blind for 1d4 rounds. 47 WEREBEAR A mighty, long-haired humanoid that walks with a rolling gait."
     ],
-    "loreTiers": {
-      "common": "A far-eyed nord blessed with the gift of clairvoyant magic.",
-      "field": "Tactical combat behavior: Berserk (WIS Spell). DC 13.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "A far-eyed nord blessed with the gift of clairvoyant magic.",
+      "Tactical combat behavior: Berserk (WIS Spell). DC 13.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "ORACLE Pelt / Chitin / Essence",
@@ -10615,12 +10641,12 @@
       "Crush. Deals an extra die of damage if it hits the same target with both claws.",
       "Lycanthropy. If 15 or more damage from the same werebear, contract lycanthropy. VALKYRIE Angelic warrior-women who Freya sends to carry the souls of worthy warriors who fall in battle to the halls of Valhalla."
     ],
-    "loreTiers": {
-      "common": "A mighty, long-haired humanoid that walks with a rolling gait.",
-      "field": "Tactical combat behavior: Impervious. Only damaged by silver or magic sources.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "A mighty, long-haired humanoid that walks with a rolling gait.",
+      "Tactical combat behavior: Impervious. Only damaged by silver or magic sources.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "WEREBEAR Pelt / Chitin / Essence",
@@ -10654,12 +10680,12 @@
       "Impervious. Can only be injured by magical sources.",
       "Divine Courage. Immune to morale checks. Hostile spells targeting valkyrie are DC 18 to cast."
     ],
-    "loreTiers": {
-      "common": "Angelic warrior-women who Freya sends to carry the souls of worthy warriors who fall in battle to the halls of Valhalla.",
-      "field": "Tactical combat behavior: Impervious. Can only be injured by magical sources.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Angelic warrior-women who Freya sends to carry the souls of worthy warriors who fall in battle to the halls of Valhalla.",
+      "Tactical combat behavior: Impervious. Can only be injured by magical sources.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "VALKYRIE Pelt / Chitin / Essence",
@@ -10692,12 +10718,12 @@
     "traits": [
       "Swallow. DC 12 STR or target is swallowed. Total darkness inside and 1d8 damage per round. Anaconda regurgitates all swallowed if dealt at least 15 damage in one round to the inside of its gullet. ANT, GIANT Red, ox-sized ants with hooked mandibles. They attack in swarms and carry live prey off to their colonies to be devoured."
     ],
-    "loreTiers": {
-      "common": "A 20-foot long, amphibious snake with red stripes and piercing, yellow eyes.",
-      "field": "Tactical combat behavior: Swallow. DC 12 STR or target is swallowed. Total darkness inside and 1d8 damage per round. Anaconda regurgitates all swallowed if dealt at least 15 damage in one round to the inside of its gullet. ANT, GIANT Red, ox-sized ants with hooked mandibles. They attack in swarms and carry live prey off to their colonies to be devoured.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "A 20-foot long, amphibious snake with red stripes and piercing, yellow eyes.",
+      "Tactical combat behavior: Swallow. DC 12 STR or target is swallowed. Total darkness inside and 1d8 damage per round. Anaconda regurgitates all swallowed if dealt at least 15 damage in one round to the inside of its gullet. ANT, GIANT Red, ox-sized ants with hooked mandibles. They attack in swarms and carry live prey off to their colonies to be devoured.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "ANACONDA GIANT Pelt / Chitin / Essence",
@@ -10731,12 +10757,12 @@
       "Grab. DC 12 STR or pinned in ant's mandibles. DC 12 STR on turn to break free. The ant can carry grabbed targets when it moves.",
       "Mighty. ADV on STR checks to move objects. BASILISK CULTISTS STONE WARRIOR Lithe, basilisk-worshipping warriors covered in dried mud dotted with stones and pebbles."
     ],
-    "loreTiers": {
-      "common": "Red, ox-sized ants with hooked mandibles. They attack in swarms and carry live prey off to their colonies to be devoured.",
-      "field": "Tactical combat behavior: Grab. DC 12 STR or pinned in ant's mandibles. DC 12 STR on turn to break free. The ant can carry grabbed targets when it moves.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Red, ox-sized ants with hooked mandibles. They attack in swarms and carry live prey off to their colonies to be devoured.",
+      "Tactical combat behavior: Grab. DC 12 STR or pinned in ant's mandibles. DC 12 STR on turn to break free. The ant can carry grabbed targets when it moves.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "ANT GIANT Pelt / Chitin / Essence",
@@ -10770,12 +10796,12 @@
       "Camouflage. ADV on checks to sneak and hide in a natural environment.",
       "Basilisk Hatchling. 1:6 chance of having a loyal basilisk hatchling. STONE SHAMAN Stooped elders who lead stone warriors in the rituals and traditions of the basilisk cult."
     ],
-    "loreTiers": {
-      "common": "Lithe, basilisk-worshipping warriors covered in dried mud dotted with stones and pebbles.",
-      "field": "Tactical combat behavior: Camouflage. ADV on checks to sneak and hide in a natural environment.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Lithe, basilisk-worshipping warriors covered in dried mud dotted with stones and pebbles.",
+      "Tactical combat behavior: Camouflage. ADV on checks to sneak and hide in a natural environment.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "STONE WARRIOR Pelt / Chitin / Essence",
@@ -10809,12 +10835,12 @@
       "Daze (WIS Spell). DC 12. Focus. One target in near is helplessly stunned for spell's duration. Death Touch (WIS Spell). DC 13.",
       "Close. One target 2d8 damage. 61 BLUE DART FROG Elusive, neon-blue treefrogs that carry a potent toxin."
     ],
-    "loreTiers": {
-      "common": "Stooped elders who lead stone warriors in the rituals and traditions of the basilisk cult.",
-      "field": "Tactical combat behavior: Daze (WIS Spell). DC 12. Focus. One target in near is helplessly stunned for spell's duration. Death Touch (WIS Spell). DC 13.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Stooped elders who lead stone warriors in the rituals and traditions of the basilisk cult.",
+      "Tactical combat behavior: Daze (WIS Spell). DC 12. Focus. One target in near is helplessly stunned for spell's duration. Death Touch (WIS Spell). DC 13.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "STONE SHAMAN Pelt / Chitin / Essence",
@@ -10847,12 +10873,12 @@
     "traits": [
       "Toxin. DC 15 CON or go to 0 HP with a death timer of 1. During this time, you cannot be magically healed. If you survive, end all diseases afflicting you. BASILISK HATCHLING Fledgling, six-legged basilisks the size of iguanas. They can partially petrify creatures for a short time."
     ],
-    "loreTiers": {
-      "common": "Elusive, neon-blue treefrogs that carry a potent toxin.",
-      "field": "Tactical combat behavior: Toxin. DC 15 CON or go to 0 HP with a death timer of 1. During this time, you cannot be magically healed. If you survive, end all diseases afflicting you. BASILISK HATCHLING Fledgling, six-legged basilisks the size of iguanas. They can partially petrify creatures for a short time.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Elusive, neon-blue treefrogs that carry a potent toxin.",
+      "Tactical combat behavior: Toxin. DC 15 CON or go to 0 HP with a death timer of 1. During this time, you cannot be magically healed. If you survive, end all diseases afflicting you. BASILISK HATCHLING Fledgling, six-legged basilisks the size of iguanas. They can partially petrify creatures for a short time.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "BLUE DART FROG Pelt / Chitin / Essence",
@@ -10885,12 +10911,12 @@
     "traits": [
       "Petrify. Any creature that touches the basilisk or meets its gaze, DC 9 CON or one of its limbs (determine randomly) is petrified for a day. CATFISH, GIANT A whiskered, gaping catfish as big as a whale. Streaks of minerals collect in its skin, giving it tiger stripes that flash silver and copper in the sun."
     ],
-    "loreTiers": {
-      "common": "Fledgling, six-legged basilisks the size of iguanas. They can partially petrify creatures for a short time.",
-      "field": "Tactical combat behavior: Petrify. Any creature that touches the basilisk or meets its gaze, DC 9 CON or one of its limbs (determine randomly) is petrified for a day. CATFISH, GIANT A whiskered, gaping catfish as big as a whale. Streaks of minerals collect in its skin, giving it tiger stripes that flash silver and copper in the sun.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Fledgling, six-legged basilisks the size of iguanas. They can partially petrify creatures for a short time.",
+      "Tactical combat behavior: Petrify. Any creature that touches the basilisk or meets its gaze, DC 9 CON or one of its limbs (determine randomly) is petrified for a day. CATFISH, GIANT A whiskered, gaping catfish as big as a whale. Streaks of minerals collect in its skin, giving it tiger stripes that flash silver and copper in the sun.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "BASILISK HATCHLING Pelt / Chitin / Essence",
@@ -10923,12 +10949,12 @@
     "traits": [
       "Swallow. On a natural attack roll of 18-20, target is swallowed into giant catfish's stomach. Total darkness inside stomach and 2d8 damage per round. Giant catfish regurgitates all swallowed creatures if dealt at least 15 damage in one round to the inside of its gullet. COBRA STATUE A rearing statue of a hooded cobra that looms 20 feet high. Its ruby eyes are pointed down, watching what passes below."
     ],
-    "loreTiers": {
-      "common": "A whiskered, gaping catfish as big as a whale. Streaks of minerals collect in its skin, giving it tiger stripes that flash silver and copper in the sun.",
-      "field": "Tactical combat behavior: Swallow. On a natural attack roll of 18-20, target is swallowed into giant catfish's stomach. Total darkness inside stomach and 2d8 damage per round. Giant catfish regurgitates all swallowed creatures if dealt at least 15 damage in one round to the inside of its gullet. COBRA STATUE A rearing statue of a hooded cobra that looms 20 feet high. Its ruby eyes are pointed down, watching what passes below.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "A whiskered, gaping catfish as big as a whale. Streaks of minerals collect in its skin, giving it tiger stripes that flash silver and copper in the sun.",
+      "Tactical combat behavior: Swallow. On a natural attack roll of 18-20, target is swallowed into giant catfish's stomach. Total darkness inside stomach and 2d8 damage per round. Giant catfish regurgitates all swallowed creatures if dealt at least 15 damage in one round to the inside of its gullet. COBRA STATUE A rearing statue of a hooded cobra that looms 20 feet high. Its ruby eyes are pointed down, watching what passes below.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "CATFISH GIANT Pelt / Chitin / Essence",
@@ -10964,12 +10990,12 @@
       "Hypnotize. One creature in near who can see cobra statue, DC 12 CHA or become helplessly stupefied for 1 round.",
       "Poison. DC 18 CON or go to 0 HP with a death timer of 1. 62 JAGUAR KING A regal man with a black jaguar head and vivid yellow eyes. He wears gold and gem-studded regalia and bears a round shield with a snarling jaguar face."
     ],
-    "loreTiers": {
-      "common": "A rearing statue of a hooded cobra that looms 20 feet high. Its ruby eyes are pointed down, watching what passes below.",
-      "field": "Tactical combat behavior: Impervious. Only damaged by magical sources.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "A rearing statue of a hooded cobra that looms 20 feet high. Its ruby eyes are pointed down, watching what passes below.",
+      "Tactical combat behavior: Impervious. Only damaged by magical sources.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "COBRA STATUE Pelt / Chitin / Essence",
@@ -11002,12 +11028,12 @@
     "traits": [
       "Pounce. Jump up to a near distance. If landing within close range of an enemy, make one melee attack with ADV. DEATH SLUG A palm-sized, pale slug with a spinning mouth lined in hundreds of needle-like teeth."
     ],
-    "loreTiers": {
-      "common": "A regal man with a black jaguar head and vivid yellow eyes. He wears gold and gem-studded regalia and bears a round shield with a snarling jaguar face.",
-      "field": "Tactical combat behavior: Pounce. Jump up to a near distance. If landing within close range of an enemy, make one melee attack with ADV. DEATH SLUG A palm-sized, pale slug with a spinning mouth lined in hundreds of needle-like teeth.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "A regal man with a black jaguar head and vivid yellow eyes. He wears gold and gem-studded regalia and bears a round shield with a snarling jaguar face.",
+      "Tactical combat behavior: Pounce. Jump up to a near distance. If landing within close range of an enemy, make one melee attack with ADV. DEATH SLUG A palm-sized, pale slug with a spinning mouth lined in hundreds of needle-like teeth.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "JAGUAR KING Pelt / Chitin / Essence",
@@ -11040,12 +11066,12 @@
     "traits": [
       "Burrow. Death slug plunges under target's skin. Its AC becomes 18 and it begins tunneling toward target's heart. A living humanoid creature dies of this in 1d4 rounds unless the death slug is killed first. CONDOR, DIRE Wagon-sized, bald-faced vultures with barbed hooks of bone growing from their flesh."
     ],
-    "loreTiers": {
-      "common": "A palm-sized, pale slug with a spinning mouth lined in hundreds of needle-like teeth.",
-      "field": "Tactical combat behavior: Burrow. Death slug plunges under target's skin. Its AC becomes 18 and it begins tunneling toward target's heart. A living humanoid creature dies of this in 1d4 rounds unless the death slug is killed first. CONDOR, DIRE Wagon-sized, bald-faced vultures with barbed hooks of bone growing from their flesh.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "A palm-sized, pale slug with a spinning mouth lined in hundreds of needle-like teeth.",
+      "Tactical combat behavior: Burrow. Death slug plunges under target's skin. Its AC becomes 18 and it begins tunneling toward target's heart. A living humanoid creature dies of this in 1d4 rounds unless the death slug is killed first. CONDOR, DIRE Wagon-sized, bald-faced vultures with barbed hooks of bone growing from their flesh.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "DEATH SLUG Pelt / Chitin / Essence",
@@ -11078,12 +11104,12 @@
     "traits": [
       "Grab. Steal 1 random piece of target's carried gear. JAVELINA A sharp-hooved pig with russet fur dusted in white spots."
     ],
-    "loreTiers": {
-      "common": "Wagon-sized, bald-faced vultures with barbed hooks of bone growing from their flesh.",
-      "field": "Tactical combat behavior: Grab. Steal 1 random piece of target's carried gear. JAVELINA A sharp-hooved pig with russet fur dusted in white spots.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Wagon-sized, bald-faced vultures with barbed hooks of bone growing from their flesh.",
+      "Tactical combat behavior: Grab. Steal 1 random piece of target's carried gear. JAVELINA A sharp-hooved pig with russet fur dusted in white spots.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "CONDOR DIRE Pelt / Chitin / Essence",
@@ -11116,12 +11142,12 @@
     "traits": [
       "Rage. If injured, tusk attacks deal d8 damage instead of d6. 63 JAVELINA, DISEASED A sharp-hooved pig with russet fur dusted in white spots. Crusted lines of black ichor runs from its eyes and mouth."
     ],
-    "loreTiers": {
-      "common": "A sharp-hooved pig with russet fur dusted in white spots.",
-      "field": "Tactical combat behavior: Rage. If injured, tusk attacks deal d8 damage instead of d6. 63 JAVELINA, DISEASED A sharp-hooved pig with russet fur dusted in white spots. Crusted lines of black ichor runs from its eyes and mouth.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "A sharp-hooved pig with russet fur dusted in white spots.",
+      "Tactical combat behavior: Rage. If injured, tusk attacks deal d8 damage instead of d6. 63 JAVELINA, DISEASED A sharp-hooved pig with russet fur dusted in white spots. Crusted lines of black ichor runs from its eyes and mouth.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "JAVELINA Pelt / Chitin / Essence",
@@ -11155,12 +11181,12 @@
       "Undead. Immune to morale checks.",
       "Rage. If injured, tusk attacks deal d8 damage instead of d6. KAWITZEK A horned snapping turtle as large as an elephant covered in muck, vines, and debris."
     ],
-    "loreTiers": {
-      "common": "A sharp-hooved pig with russet fur dusted in white spots. Crusted lines of black ichor runs from its eyes and mouth.",
-      "field": "Tactical combat behavior: Undead. Immune to morale checks.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "A sharp-hooved pig with russet fur dusted in white spots. Crusted lines of black ichor runs from its eyes and mouth.",
+      "Tactical combat behavior: Undead. Immune to morale checks.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "JAVELINA DISEASED Pelt / Chitin / Essence",
@@ -11195,12 +11221,12 @@
       "Whirlpool (WIS spell). DC 12.",
       "Focus. Cause a near-sized cube of water within a near distance to change shape, defy gravity, or flow in a different direction. SKANDRILL Crocodile-lizards as tall as humans and covered in bright orange feathers. They run on two powerful legs, greedily chasing down shining objects."
     ],
-    "loreTiers": {
-      "common": "A horned snapping turtle as large as an elephant covered in muck, vines, and debris.",
-      "field": "Tactical combat behavior: Whirlpool (WIS spell). DC 12.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "A horned snapping turtle as large as an elephant covered in muck, vines, and debris.",
+      "Tactical combat behavior: Whirlpool (WIS spell). DC 12.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "KAWITZEK Pelt / Chitin / Essence",
@@ -11234,12 +11260,12 @@
       "Fireblood. Fire immune.",
       "Greedy. In place of dealing damage, steal one metallic object target carries. SKANDRILL, REX This massive skandrill has an extra long wattle and a row of blue feathers down its spine."
     ],
-    "loreTiers": {
-      "common": "Crocodile-lizards as tall as humans and covered in bright orange feathers. They run on two powerful legs, greedily chasing down shining objects.",
-      "field": "Tactical combat behavior: Fireblood. Fire immune.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Crocodile-lizards as tall as humans and covered in bright orange feathers. They run on two powerful legs, greedily chasing down shining objects.",
+      "Tactical combat behavior: Fireblood. Fire immune.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "SKANDRILL Pelt / Chitin / Essence",
@@ -11275,12 +11301,12 @@
       "Greedy. In place of dealing damage, steal one metallic object target carries.",
       "Scream. 1/day, hideous caw- scream summons 1d4 loyal skandrill. They arrive in 2 rounds. 64 VOID BAT Dog-sized, eyeless bats with glossy black wings and rows of earholes. They travel through space while absorbing faint light for nourishment, though too much of it burns them."
     ],
-    "loreTiers": {
-      "common": "This massive skandrill has an extra long wattle and a row of blue feathers down its spine.",
-      "field": "Tactical combat behavior: Fireblood. Fire immune.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "This massive skandrill has an extra long wattle and a row of blue feathers down its spine.",
+      "Tactical combat behavior: Fireblood. Fire immune.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "SKANDRILL REX Pelt / Chitin / Essence",
@@ -11315,12 +11341,12 @@
       "Absorb Ambient Light. Faint light (such as from torches) within double near of the void bat dims to a faint ember, only providing light within close. The void bat regains 1d4 HP on its turn while this is in effect.",
       "Sunlight Sensitivity. DISADV on attacks in sunlight and 1d4 damage per round of exposure. VOID BEING Vaguely humanoid, 10-foot tall horrors made of purple-black oil slick. Their bodies can protrude writhing arms, and they share a cold and calculating hive mind where their actions and decisions are unified."
     ],
-    "loreTiers": {
-      "common": "Dog-sized, eyeless bats with glossy black wings and rows of earholes. They travel through space while absorbing faint light for nourishment, though too much of it burns them.",
-      "field": "Tactical combat behavior: Impervious. Immune to cold.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Dog-sized, eyeless bats with glossy black wings and rows of earholes. They travel through space while absorbing faint light for nourishment, though too much of it burns them.",
+      "Tactical combat behavior: Impervious. Immune to cold.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "VOID BAT Pelt / Chitin / Essence",
@@ -11361,12 +11387,12 @@
       "Visit thearcanelibrary.com for the latest in Shadowdark RPG adventures and articles. There, you can grab print or PDF issues of Cursed Scroll, the official Shadowdark zine bursting with themed character options, monsters, locations, and critically-acclaimed adventures. Follow The Arcane Library on youtube.com/thearcanelibrary for video guides, tips, tricks, and adventure walkthroughs! Finally, spectacular creators such as Taylor Seely-Wright, Laurin-David Weggen, James Mishler, Jake Savala, and Sersa Victory have published an amazing array of adventures, settings, character options and more under the Shadowdark",
       "RPG Third-Party License. Check out their excellent work on drivethrurpg.com and itch.io!"
     ],
-    "loreTiers": {
-      "common": "Vaguely humanoid, 10-foot tall horrors made of purple-black oil slick. Their bodies can protrude writhing arms, and they share a cold and calculating hive mind where their actions and decisions are unified.",
-      "field": "Tactical combat behavior: Greater Undead. Immune to morale checks. Only damaged by silver or magical sources.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Vaguely humanoid, 10-foot tall horrors made of purple-black oil slick. Their bodies can protrude writhing arms, and they share a cold and calculating hive mind where their actions and decisions are unified.",
+      "Tactical combat behavior: Greater Undead. Immune to morale checks. Only damaged by silver or magical sources.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "VOID BEING Pelt / Chitin / Essence",
@@ -11401,12 +11427,12 @@
       "Impervious. Only damaged by silver or magical sources.",
       "Overwhelm. DISADV on checks if its eyes or ears are uncovered. Absorb (INT Spell). DC 13. One target in far loses a random spell and librarian regains a lost spell. Eye of the Master (INT Spell). DC 15. One target in far, one effect: •\t Confuse. Target attacks a random ally on turn. •\t Disintegrate. Target takes 3d6 damage. •\t Telekinesis. Hover the target up to a double near distance. Invoke Fear (INT Spell). DC 12. One creature in near cannot move into close range of librarian for 1d4 rounds. Mind Pierce (INT Spell). DC 13. One creature in far 2d6 damage and blinded for one round. BEZELAK A towering, gray-green frog beast with fangs, four flaming eyes, and rubbery bones. It can squeeze its slimy, dragon-sized bulk into narrow spaces."
     ],
-    "loreTiers": {
-      "common": "A purple-skinned fiend in flowing morzo silk robes. A gold headdress covers its ears and eyes, revealing only gaunt, grinning lips and ragged teeth.",
-      "field": "Tactical combat behavior: Impervious. Only damaged by silver or magical sources.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "A purple-skinned fiend in flowing morzo silk robes. A gold headdress covers its ears and eyes, revealing only gaunt, grinning lips and ragged teeth.",
+      "Tactical combat behavior: Impervious. Only damaged by silver or magical sources.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "LIBRARIAN OF LENG Pelt / Chitin / Essence",
@@ -11440,12 +11466,12 @@
       "Fire Belch. Fills a near-sized cube extending from bezelak. DC 15 DEX or 4d10 damage.",
       "Bezoar. Has 1d4 orange-sized stones inside its gut worth 500 gp each. They are random Utility magic items (SD pg. 291). DREMIR Grey-skinned, eyeless people with bat-like ears and noses. Their silk clothes and cultured bearing masks a hidden malice."
     ],
-    "loreTiers": {
-      "common": "A towering, gray-green frog beast with fangs, four flaming eyes, and rubbery bones. It can squeeze its slimy, dragon-sized bulk into narrow spaces.",
-      "field": "Tactical combat behavior: Fire Belch. Fills a near-sized cube extending from bezelak. DC 15 DEX or 4d10 damage.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "A towering, gray-green frog beast with fangs, four flaming eyes, and rubbery bones. It can squeeze its slimy, dragon-sized bulk into narrow spaces.",
+      "Tactical combat behavior: Fire Belch. Fills a near-sized cube extending from bezelak. DC 15 DEX or 4d10 damage.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "BEZELAK Pelt / Chitin / Essence",
@@ -11479,12 +11505,12 @@
     "traits": [
       "Impale (INT Spell). DC 12. Far range. Target takes 1d6 damage. Slow (INT Spell). DC 12. One target in near moves at half speed for 1d4 rounds. 35 NULN Lost miners, overconfident explorers, or unlucky delvers who fell prey to The Chittering."
     ],
-    "loreTiers": {
-      "common": "Grey-skinned, eyeless people with bat-like ears and noses. Their silk clothes and cultured bearing masks a hidden malice.",
-      "field": "Tactical combat behavior: Impale (INT Spell). DC 12. Far range. Target takes 1d6 damage. Slow (INT Spell). DC 12. One target in near moves at half speed for 1d4 rounds. 35 NULN Lost miners, overconfident explorers, or unlucky delvers who fell prey to The Chittering.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Grey-skinned, eyeless people with bat-like ears and noses. Their silk clothes and cultured bearing masks a hidden malice.",
+      "Tactical combat behavior: Impale (INT Spell). DC 12. Far range. Target takes 1d6 damage. Slow (INT Spell). DC 12. One target in near moves at half speed for 1d4 rounds. 35 NULN Lost miners, overconfident explorers, or unlucky delvers who fell prey to The Chittering.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "DREMIR Pelt / Chitin / Essence",
@@ -11518,12 +11544,12 @@
       "Rage. 1/day, immune to morale checks, +1d4 damage (3 rounds).",
       "Contagious Madness. DC 12 CHA when first speaking with the nuln or 1 point of CHA damage. MORZO MOTH Longboat-sized moths with snowy wings and hooked, grasping mandibles. Their silk is prized for its immense durability."
     ],
-    "loreTiers": {
-      "common": "Lost miners, overconfident explorers, or unlucky delvers who fell prey to The Chittering.",
-      "field": "Tactical combat behavior: Rage. 1/day, immune to morale checks, +1d4 damage (3 rounds).",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Lost miners, overconfident explorers, or unlucky delvers who fell prey to The Chittering.",
+      "Tactical combat behavior: Rage. 1/day, immune to morale checks, +1d4 damage (3 rounds).",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "NULN Pelt / Chitin / Essence",
@@ -11558,12 +11584,12 @@
       "Wing Dust. All creatures in near DC 12 CON or lose half their current HP (round down). This can't take creatures below 1 HP. WENDEL",
       "Cow-sized slugs with eye stalks. They leave meandering slime trails. Most are carnivorous."
     ],
-    "loreTiers": {
-      "common": "Longboat-sized moths with snowy wings and hooked, grasping mandibles. Their silk is prized for its immense durability.",
-      "field": "Tactical combat behavior: Grab. DC 15 STR or target held. DC 15 STR on turn to break free. Bite attacks automatically hit grabbed targets.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Longboat-sized moths with snowy wings and hooked, grasping mandibles. Their silk is prized for its immense durability.",
+      "Tactical combat behavior: Grab. DC 15 STR or target held. DC 15 STR on turn to break free. Bite attacks automatically hit grabbed targets.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "MORZO MOTH Pelt / Chitin / Essence",
@@ -11607,12 +11633,12 @@
       "Sea. Slimy. Can swim and breathe underwater. 8",
       "Spiny. Sharp bone spikes. Slam deals 1d10 damage. WENDEL TYPES"
     ],
-    "loreTiers": {
-      "common": "Cow-sized slugs with eye stalks. They leave meandering slime trails. Most are carnivorous.",
-      "field": "Tactical combat behavior: Sticky. Can climb and cling to sheer surfaces effortlessly.",
-      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
-      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
-    },
+    "lore": [
+      "Cow-sized slugs with eye stalks. They leave meandering slime trails. Most are carnivorous.",
+      "Tactical combat behavior: Sticky. Can climb and cling to sheer surfaces effortlessly.",
+      "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    ],
     "harvest": [
       {
         "reagent": "WENDEL Pelt / Chitin / Essence",
@@ -11621,4 +11647,4 @@
       }
     ]
   }
-]
+];

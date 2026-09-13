@@ -63,17 +63,11 @@
     },
     "alignment": "L",
     "traits": [
-      "Healing Touch (WIS Spell). DC 11. Heal one creature within close for 1d4 HP. 195 ANGEL, SERAPH Beautiful, luminous humanoids with white-feathered wings. AC 14 (chainmail), HP 14, ATK 2 longsword +3 (1d8), MV near (fly), S +3, D +1, C +1, I +2, W +3, Ch +3, AL L, LV 3",
-      "Bless. 3/day, touch one target to give it a luck token. ANGEL, DOMINI Winged, flawless humans glowing with bronze sunlight. AC 17 (plate mail + shield), HP 42, ATK 3 bastard sword +7 (1d8) or 1 horn, MV near (fly), S +4, D +1, C +2, I +3, W +4, Ch +4, AL L, LV 9",
-      "Horn. All enemies in near DC 15 CHA or paralyzed 1d4 rounds. ANGEL, PRINCIPI Serene humans sculpted from alabaster. Golden orbs for eyes. AC 16 (+1 plate mail), HP 53, ATK 3 silvered bastard sword +9 (1d10), MV double near (fly), S +4, D +2, C +4, I +4, W +4, Ch +4, AL L, LV 11",
-      "Moonlight Aura. Hostile spells targeting the principi are DC 15.",
-      "Truesight. Can see all invisible creatures and objects. ARCHANGEL A radiant being with a crown of fire, snowy wings, golden armor, and a blazing greatsword. AC 18 (+3 plate mail), HP 76, ATK 3 flaming greatsword +10 (2d12), MV double near (fly), S +5, D +2, C +4, I +4, W +5, Ch +5, AL L, LV 16",
-      "Command. DC 18 CHA to resist an archangel's command.",
-      "Crown of Fire. Hostile spells targeting the archangel are extreme (DC 18) to cast. ANGELS Angels are the divine host of lawful and neutral gods. They appear as winged, beautiful humanoids who radiate light and are suffused with their gods' energies and symbols. Seraphim are the lowest sphere of angel and often walk among mortals. Domini are their lords, and the powerful principi govern over the domini. Above all stand the mighty archangels. 196 APE, SNOW White-haired, carnivorous gorillas that stalk the high mountains and live in caves."
+      "Healing Touch (WIS Spell). DC 11. Heal one creature within close for 1d4 HP. 195 ANGEL, SERAPH Beautiful, luminous humanoids with white-feathered wings."
     ],
     "loreTiers": {
       "common": "A religious trainee who knows basic rites and rituals.",
-      "field": "Tactical combat behavior: Healing Touch (WIS Spell). DC 11. Heal one creature within close for 1d4 HP. 195 ANGEL, SERAPH Beautiful, luminous humanoids with white-feathered wings. AC 14 (chainmail), HP 14, ATK 2 longsword +3 (1d8), MV near (fly), S +3, D +1, C +1, I +2, W +3, Ch +3, AL L, LV 3",
+      "field": "Tactical combat behavior: Healing Touch (WIS Spell). DC 11. Heal one creature within close for 1d4 HP. 195 ANGEL, SERAPH Beautiful, luminous humanoids with white-feathered wings.",
       "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
       "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
     },
@@ -81,6 +75,162 @@
       {
         "reagent": "ACOLYTE Pelt / Chitin / Essence",
         "dc": 10,
+        "effect": "Alchemical ingredient useful in crafting potions or enchanting warding gear."
+      }
+    ]
+  },
+  {
+    "id": "angel_seraph",
+    "name": "ANGEL SERAPH",
+    "source": "shadowdark_core",
+    "level": 3,
+    "ac": 14,
+    "hp": 14,
+    "morale": 11,
+    "attacks": [
+      "2 longsword +3 (1d8)"
+    ],
+    "move": "near (fly)",
+    "abilities": {
+      "str": 3,
+      "dex": 1,
+      "con": 1,
+      "int": 2,
+      "wis": 3,
+      "cha": 3
+    },
+    "alignment": "L",
+    "traits": [
+      "Bless. 3/day, touch one target to give it a luck token. ANGEL, DOMINI Winged, flawless humans glowing with bronze sunlight."
+    ],
+    "loreTiers": {
+      "common": "Beautiful, luminous humanoids with white-feathered wings.",
+      "field": "Tactical combat behavior: Bless. 3/day, touch one target to give it a luck token. ANGEL, DOMINI Winged, flawless humans glowing with bronze sunlight.",
+      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    },
+    "harvest": [
+      {
+        "reagent": "ANGEL SERAPH Pelt / Chitin / Essence",
+        "dc": 11,
+        "effect": "Alchemical ingredient useful in crafting potions or enchanting warding gear."
+      }
+    ]
+  },
+  {
+    "id": "angel_domini",
+    "name": "ANGEL DOMINI",
+    "source": "shadowdark_core",
+    "level": 9,
+    "ac": 17,
+    "hp": 42,
+    "morale": 12,
+    "attacks": [
+      "3 bastard sword +7 (1d8)",
+      "1 horn"
+    ],
+    "move": "near (fly)",
+    "abilities": {
+      "str": 4,
+      "dex": 1,
+      "con": 2,
+      "int": 3,
+      "wis": 4,
+      "cha": 4
+    },
+    "alignment": "L",
+    "traits": [
+      "Horn. All enemies in near DC 15 CHA or paralyzed 1d4 rounds. ANGEL, PRINCIPI Serene humans sculpted from alabaster. Golden orbs for eyes."
+    ],
+    "loreTiers": {
+      "common": "Winged, flawless humans glowing with bronze sunlight.",
+      "field": "Tactical combat behavior: Horn. All enemies in near DC 15 CHA or paralyzed 1d4 rounds. ANGEL, PRINCIPI Serene humans sculpted from alabaster. Golden orbs for eyes.",
+      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    },
+    "harvest": [
+      {
+        "reagent": "ANGEL DOMINI Pelt / Chitin / Essence",
+        "dc": 14,
+        "effect": "Alchemical ingredient useful in crafting potions or enchanting warding gear."
+      }
+    ]
+  },
+  {
+    "id": "angel_principi",
+    "name": "ANGEL PRINCIPI",
+    "source": "shadowdark_core",
+    "level": 11,
+    "ac": 16,
+    "hp": 53,
+    "morale": 12,
+    "attacks": [
+      "3 silvered bastard sword +9 (1d10)"
+    ],
+    "move": "double near (fly)",
+    "abilities": {
+      "str": 4,
+      "dex": 2,
+      "con": 4,
+      "int": 4,
+      "wis": 4,
+      "cha": 4
+    },
+    "alignment": "L",
+    "traits": [
+      "Moonlight Aura. Hostile spells targeting the principi are DC 15.",
+      "Truesight. Can see all invisible creatures and objects. ARCHANGEL A radiant being with a crown of fire, snowy wings, golden armor, and a blazing greatsword."
+    ],
+    "loreTiers": {
+      "common": "Serene humans sculpted from alabaster. Golden orbs for eyes.",
+      "field": "Tactical combat behavior: Moonlight Aura. Hostile spells targeting the principi are DC 15.",
+      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    },
+    "harvest": [
+      {
+        "reagent": "ANGEL PRINCIPI Pelt / Chitin / Essence",
+        "dc": 15,
+        "effect": "Alchemical ingredient useful in crafting potions or enchanting warding gear."
+      }
+    ]
+  },
+  {
+    "id": "archangel",
+    "name": "ARCHANGEL",
+    "source": "shadowdark_core",
+    "family": "Angels",
+    "level": 16,
+    "ac": 18,
+    "hp": 76,
+    "morale": 12,
+    "attacks": [
+      "3 flaming greatsword +10 (2d12)"
+    ],
+    "move": "double near (fly)",
+    "abilities": {
+      "str": 5,
+      "dex": 2,
+      "con": 4,
+      "int": 4,
+      "wis": 5,
+      "cha": 5
+    },
+    "alignment": "L",
+    "traits": [
+      "Command. DC 18 CHA to resist an archangel's command.",
+      "Crown of Fire. Hostile spells targeting the archangel are extreme (DC 18) to cast. ANGELS Angels are the divine host of lawful and neutral gods. They appear as winged, beautiful humanoids who radiate light and are suffused with their gods' energies and symbols. Seraphim are the lowest sphere of angel and often walk among mortals. Domini are their lords, and the powerful principi govern over the domini. Above all stand the mighty archangels. 196 APE, SNOW White-haired, carnivorous gorillas that stalk the high mountains and live in caves."
+    ],
+    "loreTiers": {
+      "common": "A radiant being with a crown of fire, snowy wings, golden armor, and a blazing greatsword.",
+      "field": "Tactical combat behavior: Command. DC 18 CHA to resist an archangel's command.",
+      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    },
+    "harvest": [
+      {
+        "reagent": "ARCHANGEL Pelt / Chitin / Essence",
+        "dc": 18,
         "effect": "Alchemical ingredient useful in crafting potions or enchanting warding gear."
       }
     ]
@@ -302,9 +452,7 @@
     "alignment": "L",
     "traits": [
       "Death Bolt (INT Spell). DC 15. One target of LV 9 or less within near DC 15 CON or go to 0 HP. Enervate (INT Spell). DC 14.",
-      "Focus. One target within near is stupefied for the duration. Fireblast (INT Spell). DC 14. 4d6 damage to all within a near- sized cube within far. Float (INT Spell). Self. DC 14. Fly double near for 5 rounds. Mithralskin (INT Spell). Self. DC 14. AC becomes 18 for 5 rounds. Void Step (INT Spell). Self and up to 4 willing targets. DC 15. Teleport up to 100 miles. ASSASSIN A black-cloaked, skulking killer. AC 15 (leather), HP 38, ATK 2 poisoned dagger (close/near) +6 (2d4), MV near (climb), S +2, D +4, C +2, I +2, W +3, Ch +3, AL C, LV 8",
-      "Execute. Deals x3 damage against surprised targets. AZER Dwarves with bronze, metallic skin and flames in place of hair.",
-      "Gifted blacksmiths."
+      "Focus. One target within near is stupefied for the duration. Fireblast (INT Spell). DC 14. 4d6 damage to all within a near- sized cube within far. Float (INT Spell). Self. DC 14. Fly double near for 5 rounds. Mithralskin (INT Spell). Self. DC 14. AC becomes 18 for 5 rounds. Void Step (INT Spell). Self and up to 4 willing targets. DC 15. Teleport up to 100 miles. ASSASSIN A black-cloaked, skulking killer."
     ],
     "loreTiers": {
       "common": "A wizened magic-user crackling with arcane power.",
@@ -316,6 +464,45 @@
       {
         "reagent": "ARCHMAGE Pelt / Chitin / Essence",
         "dc": 15,
+        "effect": "Alchemical ingredient useful in crafting potions or enchanting warding gear."
+      }
+    ]
+  },
+  {
+    "id": "assassin",
+    "name": "ASSASSIN",
+    "source": "shadowdark_core",
+    "level": 8,
+    "ac": 15,
+    "hp": 38,
+    "morale": 12,
+    "attacks": [
+      "2 poisoned dagger (close/near) +6 (2d4)"
+    ],
+    "move": "near (climb)",
+    "abilities": {
+      "str": 2,
+      "dex": 4,
+      "con": 2,
+      "int": 2,
+      "wis": 3,
+      "cha": 3
+    },
+    "alignment": "C",
+    "traits": [
+      "Execute. Deals x3 damage against surprised targets. AZER Dwarves with bronze, metallic skin and flames in place of hair.",
+      "Gifted blacksmiths."
+    ],
+    "loreTiers": {
+      "common": "A black-cloaked, skulking killer.",
+      "field": "Tactical combat behavior: Execute. Deals x3 damage against surprised targets. AZER Dwarves with bronze, metallic skin and flames in place of hair.",
+      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    },
+    "harvest": [
+      {
+        "reagent": "ASSASSIN Pelt / Chitin / Essence",
+        "dc": 14,
         "effect": "Alchemical ingredient useful in crafting potions or enchanting warding gear."
       }
     ]
@@ -381,18 +568,56 @@
     },
     "alignment": "N",
     "traits": [
-      "Rage. 1/day, immune to morale checks, +1d4 damage (3 rounds). BANDIT Hard-bitten rogue in tattered leathers and a hooded cloak. AC 13 (leather + shield), HP 4, ATK 1 club +1 (1d4) or 1 shortbow (far) +0 (1d4), MV near, S +1, D +0, C +0, I -1, W +0, Ch -1, AL C, LV 1",
-      "Ambush. Deal an extra die of damage when undetected. 198 BASILISK Massive, muscled lizards with six legs and gray, tough hide."
+      "Rage. 1/day, immune to morale checks, +1d4 damage (3 rounds). BANDIT Hard-bitten rogue in tattered leathers and a hooded cloak."
     ],
     "loreTiers": {
       "common": "Fierce, clawed burrowers with black-and-white face stripes.",
-      "field": "Tactical combat behavior: Rage. 1/day, immune to morale checks, +1d4 damage (3 rounds). BANDIT Hard-bitten rogue in tattered leathers and a hooded cloak. AC 13 (leather + shield), HP 4, ATK 1 club +1 (1d4) or 1 shortbow (far) +0 (1d4), MV near, S +1, D +0, C +0, I -1, W +0, Ch -1, AL C, LV 1",
+      "field": "Tactical combat behavior: Rage. 1/day, immune to morale checks, +1d4 damage (3 rounds). BANDIT Hard-bitten rogue in tattered leathers and a hooded cloak.",
       "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
       "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
     },
     "harvest": [
       {
         "reagent": "BADGER Pelt / Chitin / Essence",
+        "dc": 10,
+        "effect": "Alchemical ingredient useful in crafting potions or enchanting warding gear."
+      }
+    ]
+  },
+  {
+    "id": "bandit",
+    "name": "BANDIT",
+    "source": "shadowdark_core",
+    "level": 1,
+    "ac": 13,
+    "hp": 4,
+    "morale": 7,
+    "attacks": [
+      "1 club +1 (1d4)",
+      "1 shortbow (far) +0 (1d4)"
+    ],
+    "move": "near",
+    "abilities": {
+      "str": 1,
+      "dex": 0,
+      "con": 0,
+      "int": -1,
+      "wis": 0,
+      "cha": -1
+    },
+    "alignment": "C",
+    "traits": [
+      "Ambush. Deal an extra die of damage when undetected. 198 BASILISK Massive, muscled lizards with six legs and gray, tough hide."
+    ],
+    "loreTiers": {
+      "common": "Hard-bitten rogue in tattered leathers and a hooded cloak.",
+      "field": "Tactical combat behavior: Ambush. Deal an extra die of damage when undetected. 198 BASILISK Massive, muscled lizards with six legs and gray, tough hide.",
+      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    },
+    "harvest": [
+      {
+        "reagent": "BANDIT Pelt / Chitin / Essence",
         "dc": 10,
         "effect": "Alchemical ingredient useful in crafting potions or enchanting warding gear."
       }
@@ -535,9 +760,7 @@
     "alignment": "N",
     "traits": [
       "Crush. Deals an extra die of damage if it hits the same target with both claws.",
-      "Thick Fur. Cold immune. BEASTMAN A cave hominid with scraggly fur and a stone-tipped spear. AC 12 (leather), HP 5, ATK 1 spear (close/near) +2 (1d6 + 1), MV near, S +2, D +1, C +1, I -2, W +1, Ch -1, AL C, LV 1",
-      "Brutal. +1 damage with melee weapons (included). 199 BERSERKER Howling, battleraging warriors. AC 12 (leather), HP 10, ATK 1 greataxe +2 (1d10) or 1 spear (close/near) +2 (1d6), MV near, S +2, D +1, C +1, I +0, W +1, Ch +0, AL N, LV 2",
-      "Rage. 1/day, immune to morale checks, +1d4 damage (3 rounds). BOAR Ornery wild pig with bristly, russet hair and yellowed tusks."
+      "Thick Fur. Cold immune. BEASTMAN A cave hominid with scraggly fur and a stone-tipped spear."
     ],
     "loreTiers": {
       "common": "A hulking, swaying brute with claws as long as a finger.",
@@ -549,6 +772,83 @@
       {
         "reagent": "BEAR BROWN Pelt / Chitin / Essence",
         "dc": 13,
+        "effect": "Alchemical ingredient useful in crafting potions or enchanting warding gear."
+      }
+    ]
+  },
+  {
+    "id": "beastman",
+    "name": "BEASTMAN",
+    "source": "shadowdark_core",
+    "level": 1,
+    "ac": 12,
+    "hp": 5,
+    "morale": 7,
+    "attacks": [
+      "1 spear (close/near) +2 (1d6 + 1)"
+    ],
+    "move": "near",
+    "abilities": {
+      "str": 2,
+      "dex": 1,
+      "con": 1,
+      "int": -2,
+      "wis": 1,
+      "cha": -1
+    },
+    "alignment": "C",
+    "traits": [
+      "Brutal. +1 damage with melee weapons (included). 199 BERSERKER Howling, battleraging warriors."
+    ],
+    "loreTiers": {
+      "common": "A cave hominid with scraggly fur and a stone-tipped spear.",
+      "field": "Tactical combat behavior: Brutal. +1 damage with melee weapons (included). 199 BERSERKER Howling, battleraging warriors.",
+      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    },
+    "harvest": [
+      {
+        "reagent": "BEASTMAN Pelt / Chitin / Essence",
+        "dc": 10,
+        "effect": "Alchemical ingredient useful in crafting potions or enchanting warding gear."
+      }
+    ]
+  },
+  {
+    "id": "berserker",
+    "name": "BERSERKER",
+    "source": "shadowdark_core",
+    "level": 2,
+    "ac": 12,
+    "hp": 10,
+    "morale": 8,
+    "attacks": [
+      "1 greataxe +2 (1d10)",
+      "1 spear (close/near) +2 (1d6)"
+    ],
+    "move": "near",
+    "abilities": {
+      "str": 2,
+      "dex": 1,
+      "con": 1,
+      "int": 0,
+      "wis": 1,
+      "cha": 0
+    },
+    "alignment": "N",
+    "traits": [
+      "Rage. 1/day, immune to morale checks, +1d4 damage (3 rounds). BOAR Ornery wild pig with bristly, russet hair and yellowed tusks."
+    ],
+    "loreTiers": {
+      "common": "Howling, battleraging warriors.",
+      "field": "Tactical combat behavior: Rage. 1/day, immune to morale checks, +1d4 damage (3 rounds). BOAR Ornery wild pig with bristly, russet hair and yellowed tusks.",
+      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    },
+    "harvest": [
+      {
+        "reagent": "BERSERKER Pelt / Chitin / Essence",
+        "dc": 11,
         "effect": "Alchemical ingredient useful in crafting potions or enchanting warding gear."
       }
     ]
@@ -614,12 +914,7 @@
     "alignment": "N",
     "traits": [
       "Impervious. Only damaged by fire.",
-      "Corrosive. Wood or metal that touches the ooze dissolves on a d6 roll of 1-3. BRAIN EATER Purple, gaunt humanoids with squidlike heads and four face tentacles. They live in complex, alien societies underground and eat humanoid brains. AC 14 (leather), HP 36, ATK 4 tentacle +5 (1d8 + latch) or 1 mind blast or 1 mind control, MV near, S +2, D +3, C +0, I +4, W +2, Ch +4, AL C, LV 8",
-      "Hear Thoughts. Can hear the surface thoughts of all intelligent creatures within near.",
-      "Latch. Tentacles attach to hit targets, automatically hitting the next round (DC 12 STR on turn to remove 1d4 tentacles). If all four remain latched onto the same humanoid target for 1 round, the target's brain is ripped out and devoured.",
-      "Mind Blast. Fills a near-sized cube extending from brain eater. DC 15 INT or 3d6 damage and paralyzed 1d4 rounds.",
-      "Mind Control. One target in near DC 15 CHA or brain eater controls for 1d4 rounds. 200 BUGBEAR Brutish, bat-eared goblinoids covered in brown fur. AC 13 (leather + shield), HP 14, ATK 2 spiked mace +3 (1d6), MV near, S +3, D +0, C +1, I -1, W +0, Ch -2, AL C, LV 3",
-      "Stealthy. ADV on checks to sneak and hide. BULETTE A hulking, shark-sized lizard with a steely, arrow-shaped carapace and a massive gullet."
+      "Corrosive. Wood or metal that touches the ooze dissolves on a d6 roll of 1-3. BRAIN EATER Purple, gaunt humanoids with squidlike heads and four face tentacles. They live in complex, alien societies underground and eat humanoid brains."
     ],
     "loreTiers": {
       "common": "A black, ice-cold mass of sludge.",
@@ -631,6 +926,87 @@
       {
         "reagent": "BLACK PUDDING Pelt / Chitin / Essence",
         "dc": 13,
+        "effect": "Alchemical ingredient useful in crafting potions or enchanting warding gear."
+      }
+    ]
+  },
+  {
+    "id": "brain_eater",
+    "name": "BRAIN EATER",
+    "source": "shadowdark_core",
+    "level": 8,
+    "ac": 14,
+    "hp": 36,
+    "morale": 12,
+    "attacks": [
+      "4 tentacle +5 (1d8 + latch)",
+      "1 mind blast",
+      "1 mind control"
+    ],
+    "move": "near",
+    "abilities": {
+      "str": 2,
+      "dex": 3,
+      "con": 0,
+      "int": 4,
+      "wis": 2,
+      "cha": 4
+    },
+    "alignment": "C",
+    "traits": [
+      "Hear Thoughts. Can hear the surface thoughts of all intelligent creatures within near.",
+      "Latch. Tentacles attach to hit targets, automatically hitting the next round (DC 12 STR on turn to remove 1d4 tentacles). If all four remain latched onto the same humanoid target for 1 round, the target's brain is ripped out and devoured.",
+      "Mind Blast. Fills a near-sized cube extending from brain eater. DC 15 INT or 3d6 damage and paralyzed 1d4 rounds.",
+      "Mind Control. One target in near DC 15 CHA or brain eater controls for 1d4 rounds. 200 BUGBEAR Brutish, bat-eared goblinoids covered in brown fur."
+    ],
+    "loreTiers": {
+      "common": "Purple, gaunt humanoids with squidlike heads and four face tentacles. They live in complex, alien societies underground and eat humanoid brains.",
+      "field": "Tactical combat behavior: Hear Thoughts. Can hear the surface thoughts of all intelligent creatures within near.",
+      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    },
+    "harvest": [
+      {
+        "reagent": "BRAIN EATER Pelt / Chitin / Essence",
+        "dc": 14,
+        "effect": "Alchemical ingredient useful in crafting potions or enchanting warding gear."
+      }
+    ]
+  },
+  {
+    "id": "bugbear",
+    "name": "BUGBEAR",
+    "source": "shadowdark_core",
+    "level": 3,
+    "ac": 13,
+    "hp": 14,
+    "morale": 8,
+    "attacks": [
+      "2 spiked mace +3 (1d6)"
+    ],
+    "move": "near",
+    "abilities": {
+      "str": 3,
+      "dex": 0,
+      "con": 1,
+      "int": -1,
+      "wis": 0,
+      "cha": -2
+    },
+    "alignment": "C",
+    "traits": [
+      "Stealthy. ADV on checks to sneak and hide. BULETTE A hulking, shark-sized lizard with a steely, arrow-shaped carapace and a massive gullet."
+    ],
+    "loreTiers": {
+      "common": "Brutish, bat-eared goblinoids covered in brown fur.",
+      "field": "Tactical combat behavior: Stealthy. ADV on checks to sneak and hide. BULETTE A hulking, shark-sized lizard with a steely, arrow-shaped carapace and a massive gullet.",
+      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    },
+    "harvest": [
+      {
+        "reagent": "BUGBEAR Pelt / Chitin / Essence",
+        "dc": 11,
         "effect": "Alchemical ingredient useful in crafting potions or enchanting warding gear."
       }
     ]
@@ -773,11 +1149,11 @@
     },
     "alignment": "N",
     "traits": [
-      "Toxin. DC 12 CON or paralyzed 1d4 rounds. 201 CENTAUR Herd-dwelling beings with the upper body of a human and lower body of a horse. AC 12 (leather), HP 14, ATK 2 spear (close/near) +2 (1d6) or 1 longbow (far) +1 (1d8), MV double near, S +2, D +1, C +1, I +0, W +2, Ch +1, AL N, LV 3 CENTIPEDE, GIANT Blood-red, feathery centipedes the size of a human arm. Their bite injects a burning poison that cramps muscles."
+      "Toxin. DC 12 CON or paralyzed 1d4 rounds. 201 CENTAUR Herd-dwelling beings with the upper body of a human and lower body of a horse."
     ],
     "loreTiers": {
       "common": "Chittering, green centipedes the size of horses. Their grasping tentacles are coated in a paralytic venom.",
-      "field": "Tactical combat behavior: Toxin. DC 12 CON or paralyzed 1d4 rounds. 201 CENTAUR Herd-dwelling beings with the upper body of a human and lower body of a horse. AC 12 (leather), HP 14, ATK 2 spear (close/near) +2 (1d6) or 1 longbow (far) +1 (1d8), MV double near, S +2, D +1, C +1, I +0, W +2, Ch +1, AL N, LV 3 CENTIPEDE, GIANT Blood-red, feathery centipedes the size of a human arm. Their bite injects a burning poison that cramps muscles.",
+      "field": "Tactical combat behavior: Toxin. DC 12 CON or paralyzed 1d4 rounds. 201 CENTAUR Herd-dwelling beings with the upper body of a human and lower body of a horse.",
       "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
       "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
     },
@@ -785,6 +1161,45 @@
       {
         "reagent": "CAVE CREEPER Pelt / Chitin / Essence",
         "dc": 12,
+        "effect": "Alchemical ingredient useful in crafting potions or enchanting warding gear."
+      }
+    ]
+  },
+  {
+    "id": "centaur",
+    "name": "CENTAUR",
+    "source": "shadowdark_core",
+    "level": 3,
+    "ac": 12,
+    "hp": 14,
+    "morale": 9,
+    "attacks": [
+      "2 spear (close/near) +2 (1d6)",
+      "1 longbow (far) +1 (1d8)"
+    ],
+    "move": "double near",
+    "abilities": {
+      "str": 2,
+      "dex": 1,
+      "con": 1,
+      "int": 0,
+      "wis": 2,
+      "cha": 1
+    },
+    "alignment": "N",
+    "traits": [
+      "CENTIPEDE, GIANT Blood-red, feathery centipedes the size of a human arm. Their bite injects a burning poison that cramps muscles."
+    ],
+    "loreTiers": {
+      "common": "Herd-dwelling beings with the upper body of a human and lower body of a horse.",
+      "field": "Tactical combat behavior: CENTIPEDE, GIANT Blood-red, feathery centipedes the size of a human arm. Their bite injects a burning poison that cramps muscles.",
+      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    },
+    "harvest": [
+      {
+        "reagent": "CENTAUR Pelt / Chitin / Essence",
+        "dc": 11,
         "effect": "Alchemical ingredient useful in crafting potions or enchanting warding gear."
       }
     ]
@@ -1119,13 +1534,11 @@
     },
     "alignment": "N",
     "traits": [
-      "CULTIST A cloaked, wild-eyed zealot chanting the guttural prayers of a dark god. AC 14 (chainmail + shield), HP 9, ATK 1 longsword +1 (1d8) or 1 spell +2, MV near, S +1, D -1, C +0, I -1, W +2, Ch +0, AL C, LV 2",
-      "Fearless. Immune to morale checks. Deathtouch (WIS Spell). DC 12. 2d4 damage to one creature within close. CYCLOPS Reclusive, one-eyed giants towering 20' high. They live simply on remote farmlands. AC 11 (leather), HP 38, ATK 2 greatclub +7 (2d8) or 1 rock (far) +5 (1d12), MV double near, S +5, D +0, C +2, I -1, W -2, Ch +0, AL C, LV 8 DARKMANTLE A floating, black octopus with rows of red eyes and a webbed skirt of tentacles. AC 13, HP 4 ATK 1 bite +3 (1d4) or 1 darkness, MV near (fly), S -2, D +3, C +0, I -3, W +0, Ch -3, AL N, LV 1",
-      "Darkness. Extinguish all light sources in near. DEEP ONE Cultish, amphibious fish-people with bulbous eyes. They lurk in deep water and sunless caverns."
+      "CULTIST A cloaked, wild-eyed zealot chanting the guttural prayers of a dark god."
     ],
     "loreTiers": {
       "common": "Fat, scaly reptiles with stumpy legs and long, thrashing tails.",
-      "field": "Tactical combat behavior: CULTIST A cloaked, wild-eyed zealot chanting the guttural prayers of a dark god. AC 14 (chainmail + shield), HP 9, ATK 1 longsword +1 (1d8) or 1 spell +2, MV near, S +1, D -1, C +0, I -1, W +2, Ch +0, AL C, LV 2",
+      "field": "Tactical combat behavior: CULTIST A cloaked, wild-eyed zealot chanting the guttural prayers of a dark god.",
       "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
       "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
     },
@@ -1133,6 +1546,85 @@
       {
         "reagent": "CROCODILE Pelt / Chitin / Essence",
         "dc": 12,
+        "effect": "Alchemical ingredient useful in crafting potions or enchanting warding gear."
+      }
+    ]
+  },
+  {
+    "id": "cultist",
+    "name": "CULTIST",
+    "source": "shadowdark_core",
+    "level": 2,
+    "ac": 14,
+    "hp": 9,
+    "morale": 8,
+    "attacks": [
+      "1 longsword +1 (1d8)",
+      "1 spell +2"
+    ],
+    "move": "near",
+    "abilities": {
+      "str": 1,
+      "dex": -1,
+      "con": 0,
+      "int": -1,
+      "wis": 2,
+      "cha": 0
+    },
+    "alignment": "C",
+    "traits": [
+      "Fearless. Immune to morale checks. Deathtouch (WIS Spell). DC 12. 2d4 damage to one creature within close. CYCLOPS Reclusive, one-eyed giants towering 20' high. They live simply on remote farmlands."
+    ],
+    "loreTiers": {
+      "common": "A cloaked, wild-eyed zealot chanting the guttural prayers of a dark god.",
+      "field": "Tactical combat behavior: Fearless. Immune to morale checks. Deathtouch (WIS Spell). DC 12. 2d4 damage to one creature within close. CYCLOPS Reclusive, one-eyed giants towering 20' high. They live simply on remote farmlands.",
+      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    },
+    "harvest": [
+      {
+        "reagent": "CULTIST Pelt / Chitin / Essence",
+        "dc": 11,
+        "effect": "Alchemical ingredient useful in crafting potions or enchanting warding gear."
+      }
+    ]
+  },
+  {
+    "id": "cyclops",
+    "name": "CYCLOPS",
+    "source": "shadowdark_core",
+    "level": 8,
+    "ac": 11,
+    "hp": 38,
+    "morale": 11,
+    "attacks": [
+      "2 greatclub +7 (2d8)",
+      "1 rock (far) +5 (1d12)"
+    ],
+    "move": "double near",
+    "abilities": {
+      "str": 5,
+      "dex": 0,
+      "con": 2,
+      "int": -1,
+      "wis": -2,
+      "cha": 0
+    },
+    "alignment": "C",
+    "traits": [
+      "DARKMANTLE A floating, black octopus with rows of red eyes and a webbed skirt of tentacles. AC 13, HP 4 ATK 1 bite +3 (1d4) or 1 darkness, MV near (fly), S -2, D +3, C +0, I -3, W +0, Ch -3, AL N, LV 1",
+      "Darkness. Extinguish all light sources in near. DEEP ONE Cultish, amphibious fish-people with bulbous eyes. They lurk in deep water and sunless caverns."
+    ],
+    "loreTiers": {
+      "common": "Reclusive, one-eyed giants towering 20' high. They live simply on remote farmlands.",
+      "field": "Tactical combat behavior: DARKMANTLE A floating, black octopus with rows of red eyes and a webbed skirt of tentacles. AC 13, HP 4 ATK 1 bite +3 (1d4) or 1 darkness, MV near (fly), S -2, D +3, C +0, I -3, W +0, Ch -3, AL N, LV 1",
+      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    },
+    "harvest": [
+      {
+        "reagent": "CYCLOPS Pelt / Chitin / Essence",
+        "dc": 14,
         "effect": "Alchemical ingredient useful in crafting potions or enchanting warding gear."
       }
     ]
@@ -1277,12 +1769,11 @@
     },
     "alignment": "C",
     "traits": [
-      "Gas. All in near DC 12 CON or blinded for 1d4 rounds. 205 DEMON, MARILITH Hissing, armored women with six limbs and the lower bodies of giant snakes. Six whirling blades flash in their hands. AC 17 (plate mail), HP 43, ATK 6 longsword +7 (1d8), MV near (climb), S +5, D +4, C +3, I +3, W +3, Ch +4, AL C, LV 9",
-      "Parry. Trade 2 longsword attacks next round to deflect a melee attack that would hit. DEMON, VROCK Wagon-sized, filthy vultures with four limbs, midnight-blue skin, and a rash of mangy feathers."
+      "Gas. All in near DC 12 CON or blinded for 1d4 rounds. 205 DEMON, MARILITH Hissing, armored women with six limbs and the lower bodies of giant snakes. Six whirling blades flash in their hands."
     ],
     "loreTiers": {
       "common": "Green, pig-faced demons with thick claws and an oily stench.",
-      "field": "Tactical combat behavior: Gas. All in near DC 12 CON or blinded for 1d4 rounds. 205 DEMON, MARILITH Hissing, armored women with six limbs and the lower bodies of giant snakes. Six whirling blades flash in their hands. AC 17 (plate mail), HP 43, ATK 6 longsword +7 (1d8), MV near (climb), S +5, D +4, C +3, I +3, W +3, Ch +4, AL C, LV 9",
+      "field": "Tactical combat behavior: Gas. All in near DC 12 CON or blinded for 1d4 rounds. 205 DEMON, MARILITH Hissing, armored women with six limbs and the lower bodies of giant snakes. Six whirling blades flash in their hands.",
       "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
       "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
     },
@@ -1290,6 +1781,44 @@
       {
         "reagent": "DEMON DRETCH Pelt / Chitin / Essence",
         "dc": 11,
+        "effect": "Alchemical ingredient useful in crafting potions or enchanting warding gear."
+      }
+    ]
+  },
+  {
+    "id": "demon_marilith",
+    "name": "DEMON MARILITH",
+    "source": "shadowdark_core",
+    "level": 9,
+    "ac": 17,
+    "hp": 43,
+    "morale": 12,
+    "attacks": [
+      "6 longsword +7 (1d8)"
+    ],
+    "move": "near (climb)",
+    "abilities": {
+      "str": 5,
+      "dex": 4,
+      "con": 3,
+      "int": 3,
+      "wis": 3,
+      "cha": 4
+    },
+    "alignment": "C",
+    "traits": [
+      "Parry. Trade 2 longsword attacks next round to deflect a melee attack that would hit. DEMON, VROCK Wagon-sized, filthy vultures with four limbs, midnight-blue skin, and a rash of mangy feathers."
+    ],
+    "loreTiers": {
+      "common": "Hissing, armored women with six limbs and the lower bodies of giant snakes. Six whirling blades flash in their hands.",
+      "field": "Tactical combat behavior: Parry. Trade 2 longsword attacks next round to deflect a melee attack that would hit. DEMON, VROCK Wagon-sized, filthy vultures with four limbs, midnight-blue skin, and a rash of mangy feathers.",
+      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    },
+    "harvest": [
+      {
+        "reagent": "DEMON MARILITH Pelt / Chitin / Essence",
+        "dc": 14,
         "effect": "Alchemical ingredient useful in crafting potions or enchanting warding gear."
       }
     ]
@@ -1442,9 +1971,7 @@
     "traits": [
       "Change Shape. In place of attacks, transform into any similarly-sized humanoid.",
       "Charm. One humanoid in near DC 15 CHA or bewitched by cubi for 1d6 hours.",
-      "Drain. The target takes 1d6 WIS damage. A target reduced to 0 WIS this way swears its soul to an archdevil. DEVIL, ERINYES Raven-winged, resplendent beings in polished, black armor and helms with curved horns. AC 17 (+1 plate mail), HP 43, ATK 3 greatsword +8 (1d12) or 2 longbow (far) +8 (1d8 + poison), MV double near (fly), S +4, D +4, C +3, I +4, W +4, Ch +5, AL C, LV 9",
-      "Poison. DC 15 CON or target's eyes go jet black and it turns on its allies for 1d4 rounds. DC 15",
-      "WIS on turn to end effect. DEVIL, HORNED Iron-scaled hellions as big as ogres with weighty ram horns, lashing tails, and leathery wings. They are opportunistic and craven in battle."
+      "Drain. The target takes 1d6 WIS damage. A target reduced to 0 WIS this way swears its soul to an archdevil. DEVIL, ERINYES Raven-winged, resplendent beings in polished, black armor and helms with curved horns."
     ],
     "loreTiers": {
       "common": "Entrancing humanoids with bat wings and devilish charm.",
@@ -1456,6 +1983,46 @@
       {
         "reagent": "DEVIL CUBI Pelt / Chitin / Essence",
         "dc": 13,
+        "effect": "Alchemical ingredient useful in crafting potions or enchanting warding gear."
+      }
+    ]
+  },
+  {
+    "id": "devil_erinyes",
+    "name": "DEVIL ERINYES",
+    "source": "shadowdark_core",
+    "level": 9,
+    "ac": 17,
+    "hp": 43,
+    "morale": 12,
+    "attacks": [
+      "3 greatsword +8 (1d12)",
+      "2 longbow (far) +8 (1d8 + poison)"
+    ],
+    "move": "double near (fly)",
+    "abilities": {
+      "str": 4,
+      "dex": 4,
+      "con": 3,
+      "int": 4,
+      "wis": 4,
+      "cha": 5
+    },
+    "alignment": "C",
+    "traits": [
+      "Poison. DC 15 CON or target's eyes go jet black and it turns on its allies for 1d4 rounds. DC 15",
+      "WIS on turn to end effect. DEVIL, HORNED Iron-scaled hellions as big as ogres with weighty ram horns, lashing tails, and leathery wings. They are opportunistic and craven in battle."
+    ],
+    "loreTiers": {
+      "common": "Raven-winged, resplendent beings in polished, black armor and helms with curved horns.",
+      "field": "Tactical combat behavior: Poison. DC 15 CON or target's eyes go jet black and it turns on its allies for 1d4 rounds. DC 15",
+      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    },
+    "harvest": [
+      {
+        "reagent": "DEVIL ERINYES Pelt / Chitin / Essence",
+        "dc": 14,
         "effect": "Alchemical ingredient useful in crafting potions or enchanting warding gear."
       }
     ]
@@ -2082,17 +2649,11 @@
     },
     "alignment": "C",
     "traits": [
-      "Smog Breath. Fills a near-sized cube extending from dragon. DC 15 CON or 2d10 damage and blinded for 1 round. 212 DROW Lithe, subterranean elves with ebon skin, white hair, and red eyes that see in the dark. They are stealthy and cunning. Drow live in strikingly decadent, matriarchal societies centered around the worship of their cruel spider-demon goddess. DROW A graceful, shadowy elf that pounces like a spider. AC 16 (mithral chainmail), HP 9, ATK 1 poison dart (near) +3 (1d4 + poison) or 1 longsword +1 (1d8), MV near, S +0, D +3, C +0, I +1, W +1, Ch +1, AL C, LV 2",
-      "Poison. DC 15 CON or sleep.",
-      "Sunblind. Blinded in bright light. DROW, PRIESTESS A statuesque female drow with a crown of metal spider webs and an imperious gaze. AC 16 (mithral chainmail), HP 28, ATK 3 snake whip (near) +4 (1d8 + poison) or 1 spell +4, MV near, S +2, D +3, C +1, I +3, W +4, Ch +3, AL C, LV 6",
-      "Poison. DC 15 CON or paralyzed 1d4 rounds.",
-      "Sunblind. Blinded in bright light. Snuff (WIS Spell). DC 12. Extinguish all light sources (even magical) within near. Summon Spiders (WIS Spell). DC 14. Summon 2d4 loyal giant spiders that appear within near. They stay for 5 rounds. Web (WIS Spell). DC 13. A near- sized cube of webs within far immobilizes all inside it for 5 rounds. DC 15 STR on turn to break free. DROW, DRIDER A monstrosity with the body of a giant spider and torso of a drow. AC 16 (mithral chainmail), HP 29, ATK 3 longsword +3 (1d8) or 2 longbow (far) +3 (1d8 + poison), MV near (climb), S +3, D +3, C +2, I +2, W +2, Ch +0, AL C, LV 6",
-      "Poison. DC 15 CON or paralyzed 1d4 rounds.",
-      "Sunblind. Blinded in bright light. 213 DRUID A wizard of the wilds holding a knotted staff and wearing a mossy cloak of deep viridian."
+      "Smog Breath. Fills a near-sized cube extending from dragon. DC 15 CON or 2d10 damage and blinded for 1 round. 212 DROW Lithe, subterranean elves with ebon skin, white hair, and red eyes that see in the dark. They are stealthy and cunning. Drow live in strikingly decadent, matriarchal societies centered around the worship of their cruel spider-demon goddess. DROW A graceful, shadowy elf that pounces like a spider."
     ],
     "loreTiers": {
       "common": "This black, wingless beast slithers through dank swamps.",
-      "field": "Tactical combat behavior: Smog Breath. Fills a near-sized cube extending from dragon. DC 15 CON or 2d10 damage and blinded for 1 round. 212 DROW Lithe, subterranean elves with ebon skin, white hair, and red eyes that see in the dark. They are stealthy and cunning. Drow live in strikingly decadent, matriarchal societies centered around the worship of their cruel spider-demon goddess. DROW A graceful, shadowy elf that pounces like a spider. AC 16 (mithral chainmail), HP 9, ATK 1 poison dart (near) +3 (1d4 + poison) or 1 longsword +1 (1d8), MV near, S +0, D +3, C +0, I +1, W +1, Ch +1, AL C, LV 2",
+      "field": "Tactical combat behavior: Smog Breath. Fills a near-sized cube extending from dragon. DC 15 CON or 2d10 damage and blinded for 1 round. 212 DROW Lithe, subterranean elves with ebon skin, white hair, and red eyes that see in the dark. They are stealthy and cunning. Drow live in strikingly decadent, matriarchal societies centered around the worship of their cruel spider-demon goddess. DROW A graceful, shadowy elf that pounces like a spider.",
       "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
       "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
     },
@@ -2100,6 +2661,127 @@
       {
         "reagent": "DRAGON SWAMP Pelt / Chitin / Essence",
         "dc": 16,
+        "effect": "Alchemical ingredient useful in crafting potions or enchanting warding gear."
+      }
+    ]
+  },
+  {
+    "id": "drow",
+    "name": "DROW",
+    "source": "shadowdark_core",
+    "family": "Drow",
+    "level": 2,
+    "ac": 16,
+    "hp": 9,
+    "morale": 9,
+    "attacks": [
+      "1 poison dart (near) +3 (1d4 + poison)",
+      "1 longsword +1 (1d8)"
+    ],
+    "move": "near",
+    "abilities": {
+      "str": 0,
+      "dex": 3,
+      "con": 0,
+      "int": 1,
+      "wis": 1,
+      "cha": 1
+    },
+    "alignment": "C",
+    "traits": [
+      "Poison. DC 15 CON or sleep.",
+      "Sunblind. Blinded in bright light. DROW, PRIESTESS A statuesque female drow with a crown of metal spider webs and an imperious gaze."
+    ],
+    "loreTiers": {
+      "common": "A graceful, shadowy elf that pounces like a spider.",
+      "field": "Tactical combat behavior: Poison. DC 15 CON or sleep.",
+      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    },
+    "harvest": [
+      {
+        "reagent": "DROW Pelt / Chitin / Essence",
+        "dc": 11,
+        "effect": "Alchemical ingredient useful in crafting potions or enchanting warding gear."
+      }
+    ]
+  },
+  {
+    "id": "drow_priestess",
+    "name": "DROW PRIESTESS",
+    "source": "shadowdark_core",
+    "level": 6,
+    "ac": 16,
+    "hp": 28,
+    "morale": 12,
+    "attacks": [
+      "3 snake whip (near) +4 (1d8 + poison)",
+      "1 spell +4"
+    ],
+    "move": "near",
+    "abilities": {
+      "str": 2,
+      "dex": 3,
+      "con": 1,
+      "int": 3,
+      "wis": 4,
+      "cha": 3
+    },
+    "alignment": "C",
+    "traits": [
+      "Poison. DC 15 CON or paralyzed 1d4 rounds.",
+      "Sunblind. Blinded in bright light. Snuff (WIS Spell). DC 12. Extinguish all light sources (even magical) within near. Summon Spiders (WIS Spell). DC 14. Summon 2d4 loyal giant spiders that appear within near. They stay for 5 rounds. Web (WIS Spell). DC 13. A near- sized cube of webs within far immobilizes all inside it for 5 rounds. DC 15 STR on turn to break free. DROW, DRIDER A monstrosity with the body of a giant spider and torso of a drow."
+    ],
+    "loreTiers": {
+      "common": "A statuesque female drow with a crown of metal spider webs and an imperious gaze.",
+      "field": "Tactical combat behavior: Poison. DC 15 CON or paralyzed 1d4 rounds.",
+      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    },
+    "harvest": [
+      {
+        "reagent": "DROW PRIESTESS Pelt / Chitin / Essence",
+        "dc": 13,
+        "effect": "Alchemical ingredient useful in crafting potions or enchanting warding gear."
+      }
+    ]
+  },
+  {
+    "id": "drow_drider",
+    "name": "DROW DRIDER",
+    "source": "shadowdark_core",
+    "level": 6,
+    "ac": 16,
+    "hp": 29,
+    "morale": 10,
+    "attacks": [
+      "3 longsword +3 (1d8)",
+      "2 longbow (far) +3 (1d8 + poison)"
+    ],
+    "move": "near (climb)",
+    "abilities": {
+      "str": 3,
+      "dex": 3,
+      "con": 2,
+      "int": 2,
+      "wis": 2,
+      "cha": 0
+    },
+    "alignment": "C",
+    "traits": [
+      "Poison. DC 15 CON or paralyzed 1d4 rounds.",
+      "Sunblind. Blinded in bright light. 213 DRUID A wizard of the wilds holding a knotted staff and wearing a mossy cloak of deep viridian."
+    ],
+    "loreTiers": {
+      "common": "A monstrosity with the body of a giant spider and torso of a drow.",
+      "field": "Tactical combat behavior: Poison. DC 15 CON or paralyzed 1d4 rounds.",
+      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    },
+    "harvest": [
+      {
+        "reagent": "DROW DRIDER Pelt / Chitin / Essence",
+        "dc": 13,
         "effect": "Alchemical ingredient useful in crafting potions or enchanting warding gear."
       }
     ]
@@ -2167,10 +2849,7 @@
     "alignment": "N",
     "traits": [
       "Charm. Near, one creature, DC 14 CHA or friendship for 1d8 days.",
-      "Meld. Step inside bonded tree. DUERGAR Gray-skinned, greedy dwarves with bald pates and white beards. They dwell in somber castles deep within the earth filled with stolen treasures and enslaved prisoners. AC 15 (chainmail + shield), HP 12, ATK 1 war pick +2 (1d6), MV near, S +2, D +0, C +3, I +0, W -1, Ch -1, AL C, LV 2",
-      "Enlarge. 1/day, +1d6 damage on melee attacks and ADV on STR checks for 3 rounds.",
-      "Invisibility. 1/day, turn invisible for 3 rounds. Ends if duergar attacks.",
-      "Sunblind. Blinded in bright light. 214 DUNG BEETLE, GIANT A trundling, barrel-sized beetle with a T-shaped horn."
+      "Meld. Step inside bonded tree. DUERGAR Gray-skinned, greedy dwarves with bald pates and white beards. They dwell in somber castles deep within the earth filled with stolen treasures and enslaved prisoners."
     ],
     "loreTiers": {
       "common": "A coy, emerald-skinned fey covered in leaves. It bonds with and protects a tree.",
@@ -2182,6 +2861,46 @@
       {
         "reagent": "DRYAD Pelt / Chitin / Essence",
         "dc": 12,
+        "effect": "Alchemical ingredient useful in crafting potions or enchanting warding gear."
+      }
+    ]
+  },
+  {
+    "id": "duergar",
+    "name": "DUERGAR",
+    "source": "shadowdark_core",
+    "level": 2,
+    "ac": 15,
+    "hp": 12,
+    "morale": 8,
+    "attacks": [
+      "1 war pick +2 (1d6)"
+    ],
+    "move": "near",
+    "abilities": {
+      "str": 2,
+      "dex": 0,
+      "con": 3,
+      "int": 0,
+      "wis": -1,
+      "cha": -1
+    },
+    "alignment": "C",
+    "traits": [
+      "Enlarge. 1/day, +1d6 damage on melee attacks and ADV on STR checks for 3 rounds.",
+      "Invisibility. 1/day, turn invisible for 3 rounds. Ends if duergar attacks.",
+      "Sunblind. Blinded in bright light. 214 DUNG BEETLE, GIANT A trundling, barrel-sized beetle with a T-shaped horn."
+    ],
+    "loreTiers": {
+      "common": "Gray-skinned, greedy dwarves with bald pates and white beards. They dwell in somber castles deep within the earth filled with stolen treasures and enslaved prisoners.",
+      "field": "Tactical combat behavior: Enlarge. 1/day, +1d6 damage on melee attacks and ADV on STR checks for 3 rounds.",
+      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    },
+    "harvest": [
+      {
+        "reagent": "DUERGAR Pelt / Chitin / Essence",
+        "dc": 11,
         "effect": "Alchemical ingredient useful in crafting potions or enchanting warding gear."
       }
     ]
@@ -2654,10 +3373,7 @@
       "Incorporeal. In place of attacks, become corporeal or incorporeal.",
       "Life Drain. 1d4 CON damage. Death if reduced to 0 CON.",
       "Possess. Must be corporeal. One target, close range. Contested",
-      "CHA check. If ghost wins, it inhabits target's body and controls it for 2d4 rounds. 218 GIANTS Giants once ruled the earth long ago, warring with dragons for supremacy over the seas and skies. But the weariness of eons eventually caused their glorious societies to erode. Now, they live in reclusive clans, wary of outsiders and withdrawn from the younger civilizations. Hill and goat giants are brutish louts who ally with goblinkind. Fire giants build enclaves in volcanoes, frost giants in frozen wastes. Stone giants live deep underground, while cloud giants occupy lofty mountain castles. Mighty storm giants dwell in majestic, deep-sea strongholds. GIANT, CLOUD Pale, angular giants with blue-gray hair, light eyes, and silk robes. They do not allow outsiders into their enclaves. AC 15 (leather), HP 48, ATK 3 morningstar +9 (2d10), MV double near, S +5, D +4, C +3, I +3, W +3, Ch +3, AL N, LV 10",
-      "Alert. ADV on checks to detect sneaking or hiding creatures. GIANT, FIRE Bulky, muscled giants with coppery skin and red hair. Heavily armored in iron plate mail studded with bronze rivets. AC 15 (plate mail), HP 44, ATK 3 greatsword +9 (2d12), MV double near, S +6, D +0, C +4, I +1, W +2, Ch +1, AL C, LV 9",
-      "Fireblood. Fire immune. 219 GIANT, FROST Blue-skinned warriors with broad shoulders and braided hair. They sound war horns during their frequent raids to pillage nearby settlements. AC 14 (chainmail), HP 44, ATK 3 greataxe +8 (2d10), MV double near, S +5, D +1, C +4, I +2, W +3, Ch +2, AL C, LV 9",
-      "Frostblood. Cold immune. GIANT, STONE Lean, sinewy giants with stony skin and deep-set eyes. They are quiet and poised, often sitting motionless for days at a time."
+      "CHA check. If ghost wins, it inhabits target's body and controls it for 2d4 rounds. 218 GIANTS Giants once ruled the earth long ago, warring with dragons for supremacy over the seas and skies. But the weariness of eons eventually caused their glorious societies to erode. Now, they live in reclusive clans, wary of outsiders and withdrawn from the younger civilizations. Hill and goat giants are brutish louts who ally with goblinkind. Fire giants build enclaves in volcanoes, frost giants in frozen wastes. Stone giants live deep underground, while cloud giants occupy lofty mountain castles. Mighty storm giants dwell in majestic, deep-sea strongholds. GIANT, CLOUD Pale, angular giants with blue-gray hair, light eyes, and silk robes. They do not allow outsiders into their enclaves."
     ],
     "loreTiers": {
       "common": "A wavering spirit with a face contorted in rage or sadness.",
@@ -2669,6 +3385,120 @@
       {
         "reagent": "GHOST Pelt / Chitin / Essence",
         "dc": 13,
+        "effect": "Alchemical ingredient useful in crafting potions or enchanting warding gear."
+      }
+    ]
+  },
+  {
+    "id": "giant_cloud",
+    "name": "GIANT CLOUD",
+    "source": "shadowdark_core",
+    "level": 10,
+    "ac": 15,
+    "hp": 48,
+    "morale": 12,
+    "attacks": [
+      "3 morningstar +9 (2d10)"
+    ],
+    "move": "double near",
+    "abilities": {
+      "str": 5,
+      "dex": 4,
+      "con": 3,
+      "int": 3,
+      "wis": 3,
+      "cha": 3
+    },
+    "alignment": "N",
+    "traits": [
+      "Alert. ADV on checks to detect sneaking or hiding creatures. GIANT, FIRE Bulky, muscled giants with coppery skin and red hair. Heavily armored in iron plate mail studded with bronze rivets."
+    ],
+    "loreTiers": {
+      "common": "Pale, angular giants with blue-gray hair, light eyes, and silk robes. They do not allow outsiders into their enclaves.",
+      "field": "Tactical combat behavior: Alert. ADV on checks to detect sneaking or hiding creatures. GIANT, FIRE Bulky, muscled giants with coppery skin and red hair. Heavily armored in iron plate mail studded with bronze rivets.",
+      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    },
+    "harvest": [
+      {
+        "reagent": "GIANT CLOUD Pelt / Chitin / Essence",
+        "dc": 15,
+        "effect": "Alchemical ingredient useful in crafting potions or enchanting warding gear."
+      }
+    ]
+  },
+  {
+    "id": "giant_fire",
+    "name": "GIANT FIRE",
+    "source": "shadowdark_core",
+    "level": 9,
+    "ac": 15,
+    "hp": 44,
+    "morale": 12,
+    "attacks": [
+      "3 greatsword +9 (2d12)"
+    ],
+    "move": "double near",
+    "abilities": {
+      "str": 6,
+      "dex": 0,
+      "con": 4,
+      "int": 1,
+      "wis": 2,
+      "cha": 1
+    },
+    "alignment": "C",
+    "traits": [
+      "Fireblood. Fire immune. 219 GIANT, FROST Blue-skinned warriors with broad shoulders and braided hair. They sound war horns during their frequent raids to pillage nearby settlements."
+    ],
+    "loreTiers": {
+      "common": "Bulky, muscled giants with coppery skin and red hair. Heavily armored in iron plate mail studded with bronze rivets.",
+      "field": "Tactical combat behavior: Fireblood. Fire immune. 219 GIANT, FROST Blue-skinned warriors with broad shoulders and braided hair. They sound war horns during their frequent raids to pillage nearby settlements.",
+      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    },
+    "harvest": [
+      {
+        "reagent": "GIANT FIRE Pelt / Chitin / Essence",
+        "dc": 14,
+        "effect": "Alchemical ingredient useful in crafting potions or enchanting warding gear."
+      }
+    ]
+  },
+  {
+    "id": "giant_frost",
+    "name": "GIANT FROST",
+    "source": "shadowdark_core",
+    "level": 9,
+    "ac": 14,
+    "hp": 44,
+    "morale": 12,
+    "attacks": [
+      "3 greataxe +8 (2d10)"
+    ],
+    "move": "double near",
+    "abilities": {
+      "str": 5,
+      "dex": 1,
+      "con": 4,
+      "int": 2,
+      "wis": 3,
+      "cha": 2
+    },
+    "alignment": "C",
+    "traits": [
+      "Frostblood. Cold immune. GIANT, STONE Lean, sinewy giants with stony skin and deep-set eyes. They are quiet and poised, often sitting motionless for days at a time."
+    ],
+    "loreTiers": {
+      "common": "Blue-skinned warriors with broad shoulders and braided hair. They sound war horns during their frequent raids to pillage nearby settlements.",
+      "field": "Tactical combat behavior: Frostblood. Cold immune. GIANT, STONE Lean, sinewy giants with stony skin and deep-set eyes. They are quiet and poised, often sitting motionless for days at a time.",
+      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    },
+    "harvest": [
+      {
+        "reagent": "GIANT FROST Pelt / Chitin / Essence",
+        "dc": 14,
         "effect": "Alchemical ingredient useful in crafting potions or enchanting warding gear."
       }
     ]
@@ -2696,13 +3526,11 @@
     },
     "alignment": "N",
     "traits": [
-      "Stone Hide. Half damage from stabbing and cutting weapons. GIANT, GOAT Highland-dwelling, barbaric giants with goatlike legs, horns, and horizontal pupils. AC 12 (leather), HP 39, ATK 2 greatclub +7 (2d8) or 1 boulder (far) +7 (2d10), MV double near (climb), S +4, D +1, C +3, I -2, W +0, Ch -2, AL C, LV 8 GIANT, STORM Regal titans with sea-green skin, flowing white hair, and thundering voices. They breathe water as easily as air. AC 15 (mithral chainmail), HP 58, ATK 3 greatsword +10 (2d12) or 1 lightning bolt, MV double near (swim), S +6, D +2, C +4, I +3, W +4, Ch +4, AL L, LV 12",
-      "Stormblood. Electricity immune.",
-      "Lightning Bolt. 3/day, 5' wide line extending far from giant. All creatures in line DC 15 DEX or 5d10 damage. DISADV on check if in water. GIANT, HILL Fleshy hulks with leathery skin and broad, sloping foreheads. Cruel, boorish, and dim-witted. AC 11 (leather), HP 34, ATK 2 greatclub +6 (2d8) or 1 boulder (far) +6 (2d10), MV double near, S +4, D +0, C +3, I -2, W -2, Ch -2, AL C, LV 7 220 GIBBERING MOUTHER Crawling masses of slime with dozens of screeching, lipless mouths and wet eyeballs."
+      "Stone Hide. Half damage from stabbing and cutting weapons. GIANT, GOAT Highland-dwelling, barbaric giants with goatlike legs, horns, and horizontal pupils."
     ],
     "loreTiers": {
       "common": "Lean, sinewy giants with stony skin and deep-set eyes. They are quiet and poised, often sitting motionless for days at a time.",
-      "field": "Tactical combat behavior: Stone Hide. Half damage from stabbing and cutting weapons. GIANT, GOAT Highland-dwelling, barbaric giants with goatlike legs, horns, and horizontal pupils. AC 12 (leather), HP 39, ATK 2 greatclub +7 (2d8) or 1 boulder (far) +7 (2d10), MV double near (climb), S +4, D +1, C +3, I -2, W +0, Ch -2, AL C, LV 8 GIANT, STORM Regal titans with sea-green skin, flowing white hair, and thundering voices. They breathe water as easily as air. AC 15 (mithral chainmail), HP 58, ATK 3 greatsword +10 (2d12) or 1 lightning bolt, MV double near (swim), S +6, D +2, C +4, I +3, W +4, Ch +4, AL L, LV 12",
+      "field": "Tactical combat behavior: Stone Hide. Half damage from stabbing and cutting weapons. GIANT, GOAT Highland-dwelling, barbaric giants with goatlike legs, horns, and horizontal pupils.",
       "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
       "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
     },
@@ -2710,6 +3538,124 @@
       {
         "reagent": "GIANT STONE Pelt / Chitin / Essence",
         "dc": 14,
+        "effect": "Alchemical ingredient useful in crafting potions or enchanting warding gear."
+      }
+    ]
+  },
+  {
+    "id": "giant_goat",
+    "name": "GIANT GOAT",
+    "source": "shadowdark_core",
+    "level": 8,
+    "ac": 12,
+    "hp": 39,
+    "morale": 11,
+    "attacks": [
+      "2 greatclub +7 (2d8)",
+      "1 boulder (far) +7 (2d10)"
+    ],
+    "move": "double near (climb)",
+    "abilities": {
+      "str": 4,
+      "dex": 1,
+      "con": 3,
+      "int": -2,
+      "wis": 0,
+      "cha": -2
+    },
+    "alignment": "C",
+    "traits": [
+      "GIANT, STORM Regal titans with sea-green skin, flowing white hair, and thundering voices. They breathe water as easily as air."
+    ],
+    "loreTiers": {
+      "common": "Highland-dwelling, barbaric giants with goatlike legs, horns, and horizontal pupils.",
+      "field": "Tactical combat behavior: GIANT, STORM Regal titans with sea-green skin, flowing white hair, and thundering voices. They breathe water as easily as air.",
+      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    },
+    "harvest": [
+      {
+        "reagent": "GIANT GOAT Pelt / Chitin / Essence",
+        "dc": 14,
+        "effect": "Alchemical ingredient useful in crafting potions or enchanting warding gear."
+      }
+    ]
+  },
+  {
+    "id": "giant_storm",
+    "name": "GIANT STORM",
+    "source": "shadowdark_core",
+    "level": 12,
+    "ac": 15,
+    "hp": 58,
+    "morale": 12,
+    "attacks": [
+      "3 greatsword +10 (2d12)",
+      "1 lightning bolt"
+    ],
+    "move": "double near (swim)",
+    "abilities": {
+      "str": 6,
+      "dex": 2,
+      "con": 4,
+      "int": 3,
+      "wis": 4,
+      "cha": 4
+    },
+    "alignment": "L",
+    "traits": [
+      "Stormblood. Electricity immune.",
+      "Lightning Bolt. 3/day, 5' wide line extending far from giant. All creatures in line DC 15 DEX or 5d10 damage. DISADV on check if in water. GIANT, HILL Fleshy hulks with leathery skin and broad, sloping foreheads. Cruel, boorish, and dim-witted."
+    ],
+    "loreTiers": {
+      "common": "Regal titans with sea-green skin, flowing white hair, and thundering voices. They breathe water as easily as air.",
+      "field": "Tactical combat behavior: Stormblood. Electricity immune.",
+      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    },
+    "harvest": [
+      {
+        "reagent": "GIANT STORM Pelt / Chitin / Essence",
+        "dc": 16,
+        "effect": "Alchemical ingredient useful in crafting potions or enchanting warding gear."
+      }
+    ]
+  },
+  {
+    "id": "giant_hill",
+    "name": "GIANT HILL",
+    "source": "shadowdark_core",
+    "level": 7,
+    "ac": 11,
+    "hp": 34,
+    "morale": 10,
+    "attacks": [
+      "2 greatclub +6 (2d8)",
+      "1 boulder (far) +6 (2d10)"
+    ],
+    "move": "double near",
+    "abilities": {
+      "str": 4,
+      "dex": 0,
+      "con": 3,
+      "int": -2,
+      "wis": -2,
+      "cha": -2
+    },
+    "alignment": "C",
+    "traits": [
+      "220 GIBBERING MOUTHER Crawling masses of slime with dozens of screeching, lipless mouths and wet eyeballs."
+    ],
+    "loreTiers": {
+      "common": "Fleshy hulks with leathery skin and broad, sloping foreheads. Cruel, boorish, and dim-witted.",
+      "field": "Tactical combat behavior: 220 GIBBERING MOUTHER Crawling masses of slime with dozens of screeching, lipless mouths and wet eyeballs.",
+      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    },
+    "harvest": [
+      {
+        "reagent": "GIANT HILL Pelt / Chitin / Essence",
+        "dc": 13,
         "effect": "Alchemical ingredient useful in crafting potions or enchanting warding gear."
       }
     ]
@@ -2738,9 +3684,7 @@
     "traits": [
       "Gibbering. Creatures within near DC 12 WIS on turn or take a random action (d8): 1-3. do nothing, 4-5. move in random direction, 6-7. attack nearest creature, 8. flee.",
       "Latch. Attach to bitten target; bites auto-hit next round. DC 12",
-      "STR on turn to tear off. GLADIATOR Veteran warriors seasoned in arena fights to the death. AC 16 (chainmail + shield), HP 15, ATK 2 longsword +3 (1d8) or 1 spear (close/near) +3 (1d6), MV near, S +2, D +1, C +2, I +0, W +0, Ch +1, AL N, LV 3 GNOLL Barbaric, opportunistic hyena- folk who range in large packs. AC 12 (leather), HP 10, ATK 1 spear (close/near) +1 (1d6) or 1 longbow (far) +1 (1d8), MV near, S +1, D +1, C +1, I -1, W +0, Ch -1, AL C, LV 2",
-      "Rage. 1/day, immune to morale checks, +1d4 damage (3 rounds). GNOME, DEEP Gray-skinned, white-haired fey the size of halflings. They hunt for gems and rare cave flora. AC 14 (leather + shield), HP 14, ATK 1 pick +3 (1d6) or 1 dart (near) +2 (1d4), MV near, S +2, D +1, C +1, I +1, W +1, Ch +1, AL L, LV 3",
-      "Stone Meld. 2/day, underground only. Turn invisible for 3 rounds. 221 GOBLINS Goblins are the smallest and most numerous of the goblinoids, often serving hobgoblins, bugbears, or even hill giants as replaceable lackeys. They live in filthy, subterranean warrens built of scavenged materials. The goblin boss rules by cruelty and strength, and the shaman wields cryptic sorcery. GOBLIN A short, hairless humanoid with green skin and pointy ears."
+      "STR on turn to tear off. GLADIATOR Veteran warriors seasoned in arena fights to the death."
     ],
     "loreTiers": {
       "common": "Crawling masses of slime with dozens of screeching, lipless mouths and wet eyeballs.",
@@ -2752,6 +3696,123 @@
       {
         "reagent": "GIBBERING MOUTHER Pelt / Chitin / Essence",
         "dc": 12,
+        "effect": "Alchemical ingredient useful in crafting potions or enchanting warding gear."
+      }
+    ]
+  },
+  {
+    "id": "gladiator",
+    "name": "GLADIATOR",
+    "source": "shadowdark_core",
+    "level": 3,
+    "ac": 16,
+    "hp": 15,
+    "morale": 9,
+    "attacks": [
+      "2 longsword +3 (1d8)",
+      "1 spear (close/near) +3 (1d6)"
+    ],
+    "move": "near",
+    "abilities": {
+      "str": 2,
+      "dex": 1,
+      "con": 2,
+      "int": 0,
+      "wis": 0,
+      "cha": 1
+    },
+    "alignment": "N",
+    "traits": [
+      "GNOLL Barbaric, opportunistic hyena- folk who range in large packs."
+    ],
+    "loreTiers": {
+      "common": "Veteran warriors seasoned in arena fights to the death.",
+      "field": "Tactical combat behavior: GNOLL Barbaric, opportunistic hyena- folk who range in large packs.",
+      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    },
+    "harvest": [
+      {
+        "reagent": "GLADIATOR Pelt / Chitin / Essence",
+        "dc": 11,
+        "effect": "Alchemical ingredient useful in crafting potions or enchanting warding gear."
+      }
+    ]
+  },
+  {
+    "id": "gnoll",
+    "name": "GNOLL",
+    "source": "shadowdark_core",
+    "level": 2,
+    "ac": 12,
+    "hp": 10,
+    "morale": 8,
+    "attacks": [
+      "1 spear (close/near) +1 (1d6)",
+      "1 longbow (far) +1 (1d8)"
+    ],
+    "move": "near",
+    "abilities": {
+      "str": 1,
+      "dex": 1,
+      "con": 1,
+      "int": -1,
+      "wis": 0,
+      "cha": -1
+    },
+    "alignment": "C",
+    "traits": [
+      "Rage. 1/day, immune to morale checks, +1d4 damage (3 rounds). GNOME, DEEP Gray-skinned, white-haired fey the size of halflings. They hunt for gems and rare cave flora."
+    ],
+    "loreTiers": {
+      "common": "Barbaric, opportunistic hyena- folk who range in large packs.",
+      "field": "Tactical combat behavior: Rage. 1/day, immune to morale checks, +1d4 damage (3 rounds). GNOME, DEEP Gray-skinned, white-haired fey the size of halflings. They hunt for gems and rare cave flora.",
+      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    },
+    "harvest": [
+      {
+        "reagent": "GNOLL Pelt / Chitin / Essence",
+        "dc": 11,
+        "effect": "Alchemical ingredient useful in crafting potions or enchanting warding gear."
+      }
+    ]
+  },
+  {
+    "id": "gnome_deep",
+    "name": "GNOME DEEP",
+    "source": "shadowdark_core",
+    "level": 3,
+    "ac": 14,
+    "hp": 14,
+    "morale": 9,
+    "attacks": [
+      "1 pick +3 (1d6)",
+      "1 dart (near) +2 (1d4)"
+    ],
+    "move": "near",
+    "abilities": {
+      "str": 2,
+      "dex": 1,
+      "con": 1,
+      "int": 1,
+      "wis": 1,
+      "cha": 1
+    },
+    "alignment": "L",
+    "traits": [
+      "Stone Meld. 2/day, underground only. Turn invisible for 3 rounds. 221 GOBLINS Goblins are the smallest and most numerous of the goblinoids, often serving hobgoblins, bugbears, or even hill giants as replaceable lackeys. They live in filthy, subterranean warrens built of scavenged materials. The goblin boss rules by cruelty and strength, and the shaman wields cryptic sorcery. GOBLIN A short, hairless humanoid with green skin and pointy ears."
+    ],
+    "loreTiers": {
+      "common": "Gray-skinned, white-haired fey the size of halflings. They hunt for gems and rare cave flora.",
+      "field": "Tactical combat behavior: Stone Meld. 2/day, underground only. Turn invisible for 3 rounds. 221 GOBLINS Goblins are the smallest and most numerous of the goblinoids, often serving hobgoblins, bugbears, or even hill giants as replaceable lackeys. They live in filthy, subterranean warrens built of scavenged materials. The goblin boss rules by cruelty and strength, and the shaman wields cryptic sorcery. GOBLIN A short, hairless humanoid with green skin and pointy ears.",
+      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    },
+    "harvest": [
+      {
+        "reagent": "GNOME DEEP Pelt / Chitin / Essence",
+        "dc": 11,
         "effect": "Alchemical ingredient useful in crafting potions or enchanting warding gear."
       }
     ]
@@ -2780,13 +3841,11 @@
     },
     "alignment": "C",
     "traits": [
-      "Keen Senses. Can't be surprised. GOBLIN, BOSS A scarred goblin with knotted muscles and a crown of iron. AC 14 (chainmail), HP 20, ATK 1 spear (close/near) +3 (1d6), MV near, S +2, D +1, C +2, I -1, W +0, Ch +1, AL C, LV 4",
-      "Keen Senses. Can't be surprised. GOBLIN, SHAMAN A swaying, chanting goblin wearing necklaces of teeth and a robe of musty rat pelts. AC 12 (leather), HP 19, ATK 1 staff +0 (1d4) or 1 spell +3, MV near, S +0, D +1, C +1, I +0, W +2, Ch +1, AL C, LV 4",
-      "Keen Senses. Can't be surprised. Bug Brain (WIS Spell). DC 13. Near range, one target. Target's INT drops to 1 for 1d4 rounds. Skitter (WIS Spell). DC 12. Self. Climb like a spider for 5 rounds. Stink Bomb (WIS Spell). DC 12. One target within far 2d4 damage and DC 12 CON or DISADV on next check/attack. 222 GOLEMS Creatures constructed from various materials and imbued with a rudimentary sentience. Making a golem requires rare, expensive materials and a series of complicated rituals. GOLEM, CLAY A towering, faceless humanoid shaped from glistening clay."
+      "Keen Senses. Can't be surprised. GOBLIN, BOSS A scarred goblin with knotted muscles and a crown of iron."
     ],
     "loreTiers": {
       "common": "A short, hairless humanoid with green skin and pointy ears.",
-      "field": "Tactical combat behavior: Keen Senses. Can't be surprised. GOBLIN, BOSS A scarred goblin with knotted muscles and a crown of iron. AC 14 (chainmail), HP 20, ATK 1 spear (close/near) +3 (1d6), MV near, S +2, D +1, C +2, I -1, W +0, Ch +1, AL C, LV 4",
+      "field": "Tactical combat behavior: Keen Senses. Can't be surprised. GOBLIN, BOSS A scarred goblin with knotted muscles and a crown of iron.",
       "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
       "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
     },
@@ -2794,6 +3853,83 @@
       {
         "reagent": "GOBLIN Pelt / Chitin / Essence",
         "dc": 10,
+        "effect": "Alchemical ingredient useful in crafting potions or enchanting warding gear."
+      }
+    ]
+  },
+  {
+    "id": "goblin_boss",
+    "name": "GOBLIN BOSS",
+    "source": "shadowdark_core",
+    "level": 4,
+    "ac": 14,
+    "hp": 20,
+    "morale": 10,
+    "attacks": [
+      "1 spear (close/near) +3 (1d6)"
+    ],
+    "move": "near",
+    "abilities": {
+      "str": 2,
+      "dex": 1,
+      "con": 2,
+      "int": -1,
+      "wis": 0,
+      "cha": 1
+    },
+    "alignment": "C",
+    "traits": [
+      "Keen Senses. Can't be surprised. GOBLIN, SHAMAN A swaying, chanting goblin wearing necklaces of teeth and a robe of musty rat pelts."
+    ],
+    "loreTiers": {
+      "common": "A scarred goblin with knotted muscles and a crown of iron.",
+      "field": "Tactical combat behavior: Keen Senses. Can't be surprised. GOBLIN, SHAMAN A swaying, chanting goblin wearing necklaces of teeth and a robe of musty rat pelts.",
+      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    },
+    "harvest": [
+      {
+        "reagent": "GOBLIN BOSS Pelt / Chitin / Essence",
+        "dc": 12,
+        "effect": "Alchemical ingredient useful in crafting potions or enchanting warding gear."
+      }
+    ]
+  },
+  {
+    "id": "goblin_shaman",
+    "name": "GOBLIN SHAMAN",
+    "source": "shadowdark_core",
+    "level": 4,
+    "ac": 12,
+    "hp": 19,
+    "morale": 10,
+    "attacks": [
+      "1 staff +0 (1d4)",
+      "1 spell +3"
+    ],
+    "move": "near",
+    "abilities": {
+      "str": 0,
+      "dex": 1,
+      "con": 1,
+      "int": 0,
+      "wis": 2,
+      "cha": 1
+    },
+    "alignment": "C",
+    "traits": [
+      "Keen Senses. Can't be surprised. Bug Brain (WIS Spell). DC 13. Near range, one target. Target's INT drops to 1 for 1d4 rounds. Skitter (WIS Spell). DC 12. Self. Climb like a spider for 5 rounds. Stink Bomb (WIS Spell). DC 12. One target within far 2d4 damage and DC 12 CON or DISADV on next check/attack. 222 GOLEMS Creatures constructed from various materials and imbued with a rudimentary sentience. Making a golem requires rare, expensive materials and a series of complicated rituals. GOLEM, CLAY A towering, faceless humanoid shaped from glistening clay."
+    ],
+    "loreTiers": {
+      "common": "A swaying, chanting goblin wearing necklaces of teeth and a robe of musty rat pelts.",
+      "field": "Tactical combat behavior: Keen Senses. Can't be surprised. Bug Brain (WIS Spell). DC 13. Near range, one target. Target's INT drops to 1 for 1d4 rounds. Skitter (WIS Spell). DC 12. Self. Climb like a spider for 5 rounds. Stink Bomb (WIS Spell). DC 12. One target within far 2d4 damage and DC 12 CON or DISADV on next check/attack. 222 GOLEMS Creatures constructed from various materials and imbued with a rudimentary sentience. Making a golem requires rare, expensive materials and a series of complicated rituals. GOLEM, CLAY A towering, faceless humanoid shaped from glistening clay.",
+      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    },
+    "harvest": [
+      {
+        "reagent": "GOBLIN SHAMAN Pelt / Chitin / Essence",
+        "dc": 12,
         "effect": "Alchemical ingredient useful in crafting potions or enchanting warding gear."
       }
     ]
@@ -3174,11 +4310,11 @@
     },
     "alignment": "N",
     "traits": [
-      "Grab. One target in near DC 15 STR or wrapped in grimlow's tongue and pulled into its mouth. Bite attacks automatically hit the target. Can only grab 1 target at a time. DC 15 STR on turn to break free. GUARD A sentry equipped with sturdy weapons and armor. AC 15 (chainmail + shield), HP 4, ATK 1 spear (close/near) +1 (1d6) or 1 longsword +1 (1d8), MV near, S +1, D +0, C +0, I +0, W +1, Ch +0, AL L, LV 1 225 HAGS Sinister crones who rose out of the black bogs of the Unseelie realms long ago. They are wretched beings of hatred and evil, suffused with cursed magic. Sea hags haunt dank ocean caves and grottoes. Night hags are drawn to places of depravity and woe, while weald hags fester in deep, boggy woods. HAG, WEALD Eyes dark as moonless nights, skin made of rotting wood, hair of tangled roots and vines."
+      "Grab. One target in near DC 15 STR or wrapped in grimlow's tongue and pulled into its mouth. Bite attacks automatically hit the target. Can only grab 1 target at a time. DC 15 STR on turn to break free. GUARD A sentry equipped with sturdy weapons and armor."
     ],
     "loreTiers": {
       "common": "A tall, oval-shaped mammal. A giant, half-moon maw hides on its belly beneath its gray fur.",
-      "field": "Tactical combat behavior: Grab. One target in near DC 15 STR or wrapped in grimlow's tongue and pulled into its mouth. Bite attacks automatically hit the target. Can only grab 1 target at a time. DC 15 STR on turn to break free. GUARD A sentry equipped with sturdy weapons and armor. AC 15 (chainmail + shield), HP 4, ATK 1 spear (close/near) +1 (1d6) or 1 longsword +1 (1d8), MV near, S +1, D +0, C +0, I +0, W +1, Ch +0, AL L, LV 1 225 HAGS Sinister crones who rose out of the black bogs of the Unseelie realms long ago. They are wretched beings of hatred and evil, suffused with cursed magic. Sea hags haunt dank ocean caves and grottoes. Night hags are drawn to places of depravity and woe, while weald hags fester in deep, boggy woods. HAG, WEALD Eyes dark as moonless nights, skin made of rotting wood, hair of tangled roots and vines.",
+      "field": "Tactical combat behavior: Grab. One target in near DC 15 STR or wrapped in grimlow's tongue and pulled into its mouth. Bite attacks automatically hit the target. Can only grab 1 target at a time. DC 15 STR on turn to break free. GUARD A sentry equipped with sturdy weapons and armor.",
       "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
       "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
     },
@@ -3186,6 +4322,45 @@
       {
         "reagent": "GRIMLOW Pelt / Chitin / Essence",
         "dc": 14,
+        "effect": "Alchemical ingredient useful in crafting potions or enchanting warding gear."
+      }
+    ]
+  },
+  {
+    "id": "guard",
+    "name": "GUARD",
+    "source": "shadowdark_core",
+    "level": 1,
+    "ac": 15,
+    "hp": 4,
+    "morale": 7,
+    "attacks": [
+      "1 spear (close/near) +1 (1d6)",
+      "1 longsword +1 (1d8)"
+    ],
+    "move": "near",
+    "abilities": {
+      "str": 1,
+      "dex": 0,
+      "con": 0,
+      "int": 0,
+      "wis": 1,
+      "cha": 0
+    },
+    "alignment": "L",
+    "traits": [
+      "225 HAGS Sinister crones who rose out of the black bogs of the Unseelie realms long ago. They are wretched beings of hatred and evil, suffused with cursed magic. Sea hags haunt dank ocean caves and grottoes. Night hags are drawn to places of depravity and woe, while weald hags fester in deep, boggy woods. HAG, WEALD Eyes dark as moonless nights, skin made of rotting wood, hair of tangled roots and vines."
+    ],
+    "loreTiers": {
+      "common": "A sentry equipped with sturdy weapons and armor.",
+      "field": "Tactical combat behavior: 225 HAGS Sinister crones who rose out of the black bogs of the Unseelie realms long ago. They are wretched beings of hatred and evil, suffused with cursed magic. Sea hags haunt dank ocean caves and grottoes. Night hags are drawn to places of depravity and woe, while weald hags fester in deep, boggy woods. HAG, WEALD Eyes dark as moonless nights, skin made of rotting wood, hair of tangled roots and vines.",
+      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    },
+    "harvest": [
+      {
+        "reagent": "GUARD Pelt / Chitin / Essence",
+        "dc": 10,
         "effect": "Alchemical ingredient useful in crafting potions or enchanting warding gear."
       }
     ]
@@ -3448,12 +4623,11 @@
     },
     "alignment": "N",
     "traits": [
-      "Stumpy. ADV on STR checks to grab or drag other creatures. 227 HOBGOBLIN A sturdy, tall goblin with russet skin. Militant and strategic. AC 15 (chainmail + shield), HP 10, ATK 1 longsword +3 (1d8) or 1 longbow (far) +0 (1d8), MV near, S +3, D +0, C +1, I +2, W +1, Ch +1, AL C, LV 2",
-      "Phalanx. +1 to attacks and AC when in close range of an allied hobgoblin. HORSE Powerful, swift herd animals that roam open plains."
+      "Stumpy. ADV on STR checks to grab or drag other creatures. 227 HOBGOBLIN A sturdy, tall goblin with russet skin. Militant and strategic."
     ],
     "loreTiers": {
       "common": "Ornery river-beasts as large as cows with round, purple bodies and bulbous snouts.",
-      "field": "Tactical combat behavior: Stumpy. ADV on STR checks to grab or drag other creatures. 227 HOBGOBLIN A sturdy, tall goblin with russet skin. Militant and strategic. AC 15 (chainmail + shield), HP 10, ATK 1 longsword +3 (1d8) or 1 longbow (far) +0 (1d8), MV near, S +3, D +0, C +1, I +2, W +1, Ch +1, AL C, LV 2",
+      "field": "Tactical combat behavior: Stumpy. ADV on STR checks to grab or drag other creatures. 227 HOBGOBLIN A sturdy, tall goblin with russet skin. Militant and strategic.",
       "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
       "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
     },
@@ -3461,6 +4635,45 @@
       {
         "reagent": "HIPPOPOTAMUS Pelt / Chitin / Essence",
         "dc": 12,
+        "effect": "Alchemical ingredient useful in crafting potions or enchanting warding gear."
+      }
+    ]
+  },
+  {
+    "id": "hobgoblin",
+    "name": "HOBGOBLIN",
+    "source": "shadowdark_core",
+    "level": 2,
+    "ac": 15,
+    "hp": 10,
+    "morale": 9,
+    "attacks": [
+      "1 longsword +3 (1d8)",
+      "1 longbow (far) +0 (1d8)"
+    ],
+    "move": "near",
+    "abilities": {
+      "str": 3,
+      "dex": 0,
+      "con": 1,
+      "int": 2,
+      "wis": 1,
+      "cha": 1
+    },
+    "alignment": "C",
+    "traits": [
+      "Phalanx. +1 to attacks and AC when in close range of an allied hobgoblin. HORSE Powerful, swift herd animals that roam open plains."
+    ],
+    "loreTiers": {
+      "common": "A sturdy, tall goblin with russet skin. Militant and strategic.",
+      "field": "Tactical combat behavior: Phalanx. +1 to attacks and AC when in close range of an allied hobgoblin. HORSE Powerful, swift herd animals that roam open plains.",
+      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    },
+    "harvest": [
+      {
+        "reagent": "HOBGOBLIN Pelt / Chitin / Essence",
+        "dc": 11,
         "effect": "Alchemical ingredient useful in crafting potions or enchanting warding gear."
       }
     ]
@@ -3566,14 +4779,11 @@
     },
     "alignment": "N",
     "traits": [
-      "Toxin. DC 9 CON or paralyzed 1d4 rounds. KNIGHT A warrior in shining plate mail and the surcoat of a knightly order. AC 17 (plate mail + shield), HP 14, ATK 2 bastard sword +3 (1d8), MV near, S +3, D +0, C +1, I +0, W +0, Ch +1, AL L, LV 3",
-      "Oath. 3/day, ADV on a roll made in service of knight's order. KOBOLD Puny, scaled coyote-lizards that dwell underground. AC 13 (leather), HP 1, ATK 1 spear (close/near) +0 (1d6), MV near, S -2, D +2, C +0, I -1, W +0, Ch -1, AL C, LV 0",
-      "Dodge. 1/day, an attack that would hit misses instead. KOBOLD, SORCERER A scaly dog-lizard painted with colorful stripes and rattling a hefty leg bone strung with beads and feathers. AC 13 (leather), HP 13, ATK 1 club +1 (1d4) or 1 spell +2, MV near, S -2, D +2, C +0, I -1, W +1, Ch +2, AL C, LV 3",
-      "Dodge. 1/day, an attack that would hit misses instead. Scorpion Sting (CHA Spell). DC 11. Near range, one target. 1d6 damage and target has DISADV on next attack roll or check. Spider Swarm (CHA Spell). DC 12. A spider swarm appears within near. Stays 1d4 rounds. Follows sorcerer's commands. 229 KRAKEN Primordial, tentacled leviathans the size of war galleons. They live in the lightless depths of the deep ocean."
+      "Toxin. DC 9 CON or paralyzed 1d4 rounds. KNIGHT A warrior in shining plate mail and the surcoat of a knightly order."
     ],
     "loreTiers": {
       "common": "Hand-sized, purple sea jellies with stinging tentacles.",
-      "field": "Tactical combat behavior: Toxin. DC 9 CON or paralyzed 1d4 rounds. KNIGHT A warrior in shining plate mail and the surcoat of a knightly order. AC 17 (plate mail + shield), HP 14, ATK 2 bastard sword +3 (1d8), MV near, S +3, D +0, C +1, I +0, W +0, Ch +1, AL L, LV 3",
+      "field": "Tactical combat behavior: Toxin. DC 9 CON or paralyzed 1d4 rounds. KNIGHT A warrior in shining plate mail and the surcoat of a knightly order.",
       "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
       "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
     },
@@ -3581,6 +4791,121 @@
       {
         "reagent": "JELLYFISH Pelt / Chitin / Essence",
         "dc": 10,
+        "effect": "Alchemical ingredient useful in crafting potions or enchanting warding gear."
+      }
+    ]
+  },
+  {
+    "id": "knight",
+    "name": "KNIGHT",
+    "source": "shadowdark_core",
+    "level": 3,
+    "ac": 17,
+    "hp": 14,
+    "morale": 9,
+    "attacks": [
+      "2 bastard sword +3 (1d8)"
+    ],
+    "move": "near",
+    "abilities": {
+      "str": 3,
+      "dex": 0,
+      "con": 1,
+      "int": 0,
+      "wis": 0,
+      "cha": 1
+    },
+    "alignment": "L",
+    "traits": [
+      "Oath. 3/day, ADV on a roll made in service of knight's order. KOBOLD Puny, scaled coyote-lizards that dwell underground."
+    ],
+    "loreTiers": {
+      "common": "A warrior in shining plate mail and the surcoat of a knightly order.",
+      "field": "Tactical combat behavior: Oath. 3/day, ADV on a roll made in service of knight's order. KOBOLD Puny, scaled coyote-lizards that dwell underground.",
+      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    },
+    "harvest": [
+      {
+        "reagent": "KNIGHT Pelt / Chitin / Essence",
+        "dc": 11,
+        "effect": "Alchemical ingredient useful in crafting potions or enchanting warding gear."
+      }
+    ]
+  },
+  {
+    "id": "kobold",
+    "name": "KOBOLD",
+    "source": "shadowdark_core",
+    "level": 0,
+    "ac": 13,
+    "hp": 1,
+    "morale": 7,
+    "attacks": [
+      "1 spear (close/near) +0 (1d6)"
+    ],
+    "move": "near",
+    "abilities": {
+      "str": -2,
+      "dex": 2,
+      "con": 0,
+      "int": -1,
+      "wis": 0,
+      "cha": -1
+    },
+    "alignment": "C",
+    "traits": [
+      "Dodge. 1/day, an attack that would hit misses instead. KOBOLD, SORCERER A scaly dog-lizard painted with colorful stripes and rattling a hefty leg bone strung with beads and feathers."
+    ],
+    "loreTiers": {
+      "common": "Puny, scaled coyote-lizards that dwell underground.",
+      "field": "Tactical combat behavior: Dodge. 1/day, an attack that would hit misses instead. KOBOLD, SORCERER A scaly dog-lizard painted with colorful stripes and rattling a hefty leg bone strung with beads and feathers.",
+      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    },
+    "harvest": [
+      {
+        "reagent": "KOBOLD Pelt / Chitin / Essence",
+        "dc": 10,
+        "effect": "Alchemical ingredient useful in crafting potions or enchanting warding gear."
+      }
+    ]
+  },
+  {
+    "id": "kobold_sorcerer",
+    "name": "KOBOLD SORCERER",
+    "source": "shadowdark_core",
+    "level": 3,
+    "ac": 13,
+    "hp": 13,
+    "morale": 10,
+    "attacks": [
+      "1 club +1 (1d4)",
+      "1 spell +2"
+    ],
+    "move": "near",
+    "abilities": {
+      "str": -2,
+      "dex": 2,
+      "con": 0,
+      "int": -1,
+      "wis": 1,
+      "cha": 2
+    },
+    "alignment": "C",
+    "traits": [
+      "Dodge. 1/day, an attack that would hit misses instead. Scorpion Sting (CHA Spell). DC 11. Near range, one target. 1d6 damage and target has DISADV on next attack roll or check. Spider Swarm (CHA Spell). DC 12. A spider swarm appears within near. Stays 1d4 rounds. Follows sorcerer's commands. 229 KRAKEN Primordial, tentacled leviathans the size of war galleons. They live in the lightless depths of the deep ocean."
+    ],
+    "loreTiers": {
+      "common": "A scaly dog-lizard painted with colorful stripes and rattling a hefty leg bone strung with beads and feathers.",
+      "field": "Tactical combat behavior: Dodge. 1/day, an attack that would hit misses instead. Scorpion Sting (CHA Spell). DC 11. Near range, one target. 1d6 damage and target has DISADV on next attack roll or check. Spider Swarm (CHA Spell). DC 12. A spider swarm appears within near. Stays 1d4 rounds. Follows sorcerer's commands. 229 KRAKEN Primordial, tentacled leviathans the size of war galleons. They live in the lightless depths of the deep ocean.",
+      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    },
+    "harvest": [
+      {
+        "reagent": "KOBOLD SORCERER Pelt / Chitin / Essence",
+        "dc": 11,
         "effect": "Alchemical ingredient useful in crafting potions or enchanting warding gear."
       }
     ]
@@ -3771,7 +5096,7 @@
     "alignment": "N",
     "traits": [
       "LIZARDFOLK Crocodilian humanoids with scaly faces, claws, and tails.",
-      "They dwell in swamps and rivers. AC 14 (leather + shield), HP 11, ATK 1 spear (close/near) +2 (1d6), MV near (swim), S +1, D +1, C +2, I -1, W +1, Ch -2, AL C, LV 2 MAGE Trained wizards who are often members of a sorcerous order."
+      "They dwell in swamps and rivers."
     ],
     "loreTiers": {
       "common": "Tawny great cats that hunt in open plains. Males have manes.",
@@ -3782,6 +5107,44 @@
     "harvest": [
       {
         "reagent": "LION Pelt / Chitin / Essence",
+        "dc": 11,
+        "effect": "Alchemical ingredient useful in crafting potions or enchanting warding gear."
+      }
+    ]
+  },
+  {
+    "id": "lizardfolk",
+    "name": "LIZARDFOLK",
+    "source": "shadowdark_core",
+    "level": 2,
+    "ac": 14,
+    "hp": 11,
+    "morale": 8,
+    "attacks": [
+      "1 spear (close/near) +2 (1d6)"
+    ],
+    "move": "near (swim)",
+    "abilities": {
+      "str": 1,
+      "dex": 1,
+      "con": 2,
+      "int": -1,
+      "wis": 1,
+      "cha": -2
+    },
+    "alignment": "C",
+    "traits": [
+      "MAGE Trained wizards who are often members of a sorcerous order."
+    ],
+    "loreTiers": {
+      "common": "Crocodilian humanoids with scaly faces, claws, and tails. They dwell in swamps and rivers.",
+      "field": "Tactical combat behavior: MAGE Trained wizards who are often members of a sorcerous order.",
+      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    },
+    "harvest": [
+      {
+        "reagent": "LIZARDFOLK Pelt / Chitin / Essence",
         "dc": 11,
         "effect": "Alchemical ingredient useful in crafting potions or enchanting warding gear."
       }
@@ -4082,8 +5445,7 @@
     "alignment": "N",
     "traits": [
       "Stick. DC 15 STR or adhere to target; auto-hit with bite. DC 15",
-      "STR on turn to remove. 233 MINOTAUR Ferocious bull-men with hooves and curved horns. They live in mazelike tunnels. AC 14 (chainmail), HP 34, ATK 2 greataxe +6 (1d10) and 1 horns +6 (1d12), MV near, S +4, D +1, C +3, I +1, W +2, Ch +1, AL C, LV 7",
-      "Charge. In place of attacks, move up to double near in a straight line and make 1 horn attack. If hit, x2 damage. MOOSE A towering, brown-haired grazer with weighty, flat antlers."
+      "STR on turn to remove. 233 MINOTAUR Ferocious bull-men with hooves and curved horns. They live in mazelike tunnels."
     ],
     "loreTiers": {
       "common": "Beasts that look like objects.",
@@ -4095,6 +5457,44 @@
       {
         "reagent": "MIMIC Pelt / Chitin / Essence",
         "dc": 12,
+        "effect": "Alchemical ingredient useful in crafting potions or enchanting warding gear."
+      }
+    ]
+  },
+  {
+    "id": "minotaur",
+    "name": "MINOTAUR",
+    "source": "shadowdark_core",
+    "level": 7,
+    "ac": 14,
+    "hp": 34,
+    "morale": 11,
+    "attacks": [
+      "2 greataxe +6 (1d10) and 1 horns +6 (1d12)"
+    ],
+    "move": "near",
+    "abilities": {
+      "str": 4,
+      "dex": 1,
+      "con": 3,
+      "int": 1,
+      "wis": 2,
+      "cha": 1
+    },
+    "alignment": "C",
+    "traits": [
+      "Charge. In place of attacks, move up to double near in a straight line and make 1 horn attack. If hit, x2 damage. MOOSE A towering, brown-haired grazer with weighty, flat antlers."
+    ],
+    "loreTiers": {
+      "common": "Ferocious bull-men with hooves and curved horns. They live in mazelike tunnels.",
+      "field": "Tactical combat behavior: Charge. In place of attacks, move up to double near in a straight line and make 1 horn attack. If hit, x2 damage. MOOSE A towering, brown-haired grazer with weighty, flat antlers.",
+      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    },
+    "harvest": [
+      {
+        "reagent": "MINOTAUR Pelt / Chitin / Essence",
+        "dc": 13,
         "effect": "Alchemical ingredient useful in crafting potions or enchanting warding gear."
       }
     ]
@@ -4133,6 +5533,47 @@
       {
         "reagent": "MOOSE Pelt / Chitin / Essence",
         "dc": 12,
+        "effect": "Alchemical ingredient useful in crafting potions or enchanting warding gear."
+      }
+    ]
+  },
+  {
+    "id": "mordanticus_the_flayed",
+    "name": "Mordanticus the Flayed",
+    "source": "shadowdark_core",
+    "level": 19,
+    "ac": 17,
+    "hp": 89,
+    "morale": 12,
+    "attacks": [
+      "1 rot touch +8 (1d10 + necrosis) and 3 spell +8"
+    ],
+    "move": "near",
+    "abilities": {
+      "str": 4,
+      "dex": 4,
+      "con": 4,
+      "int": 5,
+      "wis": 4,
+      "cha": 5
+    },
+    "alignment": "N",
+    "traits": [
+      "Legendary Undead. Immune to morale checks. Only damaged by magical sources. Hostile spells targeting Mordanticus are DC 18 to cast.",
+      "Crown of Gehemna. 3/day, cause a spell being cast within far to fail.",
+      "Necrosis. DC 15 CON or go to 0 HP. Healing spells are DC 15 to cast on target while at 0 HP due to this effect.",
+      "Phylactery. Cannot be killed while spirit vessel (a diamond) is intact. Absorb (INT Spell). DC 13. Near, one target. Target loses the ability to cast one random spell until completing a rest, and Mordanticus regains a lost spell of the same tier or less. Banish (INT Spell). DC 14. All extradimensional creatures within near DC 15 CHA or sent back to their home planes. Bind (INT Spell). DC 12. One humanoid in far paralyzed 1d4 rounds. Blast (INT Spell). DC 14. One creature in near takes 5d8 damage. Phase (INT Spell). DC 13. Self. Teleport up to one mile. True Name (INT Spell). DC 15. Near. Learn the True Name of target. MORDANTICUS THE FLAYED “Long have I held the weighty secrets of Gehemna, an age-old litany inscribed upon my weary soul.\" -Mordanticus the Flayed 236 MUMMY A desiccated, linen-wrapped zombie. It was created with an intricate embalming ritual used only upon the most worthy warriors or rulers."
+    ],
+    "loreTiers": {
+      "common": "234 A skinless mummy-lich wearing a crown set with nine bright gems. Once the head of the ancient, wizardly order of Gehemna, Mordanticus now lives in secret within the sanctum of Gehemna's reigning archmage. He has served as an advisor and historian for centuries, but an enduring enchantment prevents him from speaking of two topics: his origins, and The Ten-Eyed Oracle.",
+      "field": "Tactical combat behavior: Legendary Undead. Immune to morale checks. Only damaged by magical sources. Hostile spells targeting Mordanticus are DC 18 to cast.",
+      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    },
+    "harvest": [
+      {
+        "reagent": "Mordanticus the Flayed Pelt / Chitin / Essence",
+        "dc": 18,
         "effect": "Alchemical ingredient useful in crafting potions or enchanting warding gear."
       }
     ]
@@ -4315,7 +5756,44 @@
     },
     "alignment": "C",
     "traits": [
-      "Impervious. Nightmare and its rider immune to fire. 238 A pale, angular woman in translucent plate mail fashioned from giant scorpion chitin. Obe-Ixx, daughter of Azarumme, rose up from the prehistoric barbarian tribes of Tal-Yool to conquer all in her path. One day, she stood at the steps of an obsidian ziggurat deep within the trackless jungle. Forty nights later, Obe-Ixx emerged as the ur-vampire, bloodlust made flesh. Her dynasty would rise and fall again and again over the coming millennia. AC 18 (+3 plate mail), HP 76, ATK 4 greatsword (near) +11 (1d12 + 2 + Moonbite properties) and 1 bite +9 (1d8 + blood drain) and 1 charm, MV near (climb, fly), S +5, D +3, C +4, I +3, W +4, Ch +5, AL C, LV 16",
+      "Impervious. Nightmare and its rider immune to fire. 238 A pale, angular woman in translucent plate mail fashioned from giant scorpion chitin. Obe-Ixx, daughter of Azarumme, rose up from the prehistoric barbarian tribes of Tal-Yool to conquer all in her path. One day, she stood at the steps of an obsidian ziggurat deep within the trackless jungle. Forty nights later, Obe-Ixx emerged as the ur-vampire, bloodlust made flesh. Her dynasty would rise and fall again and again over the coming millennia."
+    ],
+    "loreTiers": {
+      "common": "Black warhorses with flaming manes, hooves, and eyes.",
+      "field": "Tactical combat behavior: Impervious. Nightmare and its rider immune to fire. 238 A pale, angular woman in translucent plate mail fashioned from giant scorpion chitin. Obe-Ixx, daughter of Azarumme, rose up from the prehistoric barbarian tribes of Tal-Yool to conquer all in her path. One day, she stood at the steps of an obsidian ziggurat deep within the trackless jungle. Forty nights later, Obe-Ixx emerged as the ur-vampire, bloodlust made flesh. Her dynasty would rise and fall again and again over the coming millennia.",
+      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    },
+    "harvest": [
+      {
+        "reagent": "NIGHTMARE Pelt / Chitin / Essence",
+        "dc": 13,
+        "effect": "Alchemical ingredient useful in crafting potions or enchanting warding gear."
+      }
+    ]
+  },
+  {
+    "id": "obe_ixx_of_azarumme",
+    "name": "Obe-Ixx of Azarumme",
+    "source": "shadowdark_core",
+    "level": 16,
+    "ac": 18,
+    "hp": 76,
+    "morale": 12,
+    "attacks": [
+      "4 greatsword (near) +11 (1d12 + 2 + Moonbite properties) and 1 bite +9 (1d8 + blood drain) and 1 charm"
+    ],
+    "move": "near (climb, fly)",
+    "abilities": {
+      "str": 5,
+      "dex": 3,
+      "con": 4,
+      "int": 3,
+      "wis": 4,
+      "cha": 5
+    },
+    "alignment": "C",
+    "traits": [
       "Legendary Undead. Immune to morale checks. Only damaged by magical sources. Hostile spells targeting Obe-Ixx are DC 18 to cast.",
       "Blood Drain. Obe-Ixx heals 2d8 HP, target permanently loses 1d6",
       "CON. At 0 CON, target dies and rises as a loyal vampire or vampire spawn (Obe-Ixx chooses).",
@@ -4326,15 +5804,15 @@
       "HP with a wooden stake carved from a tree from the Tal-Yool jungle. OBE-IXX OF AZARUMME “By this blade, the empire of Azarumme shall rise again!\" -Obe-Ixx of Azarumme 239 OCHRE JELLY An orange puddle of quivering slime."
     ],
     "loreTiers": {
-      "common": "Black warhorses with flaming manes, hooves, and eyes.",
-      "field": "Tactical combat behavior: Impervious. Nightmare and its rider immune to fire. 238 A pale, angular woman in translucent plate mail fashioned from giant scorpion chitin. Obe-Ixx, daughter of Azarumme, rose up from the prehistoric barbarian tribes of Tal-Yool to conquer all in her path. One day, she stood at the steps of an obsidian ziggurat deep within the trackless jungle. Forty nights later, Obe-Ixx emerged as the ur-vampire, bloodlust made flesh. Her dynasty would rise and fall again and again over the coming millennia. AC 18 (+3 plate mail), HP 76, ATK 4 greatsword (near) +11 (1d12 + 2 + Moonbite properties) and 1 bite +9 (1d8 + blood drain) and 1 charm, MV near (climb, fly), S +5, D +3, C +4, I +3, W +4, Ch +5, AL C, LV 16",
+      "common": "Impervious. Nightmare and its rider immune to fire. 238 A pale, angular woman in translucent plate mail fashioned from giant scorpion chitin. Obe-Ixx, daughter of Azarumme, rose up from the prehistoric barbarian tribes of Tal-Yool to conquer all in her path. One day, she stood at the steps of an obsidian ziggurat deep within the trackless jungle. Forty nights later, Obe-Ixx emerged as the ur-vampire, bloodlust made flesh. Her dynasty would rise and fall again and again over the coming millennia.",
+      "field": "Tactical combat behavior: Legendary Undead. Immune to morale checks. Only damaged by magical sources. Hostile spells targeting Obe-Ixx are DC 18 to cast.",
       "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
       "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
     },
     "harvest": [
       {
-        "reagent": "NIGHTMARE Pelt / Chitin / Essence",
-        "dc": 13,
+        "reagent": "Obe-Ixx of Azarumme Pelt / Chitin / Essence",
+        "dc": 18,
         "effect": "Alchemical ingredient useful in crafting potions or enchanting warding gear."
       }
     ]
@@ -4481,13 +5959,11 @@
     },
     "alignment": "C",
     "traits": [
-      "Shapeshift. In place of attacks, turn into any humanoid or back into original form. Fade (CHA Spell). DC 13. Self. Become invisible for 1d4 rounds. Hellfrost (CHA Spell). DC 13. All within near-sized cube extending from oni 3d6 damage. Mist (CHA Spell). DC 13. Self. Turn into mist that can fly double near. Lasts 2d4 rounds. 240 ORC A tusked, tall humanoid with gray skin and pointed ears. AC 15 (chainmail + shield), HP 4, ATK 1 greataxe +2 (1d8), MV near, S +2, D +0, C +0, I -1, W +0, Ch -1, AL C, LV 1",
-      "Rage. 1/day, immune to morale checks, +1d4 damage (3 rounds). ORC, CHIEFTAIN An imposing orc with scars crisscrossing its body. AC 14 (chainmail), HP 19, ATK 2 greataxe +4 (1d10), MV near, S +2, D +1, C +1, I -1, W +0, Ch -1, AL C, LV 4",
-      "Rage. 1/day, immune to morale checks, +1d4 damage (3 rounds). OTYUGH Stumpy, three-legged beasts with barbed tentacles and vast mouths. Drawn by rot and filth."
+      "Shapeshift. In place of attacks, turn into any humanoid or back into original form. Fade (CHA Spell). DC 13. Self. Become invisible for 1d4 rounds. Hellfrost (CHA Spell). DC 13. All within near-sized cube extending from oni 3d6 damage. Mist (CHA Spell). DC 13. Self. Turn into mist that can fly double near. Lasts 2d4 rounds. 240 ORC A tusked, tall humanoid with gray skin and pointed ears."
     ],
     "loreTiers": {
       "common": "Cunning and sorcerous ogre- demons with shaggy white hair, blue skin, and yellow eyes.",
-      "field": "Tactical combat behavior: Shapeshift. In place of attacks, turn into any humanoid or back into original form. Fade (CHA Spell). DC 13. Self. Become invisible for 1d4 rounds. Hellfrost (CHA Spell). DC 13. All within near-sized cube extending from oni 3d6 damage. Mist (CHA Spell). DC 13. Self. Turn into mist that can fly double near. Lasts 2d4 rounds. 240 ORC A tusked, tall humanoid with gray skin and pointed ears. AC 15 (chainmail + shield), HP 4, ATK 1 greataxe +2 (1d8), MV near, S +2, D +0, C +0, I -1, W +0, Ch -1, AL C, LV 1",
+      "field": "Tactical combat behavior: Shapeshift. In place of attacks, turn into any humanoid or back into original form. Fade (CHA Spell). DC 13. Self. Become invisible for 1d4 rounds. Hellfrost (CHA Spell). DC 13. All within near-sized cube extending from oni 3d6 damage. Mist (CHA Spell). DC 13. Self. Turn into mist that can fly double near. Lasts 2d4 rounds. 240 ORC A tusked, tall humanoid with gray skin and pointed ears.",
       "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
       "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
     },
@@ -4495,6 +5971,82 @@
       {
         "reagent": "ONI Pelt / Chitin / Essence",
         "dc": 13,
+        "effect": "Alchemical ingredient useful in crafting potions or enchanting warding gear."
+      }
+    ]
+  },
+  {
+    "id": "orc",
+    "name": "ORC",
+    "source": "shadowdark_core",
+    "level": 1,
+    "ac": 15,
+    "hp": 4,
+    "morale": 7,
+    "attacks": [
+      "1 greataxe +2 (1d8)"
+    ],
+    "move": "near",
+    "abilities": {
+      "str": 2,
+      "dex": 0,
+      "con": 0,
+      "int": -1,
+      "wis": 0,
+      "cha": -1
+    },
+    "alignment": "C",
+    "traits": [
+      "Rage. 1/day, immune to morale checks, +1d4 damage (3 rounds). ORC, CHIEFTAIN An imposing orc with scars crisscrossing its body."
+    ],
+    "loreTiers": {
+      "common": "A tusked, tall humanoid with gray skin and pointed ears.",
+      "field": "Tactical combat behavior: Rage. 1/day, immune to morale checks, +1d4 damage (3 rounds). ORC, CHIEFTAIN An imposing orc with scars crisscrossing its body.",
+      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    },
+    "harvest": [
+      {
+        "reagent": "ORC Pelt / Chitin / Essence",
+        "dc": 10,
+        "effect": "Alchemical ingredient useful in crafting potions or enchanting warding gear."
+      }
+    ]
+  },
+  {
+    "id": "orc_chieftain",
+    "name": "ORC CHIEFTAIN",
+    "source": "shadowdark_core",
+    "level": 4,
+    "ac": 14,
+    "hp": 19,
+    "morale": 9,
+    "attacks": [
+      "2 greataxe +4 (1d10)"
+    ],
+    "move": "near",
+    "abilities": {
+      "str": 2,
+      "dex": 1,
+      "con": 1,
+      "int": -1,
+      "wis": 0,
+      "cha": -1
+    },
+    "alignment": "C",
+    "traits": [
+      "Rage. 1/day, immune to morale checks, +1d4 damage (3 rounds). OTYUGH Stumpy, three-legged beasts with barbed tentacles and vast mouths. Drawn by rot and filth."
+    ],
+    "loreTiers": {
+      "common": "An imposing orc with scars crisscrossing its body.",
+      "field": "Tactical combat behavior: Rage. 1/day, immune to morale checks, +1d4 damage (3 rounds). OTYUGH Stumpy, three-legged beasts with barbed tentacles and vast mouths. Drawn by rot and filth.",
+      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    },
+    "harvest": [
+      {
+        "reagent": "ORC CHIEFTAIN Pelt / Chitin / Essence",
+        "dc": 12,
         "effect": "Alchemical ingredient useful in crafting potions or enchanting warding gear."
       }
     ]
@@ -4914,13 +6466,11 @@
     },
     "alignment": "N",
     "traits": [
-      "Savage. ADV on attacks against creatures below half their HP. PIRATE Seafaring scoundrels who live to steal and hoard treasure. AC 12 (leather), HP 4, ATK 1 cutlass +1 (1d6) or 1 dagger (close/ near) +1 (1d4), MV near, S +1, D +1, C +0, I +0, W +0, Ch +0, AL C, LV 1 PRIEST A respected member of a clergy who leads holy rituals and rites. AC 15 (chainmail + shield), HP 23, ATK 2 mace +3 (1d6) or 1 spell +3, MV near, S +1, D +0, C +1, I +0, W +2, Ch +1, AL L, LV 5 Anoint (WIS Spell). DC 12. Close. One weapon or armor becomes a magic +2 version for 10 rounds. Healing Touch (WIS Spell). DC 11. Heal one creature within close for 2d4 HP. Holy Flame (WIS Spell). DC 13.",
-      "Self. Weapons ignite in magic flames and deal an additional 1d6 damage for 5 rounds. Rebuke (WIS Spell). DC 13.",
-      "Focus. Chaotic creatures cannot attack priest or come within near range for duration. 244 PURPLE WORM A massive worm as tall as a castle keep. Has a rotating maw and is covered in purple chitin."
+      "Savage. ADV on attacks against creatures below half their HP. PIRATE Seafaring scoundrels who live to steal and hoard treasure."
     ],
     "loreTiers": {
       "common": "A school of flat, silvery fish with vicious fangs.",
-      "field": "Tactical combat behavior: Savage. ADV on attacks against creatures below half their HP. PIRATE Seafaring scoundrels who live to steal and hoard treasure. AC 12 (leather), HP 4, ATK 1 cutlass +1 (1d6) or 1 dagger (close/ near) +1 (1d4), MV near, S +1, D +1, C +0, I +0, W +0, Ch +0, AL C, LV 1 PRIEST A respected member of a clergy who leads holy rituals and rites. AC 15 (chainmail + shield), HP 23, ATK 2 mace +3 (1d6) or 1 spell +3, MV near, S +1, D +0, C +1, I +0, W +2, Ch +1, AL L, LV 5 Anoint (WIS Spell). DC 12. Close. One weapon or armor becomes a magic +2 version for 10 rounds. Healing Touch (WIS Spell). DC 11. Heal one creature within close for 2d4 HP. Holy Flame (WIS Spell). DC 13.",
+      "field": "Tactical combat behavior: Savage. ADV on attacks against creatures below half their HP. PIRATE Seafaring scoundrels who live to steal and hoard treasure.",
       "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
       "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
     },
@@ -4928,6 +6478,86 @@
       {
         "reagent": "PIRANHA SWARM Pelt / Chitin / Essence",
         "dc": 11,
+        "effect": "Alchemical ingredient useful in crafting potions or enchanting warding gear."
+      }
+    ]
+  },
+  {
+    "id": "pirate",
+    "name": "PIRATE",
+    "source": "shadowdark_core",
+    "level": 1,
+    "ac": 12,
+    "hp": 4,
+    "morale": 7,
+    "attacks": [
+      "1 cutlass +1 (1d6)",
+      "1 dagger (close/ near) +1 (1d4)"
+    ],
+    "move": "near",
+    "abilities": {
+      "str": 1,
+      "dex": 1,
+      "con": 0,
+      "int": 0,
+      "wis": 0,
+      "cha": 0
+    },
+    "alignment": "C",
+    "traits": [
+      "PRIEST A respected member of a clergy who leads holy rituals and rites."
+    ],
+    "loreTiers": {
+      "common": "Seafaring scoundrels who live to steal and hoard treasure.",
+      "field": "Tactical combat behavior: PRIEST A respected member of a clergy who leads holy rituals and rites.",
+      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    },
+    "harvest": [
+      {
+        "reagent": "PIRATE Pelt / Chitin / Essence",
+        "dc": 10,
+        "effect": "Alchemical ingredient useful in crafting potions or enchanting warding gear."
+      }
+    ]
+  },
+  {
+    "id": "priest",
+    "name": "PRIEST",
+    "source": "shadowdark_core",
+    "level": 5,
+    "ac": 15,
+    "hp": 23,
+    "morale": 10,
+    "attacks": [
+      "2 mace +3 (1d6)",
+      "1 spell +3"
+    ],
+    "move": "near",
+    "abilities": {
+      "str": 1,
+      "dex": 0,
+      "con": 1,
+      "int": 0,
+      "wis": 2,
+      "cha": 1
+    },
+    "alignment": "L",
+    "traits": [
+      "Anoint (WIS Spell). DC 12. Close. One weapon or armor becomes a magic +2 version for 10 rounds. Healing Touch (WIS Spell). DC 11. Heal one creature within close for 2d4 HP. Holy Flame (WIS Spell). DC 13.",
+      "Self. Weapons ignite in magic flames and deal an additional 1d6 damage for 5 rounds. Rebuke (WIS Spell). DC 13.",
+      "Focus. Chaotic creatures cannot attack priest or come within near range for duration. 244 PURPLE WORM A massive worm as tall as a castle keep. Has a rotating maw and is covered in purple chitin."
+    ],
+    "loreTiers": {
+      "common": "A respected member of a clergy who leads holy rituals and rites.",
+      "field": "Tactical combat behavior: Anoint (WIS Spell). DC 12. Close. One weapon or armor becomes a magic +2 version for 10 rounds. Healing Touch (WIS Spell). DC 11. Heal one creature within close for 2d4 HP. Holy Flame (WIS Spell). DC 13.",
+      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    },
+    "harvest": [
+      {
+        "reagent": "PRIEST Pelt / Chitin / Essence",
+        "dc": 12,
         "effect": "Alchemical ingredient useful in crafting potions or enchanting warding gear."
       }
     ]
@@ -5166,8 +6796,8 @@
     ]
   },
   {
-    "id": "disease_dc_9_con_or_1d4_con",
-    "name": "Disease DC 9 CON or 1d4 CON",
+    "id": "rathgamnon",
+    "name": "Rathgamnon",
     "source": "shadowdark_core",
     "level": 19,
     "ac": 17,
@@ -5188,19 +6818,56 @@
     "alignment": "L",
     "traits": [
       "Legendary. Only damaged by magical sources. Hostile spells targeting Rathgamnon are DC 18 to cast.",
-      "Roar. In place of attacks, all creatures who can hear within far DC 18 CHA or be rendered blind and speechless for 1d4 days. Abjure (WIS Spell). DC 13. Self. End any hostile magical effects affecting Rathgamnon. Abolish (WIS Spell). DC 13. One target in far takes 5d8 damage. Anchor (WIS Spell). DC 14. One target in far DC 18 STR or bound and anchored by chains of golden runes for 1d4 rounds. Gate (WIS Spell). DC 14. Open a portal at a point within near to another location on any plane. Lasts 1d6 rounds or until dismissed. Portent (WIS Spell). DC 14. Lasts 2d4 rounds. One target in near has advantage or disadvantage on all attack rolls and checks. Time Stop (WIS Spell). DC 15. Self. Time freezes for everyone except Rathgamnon for 1d4 rounds. Everything that occurs during the time freeze happens simultaneously when the spell ends. RATHGAMNON “The stars told me of your arrival here many eons ago, long before the first of your people walked the earth.\" -Rathgamnon 247 REAVER A knight in blackened armor riddled with cruel barbs. AC 17 (plate mail + shield), HP 28, ATK 3 bastard sword +4 (1d8 + 2), MV near, S +3, D +0, C +1, I +0, W +0, Ch +2, AL C, LV 6",
-      "Bloodlust. +2 damage with melee weapons (included). REMORHAZ Massive, blue centipedes with neck hoods and red-hot spine spikes. Dwell in arctic climates."
+      "Roar. In place of attacks, all creatures who can hear within far DC 18 CHA or be rendered blind and speechless for 1d4 days. Abjure (WIS Spell). DC 13. Self. End any hostile magical effects affecting Rathgamnon. Abolish (WIS Spell). DC 13. One target in far takes 5d8 damage. Anchor (WIS Spell). DC 14. One target in far DC 18 STR or bound and anchored by chains of golden runes for 1d4 rounds. Gate (WIS Spell). DC 14. Open a portal at a point within near to another location on any plane. Lasts 1d6 rounds or until dismissed. Portent (WIS Spell). DC 14. Lasts 2d4 rounds. One target in near has advantage or disadvantage on all attack rolls and checks. Time Stop (WIS Spell). DC 15. Self. Time freezes for everyone except Rathgamnon for 1d4 rounds. Everything that occurs during the time freeze happens simultaneously when the spell ends. RATHGAMNON “The stars told me of your arrival here many eons ago, long before the first of your people walked the earth.\" -Rathgamnon 247 REAVER A knight in blackened armor riddled with cruel barbs."
     ],
     "loreTiers": {
-      "common": "damage (can't heal while ill). Repeat check once per day; ends on success. Die at 0 CON. 246 A pearl-white lion with feathered wings that stands twenty feet tall. Rathgamnon is Madeera the Covenant's mightiest servant; his blank eyes see far into the depths of time and space. He spends all eternity watching the whirl of the stars from the highest mountain in the realm of mortals, waiting for the celestial alignments that prophesy epochs of weal and woe, titanic changes to the balance of power in the cosmos, or threats to the laws of reality itself.",
+      "common": "Disease. DC 9 CON or 1d4 CON damage (can't heal while ill). Repeat check once per day; ends on success. Die at 0 CON. 246 A pearl-white lion with feathered wings that stands twenty feet tall. Rathgamnon is Madeera the Covenant's mightiest servant; his blank eyes see far into the depths of time and space. He spends all eternity watching the whirl of the stars from the highest mountain in the realm of mortals, waiting for the celestial alignments that prophesy epochs of weal and woe, titanic changes to the balance of power in the cosmos, or threats to the laws of reality itself.",
       "field": "Tactical combat behavior: Legendary. Only damaged by magical sources. Hostile spells targeting Rathgamnon are DC 18 to cast.",
       "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
       "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
     },
     "harvest": [
       {
-        "reagent": "Disease DC 9 CON or 1d4 CON Pelt / Chitin / Essence",
+        "reagent": "Rathgamnon Pelt / Chitin / Essence",
         "dc": 18,
+        "effect": "Alchemical ingredient useful in crafting potions or enchanting warding gear."
+      }
+    ]
+  },
+  {
+    "id": "reaver",
+    "name": "REAVER",
+    "source": "shadowdark_core",
+    "level": 6,
+    "ac": 17,
+    "hp": 28,
+    "morale": 12,
+    "attacks": [
+      "3 bastard sword +4 (1d8 + 2)"
+    ],
+    "move": "near",
+    "abilities": {
+      "str": 3,
+      "dex": 0,
+      "con": 1,
+      "int": 0,
+      "wis": 0,
+      "cha": 2
+    },
+    "alignment": "C",
+    "traits": [
+      "Bloodlust. +2 damage with melee weapons (included). REMORHAZ Massive, blue centipedes with neck hoods and red-hot spine spikes. Dwell in arctic climates."
+    ],
+    "loreTiers": {
+      "common": "A knight in blackened armor riddled with cruel barbs.",
+      "field": "Tactical combat behavior: Bloodlust. +2 damage with melee weapons (included). REMORHAZ Massive, blue centipedes with neck hoods and red-hot spine spikes. Dwell in arctic climates.",
+      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    },
+    "harvest": [
+      {
+        "reagent": "REAVER Pelt / Chitin / Essence",
+        "dc": 13,
         "effect": "Alchemical ingredient useful in crafting potions or enchanting warding gear."
       }
     ]
@@ -5423,8 +7090,7 @@
     "alignment": "N",
     "traits": [
       "Corrosive. Metal that touches the rust monster is destroyed on a d6 roll of 1-3. SAHUAGIN Humanoids with sea-green skin, webbed limbs, and shark teeth.",
-      "Vicious hunters. AC 14 (leather + shield), HP 9, ATK 2 trident (near) +1 (1d6), MV near (swim), S +1, D +1, C +0, I -1, W +0, Ch -1, AL C, LV 2",
-      "Half-Amphibious. Must be submerged in water every 4 hours or suffocates. SALAMANDER Fire-colored lizardfolk with long tails. Flame-like frills run down their backs."
+      "Vicious hunters."
     ],
     "loreTiers": {
       "common": "A mud-brown insect as big as a wolf with two feathery antennae. Consumes metal.",
@@ -5436,6 +7102,44 @@
       {
         "reagent": "RUST MONSTER Pelt / Chitin / Essence",
         "dc": 12,
+        "effect": "Alchemical ingredient useful in crafting potions or enchanting warding gear."
+      }
+    ]
+  },
+  {
+    "id": "sahuagin",
+    "name": "SAHUAGIN",
+    "source": "shadowdark_core",
+    "level": 2,
+    "ac": 14,
+    "hp": 9,
+    "morale": 8,
+    "attacks": [
+      "2 trident (near) +1 (1d6)"
+    ],
+    "move": "near (swim)",
+    "abilities": {
+      "str": 1,
+      "dex": 1,
+      "con": 0,
+      "int": -1,
+      "wis": 0,
+      "cha": -1
+    },
+    "alignment": "C",
+    "traits": [
+      "Half-Amphibious. Must be submerged in water every 4 hours or suffocates. SALAMANDER Fire-colored lizardfolk with long tails. Flame-like frills run down their backs."
+    ],
+    "loreTiers": {
+      "common": "Humanoids with sea-green skin, webbed limbs, and shark teeth. Vicious hunters.",
+      "field": "Tactical combat behavior: Half-Amphibious. Must be submerged in water every 4 hours or suffocates. SALAMANDER Fire-colored lizardfolk with long tails. Flame-like frills run down their backs.",
+      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    },
+    "harvest": [
+      {
+        "reagent": "SAHUAGIN Pelt / Chitin / Essence",
+        "dc": 11,
         "effect": "Alchemical ingredient useful in crafting potions or enchanting warding gear."
       }
     ]
@@ -5812,12 +7516,11 @@
     },
     "alignment": "C",
     "traits": [
-      "Song. Enemies who can hear within double near DC 15 CHA or paralyzed 1d4 rounds. Immune for 1 day if passed check. SKELETON A bleach-boned skeleton with red pinpoints of light in its eyes. AC 13 (chainmail), HP 11, ATK 1 shortsword +1 (1d6) or 1 shortbow (far) +0 (1d4), MV near, S +1, D +0, C +2, I -2, W +0, Ch -1, AL C, LV 2",
-      "Undead. Immune to morale checks. SMILODON Prehistoric tigers with long canine fangs. They hunt in grasslands and ice fields."
+      "Song. Enemies who can hear within double near DC 15 CHA or paralyzed 1d4 rounds. Immune for 1 day if passed check. SKELETON A bleach-boned skeleton with red pinpoints of light in its eyes."
     ],
     "loreTiers": {
       "common": "Baleful fey with dove wings and iridescent fish scales. Their singing entrances listeners.",
-      "field": "Tactical combat behavior: Song. Enemies who can hear within double near DC 15 CHA or paralyzed 1d4 rounds. Immune for 1 day if passed check. SKELETON A bleach-boned skeleton with red pinpoints of light in its eyes. AC 13 (chainmail), HP 11, ATK 1 shortsword +1 (1d6) or 1 shortbow (far) +0 (1d4), MV near, S +1, D +0, C +2, I -2, W +0, Ch -1, AL C, LV 2",
+      "field": "Tactical combat behavior: Song. Enemies who can hear within double near DC 15 CHA or paralyzed 1d4 rounds. Immune for 1 day if passed check. SKELETON A bleach-boned skeleton with red pinpoints of light in its eyes.",
       "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
       "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
     },
@@ -5825,6 +7528,45 @@
       {
         "reagent": "SIREN Pelt / Chitin / Essence",
         "dc": 12,
+        "effect": "Alchemical ingredient useful in crafting potions or enchanting warding gear."
+      }
+    ]
+  },
+  {
+    "id": "skeleton",
+    "name": "SKELETON",
+    "source": "shadowdark_core",
+    "level": 2,
+    "ac": 13,
+    "hp": 11,
+    "morale": 8,
+    "attacks": [
+      "1 shortsword +1 (1d6)",
+      "1 shortbow (far) +0 (1d4)"
+    ],
+    "move": "near",
+    "abilities": {
+      "str": 1,
+      "dex": 0,
+      "con": 2,
+      "int": -2,
+      "wis": 0,
+      "cha": -1
+    },
+    "alignment": "C",
+    "traits": [
+      "Undead. Immune to morale checks. SMILODON Prehistoric tigers with long canine fangs. They hunt in grasslands and ice fields."
+    ],
+    "loreTiers": {
+      "common": "A bleach-boned skeleton with red pinpoints of light in its eyes.",
+      "field": "Tactical combat behavior: Undead. Immune to morale checks. SMILODON Prehistoric tigers with long canine fangs. They hunt in grasslands and ice fields.",
+      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    },
+    "harvest": [
+      {
+        "reagent": "SKELETON Pelt / Chitin / Essence",
+        "dc": 11,
         "effect": "Alchemical ingredient useful in crafting potions or enchanting warding gear."
       }
     ]
@@ -5965,11 +7707,11 @@
     },
     "alignment": "N",
     "traits": [
-      "Poison. DC 12 CON or go to 0 HP in 1d4 rounds. SOLDIER An armed footsoldier trained in the ways of battlefield combat. AC 15 (chainmail + shield), HP 10, ATK 1 longsword +2 (1d8) or 1 crossbow (far) +1 (1d6), MV near, S +1, D +0, C +1, I +0, W +0, Ch +0, AL L, LV 2 253 SPHINX A winged, leonine oracle who can see into time and space and often speaks in riddles. Lives in isolated mountains."
+      "Poison. DC 12 CON or go to 0 HP in 1d4 rounds. SOLDIER An armed footsoldier trained in the ways of battlefield combat."
     ],
     "loreTiers": {
       "common": "A roiling wave of snakes darting and flowing across the ground.",
-      "field": "Tactical combat behavior: Poison. DC 12 CON or go to 0 HP in 1d4 rounds. SOLDIER An armed footsoldier trained in the ways of battlefield combat. AC 15 (chainmail + shield), HP 10, ATK 1 longsword +2 (1d8) or 1 crossbow (far) +1 (1d6), MV near, S +1, D +0, C +1, I +0, W +0, Ch +0, AL L, LV 2 253 SPHINX A winged, leonine oracle who can see into time and space and often speaks in riddles. Lives in isolated mountains.",
+      "field": "Tactical combat behavior: Poison. DC 12 CON or go to 0 HP in 1d4 rounds. SOLDIER An armed footsoldier trained in the ways of battlefield combat.",
       "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
       "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
     },
@@ -5977,6 +7719,45 @@
       {
         "reagent": "SNAKE SWARM Pelt / Chitin / Essence",
         "dc": 12,
+        "effect": "Alchemical ingredient useful in crafting potions or enchanting warding gear."
+      }
+    ]
+  },
+  {
+    "id": "soldier",
+    "name": "SOLDIER",
+    "source": "shadowdark_core",
+    "level": 2,
+    "ac": 15,
+    "hp": 10,
+    "morale": 8,
+    "attacks": [
+      "1 longsword +2 (1d8)",
+      "1 crossbow (far) +1 (1d6)"
+    ],
+    "move": "near",
+    "abilities": {
+      "str": 1,
+      "dex": 0,
+      "con": 1,
+      "int": 0,
+      "wis": 0,
+      "cha": 0
+    },
+    "alignment": "L",
+    "traits": [
+      "253 SPHINX A winged, leonine oracle who can see into time and space and often speaks in riddles. Lives in isolated mountains."
+    ],
+    "loreTiers": {
+      "common": "An armed footsoldier trained in the ways of battlefield combat.",
+      "field": "Tactical combat behavior: 253 SPHINX A winged, leonine oracle who can see into time and space and often speaks in riddles. Lives in isolated mountains.",
+      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    },
+    "harvest": [
+      {
+        "reagent": "SOLDIER Pelt / Chitin / Essence",
+        "dc": 11,
         "effect": "Alchemical ingredient useful in crafting potions or enchanting warding gear."
       }
     ]
@@ -6255,8 +8036,8 @@
     ]
   },
   {
-    "id": "the_ten_eyed_oracle",
-    "name": "THE TEN-EYED ORACLE",
+    "id": "the_tarrasque",
+    "name": "The Tarrasque",
     "source": "shadowdark_core",
     "level": 30,
     "ac": 22,
@@ -6283,7 +8064,44 @@
       "Reflective Carapace. Immune to rays, blasts, or bolts of energy. 1:6 chance these are reflected back at their originator.",
       "Regeneration. Regains 4d10 lost HP at the beginning of its turn.",
       "Sever. On a natural attack roll of 18+, the attack also severs a random limb. 1d6: 1. Head, 2-4. Arm, 5-6. Leg.",
-      "Swallow. DC 18 STR or swallowed whole. Total darkness inside and 4d10 damage per round. Tarrasque regurgitates all swallowed if dealt at least 30 damage in one round to the inside of its gullet. THE TARRASQUE “RRRRRRAAAAAAAAAAAAAAAAGHHHHHH!\" -The Tarrasque 258 A cheerful merchant who appears to be a hale, middle-aged human man with a handlebar mustache. He wears a white shirt, breeches, and leather apron, and he hauls a towering backpack bursting at the seams. Few know the merchant's true nature and origins, though some theorize he is an immortal being or a god (they are not entirely incorrect). The Wandering Merchant always has something useful, far-flung, or incredible to sell at a reasonable price, and there's no telling when or where he'll show up next... AC 16 (mithral chainmail), HP 71, ATK 4 +3 vorpal bastard sword +9 (1d10 + lop), MV near, S +3, D +3, C +4, I +3, W +4, Ch +5, AL L, LV 15",
+      "Swallow. DC 18 STR or swallowed whole. Total darkness inside and 4d10 damage per round. Tarrasque regurgitates all swallowed if dealt at least 30 damage in one round to the inside of its gullet. THE TARRASQUE “RRRRRRAAAAAAAAAAAAAAAAGHHHHHH!\" -The Tarrasque 258 A cheerful merchant who appears to be a hale, middle-aged human man with a handlebar mustache. He wears a white shirt, breeches, and leather apron, and he hauls a towering backpack bursting at the seams. Few know the merchant's true nature and origins, though some theorize he is an immortal being or a god (they are not entirely incorrect). The Wandering Merchant always has something useful, far-flung, or incredible to sell at a reasonable price, and there's no telling when or where he'll show up next..."
+    ],
+    "loreTiers": {
+      "common": "Legendary. Only damaged by magical sources. Hostile spells targeting The Ten-Eyed Oracle are DC 18 to cast. Eyestalk Ray. Each ray can shoot once per round and target one creature or an object up to 1,000 pounds (up to four on same target). 1. Charm. DC 15 CHA or become ally for 1d4 rounds. 2.\t Hold. DC 15 STR or paralyzed 1d4 rounds. 3.\t Sleep. DC 15 WIS or asleep 1d4 rounds. 4.\t Polymorph. DC 15 INT or turned into vermin for 1d4 rounds. 5.\t Cancel. DC 15 DEX or all magical effects on target end. 6.\t Confusion. DC 15 WIS or attack a random ally within near. 7.\t Telekinesis. DC 15 STR or hover target up to double near. 8.\t Disintegrate. DC 15 DEX or 5d8 damage (object destroyed). 9.\t Petrify. DC 15 CON or petrified. 10.\t Death. DC 15 CON or drop to 0 HP with a death timer of 1. THE TEN-EYED ORACLE “The moon runs red into the sea, and the whispers of the watchers in darkness proclaim: Your time has come!\" -The Ten-Eyed Oracle 256 A colossal, four-legged reptile with crocodilian jaws, amber scales, and a diamond-hard, spiked carapace. It towers overhead like a mountain, able to swallow entire villages in one gulp. The tarrasque hibernates deep in the earth or at the bottom of the sea for centuries, only awakening long enough to fill its vast belly in an indiscriminate rampage of terror and destruction. There is only one tarrasque, and it is the most dreaded creature to walk the earth.",
+      "field": "Tactical combat behavior: Legendary. Only damaged by magical sources. Hostile spells targeting the tarrasque are DC 18 to cast.",
+      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    },
+    "harvest": [
+      {
+        "reagent": "The Tarrasque Pelt / Chitin / Essence",
+        "dc": 18,
+        "effect": "Alchemical ingredient useful in crafting potions or enchanting warding gear."
+      }
+    ]
+  },
+  {
+    "id": "the_wandering_merchant",
+    "name": "The Wandering Merchant",
+    "source": "shadowdark_core",
+    "level": 15,
+    "ac": 16,
+    "hp": 71,
+    "morale": 12,
+    "attacks": [
+      "4 +3 vorpal bastard sword +9 (1d10 + lop)"
+    ],
+    "move": "near",
+    "abilities": {
+      "str": 3,
+      "dex": 3,
+      "con": 4,
+      "int": 3,
+      "wis": 4,
+      "cha": 5
+    },
+    "alignment": "L",
+    "traits": [
       "Legendary. Only damaged by magical sources. Hostile spells targeting The Wandering Merchant are DC 18 to cast.",
       "Amulet of Rahm-Hotep. In place of attacks, teleport to a random location in the multiverse.",
       "Bottomless Bag. Contains 200 gear slots in magical sub-pockets.",
@@ -6293,21 +8111,97 @@
       "Reckoning. Any creature who steals from The Wandering Merchant develops a curse. Over the next 2d8 days, that creature turns into a cockatrice. This curse can only be lifted by a wish spell or by returning the stolen goods.",
       "Strange Lands. The Wandering Merchant does not suffer any ill effects from the natural environment he does not wish to suffer. THE WANDERING MERCHANT “Fancy meeting you here, at the bottom of a pit trap!",
       "I just so happen to have this lovely rope for sale...\" -The Wandering Merchant 259 THIEF",
-      "A cat burglar in a black cloak. AC 13 (leather), HP 13, ATK 1 dagger (close/near) +2 (1d4) or 1 shortsword +0 (1d6), MV near, S +0, D +2, C +0, I +0, W +0, Ch +1, AL N, LV 3",
-      "Stealthy. ADV on DEX checks to sneak and hide.",
-      "Backstab. Deal x2 damage against surprised creatures. THUG",
-      "A bruised and boorish ruffian. AC 13 (leather + shield), HP 4, ATK 1 shortsword +1 (1d6), MV near, S +1, D +0, C +0, I -1, W +1, Ch -1, AL C, LV 1 TREANT Peaceful, slow-moving trees with merry eyes and tremulous voices. They protect the forest."
+      "A cat burglar in a black cloak."
     ],
     "loreTiers": {
-      "common": "“The moon runs red into the sea, and the whispers of the watchers in darkness proclaim: Your time has come!\" -The Ten-Eyed Oracle 256 A colossal, four-legged reptile with crocodilian jaws, amber scales, and a diamond-hard, spiked carapace. It towers overhead like a mountain, able to swallow entire villages in one gulp. The tarrasque hibernates deep in the earth or at the bottom of the sea for centuries, only awakening long enough to fill its vast belly in an indiscriminate rampage of terror and destruction. There is only one tarrasque, and it is the most dreaded creature to walk the earth.",
-      "field": "Tactical combat behavior: Legendary. Only damaged by magical sources. Hostile spells targeting the tarrasque are DC 18 to cast.",
+      "common": "Legendary. Only damaged by magical sources. Hostile spells targeting the tarrasque are DC 18 to cast. Deep Dweller. Immune to harm from fire and cold. Amphibious. Permanent Death. Cannot be permanently killed unless a wish spell is cast on it while it is at 0 HP. Rampage. In place of attacks, move far in a straight line and make one bite attack. On a hit, triple damage. Reflective Carapace. Immune to rays, blasts, or bolts of energy. 1:6 chance these are reflected back at their originator. Regeneration. Regains 4d10 lost HP at the beginning of its turn. Sever. On a natural attack roll of 18+, the attack also severs a random limb. 1d6: 1. Head, 2-4. Arm, 5-6. Leg. Swallow. DC 18 STR or swallowed whole. Total darkness inside and 4d10 damage per round. Tarrasque regurgitates all swallowed if dealt at least 30 damage in one round to the inside of its gullet. THE TARRASQUE “RRRRRRAAAAAAAAAAAAAAAAGHHHHHH!\" -The Tarrasque 258 A cheerful merchant who appears to be a hale, middle-aged human man with a handlebar mustache. He wears a white shirt, breeches, and leather apron, and he hauls a towering backpack bursting at the seams. Few know the merchant's true nature and origins, though some theorize he is an immortal being or a god (they are not entirely incorrect). The Wandering Merchant always has something useful, far-flung, or incredible to sell at a reasonable price, and there's no telling when or where he'll show up next...",
+      "field": "Tactical combat behavior: Legendary. Only damaged by magical sources. Hostile spells targeting The Wandering Merchant are DC 18 to cast.",
       "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
       "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
     },
     "harvest": [
       {
-        "reagent": "THE TEN-EYED ORACLE Pelt / Chitin / Essence",
-        "dc": 18,
+        "reagent": "The Wandering Merchant Pelt / Chitin / Essence",
+        "dc": 17,
+        "effect": "Alchemical ingredient useful in crafting potions or enchanting warding gear."
+      }
+    ]
+  },
+  {
+    "id": "thief",
+    "name": "THIEF",
+    "source": "shadowdark_core",
+    "level": 3,
+    "ac": 13,
+    "hp": 13,
+    "morale": 9,
+    "attacks": [
+      "1 dagger (close/near) +2 (1d4)",
+      "1 shortsword +0 (1d6)"
+    ],
+    "move": "near",
+    "abilities": {
+      "str": 0,
+      "dex": 2,
+      "con": 0,
+      "int": 0,
+      "wis": 0,
+      "cha": 1
+    },
+    "alignment": "N",
+    "traits": [
+      "Stealthy. ADV on DEX checks to sneak and hide.",
+      "Backstab. Deal x2 damage against surprised creatures. THUG",
+      "A bruised and boorish ruffian."
+    ],
+    "loreTiers": {
+      "common": "A cat burglar in a black cloak.",
+      "field": "Tactical combat behavior: Stealthy. ADV on DEX checks to sneak and hide.",
+      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    },
+    "harvest": [
+      {
+        "reagent": "THIEF Pelt / Chitin / Essence",
+        "dc": 11,
+        "effect": "Alchemical ingredient useful in crafting potions or enchanting warding gear."
+      }
+    ]
+  },
+  {
+    "id": "thug",
+    "name": "THUG",
+    "source": "shadowdark_core",
+    "level": 1,
+    "ac": 13,
+    "hp": 4,
+    "morale": 7,
+    "attacks": [
+      "1 shortsword +1 (1d6)"
+    ],
+    "move": "near",
+    "abilities": {
+      "str": 1,
+      "dex": 0,
+      "con": 0,
+      "int": -1,
+      "wis": 1,
+      "cha": -1
+    },
+    "alignment": "C",
+    "traits": [
+      "TREANT Peaceful, slow-moving trees with merry eyes and tremulous voices. They protect the forest."
+    ],
+    "loreTiers": {
+      "common": "A bruised and boorish ruffian.",
+      "field": "Tactical combat behavior: TREANT Peaceful, slow-moving trees with merry eyes and tremulous voices. They protect the forest.",
+      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    },
+    "harvest": [
+      {
+        "reagent": "THUG Pelt / Chitin / Essence",
+        "dc": 10,
         "effect": "Alchemical ingredient useful in crafting potions or enchanting warding gear."
       }
     ]
@@ -6495,10 +8389,7 @@
       "Charm. One humanoid target who can see vampire within near, DC 15 CHA or under vampire's control for 1d4 days.",
       "Shapechange. In place of attacks, turn into a bat, wolf, or back into regular form.",
       "Vampire. Must sleep in a coffin daily or loses 2d6 HP each day that can't be healed until resting in coffin. Takes 3d8 damage each round while in direct sunlight. Cannot be killed unless pierced through heart with a wooden stake while at 0 HP. 261 VAMPIRE SPAWN Lesser, feral vampires born from the bite of their vampiric sires.",
-      "Bloodthirsty and savage. They rarely leave a victim alive. AC 13 (leather), HP 25, ATK 2 bite +4 (1d8 + blood drain), MV near (climb), S +3, D +2, C +3, I -1, W +1, Ch +2, AL C, LV 5",
-      "Greater Undead. Immune to morale checks. Only damaged by silver or magical sources.",
-      "Blood Drain. Vampire heals 2d6 HP and target permanently loses 1d4 CON. At 0 CON, target dies and rises as a vampire spawn.",
-      "Vampire. Must sleep in a coffin daily or loses 2d6 HP each day that can't be healed until resting in coffin. Takes 3d8 damage each round while in direct sunlight. Cannot be killed unless pierced through heart with a wooden stake while at 0 HP. VIOLET FUNGUS Child-sized, creeping fungi with neon purple caps. Their whiplike roots decompose living flesh."
+      "Bloodthirsty and savage. They rarely leave a victim alive."
     ],
     "loreTiers": {
       "common": "Pale, blood-drinking undead of supreme power and wickedness. They loathe sunlight and protect their coffins at all costs.",
@@ -6510,6 +8401,46 @@
       {
         "reagent": "VAMPIRE Pelt / Chitin / Essence",
         "dc": 15,
+        "effect": "Alchemical ingredient useful in crafting potions or enchanting warding gear."
+      }
+    ]
+  },
+  {
+    "id": "vampire_spawn",
+    "name": "VAMPIRE SPAWN",
+    "source": "shadowdark_core",
+    "level": 5,
+    "ac": 13,
+    "hp": 25,
+    "morale": 11,
+    "attacks": [
+      "2 bite +4 (1d8 + blood drain)"
+    ],
+    "move": "near (climb)",
+    "abilities": {
+      "str": 3,
+      "dex": 2,
+      "con": 3,
+      "int": -1,
+      "wis": 1,
+      "cha": 2
+    },
+    "alignment": "C",
+    "traits": [
+      "Greater Undead. Immune to morale checks. Only damaged by silver or magical sources.",
+      "Blood Drain. Vampire heals 2d6 HP and target permanently loses 1d4 CON. At 0 CON, target dies and rises as a vampire spawn.",
+      "Vampire. Must sleep in a coffin daily or loses 2d6 HP each day that can't be healed until resting in coffin. Takes 3d8 damage each round while in direct sunlight. Cannot be killed unless pierced through heart with a wooden stake while at 0 HP. VIOLET FUNGUS Child-sized, creeping fungi with neon purple caps. Their whiplike roots decompose living flesh."
+    ],
+    "loreTiers": {
+      "common": "Lesser, feral vampires born from the bite of their vampiric sires. Bloodthirsty and savage. They rarely leave a victim alive.",
+      "field": "Tactical combat behavior: Greater Undead. Immune to morale checks. Only damaged by silver or magical sources.",
+      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    },
+    "harvest": [
+      {
+        "reagent": "VAMPIRE SPAWN Pelt / Chitin / Essence",
+        "dc": 12,
         "effect": "Alchemical ingredient useful in crafting potions or enchanting warding gear."
       }
     ]
@@ -6770,11 +8701,7 @@
     "alignment": "C",
     "traits": [
       "Impervious. Only damaged by silver or magic sources.",
-      "Lycanthropy. If 12 or more damage from the same werewolf, contract lycanthropy. WERERAT A slinking, rat-faced humanoid covered in mangy fur. AC 13 (leather), HP 14, ATK 2 bite +2 (1d6), MV near (climb), S +1, D +2, C +1, I -1, W +1, Ch -1, AL C, LV 3",
-      "Impervious. Only damaged by silver or magic sources.",
-      "Lycanthropy. If 12 or more damage from the same wererat, contract lycanthropy. WIGHT A pale, armored undead warrior with sinister intelligence. AC 14 (chainmail), HP 15, ATK 1 bastard sword +3 (1d10) and 1 life drain +3, MV near, S +3, D +1, C +2, I +1, W +0, Ch +3, AL C, LV 3",
-      "Greater Undead. Immune to morale checks. Only damaged by silver or magical sources.",
-      "Life Drain. 1d4 CON damage. Death if reduced to 0 CON. 264 WILL-O'-WISP A bobbing marsh light animated by an evil spirit. It tries to lead the living into danger."
+      "Lycanthropy. If 12 or more damage from the same werewolf, contract lycanthropy. WERERAT A slinking, rat-faced humanoid covered in mangy fur."
     ],
     "loreTiers": {
       "common": "A bipedal, wolf-faced humanoid covered in brown fur.",
@@ -6786,6 +8713,84 @@
       {
         "reagent": "WEREWOLF Pelt / Chitin / Essence",
         "dc": 12,
+        "effect": "Alchemical ingredient useful in crafting potions or enchanting warding gear."
+      }
+    ]
+  },
+  {
+    "id": "wererat",
+    "name": "WERERAT",
+    "source": "shadowdark_core",
+    "level": 3,
+    "ac": 13,
+    "hp": 14,
+    "morale": 8,
+    "attacks": [
+      "2 bite +2 (1d6)"
+    ],
+    "move": "near (climb)",
+    "abilities": {
+      "str": 1,
+      "dex": 2,
+      "con": 1,
+      "int": -1,
+      "wis": 1,
+      "cha": -1
+    },
+    "alignment": "C",
+    "traits": [
+      "Impervious. Only damaged by silver or magic sources.",
+      "Lycanthropy. If 12 or more damage from the same wererat, contract lycanthropy. WIGHT A pale, armored undead warrior with sinister intelligence."
+    ],
+    "loreTiers": {
+      "common": "A slinking, rat-faced humanoid covered in mangy fur.",
+      "field": "Tactical combat behavior: Impervious. Only damaged by silver or magic sources.",
+      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    },
+    "harvest": [
+      {
+        "reagent": "WERERAT Pelt / Chitin / Essence",
+        "dc": 11,
+        "effect": "Alchemical ingredient useful in crafting potions or enchanting warding gear."
+      }
+    ]
+  },
+  {
+    "id": "wight",
+    "name": "WIGHT",
+    "source": "shadowdark_core",
+    "level": 3,
+    "ac": 14,
+    "hp": 15,
+    "morale": 11,
+    "attacks": [
+      "1 bastard sword +3 (1d10) and 1 life drain +3"
+    ],
+    "move": "near",
+    "abilities": {
+      "str": 3,
+      "dex": 1,
+      "con": 2,
+      "int": 1,
+      "wis": 0,
+      "cha": 3
+    },
+    "alignment": "C",
+    "traits": [
+      "Greater Undead. Immune to morale checks. Only damaged by silver or magical sources.",
+      "Life Drain. 1d4 CON damage. Death if reduced to 0 CON. 264 WILL-O'-WISP A bobbing marsh light animated by an evil spirit. It tries to lead the living into danger."
+    ],
+    "loreTiers": {
+      "common": "A pale, armored undead warrior with sinister intelligence.",
+      "field": "Tactical combat behavior: Greater Undead. Immune to morale checks. Only damaged by silver or magical sources.",
+      "obscure": "Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.",
+      "arcane": "Alchemical compositions, planar ties, or ancient origins dating back to the primordial era."
+    },
+    "harvest": [
+      {
+        "reagent": "WIGHT Pelt / Chitin / Essence",
+        "dc": 11,
         "effect": "Alchemical ingredient useful in crafting potions or enchanting warding gear."
       }
     ]

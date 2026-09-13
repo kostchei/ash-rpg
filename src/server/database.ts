@@ -10,6 +10,7 @@ import {
 } from "node:crypto";
 import Database from "better-sqlite3";
 import { CLASSES, HEX_DEFINITIONS, MONSTERS, STARTING_EQUIPMENT, SPELLS, ITEMS } from "../shared/content.js";
+import { BESTIARY_ENTRIES } from "../shared/bestiary-data.js";
 
 /**
  * The canonical id for a class name. Derived from the class definition rather
@@ -662,9 +663,42 @@ export class AshDatabase {
     }
 
     const bestiaryPath = resolve("data/bestiary/monsters.json");
+    let raw: any[] = [];
     if (existsSync(bestiaryPath)) {
       try {
-        const raw = JSON.parse(readFileSync(bestiaryPath, "utf-8"));
+        raw = JSON.parse(readFileSync(bestiaryPath, "utf-8"));
+      } catch (err) {
+        console.error("Failed to read bestiary file:", err);
+      }
+    }
+
+    if (!raw.length && BESTIARY_ENTRIES.length) {
+      raw = BESTIARY_ENTRIES.map((b) => ({
+        id: b.id,
+        name: b.name,
+        source: b.source,
+        family: b.family ?? null,
+        level: b.level,
+        ac: b.ac,
+        hp: b.hp,
+        morale: b.morale,
+        attacks: b.attacks,
+        move: b.move,
+        abilities: b.abilities,
+        alignment: b.alignment,
+        traits: b.traits,
+        loreTiers: {
+          common: b.lore[0] ?? "",
+          field: b.lore[1] ?? "",
+          obscure: b.lore[2] ?? "",
+          arcane: b.lore[3] ?? "",
+        },
+        harvest: b.harvest,
+      }));
+    }
+
+    if (raw.length > 0) {
+      try {
         const insert = this.db.prepare(`
           INSERT OR REPLACE INTO monsters 
           (id, name, source, family, level, ac, hp, morale, attacks_json, move, abilities_json, alignment, traits_json, lore_json, harvest_json)
@@ -701,6 +735,7 @@ export class AshDatabase {
             morale: m.morale,
             level: m.level,
             family: m.family,
+            source: m.source,
             move: m.move,
             abilities: m.abilities,
             alignment: m.alignment,
@@ -710,10 +745,107 @@ export class AshDatabase {
             harvest: m.harvest,
           });
         }
+
+        // Also seed custom templates into SQLite and cache if not already present
+        for (const [key, tmpl] of Object.entries(CUSTOM_MONSTER_TEMPLATES)) {
+          if (!this.bestiaryCache.has(key)) {
+            const harvest = [
+              {
+                reagent: `${tmpl.name} Essence`,
+                dc: 10 + Math.floor((tmpl.level ?? 1) / 2),
+                effect: "Alchemical reagent for crafting or potions.",
+              },
+            ];
+            const loreTiers = {
+              common: tmpl.lore?.[0] ?? "",
+              field: tmpl.lore?.[1] ?? "",
+              obscure: tmpl.lore?.[2] ?? "",
+              arcane: tmpl.lore?.[3] ?? "",
+            };
+            insert.run(
+              key,
+              tmpl.name,
+              tmpl.source ?? "cursed_scroll_6",
+              tmpl.family ?? "Humanoid",
+              tmpl.level ?? 1,
+              tmpl.ac ?? 10,
+              tmpl.maxHp,
+              tmpl.morale ?? 7,
+              JSON.stringify(tmpl.attacks ?? []),
+              tmpl.move ?? "near",
+              JSON.stringify(tmpl.abilities ?? {}),
+              tmpl.alignment ?? "N",
+              JSON.stringify(tmpl.traits ?? []),
+              JSON.stringify(loreTiers),
+              JSON.stringify(harvest),
+            );
+            this.bestiaryCache.set(key, {
+              id: 0,
+              ...tmpl,
+              harvest,
+            });
+          }
+        }
       } catch (err) {
         console.error("Failed to load bestiary into database:", err);
       }
     }
+  }
+
+  private rowToMonster(row: Row): EncounterMonster {
+    const attacks = JSON.parse((row.attacks_json as string) || "[]");
+    const abilities = JSON.parse((row.abilities_json as string) || "{}");
+    const traits = JSON.parse((row.traits_json as string) || "[]");
+    const loreRaw = JSON.parse((row.lore_json as string) || "{}");
+    const harvest = JSON.parse((row.harvest_json as string) || "[]");
+    const lore = Array.isArray(loreRaw)
+      ? loreRaw
+      : [loreRaw.common, loreRaw.field, loreRaw.obscure, loreRaw.arcane].filter(Boolean);
+
+    return {
+      id: 0,
+      monsterKey: row.id as string,
+      name: row.name as string,
+      currentHp: Number(row.hp),
+      maxHp: Number(row.hp),
+      loreTier: 0,
+      ac: Number(row.ac),
+      morale: Number(row.morale),
+      level: Number(row.level),
+      family: (row.family as string) ?? undefined,
+      source: (row.source as string) ?? undefined,
+      move: (row.move as string) ?? undefined,
+      abilities,
+      alignment: (row.alignment as "L" | "N" | "C" | "U") ?? undefined,
+      attacks,
+      traits,
+      lore,
+      harvest,
+    };
+  }
+
+  getMonsterFromDb(id: string): EncounterMonster | undefined {
+    const row = this.db.prepare("SELECT * FROM monsters WHERE id = ?").get(id) as Row | undefined;
+    if (!row) return undefined;
+    return this.rowToMonster(row);
+  }
+
+  listMonstersFromDb(): EncounterMonster[] {
+    const rows = this.db.prepare("SELECT * FROM monsters ORDER BY level ASC, name ASC").all() as Row[];
+    return rows.map((r) => this.rowToMonster(r));
+  }
+
+  searchMonsters(query: string, source?: string): EncounterMonster[] {
+    const q = `%${query.trim().toLowerCase()}%`;
+    let sql = "SELECT * FROM monsters WHERE (LOWER(name) LIKE ? OR LOWER(traits_json) LIKE ? OR LOWER(lore_json) LIKE ?)";
+    const params: SqlValue[] = [q, q, q];
+    if (source) {
+      sql += " AND source = ?";
+      params.push(source);
+    }
+    sql += " ORDER BY level ASC, name ASC";
+    const rows = this.db.prepare(sql).all(...params) as Row[];
+    return rows.map((r) => this.rowToMonster(r));
   }
 
   getZoneManifest(zoneId: string): ZoneManifest | undefined {

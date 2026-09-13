@@ -404,12 +404,30 @@ export async function createAshServer(options: AshServerOptions = {}) {
         name: m.name,
         level: m.level,
         family: m.family,
+        source: m.source,
       })),
       zones: db.listZones(),
       zoneProfiles: Object.values(ZONE_PROFILES),
       borderPairings: BORDER_PAIRINGS,
     }),
   );
+
+  app.get("/api/monsters", (request, response) => {
+    const query = typeof request.query.q === "string" ? request.query.q : undefined;
+    const source = typeof request.query.source === "string" ? request.query.source : undefined;
+    if (query) {
+      return response.json(db.searchMonsters(query, source));
+    }
+    return response.json(db.listMonstersFromDb());
+  });
+
+  app.get("/api/monsters/:id", (request, response) => {
+    const monster = db.getMonsterFromDb(request.params.id) ?? db.getMonster(request.params.id);
+    if (!monster) {
+      return response.status(404).json({ error: "Monster not found" });
+    }
+    return response.json(monster);
+  });
 
   app.post("/api/regions/preview", (request, response) => {
     const parsed = regionGenerationConfigSchema.safeParse(request.body);
