@@ -17,6 +17,7 @@ import { createActionId, fetchOlderNotes, fetchOlderRolls, sendMutation } from "
 
 import { CodexModal } from "./CodexModal";
 import { DirectoryModal } from "./DirectoryModal";
+import { MusicServerControl } from "./MusicServerControl";
 import { AlertTriangle, BookOpen, Castle, ChevronRight, CircleDot, Compass, Copy, Dices, DoorOpen, Flame, Heart, LogOut, Map, Menu, Plus, ScrollText, Sparkles, Users, X } from "lucide-react";
 import { io, type Socket } from "socket.io-client";
 import { buildStateFromSlices, patchStateWithSlices, type SlicesUpdate } from "../shared/slices";
@@ -283,6 +284,9 @@ function Welcome({
           <span>
             <ScrollText /> Persistent chronicle
           </span>
+        </div>
+        <div style={{ marginTop: 16, display: "flex", alignItems: "center", gap: 8 }}>
+          <MusicServerControl />
         </div>
       </section>
       <section className="welcome-form">
@@ -693,6 +697,7 @@ function Campaign({
         >
           🎒 Party Ledger
         </button>
+        <MusicServerControl />
         <button className="icon-button" onClick={leave}>
           <LogOut size={18} />
         </button>

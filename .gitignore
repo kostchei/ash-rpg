@@ -109,3 +109,7 @@ backups/
 
 # MkDocs Build
 site/
+
+# Media Downloads
+music_player/media/*.mp4
+

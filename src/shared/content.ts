@@ -45,6 +45,36 @@ export interface TalentEntry {
   effect: string;
 }
 
+/** One way to burn a class resource, offered as a button on the ledger. */
+export interface ClassResourceSpender {
+  id: string;
+  name: string;
+  cost: number;
+  description: string;
+}
+
+/**
+ * A class "engine" — a track that fills through play and is spent on the class's
+ * signature moves. Warrior Priest Righteousness and Chaos Knight possession both
+ * ride on this; the ledger renders a track for any class that declares one.
+ */
+export interface ClassResourceDefinition {
+  id: string;
+  name: string;
+  /** Table-facing description of what fills the track. */
+  generation: string;
+  /** Cap before talents raise it. */
+  baseMax: number;
+  /** What a freshly made character starts on. */
+  startsAt: number;
+  /** What the track returns to when it resets. */
+  resetsTo: number;
+  resetOn: "combat_end" | "rest";
+  /** Talent text that raises the cap by one each time it is taken. */
+  capTalent?: string;
+  spenders: readonly ClassResourceSpender[];
+}
+
 export interface ClassInfo {
   id: string;
   name: string;
@@ -53,10 +83,11 @@ export interface ClassInfo {
   armor?: readonly string[];
   spellcasting?: {
     ability: "int" | "wis" | "cha";
-    type: "arcane" | "divine" | "primal";
+    type: "arcane" | "divine" | "primal" | "occult";
   };
   level1Features?: readonly ClassFeature[];
   talentTable?: readonly TalentEntry[];
+  resource?: ClassResourceDefinition;
 }
 
 export const CLASSES: readonly ClassInfo[] = [
@@ -314,6 +345,127 @@ export const CLASSES: readonly ClassInfo[] = [
       { roll: "12", min: 12, max: 12, effect: "Choose any talent or gain +2 points to distribute among stats." },
     ],
   },
+  {
+    id: "barbarian",
+    name: "Barbarian",
+    hitDie: 8,
+    weapons: ["All melee weapons", "Javelin", "Shortbow"],
+    armor: ["All armor", "Shields"],
+    level1Features: [
+      { name: "Shield Wall", description: "While wielding a shield, spend your action to lock a defensive stance: your AC becomes 20 until your next turn." },
+      { name: "The Old Gods", description: "Each dawn choose one blessing until the next dawn — Odin (+1 to spellcasting and lore checks), Thor (+1d4 lightning damage the first time you kill an enemy each combat), Freya (1/day gain a Luck Token if you lack one; spending one adds +1d6 to the roll), or Loki (advantage on checks to lie, sneak, and hide)." },
+    ],
+    talentTable: [
+      { roll: "2", min: 2, max: 2, effect: "1/day, Go Berserk: become immune to damage for 3 rounds." },
+      { roll: "3-6", min: 3, max: 6, effect: "Your weapon attacks deal +1 damage." },
+      { roll: "7-9", min: 7, max: 9, effect: "+2 to Strength or Constitution stat, or +1 to attack rolls." },
+      { roll: "10-11", min: 10, max: 11, effect: "Duality: choose two different Old Gods blessings each dawn instead of one." },
+      { roll: "12", min: 12, max: 12, effect: "Choose any talent or gain +2 points to distribute among stats." },
+    ],
+  },
+  {
+    id: "chaos_knight",
+    name: "Chaos Knight",
+    hitDie: 6,
+    weapons: ["All melee weapons", "Crossbow"],
+    armor: ["All armor", "Shields"],
+    spellcasting: { ability: "cha", type: "occult" },
+    level1Features: [
+      { name: "Demonic Possession", description: "Enter a frenzied trance for 3 rounds, gaining +1 to attack and damage rolls plus half your level (round down)." },
+      { name: "Witch Spellcasting", description: "Cast from the witch spell list using Charisma (DC 10 + spell tier). A natural 1 calls for a diabolical mishap." },
+    ],
+    resource: {
+      id: "possession",
+      name: "Possession",
+      generation: "Refills to full when you complete a rest.",
+      baseMax: 3,
+      startsAt: 3,
+      resetsTo: 3,
+      resetOn: "rest",
+      spenders: [
+        { id: "demonic_possession", name: "Demonic Possession", cost: 1, description: "Frenzied trance for 3 rounds: +1 to attack and damage, plus half your level." },
+      ],
+    },
+    talentTable: [
+      { roll: "2", min: 2, max: 2, effect: "1/day, wreath your weapon in hellfire (+2d6 fire damage on hit for 3 rounds)." },
+      { roll: "3-6", min: 3, max: 6, effect: "+1 to weapon attacks and damage." },
+      { roll: "7-9", min: 7, max: 9, effect: "+2 to Strength, Constitution, or Charisma stat." },
+      { roll: "10-11", min: 10, max: 11, effect: "Learn an additional witch spell of any tier you can cast." },
+      { roll: "12", min: 12, max: 12, effect: "Choose any talent or gain +2 points to distribute among stats." },
+    ],
+  },
+  {
+    id: "warlock",
+    name: "Warlock",
+    hitDie: 6,
+    weapons: ["Club", "Crossbow", "Dagger", "Mace", "Longsword"],
+    armor: ["Leather armor", "Chainmail", "Shields"],
+    spellcasting: { ability: "cha", type: "occult" },
+    level1Features: [
+      { name: "Patron Bond", description: "Swear yourself to an otherworldly patron. Only patrons whose boons carry spells will take a novice conduit." },
+      { name: "Patron Boons", description: "Gain one random boon from your patron at 1st level and another at every even level. When you level, you may roll on your patron's boon table instead of the Warlock talent table." },
+    ],
+    talentTable: [
+      { roll: "2", min: 2, max: 2, effect: "Roll a patron boon from any patron — an unexplained eldritch gift." },
+      { roll: "3-6", min: 3, max: 6, effect: "+1 to any two different stats." },
+      { roll: "7-9", min: 7, max: 9, effect: "+1 to melee or ranged attacks." },
+      { roll: "10-11", min: 10, max: 11, effect: "Roll two patron boons and choose one to keep." },
+      { roll: "12", min: 12, max: 12, effect: "Choose any talent or gain +2 points to distribute among stats." },
+    ],
+  },
+  {
+    id: "witch",
+    name: "Witch",
+    hitDie: 4,
+    weapons: ["Dagger", "Staff"],
+    armor: ["Leather armor"],
+    spellcasting: { ability: "cha", type: "occult" },
+    level1Features: [
+      { name: "Familiar", description: "A small loyal animal that speaks Common and can serve as the origin point for your spells. If it dies, restore it by permanently sacrificing 1d4 hit points." },
+      { name: "Witch Spellcasting", description: "Cast from the witch spell list using Charisma (DC 10 + spell tier). A natural 1 calls for a diabolical mishap." },
+    ],
+    talentTable: [
+      { roll: "2", min: 2, max: 2, effect: "1/day, teleport to your familiar's exact location as a move action." },
+      { roll: "3-7", min: 3, max: 7, effect: "+2 to Charisma stat, or +1 to witch spellcasting checks." },
+      { roll: "8-9", min: 8, max: 9, effect: "Gain advantage on casting one chosen witch spell." },
+      { roll: "10-11", min: 10, max: 11, effect: "Learn an additional witch spell of any tier you can cast." },
+      { roll: "12", min: 12, max: 12, effect: "Choose any talent or gain +2 points to distribute among stats." },
+    ],
+  },
+  {
+    id: "warrior_priest",
+    name: "Warrior Priest",
+    hitDie: 6,
+    weapons: ["Club", "Mace", "Morningstar", "Warhammer", "Staff"],
+    armor: ["Leather armor", "Chainmail", "Plate mail", "Shields"],
+    level1Features: [
+      { name: "Divine Prayers", description: "Spend an action to chant one prayer, projecting a near aura you hold with Focus (on taking damage, pass a CON check against DC 10 or half the damage, whichever is higher). Only one prayer at a time. Devotion: a near ally who deals melee damage heals 1 HP. Righteousness: near allies gain +1 to melee damage rolls. Absolution: near allies gain +1 AC and advantage on death timer rolls." },
+      { name: "Righteous Fury", description: "You have no passive mana. You gain 1 Righteousness the first time you deal melee damage on each of your turns — if you are not swinging, your allies are dying." },
+      { name: "Miracles", description: "Spend Righteousness as a free action on your turn. Miracles need no spellcasting check and cannot be lost for the day." },
+    ],
+    resource: {
+      id: "righteousness",
+      name: "Righteousness",
+      generation: "Gain 1 the first time you deal melee damage to a hostile creature on each of your turns.",
+      baseMax: 3,
+      startsAt: 0,
+      resetsTo: 0,
+      resetOn: "combat_end",
+      capTalent: "Righteous Vessel",
+      spenders: [
+        { id: "light_of_sigmar", name: "Light of Sigmar", cost: 1, description: "One near ally heals 1d4 HP." },
+        { id: "divine_mend", name: "Divine Mend", cost: 2, description: "One near ally heals 1d4 HP, then 1 HP at the start of each of their next three turns." },
+        { id: "martyrs_blessing", name: "Martyr's Blessing", cost: 3, description: "Ward a near ally: the next damage they take is reduced to 0." },
+      ],
+    },
+    talentTable: [
+      { roll: "2", min: 2, max: 2, effect: "Righteous Vessel: your maximum Righteousness increases by 1." },
+      { roll: "3-6", min: 3, max: 6, effect: "Vanguard: +1 to melee attack rolls." },
+      { roll: "7-9", min: 7, max: 9, effect: "Blessed Vigor: +2 to Strength, Constitution, or Wisdom stat." },
+      { roll: "10-11", min: 10, max: 11, effect: "Unbreakable: permanent advantage on Constitution checks to maintain Focus on a prayer." },
+      { roll: "12", min: 12, max: 12, effect: "Divine Champion: choose any option on this table or gain +2 points to distribute among stats." },
+    ],
+  },
 ] as const;
 
 export const ITEMS: readonly ItemDefinition[] = [
@@ -322,6 +474,8 @@ export const ITEMS: readonly ItemDefinition[] = [
   { id: "shortsword", name: "Shortsword", kind: "weapon" as const, costGp: 6, slots: 1, damage: "1d6", properties: ["finesse", "light"], description: "Quick, balanced blade." },
   { id: "longsword", name: "Longsword", kind: "weapon" as const, costGp: 10, slots: 1, damage: "1d8", properties: ["versatile"], description: "Classic one-handed blade (1d10 two-handed)." },
   { id: "greatsword", name: "Greatsword", kind: "weapon" as const, costGp: 15, slots: 2, damage: "1d12", properties: ["heavy", "two-handed"], description: "Massive two-handed greatsword." },
+  { id: "greataxe", name: "Greataxe", kind: "weapon" as const, costGp: 15, slots: 1, damage: "1d10", properties: ["versatile"], description: "Broad war axe, wielded one- or two-handed (1d12 two-handed)." },
+  { id: "bastard_sword", name: "Bastard Sword", kind: "weapon" as const, costGp: 15, slots: 1, damage: "1d10", properties: ["versatile"], description: "Hand-and-a-half blade, wielded one- or two-handed (1d12 two-handed)." },
   { id: "mace", name: "Mace", kind: "weapon" as const, costGp: 8, slots: 1, damage: "1d6", properties: ["bludgeoning"], description: "Heavy fluted mace (+1 vs skeletons/armor)." },
   { id: "warhammer", name: "Warhammer", kind: "weapon" as const, costGp: 12, slots: 1, damage: "1d8", properties: ["bludgeoning", "versatile"], description: "Forged crushing hammer (1d10 two-handed)." },
   { id: "spear", name: "Spear", kind: "weapon" as const, costGp: 3, slots: 1, damage: "1d6", properties: ["reach", "thrown"], description: "Long ash spear with iron tip." },
@@ -338,6 +492,7 @@ export const ITEMS: readonly ItemDefinition[] = [
   { id: "chainmail", name: "Chainmail", kind: "armor" as const, costGp: 40, slots: 2, baseAc: 13, maxDexMod: 2, properties: ["disadvantage_stealth"], description: "AC 13 + DEX mod (max +2). Disadvantage on Stealth." },
   { id: "plate_armor", name: "Plate Armor", kind: "armor" as const, costGp: 100, slots: 3, baseAc: 15, maxDexMod: 1, properties: ["disadvantage_stealth", "disadvantage_swim"], description: "AC 15 + DEX mod (max +1). Disadvantage on Stealth and Swimming." },
   { id: "shield", name: "Shield", kind: "shield" as const, costGp: 10, slots: 1, acBonus: 2, properties: ["shield"], description: "+2 AC. Requires one free hand." },
+  { id: "round_shield", name: "Round Shield", kind: "shield" as const, costGp: 10, slots: 1, acBonus: 2, properties: ["shield"], description: "Wood-and-hide raider's shield. +2 AC. Requires one free hand." },
 
   // Gear & Supplies
   { id: "backpack", name: "Backpack", kind: "gear" as const, costGp: 2, slots: 0, description: "Holds gear. Does not take up a gear slot." },
@@ -365,7 +520,7 @@ export const STARTING_EQUIPMENT: Record<string, Array<{ itemId: string; equipped
     { itemId: "rations", quantity: 3 },
   ],
   duelist: [
-    { itemId: "greatsword", equipped: true },
+    { itemId: "bastard_sword", equipped: true },
     { itemId: "leather_armor", equipped: true },
     { itemId: "backpack", equipped: false },
     { itemId: "torches", quantity: 1, remainingTorches: 2 },
@@ -373,7 +528,6 @@ export const STARTING_EQUIPMENT: Record<string, Array<{ itemId: string; equipped
   ],
   wizard: [
     { itemId: "staff", equipped: true },
-    { itemId: "leather_armor", equipped: true },
     { itemId: "backpack", equipped: false },
     { itemId: "torches", quantity: 1, remainingTorches: 2 },
     { itemId: "rations", quantity: 3 },
@@ -420,13 +574,6 @@ export const STARTING_EQUIPMENT: Record<string, Array<{ itemId: string; equipped
     { itemId: "torches", quantity: 1, remainingTorches: 2 },
     { itemId: "rations", quantity: 3 },
   ],
-  ras_godai: [
-    { itemId: "shortsword", equipped: true },
-    { itemId: "leather_armor", equipped: true },
-    { itemId: "backpack", equipped: false },
-    { itemId: "torches", quantity: 1, remainingTorches: 2 },
-    { itemId: "rations", quantity: 3 },
-  ],
   druid: [
     { itemId: "staff", equipped: true },
     { itemId: "leather_armor", equipped: true },
@@ -436,20 +583,62 @@ export const STARTING_EQUIPMENT: Record<string, Array<{ itemId: string; equipped
   ],
   sage: [
     { itemId: "staff", equipped: true },
-    { itemId: "leather_armor", equipped: true },
     { itemId: "backpack", equipped: false },
     { itemId: "torches", quantity: 1, remainingTorches: 2 },
     { itemId: "rations", quantity: 3 },
   ],
   monk: [
     { itemId: "staff", equipped: true },
-    { itemId: "leather_armor", equipped: true },
     { itemId: "backpack", equipped: false },
     { itemId: "torches", quantity: 1, remainingTorches: 2 },
     { itemId: "rations", quantity: 3 },
   ],
   alchemist: [
     { itemId: "dagger", equipped: true },
+    { itemId: "leather_armor", equipped: true },
+    { itemId: "backpack", equipped: false },
+    { itemId: "torches", quantity: 1, remainingTorches: 2 },
+    { itemId: "rations", quantity: 3 },
+  ],
+  barbarian: [
+    { itemId: "greataxe", equipped: true },
+    { itemId: "round_shield", equipped: true },
+    { itemId: "leather_armor", equipped: true },
+    { itemId: "backpack", equipped: false },
+    { itemId: "torches", quantity: 1, remainingTorches: 2 },
+    { itemId: "rations", quantity: 3 },
+  ],
+  chaos_knight: [
+    { itemId: "longsword", equipped: true },
+    { itemId: "chainmail", equipped: true },
+    { itemId: "backpack", equipped: false },
+    { itemId: "torches", quantity: 1, remainingTorches: 2 },
+    { itemId: "rations", quantity: 3 },
+  ],
+  warlock: [
+    { itemId: "dagger", equipped: true },
+    { itemId: "leather_armor", equipped: true },
+    { itemId: "backpack", equipped: false },
+    { itemId: "torches", quantity: 1, remainingTorches: 2 },
+    { itemId: "rations", quantity: 3 },
+  ],
+  witch: [
+    { itemId: "staff", equipped: true },
+    { itemId: "leather_armor", equipped: true },
+    { itemId: "backpack", equipped: false },
+    { itemId: "torches", quantity: 1, remainingTorches: 2 },
+    { itemId: "rations", quantity: 3 },
+  ],
+  warrior_priest: [
+    { itemId: "warhammer", equipped: true },
+    { itemId: "chainmail", equipped: true },
+    { itemId: "shield", equipped: true },
+    { itemId: "backpack", equipped: false },
+    { itemId: "torches", quantity: 1, remainingTorches: 2 },
+    { itemId: "rations", quantity: 3 },
+  ],
+  ras_godai: [
+    { itemId: "shortsword", equipped: true },
     { itemId: "leather_armor", equipped: true },
     { itemId: "backpack", equipped: false },
     { itemId: "torches", quantity: 1, remainingTorches: 2 },
@@ -559,6 +748,61 @@ export const SPELLS: readonly SpellDefinition[] = [
     duration: "10 mins",
     description: "Caster's natural AC becomes 16 regardless of armor worn.",
   },
+  // Occult — the witch list, shared by Witch, Warlock and Chaos Knight.
+  {
+    id: "hex",
+    name: "Hex",
+    tier: 1,
+    sphere: "occult" as const,
+    range: "near" as const,
+    duration: "focus",
+    description: "Name one ability. The target rolls checks and saves with that ability at disadvantage while you hold focus.",
+  },
+  {
+    id: "chill_of_the_grave",
+    name: "Chill of the Grave",
+    tier: 1,
+    sphere: "occult" as const,
+    range: "close" as const,
+    duration: "instant",
+    description: "Grave cold sinks into the target for 1d8 necrotic damage. Their next attack roll is made at disadvantage.",
+  },
+  {
+    id: "shadow_veil",
+    name: "Shadow Veil",
+    tier: 1,
+    sphere: "occult" as const,
+    range: "self" as const,
+    duration: "focus",
+    description: "Shadow gathers around you. Advantage on checks to hide, and attacks against you in dim light or darkness are made at disadvantage.",
+  },
+  {
+    id: "whispers_of_the_void",
+    name: "Whispers of the Void",
+    tier: 1,
+    sphere: "occult" as const,
+    range: "near" as const,
+    duration: "instant",
+    description: "Something older than language speaks into one creature's mind. It answers a single question truthfully, or flees for 1d4 rounds if it cannot bear the voice.",
+  },
+  {
+    id: "blood_pact",
+    name: "Blood Pact",
+    tier: 2,
+    sphere: "occult" as const,
+    range: "touch" as const,
+    duration: "1 day",
+    description: "Bind your life to a willing creature. Damage they take may instead be taken by you, one instance at a time, until the pact is broken.",
+  },
+  {
+    id: "curse_of_ruin",
+    name: "Curse of Ruin",
+    tier: 2,
+    sphere: "occult" as const,
+    range: "far" as const,
+    duration: "focus",
+    description: "The target rots from within for 1d6 necrotic damage at the start of each of its turns, and critically fails on a natural 1 or 2 while you hold focus.",
+  },
 ] as const;
 
 export const ARCANE_MISHAPS = [
@@ -570,6 +814,18 @@ export const ARCANE_MISHAPS = [
   "Dead Magic Pocket: No spells can be cast in the current chamber/zone for 10 minutes.",
   "Memory Scourge: Caster forgets all spells of that tier until they complete a full rest in sanctuary.",
   "Cataclysmic Rift: Shockwave deals 2d8 force damage within Near radius and blows out all torches.",
+] as const;
+
+/** Rolled when an occult caster fumbles — the witch list exacts its own price. */
+export const DIABOLICAL_MISHAPS = [
+  "Debt Called In: Caster takes 1d6 damage per Spell Tier and the patron notes the shortfall.",
+  "Unwelcome Guest: A minor fiend or fey spite manifests adjacent to the caster and is not friendly.",
+  "Hex Rebound: The spell resolves against the caster instead of the intended target.",
+  "Second Voice: For 1d4 rounds the caster can only speak in their patron's words, and cannot cast.",
+  "The Mark Deepens: A visible sigil burns into the caster's flesh; disadvantage on social checks for 24 hours.",
+  "Bound Tongue: Caster cannot cast that spell again until they complete a rest in consecrated or warded ground.",
+  "Familiar's Price: The caster's familiar, if any, takes 2d6 damage. Without one, the caster does.",
+  "Torn Veil: Every torch and lantern within Near gutters out and cannot be relit for 10 minutes.",
 ] as const;
 
 export const HEX_DEFINITIONS = [
@@ -821,3 +1077,116 @@ export const MONSTERS = {
     ],
   },
 } as const;
+
+/** One entry on a patron's 2d6 boon table. */
+export interface PatronBoon {
+  roll: string;
+  min: number;
+  max: number;
+  effect: string;
+  /**
+   * The spell this boon teaches, if any. A patron with no spell-granting boon
+   * on their table cannot be bonded at character creation — see
+   * {@link SPELL_GRANTING_PATRONS}.
+   */
+  grantsSpellId?: string;
+}
+
+export interface WarlockPatron {
+  id: string;
+  name: string;
+  title: string;
+  description: string;
+  boons: readonly PatronBoon[];
+}
+
+/**
+ * Every patron whose boons are known to the lodges. Some of these will not take
+ * a novice conduit; {@link SPELL_GRANTING_PATRONS} is the list a warlock may
+ * actually swear to. The rest still exist here because the Warlock talent on a
+ * roll of 2 draws a boon from *any* patron's table.
+ */
+export const WARLOCK_PATRONS: readonly WarlockPatron[] = [
+  {
+    id: "shune_the_vile",
+    name: "Shune the Vile",
+    title: "The Whispering Witch",
+    description: "Goddess of secrets kept too long. She trades knowledge for the telling of it, and every answer costs a truth of your own.",
+    boons: [
+      { roll: "2", min: 2, max: 2, effect: "Shune answers one question a day truthfully, in a voice only you hear.", grantsSpellId: "whispers_of_the_void" },
+      { roll: "3-6", min: 3, max: 6, effect: "+1 to occult spellcasting checks." },
+      { roll: "7-9", min: 7, max: 9, effect: "You learn the Hex spell, cast with Charisma.", grantsSpellId: "hex" },
+      { roll: "10-11", min: 10, max: 11, effect: "Advantage on checks to detect a lie, and you always know when one is told in your presence." },
+      { roll: "12", min: 12, max: 12, effect: "Choose any boon on this table." },
+    ],
+  },
+  {
+    id: "ramlaat",
+    name: "Ramlaat",
+    title: "The Pillager",
+    description: "The blood god of the raiding season. He gives freely to those who take freely, and keeps a tally of everything spilled in his name.",
+    boons: [
+      { roll: "2", min: 2, max: 2, effect: "Once per day, when you drop to 0 HP you instead drop to 1 HP and deal 1d6 damage to every near creature." },
+      { roll: "3-6", min: 3, max: 6, effect: "+1 to melee damage rolls." },
+      { roll: "7-9", min: 7, max: 9, effect: "You learn the Blood Pact spell, cast with Charisma.", grantsSpellId: "blood_pact" },
+      { roll: "10-11", min: 10, max: 11, effect: "You heal 1 HP each time you reduce a hostile creature to 0 HP." },
+      { roll: "12", min: 12, max: 12, effect: "Choose any boon on this table." },
+    ],
+  },
+  {
+    id: "the_lost",
+    name: "The Lost",
+    title: "The Court in Exile",
+    description: "A fey court with no country left to rule. They are courteous, patient, and entirely without mercy about the terms of an agreement.",
+    boons: [
+      { roll: "2", min: 2, max: 2, effect: "Once per day, step through a shadow to any point you can see within far range." },
+      { roll: "3-6", min: 3, max: 6, effect: "+1 to any two different stats." },
+      { roll: "7-9", min: 7, max: 9, effect: "You learn the Shadow Veil spell, cast with Charisma.", grantsSpellId: "shadow_veil" },
+      { roll: "10-11", min: 10, max: 11, effect: "You never become lost, and you always know the way back to a door you have walked through." },
+      { roll: "12", min: 12, max: 12, effect: "Choose any boon on this table." },
+    ],
+  },
+  {
+    id: "the_drowned_choir",
+    name: "The Drowned Choir",
+    title: "Voices Under the Ice",
+    description: "Something that sang before there were throats, still singing beneath the deep water. It does not bargain so much as accrete.",
+    boons: [
+      { roll: "2", min: 2, max: 2, effect: "You no longer need to breathe, and cold does not harm you." },
+      { roll: "3-6", min: 3, max: 6, effect: "+1 to Constitution or Charisma." },
+      { roll: "7-9", min: 7, max: 9, effect: "You learn the Chill of the Grave spell, cast with Charisma.", grantsSpellId: "chill_of_the_grave" },
+      { roll: "10-11", min: 10, max: 11, effect: "You learn the Curse of Ruin spell, cast with Charisma.", grantsSpellId: "curse_of_ruin" },
+      { roll: "12", min: 12, max: 12, effect: "Choose any boon on this table." },
+    ],
+  },
+  {
+    id: "memnon",
+    name: "Memnon",
+    title: "The Chaos Lord",
+    description: "A war-lord of the outer tumult who deals only in violence and its rewards. He teaches nothing — he simply makes you harder to kill, which is why no novice may swear to him.",
+    boons: [
+      { roll: "2", min: 2, max: 2, effect: "Your critical hits deal an additional damage die." },
+      { roll: "3-6", min: 3, max: 6, effect: "+1 to attack rolls." },
+      { roll: "7-9", min: 7, max: 9, effect: "+2 to Strength or Constitution." },
+      { roll: "10-11", min: 10, max: 11, effect: "Reduce all physical damage you take by 1." },
+      { roll: "12", min: 12, max: 12, effect: "Choose any boon on this table." },
+    ],
+  },
+];
+
+/**
+ * The patrons a warlock may bond at character creation: only those whose boon
+ * table actually teaches spells. Derived, not hand-maintained, so a patron
+ * cannot drift onto the list without a spell to give.
+ */
+export const SPELL_GRANTING_PATRONS: readonly WarlockPatron[] = WARLOCK_PATRONS.filter((patron) =>
+  patron.boons.some((boon) => boon.grantsSpellId !== undefined),
+);
+
+export function resolveWarlockPatron(patronId: string): WarlockPatron {
+  const patron = SPELL_GRANTING_PATRONS.find((item) => item.id === patronId);
+  if (!patron) {
+    throw new Error(`"${patronId}" is not a patron a warlock may bond — their boons grant no spells`);
+  }
+  return patron;
+}

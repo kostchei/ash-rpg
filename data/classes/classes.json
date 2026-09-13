@@ -1,5 +1,6 @@
 [
   {
+    "id": "fighter",
     "name": "Fighter",
     "hitDie": 8,
     "weapons": [
@@ -12,15 +13,15 @@
     "level1Features": [
       {
         "name": "Hauler",
-        "description": "Add Constitution modifier (if positive) to total gear slots."
+        "description": "Add CON mod to total gear slots."
       },
       {
         "name": "Weapon Mastery",
-        "description": "Choose one weapon group. Gain +1 to attack and damage rolls with that weapon group, plus +1/3 level to damage."
+        "description": "+1 attack and damage with mastered weapon group, +1/3 level to damage."
       },
       {
         "name": "Grit",
-        "description": "Unrivaled physical resilience and extra attacks as level progresses (2 attacks at lvl 6, 3 at lvl 13, 4 at lvl 20)."
+        "description": "Extra attacks progression (2 at lvl 6, 3 at lvl 13, 4 at lvl 20)."
       }
     ],
     "talentTable": [
@@ -57,6 +58,7 @@
     ]
   },
   {
+    "id": "thief",
     "name": "Thief",
     "hitDie": 6,
     "weapons": [
@@ -73,15 +75,15 @@
     "level1Features": [
       {
         "name": "Backstab",
-        "description": "Deal extra weapon damage dice equal to half level rounded up (+1d6 at lv 1-2, up to +5d6) when striking unaware or flanked foes."
+        "description": "Deal extra damage dice (+1d6 per 2 levels) against unaware/flanked targets."
       },
       {
         "name": "Thievery",
-        "description": "Advantage on checks to pick locks, disarm traps, pick pockets, climb walls, and move silently."
+        "description": "Advantage on checks for stealth, picking locks, and disarming traps."
       },
       {
         "name": "Passive Trap Sense",
-        "description": "Automatically roll DEX check (DC 12 or hazard DC) to spot hidden traps before triggering."
+        "description": "Automatically test DEX to notice hidden traps."
       }
     ],
     "talentTable": [
@@ -89,7 +91,7 @@
         "roll": "2",
         "min": 2,
         "max": 2,
-        "effect": "Roll Backstab damage with Advantage (roll dice pool twice, take higher total)."
+        "effect": "Roll Backstab damage with Advantage."
       },
       {
         "roll": "3-5",
@@ -118,6 +120,7 @@
     ]
   },
   {
+    "id": "priest",
     "name": "Priest",
     "hitDie": 6,
     "weapons": [
@@ -138,16 +141,12 @@
     },
     "level1Features": [
       {
-        "name": "Deity & Alignment",
-        "description": "Sworn to a divine alignment granting access to holy miracles and blessing rights."
-      },
-      {
         "name": "Divine Spellcasting",
-        "description": "Cast divine spells using Wisdom modifier vs DC 10 + Spell Tier."
+        "description": "Cast divine miracles using Wisdom vs DC 10 + Tier."
       },
       {
         "name": "Turn Undead",
-        "description": "Rebuke undead with holy authority; CHA check vs spell check forces undead to flee or perish."
+        "description": "Rebuke undead with holy authority."
       }
     ],
     "talentTable": [
@@ -184,6 +183,7 @@
     ]
   },
   {
+    "id": "wizard",
     "name": "Wizard",
     "hitDie": 4,
     "weapons": [
@@ -199,16 +199,12 @@
     },
     "level1Features": [
       {
-        "name": "Spellbook",
-        "description": "Begins with 3 Tier 1 spells inscribed in personal spellbook."
-      },
-      {
         "name": "Arcane Spellcasting",
-        "description": "Cast arcane spells using Intelligence modifier vs DC 10 + Spell Tier."
+        "description": "Cast arcane formulas using Intelligence vs DC 10 + Tier."
       },
       {
-        "name": "Learning Spells",
-        "description": "Copy scrolls into spellbook during downtime with INT check (DC 10 + Tier)."
+        "name": "Spellbook",
+        "description": "Begins with 3 Tier 1 spells inscribed."
       }
     ],
     "talentTable": [
@@ -216,7 +212,7 @@
         "roll": "2",
         "min": 2,
         "max": 2,
-        "effect": "Choose one wizard spell you know; cast it with Advantage."
+        "effect": "Learn one additional wizard spell of any tier you can cast."
       },
       {
         "roll": "3-6",
@@ -234,7 +230,7 @@
         "roll": "10-11",
         "min": 10,
         "max": 11,
-        "effect": "Learn one additional spell of any tier you can cast."
+        "effect": "Modify one known spell to cast at Far range or learn 1 spell."
       },
       {
         "roll": "12",
@@ -245,6 +241,7 @@
     ]
   },
   {
+    "id": "delver",
     "name": "Delver",
     "hitDie": 6,
     "weapons": [
@@ -265,15 +262,11 @@
     "level1Features": [
       {
         "name": "Scavenger",
-        "description": "When expending the last consumable item, roll d6; on 5-6 regain one use of that item."
+        "description": "5-6 on d6 regains last consumed resource."
       },
       {
         "name": "Trailblazer",
-        "description": "Advantage on climbing, swimming, foraging, and avoiding terrain hazards."
-      },
-      {
-        "name": "Trusty Gear",
-        "description": "Choose one piece of gear/weapon; gain +1 + half level on checks or attack rolls with it."
+        "description": "Advantage on climbing, swimming, foraging, avoiding hazards."
       }
     ],
     "talentTable": [
@@ -287,7 +280,7 @@
         "roll": "3-6",
         "min": 3,
         "max": 6,
-        "effect": "+1 to attack rolls with Trusty Gear or light weapons."
+        "effect": "+1 to attack rolls with light weapons."
       },
       {
         "roll": "7-9",
@@ -299,7 +292,7 @@
         "roll": "10-11",
         "min": 10,
         "max": 11,
-        "effect": "+2 bonus gear slots and advantage on subterranean navigation."
+        "effect": "+2 bonus gear slots."
       },
       {
         "roll": "12",
@@ -310,6 +303,7 @@
     ]
   },
   {
+    "id": "ras_godai",
     "name": "Ras-Godai",
     "hitDie": 6,
     "weapons": [
@@ -326,15 +320,11 @@
     "level1Features": [
       {
         "name": "Shadow Step",
-        "description": "Move between darkness and shadows as a near teleportation action."
+        "description": "Teleport near through dark shadows."
       },
       {
         "name": "Assassinate",
-        "description": "Deal double weapon dice when attacking from absolute surprise or stealth."
-      },
-      {
-        "name": "Poisoner",
-        "description": "Immune to accidental poisoning and can apply venom as a free action."
+        "description": "Double damage dice from stealth."
       }
     ],
     "talentTable": [
@@ -348,7 +338,7 @@
         "roll": "3-6",
         "min": 3,
         "max": 6,
-        "effect": "+1 to attack rolls with light blades and shurikens."
+        "effect": "+1 to attack rolls with light blades."
       },
       {
         "roll": "7-9",
@@ -371,12 +361,12 @@
     ]
   },
   {
+    "id": "druid",
     "name": "Druid",
     "hitDie": 6,
     "weapons": [
       "Club",
       "Dagger",
-      "Dart",
       "Scimitar",
       "Sickle",
       "Sling",
@@ -394,15 +384,11 @@
     "level1Features": [
       {
         "name": "Wild Shape",
-        "description": "Transform into a beast of equal or lower level once per day per level."
+        "description": "Transform into beast form 1/day per level."
       },
       {
         "name": "Primal Spellcasting",
-        "description": "Cast nature spells using Wisdom modifier vs DC 10 + Spell Tier."
-      },
-      {
-        "name": "Beast Speech",
-        "description": "Freely converse with natural animals and primeval flora."
+        "description": "Cast nature spells with Wisdom."
       }
     ],
     "talentTable": [
@@ -410,7 +396,7 @@
         "roll": "2",
         "min": 2,
         "max": 2,
-        "effect": "Wild Shape lasts double duration and grants +2 AC in beast form."
+        "effect": "Wild Shape lasts double duration and grants +2 AC."
       },
       {
         "roll": "3-6",
@@ -428,7 +414,7 @@
         "roll": "10-11",
         "min": 10,
         "max": 11,
-        "effect": "+1 to attack and damage rolls with natural weapons and spears."
+        "effect": "+1 to attack and damage rolls with spears."
       },
       {
         "roll": "12",
@@ -439,6 +425,7 @@
     ]
   },
   {
+    "id": "alchemist",
     "name": "Alchemist",
     "hitDie": 6,
     "weapons": [
@@ -454,15 +441,11 @@
     "level1Features": [
       {
         "name": "Reagent Extraction",
-        "description": "Extract potent alchemical essences from fallen beasts and strange flora."
+        "description": "Harvest essence from monsters."
       },
       {
         "name": "Concoct Brews",
-        "description": "Brew volatile bombs, healing salves, and mutagenic draughts during rest."
-      },
-      {
-        "name": "Catalyst Infusion",
-        "description": "Add alchemical elemental damage (fire, acid, cold) to ammunition and weapons."
+        "description": "Craft bombs and potions during rest."
       }
     ],
     "talentTable": [
@@ -476,7 +459,7 @@
         "roll": "3-6",
         "min": 3,
         "max": 6,
-        "effect": "+1 to ranged attacks and thrown alchemical flasks."
+        "effect": "+1 to ranged attacks with thrown flasks."
       },
       {
         "roll": "7-9",
@@ -488,7 +471,7 @@
         "roll": "10-11",
         "min": 10,
         "max": 11,
-        "effect": "Brew 1 extra free potion per rest cycle without consuming reagents."
+        "effect": "Brew 1 extra free potion per rest cycle."
       },
       {
         "roll": "12",
@@ -499,6 +482,7 @@
     ]
   },
   {
+    "id": "sage",
     "name": "Sage",
     "hitDie": 4,
     "weapons": [
@@ -508,18 +492,18 @@
     "armor": [
       "None"
     ],
+    "spellcasting": {
+      "ability": "int",
+      "type": "arcane"
+    },
     "level1Features": [
       {
         "name": "Encyclopedic Lore",
-        "description": "Roll with Advantage on all checks to identify monsters, relics, and ancient history."
-      },
-      {
-        "name": "Decipher Script",
-        "description": "Read any ancient dialect or decipher magical wards without triggering mishaps."
+        "description": "Advantage on monster/history lore checks."
       },
       {
         "name": "Scroll Savant",
-        "description": "Can activate any arcane or divine scroll regardless of class list."
+        "description": "Cast scrolls of any tradition without failure."
       }
     ],
     "talentTable": [
@@ -533,7 +517,7 @@
         "roll": "3-6",
         "min": 3,
         "max": 6,
-        "effect": "+1 to all INT and WIS ability checks and saving throws."
+        "effect": "+1 to all INT and WIS checks and saves."
       },
       {
         "roll": "7-9",
@@ -545,7 +529,7 @@
         "roll": "10-11",
         "min": 10,
         "max": 11,
-        "effect": "Gain 2 additional language proficiencies and +1 lore tier mastery."
+        "effect": "+1 lore tier mastery."
       },
       {
         "roll": "12",
@@ -556,6 +540,7 @@
     ]
   },
   {
+    "id": "monk",
     "name": "Monk",
     "hitDie": 6,
     "weapons": [
@@ -569,15 +554,11 @@
     "level1Features": [
       {
         "name": "Martial Arts",
-        "description": "Unarmed strikes deal 1d6 damage (scaling with level) and use DEX for attacks."
+        "description": "1d6 unarmed strikes using DEX."
       },
       {
         "name": "Ki Defense",
-        "description": "AC is 10 + DEX modifier + WIS modifier when wearing no armor."
-      },
-      {
-        "name": "Slow Fall & Purity",
-        "description": "Reduce falling damage and gain Advantage on saves against poison and disease."
+        "description": "AC is 10 + DEX + WIS unarmored."
       }
     ],
     "talentTable": [
@@ -585,13 +566,13 @@
         "roll": "2",
         "min": 2,
         "max": 2,
-        "effect": "Unarmed strikes deal +1 damage die step (1d6 -> 1d8 -> 1d10)."
+        "effect": "Unarmed strikes increase damage die step."
       },
       {
         "roll": "3-6",
         "min": 3,
         "max": 6,
-        "effect": "+1 to unarmed attack rolls and combat maneuvers."
+        "effect": "+1 to unarmed attack rolls."
       },
       {
         "roll": "7-9",
@@ -603,7 +584,7 @@
         "roll": "10-11",
         "min": 10,
         "max": 11,
-        "effect": "+10 ft movement speed and +1 AC while unarmored."
+        "effect": "+10 ft movement speed."
       },
       {
         "roll": "12",
@@ -614,6 +595,7 @@
     ]
   },
   {
+    "id": "bard",
     "name": "Bard",
     "hitDie": 6,
     "weapons": [
@@ -637,11 +619,7 @@
     "level1Features": [
       {
         "name": "Bardic Inspiration",
-        "description": "Inspire an ally with a spell-song, granting +1d6 on their next check or attack."
-      },
-      {
-        "name": "Fascinate",
-        "description": "Perform to charm and pacify audiences or sentient beasts."
+        "description": "Grant ally +1d6 to next check or attack."
       }
     ],
     "talentTable": [
@@ -649,13 +627,13 @@
         "roll": "2",
         "min": 2,
         "max": 2,
-        "effect": "Bardic Inspiration die increases to 1d8."
+        "effect": "Inspiration die increases to 1d8."
       },
       {
         "roll": "3-6",
         "min": 3,
         "max": 6,
-        "effect": "+1 to performance and spellcasting checks."
+        "effect": "+1 to spellcasting and performance checks."
       },
       {
         "roll": "7-9",
@@ -667,7 +645,7 @@
         "roll": "10-11",
         "min": 10,
         "max": 11,
-        "effect": "+1 to melee attack and damage rolls with finesse weapons."
+        "effect": "+1 attack and damage with finesse weapons."
       },
       {
         "roll": "12",
@@ -678,6 +656,7 @@
     ]
   },
   {
+    "id": "duelist",
     "name": "Duelist",
     "hitDie": 8,
     "weapons": [
@@ -691,12 +670,8 @@
     ],
     "level1Features": [
       {
-        "name": "Flourish & Parry",
-        "description": "Use reaction to add +2 AC against incoming melee attack or riposte after a miss."
-      },
-      {
-        "name": "Single Combat",
-        "description": "+2 to attack and damage rolls when engaging a single enemy in melee."
+        "name": "Parry & Riposte",
+        "description": "+2 AC reaction vs melee attacks."
       }
     ],
     "talentTable": [
@@ -710,7 +685,7 @@
         "roll": "3-6",
         "min": 3,
         "max": 6,
-        "effect": "+1 to attack rolls with rapiers and dueling blades."
+        "effect": "+1 to attack rolls with rapiers."
       },
       {
         "roll": "7-9",
@@ -722,7 +697,7 @@
         "roll": "10-11",
         "min": 10,
         "max": 11,
-        "effect": "+1 to damage rolls and critical hits trigger on 19-20."
+        "effect": "+1 damage and crit on 19-20."
       },
       {
         "roll": "12",
@@ -733,6 +708,7 @@
     ]
   },
   {
+    "id": "ranger",
     "name": "Ranger",
     "hitDie": 8,
     "weapons": [
@@ -752,11 +728,11 @@
     "level1Features": [
       {
         "name": "Favored Terrain",
-        "description": "Cannot become lost in chosen biome and party moves at normal pace during wilderness exploration."
+        "description": "Cannot become lost in chosen biome."
       },
       {
         "name": "Hunter's Mark",
-        "description": "+1d4 damage against tracked or quarry target."
+        "description": "+1d4 damage against quarry."
       }
     ],
     "talentTable": [
@@ -782,7 +758,7 @@
         "roll": "10-11",
         "min": 10,
         "max": 11,
-        "effect": "+1 to tracking checks and ambush initiative."
+        "effect": "+1 to tracking checks."
       },
       {
         "roll": "12",
@@ -793,27 +769,26 @@
     ]
   },
   {
-    "name": "Knight of St. Ydris",
+    "id": "barbarian",
+    "name": "Barbarian",
     "hitDie": 8,
     "weapons": [
-      "All weapons"
+      "All melee weapons",
+      "Javelin",
+      "Shortbow"
     ],
     "armor": [
       "All armor",
       "Shields"
     ],
-    "spellcasting": {
-      "ability": "wis",
-      "type": "divine"
-    },
     "level1Features": [
       {
-        "name": "Martyr's Smite",
-        "description": "Channel holy suffering to deal +2d6 radiant damage at the cost of 2 HP."
+        "name": "Shield Wall",
+        "description": "While wielding a shield, spend your action to lock a defensive stance: your AC becomes 20 until your next turn."
       },
       {
-        "name": "Chivalric Oath",
-        "description": "Immune to fear and grant allies within near +1 to morale checks."
+        "name": "The Old Gods",
+        "description": "Each dawn choose one blessing until the next dawn — Odin (+1 to spellcasting and lore checks), Thor (+1d4 lightning damage the first time you kill an enemy each combat), Freya (1/day gain a Luck Token if you lack one; spending one adds +1d6 to the roll), or Loki (advantage on checks to lie, sneak, and hide)."
       }
     ],
     "talentTable": [
@@ -821,25 +796,25 @@
         "roll": "2",
         "min": 2,
         "max": 2,
-        "effect": "Martyr's Smite deals +3d6 radiant damage."
+        "effect": "1/day, Go Berserk: become immune to damage for 3 rounds."
       },
       {
         "roll": "3-6",
         "min": 3,
         "max": 6,
-        "effect": "+1 to melee attack rolls with martial weapons."
+        "effect": "Your weapon attacks deal +1 damage."
       },
       {
         "roll": "7-9",
         "min": 7,
         "max": 9,
-        "effect": "+2 to Strength, Constitution, or Wisdom stat."
+        "effect": "+2 to Strength or Constitution stat, or +1 to attack rolls."
       },
       {
         "roll": "10-11",
         "min": 10,
         "max": 11,
-        "effect": "+1 to AC while wearing heavy armor."
+        "effect": "Duality: choose two different Old Gods blessings each dawn instead of one."
       },
       {
         "roll": "12",
@@ -850,12 +825,150 @@
     ]
   },
   {
+    "id": "chaos_knight",
+    "name": "Chaos Knight",
+    "hitDie": 6,
+    "weapons": [
+      "All melee weapons",
+      "Crossbow"
+    ],
+    "armor": [
+      "All armor",
+      "Shields"
+    ],
+    "spellcasting": {
+      "ability": "cha",
+      "type": "occult"
+    },
+    "level1Features": [
+      {
+        "name": "Demonic Possession",
+        "description": "Enter a frenzied trance for 3 rounds, gaining +1 to attack and damage rolls plus half your level (round down)."
+      },
+      {
+        "name": "Witch Spellcasting",
+        "description": "Cast from the witch spell list using Charisma (DC 10 + spell tier). A natural 1 calls for a diabolical mishap."
+      }
+    ],
+    "resource": {
+      "id": "possession",
+      "name": "Possession",
+      "generation": "Refills to full when you complete a rest.",
+      "baseMax": 3,
+      "startsAt": 3,
+      "resetsTo": 3,
+      "resetOn": "rest",
+      "spenders": [
+        {
+          "id": "demonic_possession",
+          "name": "Demonic Possession",
+          "cost": 1,
+          "description": "Frenzied trance for 3 rounds: +1 to attack and damage, plus half your level."
+        }
+      ]
+    },
+    "talentTable": [
+      {
+        "roll": "2",
+        "min": 2,
+        "max": 2,
+        "effect": "1/day, wreath your weapon in hellfire (+2d6 fire damage on hit for 3 rounds)."
+      },
+      {
+        "roll": "3-6",
+        "min": 3,
+        "max": 6,
+        "effect": "+1 to weapon attacks and damage."
+      },
+      {
+        "roll": "7-9",
+        "min": 7,
+        "max": 9,
+        "effect": "+2 to Strength, Constitution, or Charisma stat."
+      },
+      {
+        "roll": "10-11",
+        "min": 10,
+        "max": 11,
+        "effect": "Learn an additional witch spell of any tier you can cast."
+      },
+      {
+        "roll": "12",
+        "min": 12,
+        "max": 12,
+        "effect": "Choose any talent or gain +2 points to distribute among stats."
+      }
+    ]
+  },
+  {
+    "id": "warlock",
     "name": "Warlock",
     "hitDie": 6,
     "weapons": [
       "Club",
+      "Crossbow",
       "Dagger",
-      "Shortsword",
+      "Mace",
+      "Longsword"
+    ],
+    "armor": [
+      "Leather armor",
+      "Chainmail",
+      "Shields"
+    ],
+    "spellcasting": {
+      "ability": "cha",
+      "type": "occult"
+    },
+    "level1Features": [
+      {
+        "name": "Patron Bond",
+        "description": "Swear yourself to an otherworldly patron. Only patrons whose boons carry spells will take a novice conduit."
+      },
+      {
+        "name": "Patron Boons",
+        "description": "Gain one random boon from your patron at 1st level and another at every even level. When you level, you may roll on your patron's boon table instead of the Warlock talent table."
+      }
+    ],
+    "talentTable": [
+      {
+        "roll": "2",
+        "min": 2,
+        "max": 2,
+        "effect": "Roll a patron boon from any patron — an unexplained eldritch gift."
+      },
+      {
+        "roll": "3-6",
+        "min": 3,
+        "max": 6,
+        "effect": "+1 to any two different stats."
+      },
+      {
+        "roll": "7-9",
+        "min": 7,
+        "max": 9,
+        "effect": "+1 to melee or ranged attacks."
+      },
+      {
+        "roll": "10-11",
+        "min": 10,
+        "max": 11,
+        "effect": "Roll two patron boons and choose one to keep."
+      },
+      {
+        "roll": "12",
+        "min": 12,
+        "max": 12,
+        "effect": "Choose any talent or gain +2 points to distribute among stats."
+      }
+    ]
+  },
+  {
+    "id": "witch",
+    "name": "Witch",
+    "hitDie": 4,
+    "weapons": [
+      "Dagger",
       "Staff"
     ],
     "armor": [
@@ -867,12 +980,12 @@
     },
     "level1Features": [
       {
-        "name": "Patron Boon",
-        "description": "Draw occult boons from patron fey, fiend, or primordial void."
+        "name": "Familiar",
+        "description": "A small loyal animal that speaks Common and can serve as the origin point for your spells. If it dies, restore it by permanently sacrificing 1d4 hit points."
       },
       {
-        "name": "Eldritch Blast",
-        "description": "Cast far-range beam dealing 1d6 force damage (CHA check vs DC 10)."
+        "name": "Witch Spellcasting",
+        "description": "Cast from the witch spell list using Charisma (DC 10 + spell tier). A natural 1 calls for a diabolical mishap."
       }
     ],
     "talentTable": [
@@ -880,25 +993,25 @@
         "roll": "2",
         "min": 2,
         "max": 2,
-        "effect": "Eldritch Blast deals +1d6 extra force damage."
+        "effect": "1/day, teleport to your familiar's exact location as a move action."
       },
       {
-        "roll": "3-6",
+        "roll": "3-7",
         "min": 3,
-        "max": 6,
-        "effect": "+1 to occult spellcasting checks."
+        "max": 7,
+        "effect": "+2 to Charisma stat, or +1 to witch spellcasting checks."
       },
       {
-        "roll": "7-9",
-        "min": 7,
+        "roll": "8-9",
+        "min": 8,
         "max": 9,
-        "effect": "+2 to Constitution or Charisma stat."
+        "effect": "Gain advantage on casting one chosen witch spell."
       },
       {
         "roll": "10-11",
         "min": 10,
         "max": 11,
-        "effect": "Gain darkvision and resistance to necrotic damage."
+        "effect": "Learn an additional witch spell of any tier you can cast."
       },
       {
         "roll": "12",
@@ -909,60 +1022,96 @@
     ]
   },
   {
-    "name": "Witch",
+    "id": "warrior_priest",
+    "name": "Warrior Priest",
     "hitDie": 6,
     "weapons": [
       "Club",
-      "Dagger",
+      "Mace",
+      "Morningstar",
+      "Warhammer",
       "Staff"
     ],
     "armor": [
-      "None"
+      "Leather armor",
+      "Chainmail",
+      "Plate mail",
+      "Shields"
     ],
-    "spellcasting": {
-      "ability": "int",
-      "type": "occult"
-    },
     "level1Features": [
       {
-        "name": "Hexing & Banes",
-        "description": "Inflict misfortune, forcing enemies to roll saves or attacks with Disadvantage."
+        "name": "Divine Prayers",
+        "description": "Spend an action to chant one prayer, projecting a near aura you hold with Focus (on taking damage, pass a CON check against DC 10 or half the damage, whichever is higher). Only one prayer at a time. Devotion: a near ally who deals melee damage heals 1 HP. Righteousness: near allies gain +1 to melee damage rolls. Absolution: near allies gain +1 AC and advantage on death timer rolls."
       },
       {
-        "name": "Coven Cauldron",
-        "description": "Brew curative draughts, charms, and herbal wards during camp rest."
+        "name": "Righteous Fury",
+        "description": "You have no passive mana. You gain 1 Righteousness the first time you deal melee damage on each of your turns — if you are not swinging, your allies are dying."
+      },
+      {
+        "name": "Miracles",
+        "description": "Spend Righteousness as a free action on your turn. Miracles need no spellcasting check and cannot be lost for the day."
       }
     ],
+    "resource": {
+      "id": "righteousness",
+      "name": "Righteousness",
+      "generation": "Gain 1 the first time you deal melee damage to a hostile creature on each of your turns.",
+      "baseMax": 3,
+      "startsAt": 0,
+      "resetsTo": 0,
+      "resetOn": "combat_end",
+      "capTalent": "Righteous Vessel",
+      "spenders": [
+        {
+          "id": "light_of_sigmar",
+          "name": "Light of Sigmar",
+          "cost": 1,
+          "description": "One near ally heals 1d4 HP."
+        },
+        {
+          "id": "divine_mend",
+          "name": "Divine Mend",
+          "cost": 2,
+          "description": "One near ally heals 1d4 HP, then 1 HP at the start of each of their next three turns."
+        },
+        {
+          "id": "martyrs_blessing",
+          "name": "Martyr's Blessing",
+          "cost": 3,
+          "description": "Ward a near ally: the next damage they take is reduced to 0."
+        }
+      ]
+    },
     "talentTable": [
       {
         "roll": "2",
         "min": 2,
         "max": 2,
-        "effect": "Hexes affect 2 targets simultaneously."
+        "effect": "Righteous Vessel: your maximum Righteousness increases by 1."
       },
       {
         "roll": "3-6",
         "min": 3,
         "max": 6,
-        "effect": "+1 to occult spellcasting and brewing checks."
+        "effect": "Vanguard: +1 to melee attack rolls."
       },
       {
         "roll": "7-9",
         "min": 7,
         "max": 9,
-        "effect": "+2 to Intelligence or Wisdom stat."
+        "effect": "Blessed Vigor: +2 to Strength, Constitution, or Wisdom stat."
       },
       {
         "roll": "10-11",
         "min": 10,
         "max": 11,
-        "effect": "Gain a spirit familiar granting advantage on perception."
+        "effect": "Unbreakable: permanent advantage on Constitution checks to maintain Focus on a prayer."
       },
       {
         "roll": "12",
         "min": 12,
         "max": 12,
-        "effect": "Choose any talent or gain +2 points to distribute among stats."
+        "effect": "Divine Champion: choose any option on this table or gain +2 points to distribute among stats."
       }
     ]
   }

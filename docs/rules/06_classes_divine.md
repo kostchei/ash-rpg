@@ -42,9 +42,9 @@
     | **10–11** | Learn an **additional druid spell** of any tier you can cast. |
     | **12** | Choose any talent or gain +2 points to distribute among your stats. |
 
-=== "Knight of St. Ydris"
+=== "Chaos Knight"
 
-    ## 💀 Knight of St. Ydris
+    ## 💀 Chaos Knight
 
     Cursed knights who walk the dark path of St. Ydris the Unholy, the Possessed. They embrace darkness to purge evil with steel and forbidden witchery.
 
@@ -57,7 +57,7 @@
         * *Failure:* Cannot cast that spell until you complete a rest.
         * *Critical Failure (Natural 1):* Roll on the **Diabolical Mishap Table** for that spell's tier.
 
-    ### Knight of St. Ydris Spells Known by Tier
+    ### Chaos Knight Spells Known by Tier
     | Level | Tier 1 | Tier 2 | Tier 3 |
     | :---: | :---: | :---: | :---: |
     | **1** | — | — | — |
@@ -71,7 +71,7 @@
     | **9** | 3 | 3 | 2 |
     | **10** | 3 | 3 | 3 |
 
-    ### Knight of St. Ydris Talents (2d6)
+    ### Chaos Knight Talents (2d6)
     | 2d6 | Effect (2 duplicate = +1 use per day) |
     | :---: | :--- |
     | **2** | 1/day, **wreath your weapon in hellfire** (+2d6 fire damage on hit for 3 rounds). |
@@ -79,6 +79,34 @@
     | **7–9** | **+2 to Strength, Constitution, or Charisma stat.** |
     | **10–11** | Learn an **additional witch spell** of any tier you can cast. |
     | **12** | Choose any talent or gain +2 points to distribute among your stats. |
+
+=== "Warrior Priest"
+
+    ## ⚒️ Warrior Priest
+
+    Armoured battle-clergy who cannot pray from the back rank. They have no passive reservoir of faith — they beat it out of the enemy with a warhammer and spend it the same round to haul their allies back onto their feet.
+
+    * **Weapons:** Club, mace, morningstar, warhammer, stave
+    * **Armor:** Leather, chainmail, plate, and shields
+    * **Hit Points:** 1d6 per level
+    * **Divine Prayers:** Spend an **Action** to chant one Prayer, projecting a **Near** aura. It lasts as long as you maintain **Focus** — if you take damage, pass a Constitution check against **DC 10, or half the damage taken, whichever is higher**, to hold it. Only one Prayer at a time.
+        * **Prayer of Devotion:** Whenever a Near ally deals melee damage to a hostile creature, they heal **1 HP**.
+        * **Prayer of Righteousness:** Near allies gain **+1 to melee damage rolls**.
+        * **Prayer of Absolution:** Near allies gain **+1 AC** and **Advantage on Death Timer rolls**.
+    * **Righteous Fury:** You gain **1 Righteousness** the first time you deal melee damage to a hostile creature on each of your turns. Your maximum is **3**. Righteousness **empties at the end of combat** — it does not carry between fights.
+    * **Miracles:** Spend Righteousness as a **Free Action** on your turn. Because Miracles are fuelled by momentum rather than preparation, they require **no spellcasting check** and **cannot be lost for the day**.
+        * **Light of Sigmar** *(1 Righteousness)*: One Near ally heals **1d4 HP**.
+        * **Divine Mend** *(2 Righteousness)*: One Near ally heals **1d4 HP**, and a further **1 HP** at the start of each of their next three turns.
+        * **Martyr’s Blessing** *(3 Righteousness)*: Ward a Near ally. The next time they take damage, **reduce that damage to 0**.
+
+    ### Warrior Priest Talents (2d6)
+    | 2d6 | Effect |
+    | :---: | :--- |
+    | **2** | **Righteous Vessel:** Your maximum Righteousness increases by 1. |
+    | **3–6** | **Vanguard:** +1 to melee attack rolls. |
+    | **7–9** | **Blessed Vigor:** +2 to Strength, Constitution, or Wisdom. |
+    | **10–11** | **Unbreakable:** Permanent Advantage on Constitution checks to maintain Focus on a Prayer. |
+    | **12** | **Divine Champion:** Choose any option on this table, or distribute +2 points among your stats. |
 
 === "Paladin"
 

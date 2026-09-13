@@ -9,12 +9,23 @@ import {
   timingSafeEqual,
 } from "node:crypto";
 import Database from "better-sqlite3";
-import { HEX_DEFINITIONS, MONSTERS, STARTING_EQUIPMENT, SPELLS, ITEMS } from "../shared/content.js";
+import { CLASSES, HEX_DEFINITIONS, MONSTERS, STARTING_EQUIPMENT, SPELLS, ITEMS } from "../shared/content.js";
+
+/**
+ * The canonical id for a class name. Derived from the class definition rather
+ * than by mangling the name, so "Ras-Godai" and "Chaos Knight" reach their own
+ * starting-equipment packs instead of a near-miss key.
+ */
+function resolveClassId(className: string): string {
+  const classDef = CLASSES.find((c) => c.name.toLowerCase() === className.toLowerCase());
+  if (classDef) return classDef.id;
+  return className.toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "");
+}
 import { generateHexMap } from "./generators/hex-map.js";
 import { generateProceduralRegion, type GeneratedRegionWorld } from "./generators/procedural-region.js";
 import { questRewardBudget } from "../shared/quest-rewards.js";
 import { CUSTOM_MONSTER_TEMPLATES, resolveMonsterEntry } from "../shared/monster-aliases.js";
-import { abilityModifier, calculateDerivedAc, calculateGearSlots, computeHpStatus, getMonsterAcHint } from "./rules.js";
+import { abilityModifier, calculateDerivedAc, calculateGearSlots, computeHpStatus, getMonsterAcHint, initialResources } from "./rules.js";
 import type {
   ActZoneAssignment,
   ActivitySession,
@@ -390,6 +401,9 @@ export class AshDatabase {
     }
     if (!charCols.some((c) => c.name === "origin_zone_id")) {
       this.db.exec("ALTER TABLE characters ADD COLUMN origin_zone_id TEXT");
+    }
+    if (!charCols.some((c) => c.name === "resources_json")) {
+      this.db.exec("ALTER TABLE characters ADD COLUMN resources_json TEXT NOT NULL DEFAULT '{}'");
     }
 
     this.db.exec(`
@@ -1250,7 +1264,7 @@ export class AshDatabase {
     options: { startingGear?: boolean } = {},
   ) {
     const a = input.abilities;
-    const classId = input.classId || input.className.toLowerCase().replace(/[^a-z0-9_]/g, "");
+    const classId = input.classId || resolveClassId(input.className);
     const startingGear = options.startingGear !== false;
 
     const defaultStartingPack = [
@@ -1302,6 +1316,14 @@ export class AshDatabase {
           available: true,
           penanceRequired: false,
         }));
+      } else if (classId === "witch" || classId === "warlock") {
+        // The Chaos Knight learns no witch spells until 2nd level, so it is absent here.
+        spells = SPELLS.filter((s) => s.tier === 1 && s.sphere === "occult").slice(0, 3).map((s) => ({
+          spellId: s.id,
+          tier: s.tier,
+          available: true,
+          penanceRequired: false,
+        }));
       }
     }
 
@@ -1323,8 +1345,8 @@ export class AshDatabase {
     const result = this.db
       .prepare(
         `INSERT INTO characters
-      (campaign_id,owner_token,name,ancestry,class_name,level,hp,max_hp,ac,gold,gear_slots,str,dex,con,int,wis,cha,anchors_json,talents_json,xp,fatigue,class_id,inventory_json,spells_json,conditions_json,class_choices_json,death_strikes,stabilized,roster_status,generation_method,generation_dice_json,origin_zone_id,created_at)
-      VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
+      (campaign_id,owner_token,name,ancestry,class_name,level,hp,max_hp,ac,gold,gear_slots,str,dex,con,int,wis,cha,anchors_json,talents_json,xp,fatigue,class_id,inventory_json,spells_json,conditions_json,class_choices_json,resources_json,death_strikes,stabilized,roster_status,generation_method,generation_dice_json,origin_zone_id,created_at)
+      VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
       )
       .run(
         campaignId,
@@ -1353,6 +1375,7 @@ export class AshDatabase {
         JSON.stringify(spells),
         JSON.stringify(input.conditions ?? []),
         JSON.stringify(input.classChoices ?? {}),
+        JSON.stringify(input.resources ?? initialResources(input.className) ?? {}),
         input.deathStrikes ?? 0,
         input.stabilized ? 1 : 0,
         rosterStatus,
@@ -1459,14 +1482,14 @@ export class AshDatabase {
 
   updateCharacter(campaignId: number, character: Character) {
     const a = character.abilities;
-    const classId = character.classId || character.className.toLowerCase().replace(/[^a-z0-9_]/g, "");
+    const classId = character.classId || resolveClassId(character.className);
     this.db
       .prepare(
         `UPDATE characters SET 
         name = ?, ancestry = ?, class_name = ?, level = ?, hp = ?, max_hp = ?, ac = ?, gold = ?, gear_slots = ?,
         str = ?, dex = ?, con = ?, int = ?, wis = ?, cha = ?, anchors_json = ?, talents_json = ?, xp = ?,
         fatigue = ?, class_id = ?, inventory_json = ?, spells_json = ?, conditions_json = ?, class_choices_json = ?,
-        death_strikes = ?, stabilized = ?
+        resources_json = ?, death_strikes = ?, stabilized = ?
         WHERE id = ? AND campaign_id = ?`,
       )
       .run(
@@ -1494,6 +1517,7 @@ export class AshDatabase {
         JSON.stringify(character.spells ?? []),
         JSON.stringify(character.conditions ?? []),
         JSON.stringify(character.classChoices ?? {}),
+        JSON.stringify(character.resources ?? {}),
         character.deathStrikes ?? 0,
         character.stabilized ? 1 : 0,
         character.id,
@@ -3562,6 +3586,7 @@ function rowToCharacter(row: Row): Character {
     spells: row.spells_json ? JSON.parse(String(row.spells_json)) : [],
     conditions: row.conditions_json ? JSON.parse(String(row.conditions_json)) : [],
     classChoices: row.class_choices_json ? JSON.parse(String(row.class_choices_json)) : {},
+    resources: row.resources_json ? JSON.parse(String(row.resources_json)) : {},
     deathStrikes: row.death_strikes != null ? Number(row.death_strikes) : 0,
     stabilized: Boolean(row.stabilized),
     rosterStatus: (row.roster_status ? String(row.roster_status) : "active") as "active" | "reserve",

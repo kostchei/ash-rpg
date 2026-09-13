@@ -28,8 +28,10 @@ for (const folder of ['dist/client', 'dist/server']) {
   cpSync(folder, dest, { recursive: true });
 }
 
-for (const folder of ['zones', 'data/bestiary', 'data/classes', 'data/oracles', 'data/treasure']) {
-  cpSync(folder, join(out, folder), { recursive: true });
+for (const folder of ['zones', 'data/bestiary', 'data/classes', 'data/oracles', 'data/treasure', 'music_player']) {
+  if (existsSync(folder)) {
+    cpSync(folder, join(out, folder), { recursive: true });
+  }
 }
 
 for (const file of ['launch.cjs', 'Start ASH.cmd', 'READ ME.txt']) {
@@ -67,6 +69,25 @@ writeFileSync(join(out, 'release.json'), JSON.stringify(releaseMeta, null, 2));
 console.log('4. Updating release ZIP archive...');
 const quote = s => "'" + s.replaceAll("'", "''") + "'";
 execFileSync('powershell.exe', ['-NoProfile', '-Command', `Compress-Archive -Force -LiteralPath ${quote(out)} -DestinationPath ${quote(out + '.zip')}`], { stdio: 'inherit' });
+
+console.log('5. Updating Desktop shortcut...');
+try {
+  const targetCmd = join(out, 'Start ASH.cmd').replaceAll('\\', '\\\\');
+  const targetDir = out.replaceAll('\\', '\\\\');
+  const psCmd = `
+    $WshShell = New-Object -ComObject WScript.Shell;
+    $desktop = [System.Environment]::GetFolderPath('Desktop');
+    $shortcut = $WshShell.CreateShortcut("$desktop\\Start ASH.lnk");
+    $shortcut.TargetPath = "${targetCmd}";
+    $shortcut.WorkingDirectory = "${targetDir}";
+    $shortcut.Description = "Launch Automata for Swords and Hexes (ASH RPG)";
+    $shortcut.Save();
+  `;
+  execFileSync('powershell.exe', ['-NoProfile', '-Command', psCmd], { stdio: 'inherit' });
+  console.log('  Desktop shortcut created/updated: Start ASH.lnk');
+} catch (e) {
+  console.log('  Notice: Could not automatically update desktop shortcut:', e.message);
+}
 
 console.log(`\nRelease updated successfully to commit ${gitCommit}!`);
 console.log(`Location: ${out}`);

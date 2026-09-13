@@ -1358,20 +1358,21 @@ button:disabled {
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 12px;
-  padding: 10px 18px;
-  background: rgba(22, 25, 19, 0.95);
-  border-bottom: 1px solid var(--line);
+  padding: 8px 18px;
+  background: #171b14;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+  color: #f5f5f4;
 }
 .subbar-group {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
 }
 .subbar-label {
   font-size: 11px;
   letter-spacing: 0.12em;
-  color: var(--muted);
-  font-weight: 700;
+  color: #d6d3d1;
+  font-weight: 800;
 }
 .phase-pills {
   display: flex;
@@ -1385,47 +1386,106 @@ button:disabled {
   padding: 5px 12px;
   border-radius: 4px;
   font-size: 12px;
-  border: 1px solid var(--line);
-  background: rgba(30, 34, 25, 0.8);
-  color: var(--muted);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: #24291f;
+  color: #f5f5f4;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 .phase-pill-btn:hover {
-  border-color: var(--ember);
-  color: var(--ink);
+  border-color: #f97316;
+  color: #ffffff;
+  background: #2e3527;
 }
 .phase-pill-btn.active,
 .phase-pill-badge.active {
-  background: rgba(217, 117, 56, 0.18);
-  border-color: var(--ember);
-  color: var(--ember);
+  background: #b8430f;
+  border-color: #f97316;
+  color: #ffffff;
   font-weight: 700;
+  box-shadow: 0 0 8px rgba(249, 115, 22, 0.4);
 }
 .phase-pill-badge.inactive {
-  opacity: 0.5;
+  opacity: 0.6;
 }
 .zone-dossier-btn {
   display: inline-flex;
   align-items: center;
-  gap: 7px;
-  padding: 6px 12px;
+  gap: 8px;
+  padding: 5px 14px;
   border-radius: 4px;
-  background: rgba(131, 155, 87, 0.15);
-  border: 1px solid var(--moss);
-  color: var(--ink);
+  background: #18331e;
+  border: 1px solid #22c55e;
+  color: #ffffff;
   font-size: 12px;
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
 }
+.zone-dossier-btn strong {
+  color: #ffffff;
+  font-weight: 700;
+}
 .zone-dossier-btn:hover {
-  background: rgba(131, 155, 87, 0.28);
+  background: #22472b;
+  border-color: #4ade80;
+  box-shadow: 0 0 8px rgba(74, 222, 128, 0.3);
 }
 .zone-chip-label {
-  color: var(--moss);
+  color: #4ade80;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+}
+
+/* Expedition Clock Chips (High Contrast & Clean) */
+.expedition-clock-widget {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.clock-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  background: #23281f;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  color: #ffffff;
+  white-space: nowrap;
+}
+.clock-chip.weather-chip {
+  background: #2e2815;
+  border-color: #ca8a04;
+  color: #fef08a;
+}
+.clock-chip.rations-chip {
+  background: #332115;
+  border-color: #ea580c;
+  color: #fed7aa;
+}
+.clock-chip.objective-chip {
+  background: #152438;
+  border-color: #3b82f6;
+  color: #bfdbfe;
+}
+.clock-chip.fatigue-chip {
+  background: #3b1818;
+  border-color: #ef4444;
+  color: #fca5a5;
+}
+.forced-march-badge {
+  background: #dc2626;
+  color: #ffffff;
+  padding: 1px 5px;
+  border-radius: 3px;
   font-size: 10px;
   font-weight: 700;
-  letter-spacing: 0.08em;
+  margin-left: 4px;
 }
 
 /* --- Modal Backdrop & Zone Dossier --- */

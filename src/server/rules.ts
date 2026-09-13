@@ -2,7 +2,26 @@ import { abilityMod, weaponReference } from "../shared/table-companion.js";
 import { randomInt } from "node:crypto";
 import { readFileSync, existsSync } from "node:fs";
 import { resolve } from "node:path";
-import { ABILITY_KEYS, ARCANE_MISHAPS, CLASSES, ITEMS, SPELLS } from "../shared/content.js";
+import { ABILITY_KEYS, ARCANE_MISHAPS, CLASSES, DIABOLICAL_MISHAPS, ITEMS, SPELLS } from "../shared/content.js";
+
+/**
+ * Class resource tracks live in shared code so the ledger can render and bound
+ * them without a round trip. Re-exported here because rules.ts is the server's
+ * one door onto the rules.
+ */
+export { castingAbilityFor, resolveCastingTradition } from "../shared/spellcasting.js";
+import { castingAbilityFor, resolveCastingTradition } from "../shared/spellcasting.js";
+
+export {
+  adjustResource,
+  classResource,
+  currentResource,
+  initialResources,
+  requireClassResource,
+  resetResources,
+  resourceMax,
+  spendResource,
+} from "../shared/class-resources.js";
 import type { AbilityKey, AbilityScores, Character, EncounterMonster, InventoryItem, SpellDefinition } from "../shared/types.js";
 import { HEX_DIRECTIONS } from "./frontier.js";
 
@@ -118,6 +137,11 @@ export const UA_CLASS_STAT_ORDER: Record<string, AbilityKey[]> = {
   Bard: ["cha", "dex", "int", "wis", "str", "con"],
   Duelist: ["dex", "cha", "con", "str", "int", "wis"],
   Ranger: ["dex", "int", "con", "wis", "str", "cha"],
+  Barbarian: ["str", "con", "dex", "wis", "cha", "int"],
+  "Chaos Knight": ["cha", "str", "con", "dex", "wis", "int"],
+  Warlock: ["cha", "con", "dex", "int", "wis", "str"],
+  Witch: ["cha", "int", "wis", "dex", "con", "str"],
+  "Warrior Priest": ["str", "wis", "con", "cha", "dex", "int"],
 };
 
 /** Dice pool per ability, in class priority order, before the high-score cut-off bites. */
@@ -196,16 +220,20 @@ export function getEligibleClasses(scores: AbilityScores): string[] {
   if (scores.cha >= 9) eligible.push("Bard");
   if (scores.dex >= 9) eligible.push("Duelist");
   if (scores.str >= 9 && scores.wis >= 9) eligible.push("Ranger");
+  if (scores.str >= 9 || scores.con >= 9) eligible.push("Barbarian");
+  if (scores.str >= 9 && scores.cha >= 9) eligible.push("Chaos Knight");
+  if (scores.cha >= 9) eligible.push("Warlock", "Witch");
+  if (scores.str >= 9 && scores.wis >= 9) eligible.push("Warrior Priest");
 
   if (eligible.length === 0) {
     const highestVal = Math.max(...Object.values(scores));
     const highestKeys = ABILITY_KEYS.filter((k) => scores[k] === highestVal);
-    if (highestKeys.includes("str")) eligible.push("Fighter", "Delver");
+    if (highestKeys.includes("str")) eligible.push("Fighter", "Delver", "Barbarian");
     if (highestKeys.includes("dex")) eligible.push("Thief", "Ras-Godai", "Duelist");
     if (highestKeys.includes("wis")) eligible.push("Priest", "Druid");
     if (highestKeys.includes("int")) eligible.push("Wizard", "Alchemist", "Sage");
-    if (highestKeys.includes("con")) eligible.push("Delver");
-    if (highestKeys.includes("cha")) eligible.push("Bard");
+    if (highestKeys.includes("con")) eligible.push("Delver", "Barbarian");
+    if (highestKeys.includes("cha")) eligible.push("Bard", "Warlock", "Witch");
   }
 
   return Array.from(new Set(eligible));
@@ -1084,7 +1112,7 @@ export function calculateBackstabBonus(level: number): { diceCount: number; expr
 export function resolveSpellCast(
   character: {
     className: string;
-    abilities: { int: number; wis: number };
+    abilities: { int: number; wis: number; cha: number };
   },
   spell: { tier: number; sphere?: string },
   roll: number,
@@ -1096,16 +1124,13 @@ export function resolveSpellCast(
   dc: number;
   isNat1: boolean;
   isNat20: boolean;
+  tradition: "arcane" | "divine" | "primal" | "occult";
   mishap?: string;
   penanceRequired?: boolean;
 } {
-  const isArcane =
-    spell.sphere === "arcane" ||
-    character.className.toLowerCase() === "wizard" ||
-    character.className.toLowerCase() === "sage";
-  const abilityMod = isArcane
-    ? abilityModifier(character.abilities.int)
-    : abilityModifier(character.abilities.wis);
+  const tradition = resolveCastingTradition(character.className, spell.sphere);
+  const isArcane = tradition === "arcane";
+  const abilityMod = abilityModifier(character.abilities[castingAbilityFor(tradition)]);
 
   const dc = 10 + spell.tier;
   const total = roll + abilityMod;
@@ -1117,9 +1142,10 @@ export function resolveSpellCast(
   let penanceRequired = false;
 
   if (isNat1) {
-    if (isArcane) {
-      const mishapRoll = rollDie(8, rng);
-      mishap = ARCANE_MISHAPS[mishapRoll - 1];
+    if (tradition === "arcane") {
+      mishap = ARCANE_MISHAPS[rollDie(ARCANE_MISHAPS.length, rng) - 1];
+    } else if (tradition === "occult") {
+      mishap = DIABOLICAL_MISHAPS[rollDie(DIABOLICAL_MISHAPS.length, rng) - 1];
     } else {
       penanceRequired = true;
     }
@@ -1132,6 +1158,7 @@ export function resolveSpellCast(
     dc,
     isNat1,
     isNat20,
+    tradition,
     mishap,
     penanceRequired,
   };
@@ -1165,4 +1192,5 @@ export function getMonsterAcHint(ac: number): string {
   if (ac >= 11) return "Light furs or worn padding";
   return "Unarmored and exposed";
 }
+
 

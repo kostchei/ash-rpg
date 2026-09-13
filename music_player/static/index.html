@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chronicles of Iron & Cosmos | Heavy Metal YouTube Player & Looper</title>
+  <link rel="stylesheet" href="/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Top Header -->
+    <header class="main-header">
+      <div class="brand">
+        <div class="brand-icon">⚔️</div>
+        <div>
+          <h1 class="brand-title">CHRONICLES OF IRON &amp; COSMOS</h1>
+          <p class="brand-subtitle">YouTube Metal Player &bull; Looped MP4 Studio &bull; Ash RPG Companion</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <div id="server-status" class="status-pill online">
+          <span class="status-dot"></span> <span id="status-text">Server Online</span>
+        </div>
+        <button id="btn-batch-all" class="btn btn-crimson" title="Record and generate a looped set of all bands automatically">
+          <span class="icon">⚡</span> Batch Record All Bands (17)
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Grid -->
+    <main class="dashboard-grid">
+      
+      <!-- Left Column: Player & Library -->
+      <section class="player-panel">
+        
+        <!-- Video & Audio Player Screen -->
+        <div class="screen-container">
+          <div id="video-wrapper" class="video-wrapper">
+            <video id="media-player" preload="metadata" playsinline></video>
+            <div id="yt-preview-wrapper" class="yt-preview-wrapper hidden">
+              <iframe id="yt-iframe" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+            </div>
+            <div id="visualizer-overlay" class="visualizer-overlay">
+              <div class="metal-seal">⚡</div>
+              <div class="screen-glitch-text">READY FOR PLAYBACK</div>
+            </div>
+          </div>
+
+          <!-- Player Controls Bar -->
+          <div class="player-controls">
+            <div class="now-playing-info">
+              <span id="player-badge" class="badge-tag">IDLE</span>
+              <span id="player-title" class="track-title">Select a track or recorded MP4 to play</span>
+            </div>
+
+            <!-- Scrubber Timeline -->
+            <div class="timeline-row">
+              <span id="time-current" class="time-display">0:00</span>
+              <input type="range" id="time-scrubber" min="0" max="100" value="0" step="0.1">
+              <span id="time-duration" class="time-display">0:00</span>
+            </div>
+
+            <!-- Buttons Row -->
+            <div class="controls-row">
+              <div class="controls-left">
+                <button id="btn-prev" class="btn-ctrl" title="Previous Track">⏮</button>
+                <button id="btn-play-pause" class="btn-ctrl btn-play" title="Play/Pause">▶</button>
+                <button id="btn-next" class="btn-ctrl" title="Next Track">⏭</button>
+                <button id="btn-loop-mode" class="btn-ctrl btn-toggle active" title="Toggle Loop Mode">
+                  <span id="loop-mode-icon">🔁</span> <span id="loop-mode-label">Loop Track</span>
+                </button>
+              </div>
+
+              <div class="controls-right">
+                <span class="vol-icon">🔊</span>
+                <input type="range" id="vol-slider" min="0" max="1" step="0.05" value="0.9">
+                <button id="btn-cinema" class="btn-ctrl" title="Cinema Expand">⛶</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recorded MP4 Vault / Library -->
+        <div class="library-card">
+          <div class="card-header">
+            <div class="header-title-group">
+              <h2 class="card-title">📼 Recorded MP4 Vault &amp; Looped Sets</h2>
+              <span id="library-count" class="badge-count">0 files</span>
+            </div>
+            <div class="header-buttons">
+              <button id="btn-compile-master" class="btn btn-secondary btn-sm" title="Stitch all recorded tracks into one master looped MP4">
+                ⚔️ Compile Master Looped Set
+              </button>
+              <button id="btn-refresh-library" class="btn btn-icon btn-sm" title="Refresh local files">🔄</button>
+            </div>
+          </div>
+          
+          <div id="library-list" class="library-list">
+            <div class="empty-state">
+              <p>No recorded MP4s yet in <code>music_player/media/</code>.</p>
+              <p class="sub">Search YouTube on the right or click any band preset to record!</p>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- Right Column: Presets & YouTube Search -->
+      <section class="discovery-panel">
+        
+        <!-- Band Presets (The 7 Pillars) -->
+        <div class="presets-section">
+          <div class="section-title-row">
+            <h2 class="section-title">⚔️ Target Bands &amp; Albums</h2>
+            <span class="section-hint">Click to search &bull; Record to loop</span>
+          </div>
+
+          <div class="presets-grid" id="presets-grid">
+            <!-- Dynamically populated from /api/presets -->
+          </div>
+        </div>
+
+        <!-- YouTube Search Hub -->
+        <div class="search-section">
+          <form id="search-form" class="search-form">
+            <div class="search-input-wrapper">
+              <span class="search-icon">🔍</span>
+              <input type="text" id="search-input" placeholder="Search YouTube for tracks, full albums, live sets..." autocomplete="off">
+              <button type="button" id="btn-clear-search" class="btn-clear hidden">✕</button>
+            </div>
+            <button type="submit" id="btn-search" class="btn btn-gold">Search</button>
+          </form>
+
+          <!-- Quick Query Tags -->
+          <div class="quick-tags">
+            <span class="tag-title">Quick Searches:</span>
+            <button class="chip-tag" data-query="The Gates of Slumber Conqueror full album">Gates of Slumber</button>
+            <button class="chip-tag" data-query="Liege Lord Master Control full album">Liege Lord</button>
+            <button class="chip-tag" data-query="Heir Apparent Graceful Inheritance full album 1986">Heir Apparent</button>
+            <button class="chip-tag" data-query="Manilla Road Crystal Logic full album">Manilla Road</button>
+            <button class="chip-tag" data-query="Ironsword None But the Brave full album">Ironsword</button>
+            <button class="chip-tag" data-query="Brocas Helm Defender of the Crown full album">Brocas Helm</button>
+            <button class="chip-tag" data-query="Hawkwind Warrior on the Edge of Time full album">Hawkwind</button>
+            <button class="chip-tag" data-query="Bal-Sagoth Starfire Burning Upon the Ice-Veiled Throne of Ultima Thule full album">Bal-Sagoth</button>
+            <button class="chip-tag" data-query="Cirith Ungol King of the Dead full album">Cirith Ungol</button>
+            <button class="chip-tag" data-query="Blind Guardian Battalions of Fear full album">Early Blind Guardian</button>
+            <button class="chip-tag" data-query="Ashbury Endless Skies full album 1983">Ashbury</button>
+            <button class="chip-tag" data-query="Riot Thundersteel full album">Riot</button>
+            <button class="chip-tag" data-query="Omen Battle Cry full album 1984">Omen</button>
+            <button class="chip-tag" data-query="Oracle As Darkness Reigns full album 1989">Oracle</button>
+            <button class="chip-tag" data-query="Heavy Load Death or Glory full album">Heavy Load</button>
+            <button class="chip-tag" data-query="Attacker Battle at Helms Deep full album 1985">Attacker</button>
+            <button class="chip-tag" data-query="Manowar Into Glory Ride full album">Manowar</button>
+          </div>
+
+          <!-- Active Jobs Progress Bar -->
+          <div id="jobs-container" class="jobs-container hidden">
+            <div class="jobs-header">
+              <span>⚡ Active Recording Tasks</span>
+            </div>
+            <div id="jobs-list" class="jobs-list"></div>
+          </div>
+
+          <!-- YouTube Results Container -->
+          <div class="results-container">
+            <div class="results-header">
+              <h3 id="results-headline">YouTube Search Results</h3>
+              <span id="results-count" class="badge-count">0 found</span>
+            </div>
+            <div id="results-list" class="results-list">
+              <div class="empty-state">
+                <p>Select one of the 7 band presets above or enter a search query.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+    </main>
+
+    <!-- Modal for Record Options -->
+    <div id="record-modal" class="modal hidden">
+      <div class="modal-backdrop"></div>
+      <div class="modal-card">
+        <div class="modal-header">
+          <h3 class="modal-title">Record YouTube Track to MP4</h3>
+          <button id="modal-close" class="modal-close-btn">✕</button>
+        </div>
+        <div class="modal-body">
+          <p id="modal-track-title" class="modal-track-name">Track Name</p>
+          <input type="hidden" id="modal-track-url">
+
+          <div class="form-group">
+            <label class="form-label">Loop Options:</label>
+            <div class="loop-options-grid">
+              <label class="radio-card">
+                <input type="radio" name="loop_count" value="1">
+                <div class="radio-content">
+                  <span class="title">Single Track (1x)</span>
+                  <span class="desc">Standard high-definition MP4</span>
+                </div>
+              </label>
+              <label class="radio-card">
+                <input type="radio" name="loop_count" value="2">
+                <div class="radio-content">
+                  <span class="title">Looped 2x</span>
+                  <span class="desc">Repeats twice seamlessly</span>
+                </div>
+              </label>
+              <label class="radio-card">
+                <input type="radio" name="loop_count" value="3" checked>
+                <div class="radio-content">
+                  <span class="title">Looped 3x</span>
+                  <span class="desc">Ideal for gaming ambience</span>
+                </div>
+              </label>
+              <label class="radio-card">
+                <input type="radio" name="loop_count" value="5">
+                <div class="radio-content">
+                  <span class="title">Looped 5x</span>
+                  <span class="desc">Extended session loop</span>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <div class="form-info">
+            <p>💡 The player can also loop any downloaded track indefinitely on demand with the HTML5 loop controller.</p>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button id="btn-modal-cancel" class="btn btn-secondary">Cancel</button>
+          <button id="btn-modal-confirm" class="btn btn-gold">Record &amp; Create Looped MP4</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="/app.js"></script>
+</body>
+</html>

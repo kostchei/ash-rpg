@@ -225,7 +225,7 @@
         "Witch"
       ],
       "Priest": [
-        "Knight of St. Ydris",
+        "Chaos Knight",
         "Priest"
       ],
       "Thief": [
@@ -251,7 +251,7 @@
     },
     "midnight_sun": {
       "Fighter": [
-        "Sea Wolf"
+        "Barbarian"
       ],
       "Priest": [
         "Seer"

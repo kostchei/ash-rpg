@@ -238,6 +238,8 @@ export interface Character {
   spells?: CharacterSpell[];
   conditions?: string[];
   classChoices?: Record<string, any>;
+  /** Current value of each class resource track, keyed by resource id. */
+  resources?: Record<string, number>;
   deathStrikes?: number;
   stabilized?: boolean;
   rosterStatus?: "active" | "reserve";
@@ -541,7 +543,7 @@ export interface SpellDefinition {
   id: string;
   name: string;
   tier: number;
-  sphere: "arcane" | "divine" | "primal";
+  sphere: "arcane" | "divine" | "primal" | "occult";
   range: "close" | "near" | "far" | "self" | "touch";
   duration: string;
   description: string;

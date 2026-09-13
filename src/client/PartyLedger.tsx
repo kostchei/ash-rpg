@@ -3,7 +3,9 @@ import { AnchorField } from "./AnchorField";
 import { randomCharacterName } from "../shared/character-names";
 import { Title, Field } from "./ui/Common";
 import type { Act } from "./ui/types";
-import { ABILITY_KEYS, ANCESTRIES, CLASSES, MAX_DEPARTING_PARTY, MIN_DEPARTING_PARTY, SPELLS } from "../shared/content";
+import { ABILITY_KEYS, ANCESTRIES, CLASSES, MAX_DEPARTING_PARTY, MIN_DEPARTING_PARTY, SPELLS, SPELL_GRANTING_PATRONS, WARLOCK_PATRONS } from "../shared/content";
+import { classResource, resourceMax } from "../shared/class-resources";
+import { castingAbilityFor, resolveCastingTradition } from "../shared/spellcasting";
 
 import { abilityMod as mod, weaponReference } from "../shared/table-companion";
 import { ArrowUpCircle, CheckCircle2, Dices, Heart, Plus, RefreshCw, ScrollText, Shield, Sparkles } from "lucide-react";
@@ -840,6 +842,138 @@ function CharacterCard({
         })}
       </div>
 
+      {/* Patron Bond — warlocks only. The list is derived from which patrons
+          actually teach spells, so an unteachable patron cannot be sworn to. */}
+      {character.className.toLowerCase() === "warlock" && (() => {
+        const patronId = character.classChoices?.patronId as string | undefined;
+        const bonded = WARLOCK_PATRONS.find((patron) => patron.id === patronId);
+        return (
+          <div className="quick-actions-panel patron-panel">
+            <div className="eyebrow action-panel-label">
+              PATRON BOND
+            </div>
+            {canEdit ? (
+              <select
+                value={patronId ?? ""}
+                onChange={(e) => {
+                  void act(
+                    "character:choice",
+                    { characterId: character.id, choices: { patronId: e.target.value } },
+                    "Patron bond sworn",
+                  );
+                }}
+                style={{ width: "100%" }}
+              >
+                <option value="" disabled>
+                  Swear to a patron…
+                </option>
+                {SPELL_GRANTING_PATRONS.map((patron) => (
+                  <option key={patron.id} value={patron.id}>
+                    {patron.name} — {patron.title}
+                  </option>
+                ))}
+              </select>
+            ) : (
+                <div className="patron-name">{bonded ? `${bonded.name} — ${bonded.title}` : "Unsworn"}</div>
+            )}
+            {bonded && (
+              <>
+                <div style={{ fontSize: "11px", color: "var(--muted)", marginTop: "6px" }}>{bonded.description}</div>
+                <details style={{ marginTop: "6px" }}>
+                  <summary style={{ fontSize: "11px", cursor: "pointer", color: "var(--muted)" }}>Boon table (2d6)</summary>
+                  <div style={{ marginTop: "4px" }}>
+                    {bonded.boons.map((boon) => (
+                      <div key={boon.roll} style={{ display: "flex", gap: "8px", fontSize: "11px", padding: "2px 0" }}>
+                        <b style={{ minWidth: "38px", fontFamily: "ui-monospace, monospace" }}>{boon.roll}</b>
+                        <span>{boon.effect}</span>
+                      </div>
+                    ))}
+                  </div>
+                </details>
+              </>
+            )}
+          </div>
+        );
+      })()}
+
+      {/* Class resource track — transient, hand-driven, reset between fights. */}
+      {(() => {
+        const resource = classResource(character.className);
+        if (!resource) return null;
+        const max = resourceMax(character.className, character.talents ?? []);
+        const current = Math.max(0, Math.min(max, character.resources?.[resource.id] ?? resource.startsAt));
+        const change = (payload: Record<string, unknown>, success: string) => {
+          void act("character:resource", { characterId: character.id, ...payload }, success);
+        };
+        return (
+          <div className="quick-actions-panel resource-panel">
+            <div className="resource-heading">
+              <div className="eyebrow action-panel-label">
+                {resource.name.toUpperCase()}
+              </div>
+              <small className="resource-reset">
+                resets to {resource.resetsTo} {resource.resetOn === "rest" ? "on a rest" : "after combat"}
+              </small>
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+              {canEdit && (
+                <button type="button" disabled={current === 0} onClick={() => change({ delta: -1 }, `${resource.name} spent`)}>
+                  −
+                </button>
+              )}
+              <div className="resource-pips">
+                {Array.from({ length: max }, (_, i) => (
+                  <span
+                    key={i}
+                    title={`${current}/${max}`}
+                    className={i < current ? "filled" : ""}
+                  />
+                ))}
+              </div>
+              <b style={{ fontFamily: "ui-monospace, monospace", fontSize: "12px" }}>
+                {current}/{max}
+              </b>
+              {canEdit && (
+                <>
+                  <button type="button" disabled={current === max} onClick={() => change({ delta: 1 }, `${resource.name} gained`)}>
+                    +
+                  </button>
+                  <button
+                    type="button"
+                    className="small-btn resource-reset-btn"
+                    onClick={() => change({ reset: resource.resetOn }, `${resource.name} reset`)}
+                  >
+                    Reset
+                  </button>
+                </>
+              )}
+            </div>
+            <div style={{ fontSize: "11px", color: "var(--muted)", marginTop: "6px" }}>{resource.generation}</div>
+            {resource.spenders.length > 0 && (
+              <div className="action-grid" style={{ marginTop: "8px" }}>
+                {resource.spenders.map((spender) => (
+                  <button
+                    key={spender.id}
+                    type="button"
+                    className="action-card"
+                    disabled={!canEdit || current < spender.cost}
+                    title={spender.description}
+                    style={{ textAlign: "left", cursor: current < spender.cost ? "not-allowed" : "pointer" }}
+                    onClick={() => change({ spenderId: spender.id }, spender.name)}
+                  >
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                      <b>{spender.name}</b>
+                      <small style={{ color: "var(--muted)" }}>{spender.cost}</small>
+                    </div>
+                    <div style={{ fontSize: "11px", color: "var(--muted)", padding: "2px 0" }}>{spender.description}</div>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        );
+      })()}
+
       {/* Target Numbers & Modifiers Reference for Physical Dice */}
       {(() => {
         const equippedWeapons = (character.inventory ?? []).filter(
@@ -848,9 +982,10 @@ function CharacterCard({
         const readySpells = (character.spells ?? []).filter(
           (s) => s.available && !s.penanceRequired,
         );
-        const isThief = character.className.toLowerCase().includes("thief");
-        const isPriest = character.className.toLowerCase().includes("priest");
-        const isFighter = character.className.toLowerCase().includes("fighter");
+        const className = character.className.toLowerCase();
+        const isThief = className === "thief";
+        const isPriest = className === "priest";
+        const isFighter = className === "fighter";
 
         if (equippedWeapons.length === 0 && readySpells.length === 0 && !isThief && !isPriest && !isFighter) return null;
 
@@ -887,10 +1022,10 @@ function CharacterCard({
               {readySpells.map((s, idx) => {
                 const spellDef = SPELLS.find((sp) => sp.id === s.spellId);
                 const spellName = spellDef?.name ?? s.spellId;
-                const intMod = mod(character.abilities.int);
-                const wisMod = mod(character.abilities.wis);
-                const isPriestClass = character.className.toLowerCase().includes("priest");
-                const checkMod = isPriestClass ? wisMod : intMod;
+                const castingAbility = castingAbilityFor(
+                  resolveCastingTradition(character.className, spellDef?.sphere),
+                );
+                const checkMod = mod(character.abilities[castingAbility]);
                 return (
                   <div key={idx} className="action-card">
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>

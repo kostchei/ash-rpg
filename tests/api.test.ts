@@ -22,6 +22,13 @@ describe("campaign HTTP API", () => {
     expect(response.body).toMatchObject({ ok: true });
   });
 
+  it("reports music server status", async () => {
+    const response = await request(server.app).get("/api/music-server/status");
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty("running");
+    expect(response.body.url).toBe("http://localhost:5050");
+  });
+
   it("creates, joins, and reopens a campaign", async () => {
     const created = await request(server.app)
       .post("/api/campaigns")

@@ -167,7 +167,7 @@ export function generateNpcTables() {
       the_gloaming: {
         Fighter: ["Fighter"],
         Wizard: ["Warlock", "Witch"],
-        Priest: ["Knight of St. Ydris", "Priest"],
+        Priest: ["Chaos Knight", "Priest"],
         Thief: ["Thief"],
       },
       red_sands: {
@@ -177,7 +177,7 @@ export function generateNpcTables() {
         Priest: ["Priest"],
       },
       midnight_sun: {
-        Fighter: ["Sea Wolf"],
+        Fighter: ["Barbarian"],
         Priest: ["Seer"],
         Wizard: ["Wizard"],
         Thief: ["Thief"],

@@ -6,6 +6,30 @@ This section details eight martial archetypes from the Western Reaches and front
 
 ---
 
+=== "Barbarian"
+
+    ## 🪓 Barbarian
+
+    Clan warriors of the northern reaches — fjord raiders in dragon-headed longboats, tundra hunters, and steppe riders alike — who invoke the Old Gods before battle and settle matters with the axe.
+
+    * **Weapons:** All melee weapons, javelin, shortbow
+    * **Armor:** All armor and shields
+    * **Hit Points:** 1d8 per level
+    * **Shield Wall:** If wielding a shield, you can use your action to take a locked defensive stance. Your **Armor Class becomes 20** until your next turn.
+    * **The Old Gods:** Each day at dawn, choose one Old God blessing to guide you until the next dawn:
+        * **Odin:** You gain a +1 bonus to all spellcasting checks and lore checks.
+        * **Thor:** Deal **+1d4 lightning damage** on melee weapon attacks the first time you kill an enemy each combat.
+        * **Freya:** Once per day, gain a Luck Token if you lack one. Whenever you spend a Luck Token, **add +1d6 to the roll**.
+        * **Loki:** You have **Advantage on checks to lie, sneak, and hide**.
+
+    ### Barbarian Talents (2d6)
+    | 2d6 | Effect (2 duplicate = +1 use/day, 10–11 duplicate = reroll) |
+    | :---: | :--- |
+    | **2** | 1/day, **Go Berserk:** Become completely immune to damage for 3 rounds. |
+    | **3–6** | Your weapon attacks deal **+1 damage**. |
+    | **7–9** | **+2 to Strength or Constitution stat**, OR +1 to attack rolls. |
+    | **10–11** | **Duality:** Choose **two different Old Gods blessings** each day instead of one. |
+    | **12** | Choose any talent or gain +2 points to distribute among your stats. |
 === "Basilisk Warrior"
 
     ## 🦎 Basilisk Warrior
@@ -175,27 +199,3 @@ This section details eight martial archetypes from the Western Reaches and front
     | **10–11** | Roll an **extra Hit Die** for maximum HP this level. |
     | **12** | Learn **any spell** of a tier equal to half your level (min. 1), casting it with that class's casting stat. |
 
-=== "Sea Wolf"
-
-    ## 🐺 Sea Wolf
-
-    Seafaring raiders who prowl the fjords and stormy isles in dragon-headed longboats, invoking the Old Gods before battle.
-
-    * **Weapons:** All melee weapons, javelin, shortbow
-    * **Armor:** All armor and shields
-    * **Hit Points:** 1d8 per level
-    * **Shield Wall:** If wielding a shield, you can use your action to take a locked defensive stance. Your **Armor Class becomes 20** until your next turn.
-    * **The Old Gods:** Each day at dawn, choose one Old God blessing to guide you until the next dawn:
-        * **Odin:** You gain a +1 bonus to all spellcasting checks and lore checks.
-        * **Thor:** Deal **+1d4 lightning damage** on melee weapon attacks the first time you kill an enemy each combat.
-        * **Freya:** Once per day, gain a Luck Token if you lack one. Whenever you spend a Luck Token, **add +1d6 to the roll**.
-        * **Loki:** You have **Advantage on checks to lie, sneak, and hide**.
-
-    ### Sea Wolf Talents (2d6)
-    | 2d6 | Effect (2 duplicate = +1 use/day, 10–11 duplicate = reroll) |
-    | :---: | :--- |
-    | **2** | 1/day, **Go Berserk:** Become completely immune to damage for 3 rounds. |
-    | **3–6** | Your weapon attacks deal **+1 damage**. |
-    | **7–9** | **+2 to Strength or Constitution stat**, OR +1 to attack rolls. |
-    | **10–11** | **Duality:** Choose **two different Old Gods blessings** each day instead of one. |
-    | **12** | Choose any talent or gain +2 points to distribute among your stats. |

@@ -8,6 +8,8 @@ import { mutationPayloadKey, RECEIPTED_ACTIONS } from "../shared/mutations.js";
 import { type SliceName, type SlicesUpdate } from "../shared/slices.js";
 import { SliceDiffer } from "./slice-diff.js";
 import { randomInt } from "node:crypto";
+import { existsSync } from "node:fs";
+import { spawn, type ChildProcess } from "node:child_process";
 import {
   createServer as createHttpServer,
   type Server as HttpServer,
@@ -17,7 +19,7 @@ import { resolve } from "node:path";
 import QRCode from "qrcode";
 import { Server as SocketServer, type Socket } from "socket.io";
 import { z } from "zod";
-import { ANCESTRIES, CLASSES, ITEMS, SPELLS } from "../shared/content.js";
+import { ANCESTRIES, CLASSES, ITEMS, SPELLS, resolveWarlockPatron } from "../shared/content.js";
 import { BORDER_PAIRINGS, validateBorderPairing, ZONE_PROFILES } from "../shared/zone-profiles.js";
 import type {
   ActivitySession,
@@ -62,6 +64,11 @@ import {
   reactionRoll,
   resolveInitiativeRoll,
   resolveSpellCast,
+  adjustResource,
+  requireClassResource,
+  resetResources,
+  resourceMax,
+  spendResource,
   resolveWildernessNavigation,
   rollAbilities,
   rollClassTalent,
@@ -326,6 +333,68 @@ export async function createAshServer(options: AshServerOptions = {}) {
   app.get("/api/health", (_request, response) =>
     response.json({ ok: true, service: "ASH Table Companion" }),
   );
+
+  let activeMusicProc: ChildProcess | null = null;
+
+  app.get("/api/music-server/status", async (_req, res) => {
+    try {
+      const check = await fetch("http://localhost:5050/api/status", {
+        signal: AbortSignal.timeout(1000),
+      });
+      if (check.ok) {
+        const data = await check.json();
+        return res.json({ running: true, url: "http://localhost:5050", data });
+      }
+    } catch {}
+    return res.json({ running: false, url: "http://localhost:5050" });
+  });
+
+  app.post("/api/music-server/start", async (_req, res) => {
+    try {
+      try {
+        const check = await fetch("http://localhost:5050/api/status", {
+          signal: AbortSignal.timeout(800),
+        });
+        if (check.ok) {
+          return res.json({
+            ok: true,
+            running: true,
+            message: "Music server is already online",
+            url: "http://localhost:5050",
+          });
+        }
+      } catch {}
+
+      let scriptPath = resolve("music_player/server.py");
+      let runCwd = resolve(".");
+      if (!existsSync(scriptPath)) {
+        const repoFallback = resolve("d:/Code/ash-rpg/music_player/server.py");
+        if (existsSync(repoFallback)) {
+          scriptPath = repoFallback;
+          runCwd = resolve("d:/Code/ash-rpg");
+        }
+      }
+
+      activeMusicProc = spawn("python", [scriptPath, "5050"], {
+        detached: true,
+        stdio: "ignore",
+        cwd: runCwd,
+      });
+      activeMusicProc.unref();
+
+      // Wait briefly for server to bind port
+      await new Promise((r) => setTimeout(r, 1200));
+
+      return res.json({
+        ok: true,
+        running: true,
+        message: "Music server started successfully",
+        url: "http://localhost:5050",
+      });
+    } catch (err: any) {
+      return res.status(500).json({ ok: false, error: err.message || "Failed to start music server" });
+    }
+  });
   app.get("/api/content", (_request, response) =>
     response.json({
       ancestries: ANCESTRIES,
@@ -1096,6 +1165,13 @@ export async function createAshServer(options: AshServerOptions = {}) {
         for (const c of state.characters) {
           db.updateCharacterHp(identity.campaignId, c.id, c.maxHp);
           db.updateCharacterFatigue(c.id, 0);
+          // A spell lost to a failed cast comes back with the rest; one locked
+          // behind penance still needs the penance.
+          const spells = (c.spells ?? []).map((spell) =>
+            spell.penanceRequired ? spell : { ...spell, available: true },
+          );
+          const resources = resetResources(c, "rest");
+          db.updateCharacter(identity.campaignId, { ...c, hp: c.maxHp, fatigue: 0, spells, resources });
         }
         db.resupplyPartyRations(identity.campaignId, 12);
 
@@ -1105,7 +1181,7 @@ export async function createAshServer(options: AshServerOptions = {}) {
           label: "Sanctuary Rest & Full Recovery",
           dice: "—",
           total: 0,
-          detail: "The company rested in sanctuary. All hit points restored, travel fatigue cleared, and travel rations replenished.",
+          detail: "The company rested in sanctuary. Hit points restored, spells lost to failed casts regained, class resources reset, travel fatigue cleared, and travel rations replenished.",
         });
 
         return { rested: true };
@@ -1819,7 +1895,11 @@ export async function createAshServer(options: AshServerOptions = {}) {
           const result = resolveSpellCast(
             {
               className: character?.className ?? "Wizard",
-              abilities: { int: character?.abilities.int ?? 10, wis: character?.abilities.wis ?? 10 },
+              abilities: {
+                int: character?.abilities.int ?? 10,
+                wis: character?.abilities.wis ?? 10,
+                cha: character?.abilities.cha ?? 10,
+              },
             },
             spell,
             d20Result,
@@ -1831,7 +1911,8 @@ export async function createAshServer(options: AshServerOptions = {}) {
             result.success ? "CAST SUCCESSFUL!" : "SPELL LOST UNTIL REST."
           }`;
           if (result.mishap) {
-            detail += ` [ARCANE MISHAP: ${result.mishap}]`;
+            const mishapLabel = result.tradition === "occult" ? "DIABOLICAL MISHAP" : "ARCANE MISHAP";
+            detail += ` [${mishapLabel}: ${result.mishap}]`;
           }
           if (result.penanceRequired) {
             detail += ` [DIVINE PENANCE REQUIRED: Spell locked until penance.]`;
@@ -1941,7 +2022,69 @@ export async function createAshServer(options: AshServerOptions = {}) {
         if (!character) throw new Error("Character not found");
 
         const classChoices = { ...(character.classChoices ?? {}), ...payload.choices };
+        if (typeof classChoices.patronId === "string") {
+          // Throws unless the patron's boons actually teach spells.
+          resolveWarlockPatron(classChoices.patronId);
+        }
         db.updateCharacter(identity.campaignId, { ...character, classChoices });
+      }),
+    );
+
+    /**
+     * Nudge or spend a class resource track. These are transient combat state —
+     * the table drives them by hand and the server only enforces the bounds.
+     */
+    socket.on(
+      "character:resource",
+      action((raw: unknown) => {
+        const payload = z
+          .object({
+            characterId: z.number().int(),
+            delta: z.number().int().min(-20).max(20).optional(),
+            spenderId: z.string().max(60).optional(),
+            reset: z.enum(["combat_end", "rest"]).optional(),
+          })
+          .parse(raw);
+        if (identity.role !== "host" && payload.characterId !== identity.characterId) {
+          throw new Error("You can only adjust your own character's resources");
+        }
+        const state = db.getState(identity.campaignId, "host", null, "");
+        const character = state.characters.find((c) => c.id === payload.characterId);
+        if (!character) throw new Error("Character not found");
+
+        const resource = requireClassResource(character.className);
+        let next: number;
+        let detail: string;
+
+        if (payload.spenderId) {
+          const { spender, remaining } = spendResource(character, payload.spenderId);
+          next = remaining;
+          detail = `${spender.name} (−${spender.cost} ${resource.name}). ${spender.description}`;
+        } else if (payload.reset) {
+          const resetTo = resetResources(character, payload.reset)?.[resource.id];
+          if (resetTo === undefined) {
+            throw new Error(`${resource.name} does not reset on ${payload.reset}`);
+          }
+          next = resetTo;
+          detail = `${resource.name} reset to ${next} (${payload.reset === "rest" ? "rest" : "end of combat"}).`;
+        } else if (payload.delta !== undefined) {
+          next = adjustResource(character, payload.delta);
+          detail = `${resource.name} ${payload.delta >= 0 ? "+" : ""}${payload.delta} → ${next}/${resourceMax(character.className, character.talents ?? [])}.`;
+        } else {
+          throw new Error("A resource change needs a delta, a spender, or a reset");
+        }
+
+        const resources = { ...(character.resources ?? {}), [resource.id]: next };
+        db.updateCharacter(identity.campaignId, { ...character, resources });
+        db.addRoll(identity.campaignId, {
+          actor: character.name,
+          kind: "class",
+          label: `${resource.name}: ${next}`,
+          dice: "—",
+          total: next,
+          detail,
+        });
+        return { resources };
       }),
     );
 
@@ -4433,6 +4576,14 @@ export async function createAshServer(options: AshServerOptions = {}) {
         const sourceRoom = sourceGraph?.nodes.find((room) => room.encounter?.encounterId === combat.encounterId);
         combat.status = "resolved";
         db.saveCombatState(identity.campaignId, combat);
+
+        // Righteousness and its kin do not survive the fight that built them.
+        for (const character of db.getState(identity.campaignId, "host", null, "").characters) {
+          const resources = resetResources(character, "combat_end");
+          if (resources !== character.resources) {
+            db.updateCharacter(identity.campaignId, { ...character, resources });
+          }
+        }
 
         const livingMonsters = combat.combatants.filter(
           (c) => c.kind === "monster" && !c.conditions.includes("defeated") && c.currentHp > 0,

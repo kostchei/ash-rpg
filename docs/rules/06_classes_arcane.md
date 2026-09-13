@@ -77,7 +77,8 @@
     * **Armor:** Leather armor, chainmail, shields
     * **Hit Points:** 1d6 per level
     * **Languages:** You know one of: **Celestial, Diabolic, Draconic, Primordial, or Sylvan**.
-    * **Patron Bond:** Choose an otherworldly patron to serve (e.g. *Shune the Vile, Ramlaat, The Lost, Memnon*).
+    * **Patron Bond:** Choose an otherworldly patron to serve. **Only patrons whose boon table actually teaches spells will take a novice conduit** — currently *Shune the Vile, Ramlaat, The Lost,* and *The Drowned Choir*.
+        * *Memnon* and other purely martial patrons grant no spells and so cannot be sworn to at creation, though their boons can still be drawn on a Warlock talent roll of **2**.
     * **Patron Boons:** At 1st level, you gain 1 random **Patron Boon** from your patron. You gain an additional Patron Boon at every even level (2, 4, 6, 8, 10).
     * *Alternative Talents:* When leveling up, you may choose to roll on your **Patron Boon table** rather than the Warlock Talents table.
 

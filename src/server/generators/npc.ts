@@ -82,7 +82,7 @@ function loadNpcData(): NpcOracleData {
         the_gloaming: {
           Fighter: ["Fighter"],
           Wizard: ["Warlock", "Witch"],
-          Priest: ["Knight of St. Ydris", "Priest"],
+          Priest: ["Chaos Knight", "Priest"],
           Thief: ["Thief"],
         },
         red_sands: {
@@ -92,7 +92,7 @@ function loadNpcData(): NpcOracleData {
           Priest: ["Priest"],
         },
         midnight_sun: {
-          Fighter: ["Sea Wolf"],
+          Fighter: ["Barbarian"],
           Priest: ["Seer"],
           Wizard: ["Wizard"],
           Thief: ["Thief"],
