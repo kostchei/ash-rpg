@@ -10,7 +10,9 @@ import {
 } from "node:crypto";
 import Database from "better-sqlite3";
 import { CLASSES, HEX_DEFINITIONS, MONSTERS, STARTING_EQUIPMENT, SPELLS, ITEMS } from "../shared/content.js";
-import { BESTIARY_ENTRIES } from "../shared/bestiary-data.js";
+import type { BestiaryReferenceEntry } from "../shared/bestiary-data.js";
+
+const BESTIARY_STATS_FILES = ["data/bestiary/stats/shadowdark-core.json", "data/bestiary/stats/cursed-scrolls.json"];
 
 /**
  * The canonical id for a class name. Derived from the class definition rather
@@ -111,6 +113,7 @@ export class AshDatabase {
     this.migrate();
     this.loadZones();
     this.loadBestiary();
+    this.validateZoneMonsterTables();
   }
 
   close() {
@@ -648,6 +651,7 @@ export class AshDatabase {
         loreTier: 0,
         ac: val.ac,
         morale: val.morale,
+        family: val.family,
         attacks: [...val.attacks],
         traits: [...val.traits],
         lore: [...val.lore],
@@ -662,132 +666,100 @@ export class AshDatabase {
       });
     }
 
-    const bestiaryPath = resolve("data/bestiary/monsters.json");
-    let raw: any[] = [];
-    if (existsSync(bestiaryPath)) {
-      try {
-        raw = JSON.parse(readFileSync(bestiaryPath, "utf-8"));
-      } catch (err) {
-        console.error("Failed to read bestiary file:", err);
+    // Stats-only records from scripts/ingest/extract-monsters.ts. Lore comes from authored profiles (plan P2+).
+    const raw: BestiaryReferenceEntry[] = BESTIARY_STATS_FILES.flatMap((file) => {
+      const path = resolve(file);
+      if (!existsSync(path)) {
+        throw new Error(`Bestiary stats file not found: ${path}`);
       }
+      return JSON.parse(readFileSync(path, "utf-8")) as BestiaryReferenceEntry[];
+    });
+
+    const insert = this.db.prepare(`
+      INSERT OR REPLACE INTO monsters
+      (id, name, source, family, level, ac, hp, morale, attacks_json, move, abilities_json, alignment, traits_json, lore_json, harvest_json)
+      VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+    `);
+
+    for (const m of raw) {
+      insert.run(
+        m.id,
+        m.name,
+        m.source,
+        m.family,
+        m.level,
+        m.ac,
+        m.hp,
+        m.morale,
+        JSON.stringify(m.attacks),
+        m.move,
+        JSON.stringify(m.abilities),
+        m.alignment,
+        JSON.stringify(m.traits),
+        "[]",
+        "[]",
+      );
+
+      this.bestiaryCache.set(m.id, {
+        id: 0,
+        monsterKey: m.id,
+        name: m.name,
+        currentHp: m.hp,
+        maxHp: m.hp,
+        loreTier: 0,
+        ac: m.ac,
+        morale: m.morale,
+        level: m.level,
+        family: m.family,
+        source: m.source,
+        move: m.move,
+        abilities: m.abilities,
+        alignment: m.alignment,
+        attacks: m.attacks,
+        traits: m.traits,
+        lore: [],
+        harvest: [],
+      });
     }
 
-    if (!raw.length && BESTIARY_ENTRIES.length) {
-      raw = BESTIARY_ENTRIES.map((b) => ({
-        id: b.id,
-        name: b.name,
-        source: b.source,
-        family: b.family ?? null,
-        level: b.level,
-        ac: b.ac,
-        hp: b.hp,
-        morale: b.morale,
-        attacks: b.attacks,
-        move: b.move,
-        abilities: b.abilities,
-        alignment: b.alignment,
-        traits: b.traits,
-        loreTiers: {
-          common: b.lore[0] ?? "",
-          field: b.lore[1] ?? "",
-          obscure: b.lore[2] ?? "",
-          arcane: b.lore[3] ?? "",
-        },
-        harvest: b.harvest,
-      }));
-    }
-
-    if (raw.length > 0) {
-      try {
-        const insert = this.db.prepare(`
-          INSERT OR REPLACE INTO monsters 
-          (id, name, source, family, level, ac, hp, morale, attacks_json, move, abilities_json, alignment, traits_json, lore_json, harvest_json)
-          VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
-        `);
-
-        for (const m of raw) {
-          insert.run(
-            m.id,
-            m.name,
-            m.source,
-            m.family ?? null,
-            m.level,
-            m.ac,
-            m.hp,
-            m.morale,
-            JSON.stringify(m.attacks),
-            m.move,
-            JSON.stringify(m.abilities),
-            m.alignment,
-            JSON.stringify(m.traits),
-            JSON.stringify(m.loreTiers),
-            JSON.stringify(m.harvest),
-          );
-
-          this.bestiaryCache.set(m.id, {
-            id: 0,
-            monsterKey: m.id,
-            name: m.name,
-            currentHp: m.hp,
-            maxHp: m.hp,
-            loreTier: 0,
-            ac: m.ac,
-            morale: m.morale,
-            level: m.level,
-            family: m.family,
-            source: m.source,
-            move: m.move,
-            abilities: m.abilities,
-            alignment: m.alignment,
-            attacks: m.attacks,
-            traits: m.traits,
-            lore: [m.loreTiers.common, m.loreTiers.field, m.loreTiers.obscure, m.loreTiers.arcane],
-            harvest: m.harvest,
-          });
-        }
-
-        // Also seed custom templates into SQLite and cache if not already present
-        for (const [key, tmpl] of Object.entries(CUSTOM_MONSTER_TEMPLATES)) {
-          if (!this.bestiaryCache.has(key)) {
-            const harvest = [
-              {
-                reagent: `${tmpl.name} Essence`,
-                dc: 10 + Math.floor((tmpl.level ?? 1) / 2),
-                effect: "Alchemical reagent for crafting or potions.",
-              },
-            ];
-            const loreTiers = {
-              common: tmpl.lore?.[0] ?? "",
-              field: tmpl.lore?.[1] ?? "",
-              obscure: tmpl.lore?.[2] ?? "",
-              arcane: tmpl.lore?.[3] ?? "",
-            };
-            insert.run(
-              key,
-              tmpl.name,
-              tmpl.source ?? "cursed_scroll_6",
-              tmpl.family ?? "Humanoid",
-              tmpl.level ?? 1,
-              tmpl.ac ?? 10,
-              tmpl.maxHp,
-              tmpl.morale ?? 7,
-              JSON.stringify(tmpl.attacks ?? []),
-              tmpl.move ?? "near",
-              JSON.stringify(tmpl.abilities ?? {}),
-              tmpl.alignment ?? "N",
-              JSON.stringify(tmpl.traits ?? []),
-              JSON.stringify(loreTiers),
-              JSON.stringify(harvest),
-            );
-            this.bestiaryCache.set(key, {
-              id: 0,
-              ...tmpl,
-              harvest,
-            });
-          }
-        }
-      } catch (err) {
-        console.error("Failed to load bestiary into database:", err);
+    // Also seed custom templates into SQLite and cache if not already present
+    for (const [key, tmpl] of Object.entries(CUSTOM_MONSTER_TEMPLATES)) {
+      if (!this.bestiaryCache.has(key)) {
+        const harvest = [
+          {
+            reagent: `${tmpl.name} Essence`,
+            dc: 10 + Math.floor((tmpl.level ?? 1) / 2),
+            effect: "Alchemical reagent for crafting or potions.",
+          },
+        ];
+        const loreTiers = {
+          common: tmpl.lore?.[0] ?? "",
+          field: tmpl.lore?.[1] ?? "",
+          obscure: tmpl.lore?.[2] ?? "",
+          arcane: tmpl.lore?.[3] ?? "",
+        };
+        insert.run(
+          key,
+          tmpl.name,
+          tmpl.source ?? "cursed_scroll_6",
+          tmpl.family ?? "Humanoid",
+          tmpl.level ?? 1,
+          tmpl.ac ?? 10,
+          tmpl.maxHp,
+          tmpl.morale ?? 7,
+          JSON.stringify(tmpl.attacks ?? []),
+          tmpl.move ?? "near",
+          JSON.stringify(tmpl.abilities ?? {}),
+          tmpl.alignment ?? "N",
+          JSON.stringify(tmpl.traits ?? []),
+          JSON.stringify(loreTiers),
+          JSON.stringify(harvest),
+        );
+        this.bestiaryCache.set(key, {
+          id: 0,
+          ...tmpl,
+          harvest,
+        });
       }
     }
   }
@@ -871,13 +843,29 @@ export class AshDatabase {
 
   getMonstersForZone(zoneId: string): EncounterMonster[] {
     const zone = this.getZoneManifest(zoneId);
-    if (!zone || !zone.wanderingMonsterTable || zone.wanderingMonsterTable.length === 0) {
-      return [];
+    if (!zone) {
+      throw new Error(`Unknown zone "${zoneId}"`);
     }
-    const matched = zone.wanderingMonsterTable
-      .map((k) => this.getMonster(k))
-      .filter((m): m is EncounterMonster => m !== undefined);
-    return matched;
+    return (zone.wanderingMonsterTable ?? []).map((key) => {
+      const monster = this.getMonster(key);
+      if (!monster) {
+        throw new Error(`Unknown monster key "${key}" in zone "${zoneId}" wanderingMonsterTable`);
+      }
+      return monster;
+    });
+  }
+
+  validateZoneMonsterTables(): void {
+    for (const [zoneId, manifest] of this.zonesCache.entries()) {
+      if (manifest.wanderingMonsterTable && manifest.wanderingMonsterTable.length > 0) {
+        for (const key of manifest.wanderingMonsterTable) {
+          const monster = this.getMonster(key);
+          if (!monster) {
+            throw new Error(`Unknown monster key "${key}" in zone "${zoneId}" wanderingMonsterTable`);
+          }
+        }
+      }
+    }
   }
 
   setCampaignPhase(campaignId: number, phase: CampaignPhase) {
@@ -3016,19 +3004,10 @@ export class AshDatabase {
     monsterKey: string,
     count: number,
   ) {
-    const monster = this.getMonster(monsterKey) ?? {
-      id: 0,
-      monsterKey,
-      name: monsterKey,
-      currentHp: 10,
-      maxHp: 10,
-      loreTier: 0,
-      ac: 12,
-      morale: 7,
-      attacks: ["Strike +2 (1d6)"],
-      traits: [],
-      lore: [],
-    };
+    const monster = this.getMonster(monsterKey);
+    if (!monster) {
+      throw new Error(`Unknown monster key "${monsterKey}"`);
+    }
 
     const monstersList: EncounterMonster[] = Array.from({ length: count }, () => ({
       ...monster,

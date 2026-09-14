@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { EVENTS } from "../shared/protocol";
 import { Title } from "./ui/Common";
 import type { Act } from "./ui/types";
 
@@ -59,7 +60,7 @@ export function DungeonView({ state, act }: { state: CampaignState; act: Act }) 
   const atTransition = currentEdges.some(e => e.transition);
 
   const moveRoom = async (toRoomId: number) => {
-    await act("dungeon:move_room", { toRoomId }, `Party advanced to Room ${toRoomId}`);
+    await act(EVENTS.DUNGEON_MOVE_ROOM, { toRoomId }, `Party advanced to Room ${toRoomId}`);
   };
 
   const interactDoor = async (
@@ -68,7 +69,7 @@ export function DungeonView({ state, act }: { state: CampaignState; act: Act }) 
     action: "open" | "close" | "pick" | "force" | "search_secret",
   ) => {
     await act(
-      "dungeon:interact_door",
+      EVENTS.DUNGEON_INTERACT_DOOR,
       { fromRoomId, toRoomId, action },
       `Door action: ${action}`,
     );
@@ -77,22 +78,22 @@ export function DungeonView({ state, act }: { state: CampaignState; act: Act }) 
   const disarmTrap = async (roomId: number) => {
     const thief = state.characters.find((c) => c.className.toLowerCase().includes("thief")) ?? state.characters[0];
     await act(
-      "dungeon:disarm_trap",
+      EVENTS.DUNGEON_DISARM_TRAP,
       { roomId, characterId: thief.id },
       "Thief attempted to disarm trap",
     );
   };
 
   const claimTreasure = async (roomId: number) => {
-    await act("dungeon:claim_treasure", { roomId }, "Treasure chamber claimed!");
+    await act(EVENTS.DUNGEON_CLAIM_TREASURE, { roomId }, "Treasure chamber claimed!");
   };
 
   const lightTorch = async () => {
-    await act("dungeon:light_torch", {}, "New torch ignited (+6 light turns)");
+    await act(EVENTS.DUNGEON_LIGHT_TORCH, {}, "New torch ignited (+6 light turns)");
   };
 
   const retreatSurface = async () => {
-    await act("site:exit", {}, "Party retreated to surface frontier");
+    await act(EVENTS.SITE_EXIT, {}, "Party retreated to surface frontier");
   };
 
 
@@ -296,7 +297,7 @@ export function DungeonView({ state, act }: { state: CampaignState; act: Act }) 
                   <button
                     className="btn-hig btn-hig-ember"
                     style={{ minHeight: "36px", padding: "4px 12px", fontSize: "12px" }}
-                    onClick={() => act("dungeon:spot_trap", { roomId: inspectedRoom.id }, "Searched chamber and detected trap mechanism")}
+                    onClick={() => act(EVENTS.DUNGEON_SPOT_TRAP, { roomId: inspectedRoom.id }, "Searched chamber and detected trap mechanism")}
                     title="Investigate the sensory tell to reveal hidden traps"
                   >
                     🔍 Investigate & Spot Trap
@@ -358,7 +359,7 @@ export function DungeonView({ state, act }: { state: CampaignState; act: Act }) 
                     <button
                       className="small-btn primary"
                       disabled={!isCaller || inspectedRoom.id !== dungeon.currentRoomId || Boolean(inspectedRoom.resolution)}
-                      onClick={() => act("combat:start", { roomId: inspectedRoom.id })}
+                      onClick={() => act(EVENTS.COMBAT_START, { roomId: inspectedRoom.id })}
                     >
                       Engage in Combat
                     </button>
@@ -431,7 +432,7 @@ export function DungeonView({ state, act }: { state: CampaignState; act: Act }) 
                       className="primary"
                       onClick={async () => {
                         await act(
-                          "dungeon:recruit_rescued",
+                          EVENTS.DUNGEON_RECRUIT_RESCUED,
                           { roomId: inspectedRoom.id },
                           `${inspectedRoom.objective!.generated!.rescuedNpc!.name} joined the company (Reserve, no gear)`,
                         );
@@ -453,7 +454,7 @@ export function DungeonView({ state, act }: { state: CampaignState; act: Act }) 
               <p>Record what happened, including how guards, traps, locks, or hazards were dealt with or bypassed. Entering or winning a fight does not automatically secure treasure.</p>
               {isCaller && <form onSubmit={async (event) => {
                 event.preventDefault();
-                await act("dungeon:record_outcome", { roomId: inspectedRoom.id, outcome,
+                await act(EVENTS.DUNGEON_RECORD_OUTCOME, { roomId: inspectedRoom.id, outcome,
                   notes: outcomeNotes, treasureFound, treasureAccessible, objectiveCompleted }, "Room outcome recorded");
                 setOutcomeNotes("");
                 setTreasureFound(false);

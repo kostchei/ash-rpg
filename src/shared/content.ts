@@ -1024,6 +1024,7 @@ export const HEX_DEFINITIONS = [
 export const MONSTERS = {
   trapdoor_spider: {
     name: "Giant Trapdoor Spider",
+    family: "Beast",
     ac: 13,
     hp: 18,
     morale: 7,
@@ -1041,6 +1042,7 @@ export const MONSTERS = {
   },
   barrow_wight: {
     name: "Barrow Wight",
+    family: "Undead",
     ac: 14,
     hp: 26,
     morale: 10,
@@ -1061,6 +1063,7 @@ export const MONSTERS = {
   },
   owlbear: {
     name: "Owlbear",
+    family: "Monstrosity",
     ac: 13,
     hp: 42,
     morale: 9,

@@ -1,3 +1,4 @@
+import { EVENTS } from "../shared/protocol";
 import { RealmSelect } from "./RealmSelect";
 import { LanDiscoveryPanel } from "./LanDiscoveryPanel";
 import { useEffect, useMemo, useState } from "react";
@@ -62,7 +63,7 @@ function CampAllowanceModal({
       task: (taskAssignments[c.id] || (watchSentryIds.has(c.id) ? "watch" : "bed_down")) as any,
     }));
     act(
-      "expedition:camp_night",
+      EVENTS.EXPEDITION_CAMP_NIGHT,
       { tasks },
       "Evening camp resolved with assigned tasks",
     );
@@ -72,7 +73,7 @@ function CampAllowanceModal({
   const handleForceMarch = () => {
     setIsResolving(true);
     act(
-      "expedition:force_march",
+      EVENTS.EXPEDITION_FORCE_MARCH,
       {},
       "Party declared Forced March into Watch 4 darkness",
     );
@@ -393,7 +394,7 @@ function CampSessionCard({ state, act }: { state: CampaignState; act: Act }) {
   const submitDuty = async () => {
     if (!selectedCharId) return;
     await act(
-      "camp:submit_duty",
+      EVENTS.CAMP_SUBMIT_DUTY,
       {
         characterId: selectedCharId,
         duty,
@@ -403,11 +404,11 @@ function CampSessionCard({ state, act }: { state: CampaignState; act: Act }) {
   };
 
   const resolveCamp = async () => {
-    await act("camp:resolve", {}, "Camp duties resolved and night concluded!");
+    await act(EVENTS.CAMP_RESOLVE, {}, "Camp duties resolved and night concluded!");
   };
 
   const openCamp = async () => {
-    await act("camp:open", {}, "Night camp pitched!");
+    await act(EVENTS.CAMP_OPEN, {}, "Night camp pitched!");
   };
 
   if (!session && !isCaller) return null;
@@ -747,13 +748,13 @@ export function MapView({ state, act, focus, onDirectory }: { state: CampaignSta
                     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "6px" }}>
                       <button
                         className="small-btn primary"
-                        onClick={() => act("hex:search", {}, "Searched Hex " + selected.id)}
+                        onClick={() => act(EVENTS.HEX_SEARCH, {}, "Searched Hex " + selected.id)}
                       >
                         <Search size={14} /> Search (1 Watch)
                       </button>
                       <button
                         className="small-btn"
-                        onClick={() => act("expedition:forage", {}, "Party foraged for provisions")}
+                        onClick={() => act(EVENTS.EXPEDITION_FORAGE, {}, "Party foraged for provisions")}
                       >
                         <Apple size={14} /> Forage (1 Watch)
                       </button>
@@ -786,7 +787,7 @@ export function MapView({ state, act, focus, onDirectory }: { state: CampaignSta
                             </span>
                             <button
                               className="small-btn primary"
-                              onClick={() => act("site:enter", { siteId: s.id }, `Entered ${s.name}`)}
+                              onClick={() => act(EVENTS.SITE_ENTER, { siteId: s.id }, `Entered ${s.name}`)}
                             >
                               <DoorOpen size={14} /> Enter Site
                             </button>
@@ -823,7 +824,7 @@ export function MapView({ state, act, focus, onDirectory }: { state: CampaignSta
                           return;
                         }
                         act(
-                          "travel:move",
+                          EVENTS.TRAVEL_MOVE,
                           { toHexId: selected.id, mode: travelMode },
                           `Traveled to Hex ${selected.id} on ${travelMode}`,
                         );
@@ -849,7 +850,7 @@ export function MapView({ state, act, focus, onDirectory }: { state: CampaignSta
                   className="primary wide"
                   onClick={() =>
                     act(
-                      "hex:reveal",
+                      EVENTS.HEX_REVEAL,
                       { id: selected.id, revealState: "scouted" },
                       `Hex ${selected.id} revealed to table`,
                     )
@@ -864,7 +865,7 @@ export function MapView({ state, act, focus, onDirectory }: { state: CampaignSta
                 <button
                   className="wide"
                   onClick={() =>
-                    act("hex:reveal", {
+                    act(EVENTS.HEX_REVEAL, {
                       id: selected.id,
                       revealState: "fully_mapped",
                     })
@@ -892,7 +893,7 @@ export function MapView({ state, act, focus, onDirectory }: { state: CampaignSta
                       className="primary small-btn"
                       onClick={() =>
                         act(
-                          "hex:regenerate",
+                          EVENTS.HEX_REGENERATE,
                           { theme: genTheme },
                           "Regional frontier regenerated",
                         )
@@ -920,7 +921,7 @@ export function MapView({ state, act, focus, onDirectory }: { state: CampaignSta
           <button
             className="primary wide"
             onClick={() =>
-              act("wilderness:watch", { biome }, "Travel watch resolved")
+              act(EVENTS.WILDERNESS_WATCH, { biome }, "Travel watch resolved")
             }
           >
             <Compass size={17} /> Weather + encounter
@@ -937,7 +938,7 @@ export function MapView({ state, act, focus, onDirectory }: { state: CampaignSta
             <button
               className="wide"
               onClick={() =>
-                act("dungeon:generate", {}, "A new chamber was revealed")
+                act(EVENTS.DUNGEON_GENERATE, {}, "A new chamber was revealed")
               }
             >
               <DoorOpen size={17} /> Generate next chamber
@@ -959,7 +960,7 @@ export function MapView({ state, act, focus, onDirectory }: { state: CampaignSta
                     className="primary small-btn"
                     onClick={() =>
                       act(
-                        "site:resolve_deed",
+                        EVENTS.SITE_RESOLVE_DEED,
                         {
                           siteId: state.campaign.activeSiteId!,
                           deed: "rescue_surveyor",
@@ -974,7 +975,7 @@ export function MapView({ state, act, focus, onDirectory }: { state: CampaignSta
                 )}
                 <button
                   className="small-btn"
-                  onClick={() => act("site:exit", {}, "Exited site back to surface")}
+                  onClick={() => act(EVENTS.SITE_EXIT, {}, "Exited site back to surface")}
                   disabled={Boolean(state.activeDungeon?.siteStructure && state.activeDungeon.currentRoomId !== state.activeDungeon.entryRoomId)}
                 >
                   <DoorOpen size={14} /> Exit Site to Overworld

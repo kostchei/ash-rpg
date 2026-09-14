@@ -31,45 +31,37 @@ export function CodexModal({ isOpen, onClose, state }: { isOpen: boolean; onClos
       const abilitiesStr = Object.entries(m.abilities).map(([k, v]) => `${k.toUpperCase()} ${v >= 0 ? `+${v}` : v}`).join(" · ");
       const attacksStr = m.attacks.length ? m.attacks.map(a => `• ${a}`).join("\n") : "• None";
       const traitsStr = m.traits.length ? m.traits.map(t => `• ${t}`).join("\n") : "• None";
-      const harvestStr = m.harvest.length ? m.harvest.map(h => `• ${h.reagent} (DC ${h.dc}): ${h.effect}`).join("\n") : "• None";
 
       let summary: string;
       let details: string;
 
       if (tier >= 3) {
-        summary = `Level ${m.level} ${m.family ?? "Monster"} · ${m.source.replace(/_/g, " ")} · AC ${m.ac} · HP ${m.hp} · MV ${m.move} · AL ${m.alignment}`;
+        summary = `Level ${m.level} ${m.family} · ${m.source.replace(/_/g, " ")} · AC ${m.ac} · HP ${m.hp} · MV ${m.move} · AL ${m.alignment}`;
         details = [
           `LEVEL ${m.level} | AC ${m.ac} | HP ${m.hp} | Morale ${m.morale} | Move ${m.move} | Alignment ${m.alignment}`,
           `Abilities: ${abilitiesStr}`,
           `\nAttacks:\n${attacksStr}`,
           `\nTraits:\n${traitsStr}`,
-          `\nLore & Secrets:\n• Folklore: ${m.lore[0] ?? "—"}\n• Tactical: ${m.lore[1] ?? "—"}\n• Obscure: ${m.lore[2] ?? "—"}\n• Arcane: ${m.lore[3] ?? "—"}`,
-          `\nHarvest Reagents:\n${harvestStr}`,
         ].join("\n");
       } else if (tier === 2) {
-        summary = `Level ${m.level} ${m.family ?? "Monster"} · Studied Lore Tier 2 · Known AC ${m.ac}`;
+        summary = `Level ${m.level} ${m.family} · Studied Lore Tier 2 · Known AC ${m.ac}`;
         details = [
           `LEVEL ${m.level} | Known AC ${m.ac} | Move ${m.move} | Alignment ${m.alignment}`,
           `\nAttacks:\n${attacksStr}`,
           `\nTraits:\n${traitsStr}`,
-          `\nLore & Secrets:\n• Folklore: ${m.lore[0] ?? "—"}\n• Tactical: ${m.lore[1] ?? "—"}\n• Obscure: ${m.lore[2] ?? "—"}`,
-          `\nHarvest Reagents:\n${harvestStr}`,
         ].join("\n");
       } else if (tier === 1) {
-        summary = `Level ${m.level} ${m.family ?? "Monster"} · Discovered Lore Tier 1 · Combat Behavior Known`;
+        summary = `Level ${m.level} ${m.family} · Discovered Lore Tier 1 · Combat Behavior Known`;
         details = [
           `LEVEL ${m.level} | Move ${m.move}`,
           `\nAttacks:\n${attacksStr}`,
           `\nTraits:\n${traitsStr}`,
-          `\nLore:\n• Folklore: ${m.lore[0] ?? "—"}\n• Tactical: ${m.lore[1] ?? "—"}`,
-          `\n[Higher lore tiers required to uncover vulnerabilities and harvesting reagents.]`,
         ].join("\n");
       } else {
-        summary = `Folklore: ${m.lore[0] || `A level ${m.level} creature recorded in regional chronicles.`}`;
+        summary = `${m.family} · details unrevealed`;
         details = [
-          `Folklore & Appearance:\n${m.lore[0] || "No detailed folklore recorded yet."}`,
-          `\n[Tactical combat stats, attacks, traits, and harvest reagents remain unrevealed.]`,
-          `Fight this creature or make a successful Monsternomicon lore check (INT) to reveal combat stats and weaknesses.`,
+          `[Combat stats, attacks, and traits remain unrevealed.]`,
+          `Make a Monsternomicon lore check (INT) to learn more.`,
         ].join("\n");
       }
 

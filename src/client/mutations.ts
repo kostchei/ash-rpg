@@ -1,5 +1,6 @@
 import type { Socket } from "socket.io-client";
 import type { RollRecord, WikiNote } from "../shared/types";
+import { EVENTS } from "../shared/protocol";
 
 export function createActionId(): string {
   // randomUUID requires HTTPS; phones connect to the table over ordinary LAN HTTP.
@@ -54,9 +55,9 @@ function fetchPage<T>(socket: Socket, event: string, key: "rolls" | "notes",
 }
 
 export function fetchOlderRolls(socket: Socket, beforeId?: number, limit = 50): Promise<RollRecord[]> {
-  return fetchPage<RollRecord>(socket, "rolls:page", "rolls", beforeId, limit);
+  return fetchPage<RollRecord>(socket, EVENTS.ROLLS_PAGE, "rolls", beforeId, limit);
 }
 
 export function fetchOlderNotes(socket: Socket, beforeId?: number, limit = 50): Promise<WikiNote[]> {
-  return fetchPage<WikiNote>(socket, "notes:page", "notes", beforeId, limit);
+  return fetchPage<WikiNote>(socket, EVENTS.NOTES_PAGE, "notes", beforeId, limit);
 }

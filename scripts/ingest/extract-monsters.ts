@@ -1,12 +1,17 @@
-import { writeFileSync, mkdirSync } from "node:fs";
+import { readFileSync, writeFileSync, mkdirSync, existsSync } from "node:fs";
 import { resolve } from "node:path";
-import { loadExtractedPdf, type ExtractedPdf } from "./lib/pages.js";
+import { loadExtractedPdf } from "./lib/pages.js";
 
+/**
+ * Stats-only bestiary record. Hand-authored lore, vulnerabilities, hooks and components
+ * live in data/bestiary/profiles (see docs/plans/monster_knowledge_and_authoring.md),
+ * so this script can always be re-run without losing authored content.
+ */
 export interface MonsterSchema {
   id: string;
   name: string;
   source: string;
-  family?: string;
+  family: string;
   level: number;
   ac: number;
   hp: number;
@@ -23,18 +28,63 @@ export interface MonsterSchema {
   };
   alignment: "L" | "N" | "C" | "U";
   traits: string[];
-  loreTiers: {
-    common: string;
-    field: string;
-    obscure: string;
-    arcane: string;
-  };
-  harvest: Array<{
-    reagent: string;
-    dc: number;
-    effect: string;
-  }>;
 }
+
+interface SourceRange {
+  filename: string;
+  source: string;
+  startPage: number;
+  endPage: number;
+  /** Match headings against leaf TOC titles in the page range (core rulebook only). */
+  useToc: boolean;
+}
+
+const STATS_DIR = "data/bestiary/stats";
+const FAMILY_MAP_PATH = "data/bestiary/family-map.json";
+
+const CORE_RANGE: SourceRange = { filename: "Shadowdark_RPG_-_V4-8.json", source: "shadowdark_core", startPage: 198, endPage: 269, useToc: true };
+const CURSED_SCROLL_RANGES: SourceRange[] = [
+  { filename: "Cursed_Scroll_1_-_Diablerie_V4-3.json", source: "cursed_scroll_1", startPage: 45, endPage: 48, useToc: false },
+  { filename: "Cursed_Scroll_2_-_Red_Sands_V2-2.json", source: "cursed_scroll_2", startPage: 39, endPage: 44, useToc: false },
+  { filename: "Cursed_Scroll_3_-_Midnight_Sun_V3-5.json", source: "cursed_scroll_3", startPage: 43, endPage: 48, useToc: false },
+  { filename: "Cursed_Scroll_4_-_River_of_Night_V1-4.json", source: "cursed_scroll_4", startPage: 59, endPage: 65, useToc: false },
+  { filename: "Cursed_Scroll_5_-_Dwellers_in_the_Deep_V1-3.json", source: "cursed_scroll_5", startPage: 33, endPage: 36, useToc: false },
+];
+
+// AC with optional armor text in parentheses e.g. "AC 15 (chainmail + shield)",
+// optional comma before ATK, and dual HP/LV notation (e.g. HP 29/42, LV 6/9).
+const STAT_REGEX = /AC\s+(\d+)(?:\s*\([^)]+\))?,\s*HP\s+(\d+(?:\/\d+)?),?\s*ATK\s+([\s\S]+?),\s*MV\s+([\s\S]+?),\s*S\s+([+-]?\d+),\s*D\s+([+-]?\d+),\s*C\s+([+-]?\d+),\s*I\s+([+-]?\d+),\s*W\s+([+-]?\d+),\s*Ch\s+([+-]?\d+),\s*AL\s+([LNCU]),\s*LV\s+(\d+(?:\/\d+)?)/gi;
+
+/** "Relentless." / "Lightning Breath." / "Stink Bomb (WIS Spell)." — a short name, then a period or colon. */
+export const TRAIT_HEADER = /^[A-Z][A-Za-z'’-]*(?: [A-Za-z'’-]+){0,4}(?: \([A-Z]{3} [Ss]pell\))?[.:](?:\s|$)/;
+const RULE_WORDS = new Set(["DC", "HP", "AC", "STR", "DEX", "CON", "INT", "WIS", "CHA", "ADV", "DISADV"]);
+
+// Monsters whose heading is detached from the stat block in the PDF layout. Keyed by file:page or file:page:level.
+const PAGE_SPECIAL_NAMES: Record<string, string> = {
+  "Shadowdark_RPG_-_V4-8.json:238": "Mordanticus the Flayed",
+  "Shadowdark_RPG_-_V4-8.json:242": "Obe-Ixx of Azarumme",
+  "Shadowdark_RPG_-_V4-8.json:250": "Rathgamnon",
+  "Shadowdark_RPG_-_V4-8.json:259": "The Ten-Eyed Oracle",
+  "Shadowdark_RPG_-_V4-8.json:260": "The Tarrasque",
+  "Shadowdark_RPG_-_V4-8.json:262": "The Wandering Merchant",
+  "Cursed_Scroll_1_-_Diablerie_V4-3.json:48:13": "Weeping Father",
+  "Cursed_Scroll_2_-_Red_Sands_V2-2.json:43:18": "The Scourge",
+};
+
+const NAME_EXCEPTIONS: Record<string, string> = {
+  "OBE-IXX OF AZARUMME": "Obe-Ixx of Azarumme",
+  "MORDANTICUS THE FLAYED": "Mordanticus the Flayed",
+  "THE TARRASQUE": "The Tarrasque",
+  "THE TEN-EYED ORACLE": "The Ten-Eyed Oracle",
+  "THE WANDERING MERCHANT": "The Wandering Merchant",
+  "THE SCOURGE": "The Scourge",
+  "WEEPING FATHER": "Weeping Father",
+  "RATHGAMNON": "Rathgamnon",
+  "WILL-O'-WISP": "Will-o'-the-Wisp",
+  "WILL-O-WISP": "Will-o'-the-Wisp",
+};
+
+const LOWERCASE_WORDS = new Set(["of", "the", "in", "and", "or", "a", "an", "on", "at", "to", "for", "with"]);
 
 function slugify(name: string): string {
   return name
@@ -43,94 +93,126 @@ function slugify(name: string): string {
     .replace(/^_+|_+$/g, "");
 }
 
-function generateLoreTiers(name: string, level: number, flavor: string, traits: string[]): {
-  common: string;
-  field: string;
-  obscure: string;
-  arcane: string;
-} {
-  const traitSummary = traits.length > 0 ? traits[0] : "Known for dangerous physical ferocity.";
-  return {
-    common: flavor || `A level ${level} threat known in frontier folklore.`,
-    field: `Tactical combat behavior: ${traitSummary}`,
-    obscure: `Vulnerabilities, hunting grounds, or behavioral instincts documented by master rangers and delvers.`,
-    arcane: `Alchemical compositions, planar ties, or ancient origins dating back to the primordial era.`,
-  };
+export function toTitleCase(name: string): string {
+  const cleanUpper = name.trim().toUpperCase();
+  if (NAME_EXCEPTIONS[cleanUpper]) {
+    return NAME_EXCEPTIONS[cleanUpper];
+  }
+
+  const tokens = name.trim().split(/([\s,\-\/]+)/);
+  const result: string[] = [];
+  let wordIdx = 0;
+  for (const tok of tokens) {
+    if (/^[\s,\-\/]+$/.test(tok)) {
+      result.push(tok);
+    } else {
+      const lower = tok.toLowerCase();
+      if (wordIdx > 0 && LOWERCASE_WORDS.has(lower)) {
+        result.push(lower);
+      } else {
+        result.push(lower.charAt(0).toUpperCase() + lower.slice(1));
+      }
+      wordIdx++;
+    }
+  }
+  return result.join("");
 }
 
-function generateHarvest(name: string, level: number, traits: string[]): Array<{ reagent: string; dc: number; effect: string }> {
-  const dc = Math.min(18, 10 + Math.floor(level / 2));
-  return [
-    {
-      reagent: `${name} Pelt / Chitin / Essence`,
-      dc,
-      effect: `Alchemical ingredient useful in crafting potions or enchanting warding gear.`,
-    },
-  ];
+function loadFamilyMap(): Record<string, string> {
+  const mapPath = resolve(FAMILY_MAP_PATH);
+  if (!existsSync(mapPath)) {
+    throw new Error(`Family map not found: ${mapPath}`);
+  }
+  return JSON.parse(readFileSync(mapPath, "utf-8"));
 }
 
-// Known full-page or legendary monsters where heading in PDF layout is detached from stat block
-const PAGE_SPECIAL_NAMES: Record<string, string> = {
-  "Shadowdark_RPG_-_V4-8.json:238": "Mordanticus the Flayed",
-  "Shadowdark_RPG_-_V4-8.json:242": "Obe-Ixx of Azarumme",
-  "Shadowdark_RPG_-_V4-8.json:250": "Rathgamnon",
-  "Shadowdark_RPG_-_V4-8.json:260": "The Tarrasque",
-  "Shadowdark_RPG_-_V4-8.json:261": "The Ten-Eyed Oracle",
-  "Shadowdark_RPG_-_V4-8.json:262": "The Wandering Merchant",
-  "Cursed_Scroll_1_-_Diablerie_V4-3.json:48:13": "Weeping Father",
-  "Cursed_Scroll_2_-_Red_Sands_V2-2.json:43:18": "The Scourge",
-};
+function isTraitHeader(line: string): boolean {
+  return TRAIT_HEADER.test(line) && !RULE_WORDS.has(line.split(/[\s.:]/)[0]);
+}
 
-export function extractShadowdarkCoreMonsters(): MonsterSchema[] {
-  const pdf = loadExtractedPdf("Shadowdark_RPG_-_V4-8.json");
-  const monsterPages = pdf.pages.filter((p) => p.page_num >= 198 && p.page_num <= 269);
-  const combinedText = monsterPages.map((p) => p.text).join("\n\n");
+/**
+ * Reads the trait block that follows a stat block. The caller cuts the lines at the next
+ * monster's heading. A new trait starts at a short "Name." header after a finished sentence;
+ * every other line is a continuation (PDF text wraps mid-sentence and after "DC 13.").
+ * The block ends at an ALL-CAPS heading (family intros, zine back matter) or a pull quote.
+ * When the next monster's heading is detached from its stat block there is no cut point,
+ * so `stopAtDescription` also ends the block at an "A …"/"An …" description sentence.
+ */
+export function extractTraitBlock(lines: string[], stopAtDescription: boolean): string[] {
+  const traits: string[] = [];
+  let current = "";
+  for (const rawLine of lines) {
+    // Page numbers and bare list markers ("1.") carry no trait text.
+    if (/^\d+\.?$/.test(rawLine)) continue;
+    // Tabbed list items: "2.\t Hold. DC 15 STR…" → "Hold. DC 15 STR…"
+    const line = rawLine.replace(/^\d+\.\t\s*/, "");
+    if (/^[“"]/.test(line) || isHeadingLine(line.replace(/^\d+\s*/, "").replace(/[,\.]/g, "").trim())) break;
 
-  // Map TOC families
-  const tocEntries: Array<{ title: string; page: number; family?: string }> = [];
-  let currentFamily: string | undefined = undefined;
+    const endsSentence = /[.!?]["”')\]]*$/.test(current);
+    if (!current) {
+      if (!isTraitHeader(line)) break;
+      current = line;
+    } else if (endsSentence && isTraitHeader(line)) {
+      traits.push(current);
+      current = line;
+    } else if (endsSentence && /^[A-Z][a-z]+s are /.test(line)) {
+      // Family sidebar with no heading: "Elementals are semi-humanoid beings…"
+      break;
+    } else if (endsSentence && stopAtDescription && /^An? [a-z]/.test(line)) {
+      break;
+    } else {
+      current += " " + line;
+    }
+  }
+  if (current) traits.push(current);
+  return traits;
+}
+
+function lettersOnly(text: string): string {
+  return text.replace(/[^a-zA-Z]/g, "").toUpperCase();
+}
+
+function isHeadingLine(clean: string): boolean {
+  return (
+    /[A-Z]{2}/.test(clean) &&
+    !/\d/.test(clean) &&
+    clean === clean.toUpperCase() &&
+    !clean.includes("TABLE") &&
+    !clean.includes("CHAPTER") &&
+    !clean.startsWith("PAGE") &&
+    !clean.startsWith("AC ") &&
+    !clean.startsWith("LV ")
+  );
+}
+
+function tocLeafTitles(range: SourceRange): string[] {
+  const pdf = loadExtractedPdf(range.filename);
+  const titles: string[] = [];
   for (let i = 0; i < pdf.toc.length; i++) {
     const [depth, title, page] = pdf.toc[i];
-    if (page >= 198 && page <= 269 && title !== "Monster Statistics") {
-      const next = pdf.toc[i + 1];
-      if (next && next[0] > depth) {
-        currentFamily = title;
-      } else {
-        tocEntries.push({
-          title,
-          page,
-          family: depth === 4 ? currentFamily : undefined,
-        });
-      }
-    }
+    if (page < range.startPage || page > range.endPage || title === "Monster Statistics") continue;
+    const next = pdf.toc[i + 1];
+    if (!(next && next[0] > depth)) titles.push(title.toUpperCase());
   }
+  return titles;
+}
 
-  // Regex handles AC with optional armor text in parentheses e.g. "AC 15 (chainmail + shield)"
-  const statRegex = /AC\s+(\d+)(?:\s*\([^)]+\))?,\s*HP\s+(\d+),\s*ATK\s+([\s\S]+?),\s*MV\s+([\s\S]+?),\s*S\s+([+-]?\d+),\s*D\s+([+-]?\d+),\s*C\s+([+-]?\d+),\s*I\s+([+-]?\d+),\s*W\s+([+-]?\d+),\s*Ch\s+([+-]?\d+),\s*AL\s+([LNCU]),\s*LV\s+(\d+)/gi;
+export function extractMonsters(range: SourceRange, familyMap: Record<string, string>): MonsterSchema[] {
+  const pdf = loadExtractedPdf(range.filename);
+  const monsterPages = pdf.pages.filter((p) => p.page_num >= range.startPage && p.page_num <= range.endPage);
+  const combinedText = monsterPages.map((p) => p.text).join("\n\n");
+  const tocTitles = range.useToc ? tocLeafTitles(range) : [];
+  const toLines = (text: string) => text.split("\n").map((l) => l.trim()).filter(Boolean);
 
-  const matches = [...combinedText.matchAll(statRegex)];
-  const monsters: MonsterSchema[] = [];
-  const seenIds = new Set<string>();
+  const matches = [...combinedText.matchAll(STAT_REGEX)];
 
-  for (let i = 0; i < matches.length; i++) {
-    const match = matches[i];
-    const matchIndex = match.index ?? 0;
-    const ac = parseInt(match[1], 10);
-    const hp = parseInt(match[2], 10);
-    const atkRaw = match[3].replace(/\s+/g, " ").trim();
-    const mv = match[4].replace(/\s+/g, " ").trim();
-    const str = parseInt(match[5], 10);
-    const dex = parseInt(match[6], 10);
-    const con = parseInt(match[7], 10);
-    const int = parseInt(match[8], 10);
-    const wis = parseInt(match[9], 10);
-    const cha = parseInt(match[10], 10);
-    const alignment = match[11].toUpperCase() as "L" | "N" | "C" | "U";
-    const level = parseInt(match[12], 10);
+  // Pass 1: name each stat block and find where its heading sits in the text before it.
+  const blocks = matches.map((match, i) => {
+    const matchIndex = match.index;
+    const level = parseInt(match[12].split("/")[0], 10);
 
-    // Approximate page
     let charSum = 0;
-    let pageNum = 198;
+    let pageNum = range.startPage;
     for (const p of monsterPages) {
       charSum += p.text.length + 2;
       if (charSum >= matchIndex) {
@@ -139,250 +221,93 @@ export function extractShadowdarkCoreMonsters(): MonsterSchema[] {
       }
     }
 
-    const textBefore = combinedText.slice(i === 0 ? 0 : (matches[i - 1].index ?? 0) + matches[i - 1][0].length, matchIndex).trim();
-    const linesBefore = textBefore.split("\n").map((l) => l.trim()).filter(Boolean);
+    const prevEnd = i === 0 ? 0 : matches[i - 1].index + matches[i - 1][0].length;
+    const linesBefore = toLines(combinedText.slice(prevEnd, matchIndex));
 
-    let name = "UNKNOWN";
-    let flavor = "";
-
-    // Check special legendaries
-    const specialKey = `Shadowdark_RPG_-_V4-8.json:${pageNum}`;
-    if (PAGE_SPECIAL_NAMES[specialKey]) {
-      name = PAGE_SPECIAL_NAMES[specialKey];
-      flavor = linesBefore.join(" ");
-    } else if (linesBefore.length > 0) {
-      let nameIndex = -1;
-      // Search backwards for TOC match or all-caps header
-      for (let j = linesBefore.length - 1; j >= 0; j--) {
-        const line = linesBefore[j];
-        const clean = line.replace(/^\d+\s*/, "").replace(/[,\.]/g, "").trim();
-        
-        // Exact match with a TOC title
-        const tocMatch = tocEntries.find((t) => t.title.toUpperCase() === clean.toUpperCase());
-        if (tocMatch) {
-          nameIndex = j;
-          break;
-        }
-
-        // All-caps header
-        if (clean.length >= 2 && clean === clean.toUpperCase() && !clean.includes("TABLE") && !clean.includes("CHAPTER") && !clean.startsWith("PAGE") && !/^\d+$/.test(clean) && !clean.startsWith("AC ") && !clean.startsWith("LV ")) {
-          nameIndex = j;
-          break;
-        }
-      }
-
-      if (nameIndex !== -1) {
-        name = linesBefore[nameIndex];
-        flavor = linesBefore.slice(nameIndex + 1).join(" ");
-      } else {
-        name = linesBefore[0];
-        flavor = linesBefore.slice(1).join(" ");
-      }
-    }
-
-    name = name.replace(/^\d+\s*/, "").replace(/[,\.]/g, "").trim();
-    if (!name || name === "UNKNOWN" || name.length < 2) {
-      name = `Monster_LV${level}`;
-    }
-
-    const nextStart = i + 1 < matches.length ? (matches[i + 1].index ?? combinedText.length) : combinedText.length;
-    const textAfter = combinedText.slice(matchIndex + match[0].length, nextStart).trim();
-    const traitLines = textAfter.split("\n").map((l) => l.trim()).filter(Boolean);
-    const traits: string[] = [];
-    let currentTrait = "";
-
-    for (const line of traitLines) {
-      if (i + 1 === matches.length && line.length >= 2 && line === line.toUpperCase() && !line.endsWith(".")) {
+    const specialName =
+      PAGE_SPECIAL_NAMES[`${range.filename}:${pageNum}:${level}`] ?? PAGE_SPECIAL_NAMES[`${range.filename}:${pageNum}`];
+    let name = specialName;
+    let headingIndex = -1;
+    for (let j = linesBefore.length - 1; j >= 0; j--) {
+      const clean = linesBefore[j].replace(/^\d+\s*/, "").replace(/[,\.]/g, "").trim();
+      const isHeading = specialName
+        ? lettersOnly(clean) === lettersOnly(specialName)
+        : tocTitles.includes(clean.toUpperCase()) || isHeadingLine(clean);
+      if (isHeading) {
+        headingIndex = j;
+        name ??= clean;
         break;
       }
-      if (/^[A-Z][a-zA-Z\s\-]+(?:\.|\:)/.test(line)) {
-        if (currentTrait) traits.push(currentTrait);
-        currentTrait = line;
-      } else if (currentTrait) {
-        currentTrait += " " + line;
-      } else {
-        currentTrait = line;
-      }
     }
-    if (currentTrait) traits.push(currentTrait);
+    if (!name) {
+      throw new Error(`No name heading found for stat block "${match[0].slice(0, 40)}…" in ${range.filename} page ${pageNum}`);
+    }
+    return { match, level, pageNum, linesBefore, headingIndex, name: toTitleCase(name) };
+  });
+
+  // Pass 2: traits run from the end of each stat block to the next monster's heading.
+  const monsters: MonsterSchema[] = [];
+  const seenIds = new Set<string>();
+
+  for (let i = 0; i < blocks.length; i++) {
+    const { match, level, pageNum, name } = blocks[i];
+    const next = blocks[i + 1];
+    const traitLines = next
+      ? next.headingIndex >= 0
+        ? next.linesBefore.slice(0, next.headingIndex)
+        : next.linesBefore
+      : toLines(combinedText.slice(match.index + match[0].length));
+    const traits = extractTraitBlock(traitLines, next !== undefined && next.headingIndex < 0);
 
     let id = slugify(name);
+    if (seenIds.has(id)) id = `${id}_${level}`;
     if (seenIds.has(id)) {
-      id = `${id}_${level}`;
+      throw new Error(`Duplicate monster id "${id}" in ${range.filename} page ${pageNum}`);
     }
     seenIds.add(id);
 
-    // Check TOC for family
-    const matchedToc = tocEntries.find((t) => t.title.toLowerCase() === name.toLowerCase());
-    const family = matchedToc?.family;
+    const family = familyMap[id];
+    if (!family) {
+      throw new Error(`No family for monster "${id}" in ${FAMILY_MAP_PATH}`);
+    }
 
-    const attacks = atkRaw.split(/\s+or\s+|\s*,\s*(?=\d+\s)/i).map((a) => a.trim());
-    const morale = Math.min(12, Math.max(5, 7 + Math.floor(level / 2) + Math.max(0, cha)));
-
+    const cha = parseInt(match[10], 10);
     monsters.push({
       id,
       name,
-      source: "shadowdark_core",
+      source: range.source,
       family,
       level,
-      ac,
-      hp,
-      morale,
-      attacks,
-      move: mv,
-      abilities: { str, dex, con, int, wis, cha },
-      alignment,
+      ac: parseInt(match[1], 10),
+      hp: parseInt(match[2].split("/")[0], 10),
+      morale: Math.min(12, Math.max(5, 7 + Math.floor(level / 2) + Math.max(0, cha))),
+      attacks: match[3].replace(/\s+/g, " ").trim().split(/\s+or\s+|\s*,\s*(?=\d+\s)/i).map((a) => a.trim()),
+      move: match[4].replace(/\s+/g, " ").trim(),
+      abilities: {
+        str: parseInt(match[5], 10),
+        dex: parseInt(match[6], 10),
+        con: parseInt(match[7], 10),
+        int: parseInt(match[8], 10),
+        wis: parseInt(match[9], 10),
+        cha,
+      },
+      alignment: match[11].toUpperCase() as MonsterSchema["alignment"],
       traits,
-      loreTiers: generateLoreTiers(name, level, flavor, traits),
-      harvest: generateHarvest(name, level, traits),
     });
   }
 
   return monsters;
 }
 
-export function extractCursedScrollMonsters(zineNumber: number, filename: string, startPage: number, endPage: number): MonsterSchema[] {
-  const pdf = loadExtractedPdf(filename);
-  const monsterPages = pdf.pages.filter((p) => p.page_num >= startPage && p.page_num <= endPage);
-  const combinedText = monsterPages.map((p) => p.text).join("\n\n");
+export function runMonsterIngestion(): { core: MonsterSchema[]; cursedScrolls: MonsterSchema[]; total: number } {
+  const familyMap = loadFamilyMap();
 
-  const statRegex = /AC\s+(\d+)(?:\s*\([^)]+\))?,\s*HP\s+(\d+),\s*ATK\s+([\s\S]+?),\s*MV\s+([\s\S]+?),\s*S\s+([+-]?\d+),\s*D\s+([+-]?\d+),\s*C\s+([+-]?\d+),\s*I\s+([+-]?\d+),\s*W\s+([+-]?\d+),\s*Ch\s+([+-]?\d+),\s*AL\s+([LNCU]),\s*LV\s+(\d+)/gi;
-
-  const matches = [...combinedText.matchAll(statRegex)];
-  const monsters: MonsterSchema[] = [];
-  const sourceName = `cursed_scroll_${zineNumber}`;
-  const seenIds = new Set<string>();
-
-  for (let i = 0; i < matches.length; i++) {
-    const match = matches[i];
-    const matchIndex = match.index ?? 0;
-    const ac = parseInt(match[1], 10);
-    const hp = parseInt(match[2], 10);
-    const atkRaw = match[3].replace(/\s+/g, " ").trim();
-    const mv = match[4].replace(/\s+/g, " ").trim();
-    const str = parseInt(match[5], 10);
-    const dex = parseInt(match[6], 10);
-    const con = parseInt(match[7], 10);
-    const int = parseInt(match[8], 10);
-    const wis = parseInt(match[9], 10);
-    const cha = parseInt(match[10], 10);
-    const alignment = match[11].toUpperCase() as "L" | "N" | "C" | "U";
-    const level = parseInt(match[12], 10);
-
-    let charSum = 0;
-    let pageNum = startPage;
-    for (const p of monsterPages) {
-      charSum += p.text.length + 2;
-      if (charSum >= matchIndex) {
-        pageNum = p.page_num;
-        break;
-      }
-    }
-
-    const textBefore = combinedText.slice(i === 0 ? 0 : (matches[i - 1].index ?? 0) + matches[i - 1][0].length, matchIndex).trim();
-    const linesBefore = textBefore.split("\n").map((l) => l.trim()).filter(Boolean);
-
-    let name = "UNKNOWN";
-    let flavor = "";
-
-    const specialKeyLevel = `${filename}:${pageNum}:${level}`;
-    const specialKey = `${filename}:${pageNum}`;
-    if (PAGE_SPECIAL_NAMES[specialKeyLevel]) {
-      name = PAGE_SPECIAL_NAMES[specialKeyLevel];
-      flavor = linesBefore.join(" ");
-    } else if (PAGE_SPECIAL_NAMES[specialKey]) {
-      name = PAGE_SPECIAL_NAMES[specialKey];
-      flavor = linesBefore.join(" ");
-    } else if (linesBefore.length > 0) {
-      let nameIndex = -1;
-      for (let j = linesBefore.length - 1; j >= 0; j--) {
-        const line = linesBefore[j];
-        const clean = line.replace(/^\d+\s*/, "").replace(/[,\.]/g, "").trim();
-        if (clean.length >= 2 && clean === clean.toUpperCase() && !clean.includes("TABLE") && !clean.includes("CHAPTER") && !clean.startsWith("PAGE") && !/^\d+$/.test(clean) && !clean.startsWith("AC ") && !clean.startsWith("LV ")) {
-          nameIndex = j;
-          break;
-        }
-      }
-
-      if (nameIndex !== -1) {
-        name = linesBefore[nameIndex];
-        flavor = linesBefore.slice(nameIndex + 1).join(" ");
-      } else {
-        name = linesBefore[0];
-        flavor = linesBefore.slice(1).join(" ");
-      }
-    }
-
-    name = name.replace(/^\d+\s*/, "").replace(/[,\.]/g, "").trim();
-    if (!name || name === "UNKNOWN" || name.length < 2) {
-      name = `Monster_LV${level}`;
-    }
-
-    const nextStart = i + 1 < matches.length ? (matches[i + 1].index ?? combinedText.length) : combinedText.length;
-    const textAfter = combinedText.slice(matchIndex + match[0].length, nextStart).trim();
-    const traitLines = textAfter.split("\n").map((l) => l.trim()).filter(Boolean);
-    const traits: string[] = [];
-    let currentTrait = "";
-
-    for (const line of traitLines) {
-      if (/^[A-Z][a-zA-Z\s\-]+(?:\.|\:)/.test(line)) {
-        if (currentTrait) traits.push(currentTrait);
-        currentTrait = line;
-      } else if (currentTrait) {
-        currentTrait += " " + line;
-      } else {
-        currentTrait = line;
-      }
-    }
-    if (currentTrait) traits.push(currentTrait);
-
-    let id = slugify(name);
-    if (seenIds.has(id)) {
-      id = `${id}_${level}`;
-    }
-    seenIds.add(id);
-
-    const attacks = atkRaw.split(/\s+or\s+|\s*,\s*(?=\d+\s)/i).map((a) => a.trim());
-    const morale = Math.min(12, Math.max(5, 7 + Math.floor(level / 2) + Math.max(0, cha)));
-
-    monsters.push({
-      id,
-      name,
-      source: sourceName,
-      level,
-      ac,
-      hp,
-      morale,
-      attacks,
-      move: mv,
-      abilities: { str, dex, con, int, wis, cha },
-      alignment,
-      traits,
-      loreTiers: generateLoreTiers(name, level, flavor, traits),
-      harvest: generateHarvest(name, level, traits),
-    });
-  }
-
-  return monsters;
-}
-
-export function runMonsterIngestion(): {
-  core: MonsterSchema[];
-  cursedScrolls: MonsterSchema[];
-  total: number;
-} {
   console.log("Extracting monsters from Shadowdark Core...");
-  const coreMonsters = extractShadowdarkCoreMonsters();
+  const coreMonsters = extractMonsters(CORE_RANGE, familyMap);
   console.log(`Extracted ${coreMonsters.length} core monsters.`);
 
   console.log("Extracting monsters from Cursed Scrolls 1-5...");
-  const cs1 = extractCursedScrollMonsters(1, "Cursed_Scroll_1_-_Diablerie_V4-3.json", 45, 48);
-  const cs2 = extractCursedScrollMonsters(2, "Cursed_Scroll_2_-_Red_Sands_V2-2.json", 39, 44);
-  const cs3 = extractCursedScrollMonsters(3, "Cursed_Scroll_3_-_Midnight_Sun_V3-5.json", 43, 48);
-  const cs4 = extractCursedScrollMonsters(4, "Cursed_Scroll_4_-_River_of_Night_V1-4.json", 59, 65);
-  const cs5 = extractCursedScrollMonsters(5, "Cursed_Scroll_5_-_Dwellers_in_the_Deep_V1-3.json", 33, 36);
-
-  const csMonsters = [...cs1, ...cs2, ...cs3, ...cs4, ...cs5];
+  const csMonsters = CURSED_SCROLL_RANGES.flatMap((range) => extractMonsters(range, familyMap));
   console.log(`Extracted ${csMonsters.length} Cursed Scroll monsters.`);
 
   const allMonstersMap = new Map<string, MonsterSchema>();
@@ -391,20 +316,23 @@ export function runMonsterIngestion(): {
   }
   const allMonsters = Array.from(allMonstersMap.values());
 
-  const outDir = resolve("data/bestiary");
+  const staleFamilyKeys = Object.keys(familyMap).filter((key) => !allMonstersMap.has(key));
+  if (staleFamilyKeys.length) {
+    throw new Error(`${FAMILY_MAP_PATH} has ids that match no extracted monster: ${staleFamilyKeys.join(", ")}`);
+  }
+
+  const outDir = resolve(STATS_DIR);
   mkdirSync(outDir, { recursive: true });
+  writeFileSync(resolve(outDir, "shadowdark-core.json"), JSON.stringify(coreMonsters, null, 2) + "\n", "utf-8");
+  writeFileSync(resolve(outDir, "cursed-scrolls.json"), JSON.stringify(csMonsters, null, 2) + "\n", "utf-8");
 
-  writeFileSync(resolve(outDir, "shadowdark-core.json"), JSON.stringify(coreMonsters, null, 2), "utf-8");
-  writeFileSync(resolve(outDir, "cursed-scrolls.json"), JSON.stringify(csMonsters, null, 2), "utf-8");
-  writeFileSync(resolve(outDir, "monsters.json"), JSON.stringify(allMonsters, null, 2), "utf-8");
-
-  // Also write a bundled TypeScript export in src/shared/bestiary-data.ts for client access
-  const tsContent = `// Auto-generated bestiary reference data from Shadowdark Core and Cursed Scrolls 1-6
+  // Bundled copy for the client Codex until it moves to the redacted bestiary API (plan P5).
+  const tsContent = `// Auto-generated by scripts/ingest/extract-monsters.ts from Shadowdark Core and Cursed Scrolls 1-5. Do not edit.
 export interface BestiaryReferenceEntry {
   id: string;
   name: string;
   source: string;
-  family?: string;
+  family: string;
   level: number;
   ac: number;
   hp: number;
@@ -421,35 +349,13 @@ export interface BestiaryReferenceEntry {
   };
   alignment: "L" | "N" | "C" | "U";
   traits: string[];
-  lore: string[];
-  harvest: Array<{ reagent: string; dc: number; effect: string }>;
 }
 
-export const BESTIARY_ENTRIES: BestiaryReferenceEntry[] = ${JSON.stringify(
-    allMonsters.map((m) => ({
-      id: m.id,
-      name: m.name,
-      source: m.source,
-      family: m.family,
-      level: m.level,
-      ac: m.ac,
-      hp: m.hp,
-      morale: m.morale,
-      attacks: m.attacks,
-      move: m.move,
-      abilities: m.abilities,
-      alignment: m.alignment,
-      traits: m.traits,
-      lore: [m.loreTiers.common, m.loreTiers.field, m.loreTiers.obscure, m.loreTiers.arcane],
-      harvest: m.harvest,
-    })),
-    null,
-    2
-  )};
+export const BESTIARY_ENTRIES: BestiaryReferenceEntry[] = ${JSON.stringify(allMonsters, null, 2)};
 `;
 
   writeFileSync(resolve("src/shared/bestiary-data.ts"), tsContent, "utf-8");
-  console.log(`Saved ${allMonsters.length} total monsters to data/bestiary/monsters.json and src/shared/bestiary-data.ts.`);
+  console.log(`Saved ${allMonsters.length} total monsters to ${STATS_DIR}/ and src/shared/bestiary-data.ts.`);
   return { core: coreMonsters, cursedScrolls: csMonsters, total: allMonsters.length };
 }
 

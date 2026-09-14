@@ -1,4 +1,5 @@
 import { ABILITY_KEYS, SPELLS } from "../shared/content";
+import { EVENTS } from "../shared/protocol";
 import { abilityMod, weaponReference } from "../shared/table-companion";
 import type { CampaignState } from "../shared/types";
 import type { Act } from "./ui/types";
@@ -10,7 +11,7 @@ export function PlayerDashboard({ state, act, onLedger }: { state: CampaignState
     <div className="dashboard-roster">{state.characters.filter(c => c.rosterStatus !== "reserve").map(c => {
       const canEdit = state.me.role === "host" || state.me.characterId === c.id;
       const combatant = state.activeCombat?.status === "active" ? state.activeCombat.combatants.find(actor => actor.kind === "pc" && actor.refId === c.id) : undefined;
-      const hp = (delta: number) => combatant ? act("combat:update_hp", { combatantId: combatant.id, delta }) : act("character:hp", { characterId: c.id, hp: Math.max(0, Math.min(c.maxHp, c.hp + delta)) });
+      const hp = (delta: number) => combatant ? act(EVENTS.COMBAT_UPDATE_HP, { combatantId: combatant.id, delta }) : act(EVENTS.CHARACTER_HP, { characterId: c.id, hp: Math.max(0, Math.min(c.maxHp, c.hp + delta)) });
       return <article key={c.id} className="companion-card">
         <div className="companion-heading"><h3>{c.name} <small>{c.className} {c.level}</small></h3><strong>AC {c.ac} · HP {c.hp}/{c.maxHp}</strong></div>
         <div className="companion-actions"><button disabled={!canEdit} onClick={() => void hp(-1)} title="Damage −1 HP">Damage −1 HP</button><button disabled={!canEdit} onClick={() => void hp(1)} title="Healing +1 HP">Healing +1 HP</button><span>{c.conditions?.join(" · ") || "No conditions"}</span></div>
@@ -19,7 +20,7 @@ export function PlayerDashboard({ state, act, onLedger }: { state: CampaignState
         })}</dl>
         <div className="save-reference">Saves: {ABILITY_KEYS.map(key => <span key={key}>{key.toUpperCase()} <b>{signed(abilityMod(c.abilities[key]))}</b></span>)}</div>
         <p>Movement: Near · Initiative {signed(abilityMod(c.abilities.dex))}{c.className.toLowerCase() === "thief" ? " · Trap sense: inspect sensory tells" : ""}</p>
-        {(c.spells ?? []).map(spell => <div className="spell-reference" key={spell.spellId}><span>{SPELLS.find(s => s.id === spell.spellId)?.name ?? spell.spellId} · T{spell.tier} · DC {10 + spell.tier} · {signed(abilityMod(c.abilities[c.className.toLowerCase() === "priest" ? "wis" : "int"]))}</span><label><input type="checkbox" checked={spell.available && !spell.penanceRequired} disabled={!canEdit} onChange={e => void act("character:spell_available", { characterId: c.id, spellId: spell.spellId, available: e.target.checked })}/>Available{spell.penanceRequired ? " (penance required)" : ""}</label></div>)}
+        {(c.spells ?? []).map(spell => <div className="spell-reference" key={spell.spellId}><span>{SPELLS.find(s => s.id === spell.spellId)?.name ?? spell.spellId} · T{spell.tier} · DC {10 + spell.tier} · {signed(abilityMod(c.abilities[c.className.toLowerCase() === "priest" ? "wis" : "int"]))}</span><label><input type="checkbox" checked={spell.available && !spell.penanceRequired} disabled={!canEdit} onChange={e => void act(EVENTS.CHARACTER_SPELL_AVAILABLE, { characterId: c.id, spellId: spell.spellId, available: e.target.checked })}/>Available{spell.penanceRequired ? " (penance required)" : ""}</label></div>)}
         <small>Talents: {c.talents?.join(" · ") || "None recorded"} · {c.gold} GP · Slots {(c.inventory ?? []).reduce((sum, item) => sum + item.slots * (item.quantity ?? 1), 0)}/{c.gearSlots}</small>
       </article>;
     })}</div>

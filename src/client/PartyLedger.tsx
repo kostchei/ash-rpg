@@ -1,4 +1,5 @@
 import { useEffect, useState, type FormEvent } from "react";
+import { EVENTS } from "../shared/protocol";
 import { AnchorField } from "./AnchorField";
 import { randomCharacterName } from "../shared/character-names";
 import { Title, Field } from "./ui/Common";
@@ -66,7 +67,7 @@ export function PartyView({
                 onClick={() => {
                   if (!isActive) {
                     act(
-                      "roster:select_active",
+                      EVENTS.ROSTER_SELECT_ACTIVE,
                       { characterId: c.id },
                       `Swapped active adventurer to ${c.name}`,
                     );
@@ -127,7 +128,7 @@ export function PartyView({
               canSwap={canSwap}
               onSwap={() =>
                 act(
-                  "roster:select_active",
+                  EVENTS.ROSTER_SELECT_ACTIVE,
                   { characterId: character.id },
                   `Swapped active adventurer to ${character.name}`,
                 )
@@ -210,7 +211,7 @@ function PartyMuster({ act, state }: { act: Act; state: CampaignState }) {
           setBusy(true);
           try {
             await act(
-              "party:muster",
+              EVENTS.PARTY_MUSTER,
               { characterIds: marching },
               `Marching party set (${marching.length}/${MAX_DEPARTING_PARTY})`,
             );
@@ -322,7 +323,7 @@ function CharacterCreator({
     setBusy(true);
     try {
       await act(
-        "character:create",
+        EVENTS.CHARACTER_CREATE,
         {
           name: form.name,
           ancestry: form.ancestry,
@@ -655,7 +656,7 @@ function CharacterCard({
         <h2>{character.name}</h2>
         {canEdit && <button type="button" className="small-btn" onClick={async () => {
           if (window.confirm(`Delete ${character.name} permanently, including their inventory?`)) {
-            await act("character:delete", { characterId: character.id }, `${character.name} deleted`);
+            await act(EVENTS.CHARACTER_DELETE, { characterId: character.id }, `${character.name} deleted`);
           }
         }}>Delete character</button>}
         <p>
@@ -716,7 +717,7 @@ function CharacterCard({
         <div className="hp-controls">
           <button
             onClick={() =>
-              act("character:hp", {
+              act(EVENTS.CHARACTER_HP, {
                 characterId: character.id,
                 hp: character.hp - 1,
               })
@@ -727,7 +728,7 @@ function CharacterCard({
           <span>Adjust HP</span>
           <button
             onClick={() =>
-              act("character:hp", {
+              act(EVENTS.CHARACTER_HP, {
                 characterId: character.id,
                 hp: character.hp + 1,
               })
@@ -760,7 +761,7 @@ function CharacterCard({
                 className="primary level-up-btn"
                 onClick={() =>
                   act(
-                    "character:level_up",
+                    EVENTS.CHARACTER_LEVEL_UP,
                     { characterId: character.id },
                     `${character.name} advanced to Level ${character.level + 1}!`,
                   )
@@ -775,7 +776,7 @@ function CharacterCard({
                 className="small-btn"
                 onClick={() =>
                   act(
-                    "character:xp",
+                    EVENTS.CHARACTER_XP,
                     { characterId: character.id, amount: 5 },
                     "+5 XP awarded",
                   )
@@ -787,7 +788,7 @@ function CharacterCard({
                 className="small-btn"
                 onClick={() =>
                   act(
-                    "character:xp",
+                    EVENTS.CHARACTER_XP,
                     { characterId: character.id, amount: 10 },
                     "+10 XP awarded",
                   )
@@ -857,7 +858,7 @@ function CharacterCard({
                 value={patronId ?? ""}
                 onChange={(e) => {
                   void act(
-                    "character:choice",
+                    EVENTS.CHARACTER_CHOICE,
                     { characterId: character.id, choices: { patronId: e.target.value } },
                     "Patron bond sworn",
                   );
@@ -903,7 +904,7 @@ function CharacterCard({
         const max = resourceMax(character.className, character.talents ?? []);
         const current = Math.max(0, Math.min(max, character.resources?.[resource.id] ?? resource.startsAt));
         const change = (payload: Record<string, unknown>, success: string) => {
-          void act("character:resource", { characterId: character.id, ...payload }, success);
+          void act(EVENTS.CHARACTER_RESOURCE, { characterId: character.id, ...payload }, success);
         };
         return (
           <div className="quick-actions-panel resource-panel">
@@ -1133,7 +1134,7 @@ function CharacterCard({
                           className="small-btn"
                           onClick={() =>
                             act(
-                              "inventory:unequip",
+                              EVENTS.INVENTORY_UNEQUIP,
                               { characterId: character.id, instanceId: item.instanceId },
                               `Unequipped ${item.name}`,
                             )
@@ -1147,7 +1148,7 @@ function CharacterCard({
                             className="small-btn primary"
                             onClick={() =>
                               act(
-                                "inventory:equip",
+                                EVENTS.INVENTORY_EQUIP,
                                 { characterId: character.id, instanceId: item.instanceId },
                                 `Equipped ${item.name}`,
                               )
@@ -1161,7 +1162,7 @@ function CharacterCard({
                         className="small-btn"
                         onClick={() =>
                           act(
-                            "inventory:drop",
+                            EVENTS.INVENTORY_DROP,
                             { characterId: character.id, instanceId: item.instanceId },
                             `Dropped ${item.name}`,
                           )
@@ -1237,7 +1238,7 @@ function CharacterCard({
                   className="small-btn primary"
                   onClick={() =>
                     act(
-                      "spells:restore",
+                      EVENTS.SPELLS_RESTORE,
                       { characterId: character.id },
                       "Prepared spells refreshed through rest",
                     )
@@ -1250,7 +1251,7 @@ function CharacterCard({
                     className="small-btn danger-btn"
                     onClick={() =>
                       act(
-                        "priest:penance",
+                        EVENTS.PRIEST_PENANCE,
                         { characterId: character.id },
                         "Holy penance fulfilled",
                       )
@@ -1289,7 +1290,7 @@ function CharacterCard({
               className="small-btn roll-talent-action"
               onClick={() =>
                 act(
-                  "character:talent_roll",
+                  EVENTS.CHARACTER_TALENT_ROLL,
                   { characterId: character.id },
                   "Class talent rolled",
                 )

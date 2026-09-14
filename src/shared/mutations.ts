@@ -1,23 +1,25 @@
+import { EVENTS } from "./protocol.js";
+
 /** Actions migrated to transactional receipts. Keep client and server in sync. */
-export const RECEIPTED_ACTIONS = new Set([
-  "path_encounters:start",
-  "path_encounters:arrive",
-  "path_encounters:interact",
-  "travel:move",
-  "dungeon:claim_treasure",
-  "dungeon:record_outcome",
-  "dungeon:recruit_rescued",
-  "dungeon:light_torch",
-  "session:award_xp",
-  "session:return_sanctuary",
-  "party:rest",
-  "expedition:camp",
-  "expedition:camp_night",
-  "site:enter",
-  "dungeon:move_room",
-  "treasure:allocate",
-  "combat:update_hp",
-  "combat:death_save",
+export const RECEIPTED_ACTIONS = new Set<string>([
+  EVENTS.PATH_ENCOUNTERS_START,
+  EVENTS.PATH_ENCOUNTERS_ARRIVE,
+  EVENTS.PATH_ENCOUNTERS_INTERACT,
+  EVENTS.TRAVEL_MOVE,
+  EVENTS.DUNGEON_CLAIM_TREASURE,
+  EVENTS.DUNGEON_RECORD_OUTCOME,
+  EVENTS.DUNGEON_RECRUIT_RESCUED,
+  EVENTS.DUNGEON_LIGHT_TORCH,
+  EVENTS.SESSION_AWARD_XP,
+  EVENTS.SESSION_RETURN_SANCTUARY,
+  EVENTS.PARTY_REST,
+  EVENTS.EXPEDITION_CAMP,
+  EVENTS.EXPEDITION_CAMP_NIGHT,
+  EVENTS.SITE_ENTER,
+  EVENTS.DUNGEON_MOVE_ROOM,
+  EVENTS.TREASURE_ALLOCATE,
+  EVENTS.COMBAT_UPDATE_HP,
+  EVENTS.COMBAT_DEATH_SAVE,
 ]);
 
 /** Stable request identity, independent of object-key ordering or transport metadata. */

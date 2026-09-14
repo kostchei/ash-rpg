@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { activeSeat, combatSeats, seatIndex, MONSTER_SEAT, projectCombat } from "../shared/table-companion.js";
 import { attachSiteObjectives } from "./generators/site-objectives.js";
+import { EVENTS, HOST_GRACE_MS } from "../shared/protocol.js";
 import { MAX_DEPARTING_PARTY, MIN_DEPARTING_PARTY } from "../shared/content.js";
 import { generateSiteLayout } from "./generators/site-layout.js";
 import express from "express";
@@ -578,11 +579,79 @@ export async function createAshServer(options: AshServerOptions = {}) {
   };
 
   db.onRollAdded = (campaignId, roll) => {
-    io.to(`campaign:${campaignId}`).emit("roll:appended", roll);
+    io.to(`campaign:${campaignId}`).emit(EVENTS.ROLL_APPENDED, roll);
+    sseBroadcastEvent(campaignId, EVENTS.ROLL_APPENDED, roll);
   };
   db.onNoteAdded = (campaignId, note) => {
-    io.to(`campaign:${campaignId}`).emit("note:appended", note);
+    io.to(`campaign:${campaignId}`).emit(EVENTS.NOTE_APPENDED, note);
+    sseBroadcastEvent(campaignId, EVENTS.NOTE_APPENDED, note);
   };
+
+  // SSE fallback transport: read-only state stream for clients whose network
+  // (hotel/venue wifi, some kiosk browsers) blocks Socket.IO's WebSocket
+  // upgrade. Socket.IO already falls back to HTTP long-polling on its own
+  // transport, so this isn't a second copy of that mechanism — it's a plain
+  // EventSource endpoint any browser can consume with zero client library,
+  // for a display-only view (mutations still require Socket.IO's ack flow).
+  type SseClient = { res: import("express").Response; role: Role; characterId: number | null; token: string };
+  const sseClients = new Map<number, Set<SseClient>>();
+
+  function sseWrite(res: import("express").Response, event: string, data: unknown) {
+    try {
+      res.write(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`);
+    } catch {
+      // Connection may already be closed; the request "close" handler reaps it.
+    }
+  }
+
+  function sseBroadcastEvent(campaignId: number, event: string, data: unknown) {
+    const clients = sseClients.get(campaignId);
+    if (!clients) return;
+    for (const client of clients) sseWrite(client.res, event, data);
+  }
+
+  app.get("/api/campaigns/:code/stream", (request, response) => {
+    const code = request.params.code.toUpperCase();
+    const role = request.query.role;
+    const token = request.query.token;
+    if ((role !== "host" && role !== "player") || typeof token !== "string" || !token) {
+      return response.status(400).json({ error: "role and token query params are required" });
+    }
+    const valid = db.authenticate(code, role, token);
+    if (!valid) return response.status(403).json({ error: "Session credentials are not valid" });
+
+    response.writeHead(200, {
+      "Content-Type": "text/event-stream",
+      "Cache-Control": "no-cache",
+      "Connection": "keep-alive",
+      "X-Accel-Buffering": "no",
+    });
+    response.flushHeaders?.();
+
+    const client: SseClient = { res: response, role, characterId: valid.characterId, token };
+    let clients = sseClients.get(valid.campaignId);
+    if (!clients) {
+      clients = new Set();
+      sseClients.set(valid.campaignId, clients);
+    }
+    clients.add(client);
+
+    const joinUrl = `${baseUrl}/play?code=${code}`;
+    const initialSnapshot = db.getSlicedState(
+      valid.campaignId, role, valid.characterId, joinUrl, token, { isInitial: true },
+    );
+    sseWrite(response, EVENTS.STATE, initialSnapshot);
+
+    const keepAlive = setInterval(() => {
+      try { response.write(": keep-alive\n\n"); } catch { /* reaped on close */ }
+    }, 25000);
+
+    request.on("close", () => {
+      clearInterval(keepAlive);
+      clients?.delete(client);
+      if (clients && clients.size === 0) sseClients.delete(valid.campaignId);
+    });
+  });
 
   const differs = new Map<number, SliceDiffer>();
   function differFor(campaignId: number): SliceDiffer {
@@ -598,14 +667,20 @@ export async function createAshServer(options: AshServerOptions = {}) {
     metrics.broadcastCount++;
     const room = `campaign:${campaignId}`;
     const sockets = await io.in(room).fetchSockets();
-    if (sockets.length === 0) return;
+    const sseClientSet = sseClients.get(campaignId);
+    if (sockets.length === 0 && !sseClientSet?.size) return;
 
     const rolesPresent = new Set<Role>();
     for (const socket of sockets) {
       rolesPresent.add((socket.data.identity as Identity).role);
     }
+    if (sseClientSet) {
+      for (const client of sseClientSet) rolesPresent.add(client.role);
+    }
 
-    const joinCode = (sockets[0].data.identity as Identity).code;
+    const joinCode = sockets.length > 0
+      ? (sockets[0].data.identity as Identity).code
+      : (db.db.prepare("SELECT code FROM campaigns WHERE id = ?").get(campaignId) as { code?: string } | undefined)?.code ?? "";
     const joinUrl = `${baseUrl}/play?code=${joinCode}`;
     const differ = differFor(campaignId);
 
@@ -664,13 +739,45 @@ export async function createAshServer(options: AshServerOptions = {}) {
       };
 
       metrics.lastBroadcastBytes = Buffer.byteLength(JSON.stringify(socketPayload), "utf8");
-      socket.emit("state", socketPayload);
+      socket.emit(EVENTS.STATE, socketPayload);
+    }
+
+    // SSE clients get a full snapshot per broadcast rather than a per-connection
+    // diff: this is a low-traffic fallback transport, so the simplicity is worth
+    // the extra bytes.
+    if (sseClientSet) {
+      for (const client of sseClientSet) {
+        const refreshed = db.authenticate(joinCode, client.role, client.token);
+        if (!refreshed) continue;
+        client.characterId = refreshed.characterId;
+        const snapshot = db.getSlicedState(
+          campaignId, client.role, client.characterId, joinUrl, client.token,
+        );
+        sseWrite(client.res, EVENTS.STATE, snapshot);
+      }
     }
   }
+
+  // Host connection presence: informational only, per the no-GM design (see
+  // [[no-gm-solo-coop]]) and unlike Inkdrifter's lobby-destroying grace period.
+  // Campaign state lives in SQLite regardless of who's connected, so a host
+  // dropping never tears anything down — players just get told the table
+  // host's connection is degraded, and get told again when it clears.
+  const hostGraceTimers = new Map<number, NodeJS.Timeout>();
 
   io.on("connection", (socket: Socket) => {
     const identity = socket.data.identity as Identity;
     socket.join(`campaign:${identity.campaignId}`);
+
+    if (identity.role === "host") {
+      const pendingGrace = hostGraceTimers.get(identity.campaignId);
+      if (pendingGrace) {
+        clearTimeout(pendingGrace);
+        hostGraceTimers.delete(identity.campaignId);
+        io.to(`campaign:${identity.campaignId}`).emit(EVENTS.TABLE_PRESENCE, { hostConnected: true });
+      }
+    }
+
     const initialSnapshot = db.getSlicedState(
       identity.campaignId,
       identity.role,
@@ -681,9 +788,33 @@ export async function createAshServer(options: AshServerOptions = {}) {
     );
     differFor(identity.campaignId).prime(identity.role, initialSnapshot);
     socket.data.lastMe = JSON.stringify(initialSnapshot.slices.me);
-    socket.emit("state", initialSnapshot);
+    socket.emit(EVENTS.STATE, initialSnapshot);
 
-    socket.on("rolls:page", (raw: unknown, ack?: Ack) => {
+    socket.on("disconnect", () => {
+      if (identity.role !== "host") return;
+      void io.in(`campaign:${identity.campaignId}`).fetchSockets().then((remaining) => {
+        const hostStillConnected = remaining.some(
+          (s) => (s.data.identity as Identity)?.role === "host",
+        );
+        if (hostStillConnected || hostGraceTimers.has(identity.campaignId)) return;
+
+        io.to(`campaign:${identity.campaignId}`).emit(EVENTS.TABLE_PRESENCE, { hostConnected: false });
+        const timer = setTimeout(() => {
+          hostGraceTimers.delete(identity.campaignId);
+          db.addRoll(identity.campaignId, {
+            actor: "Table",
+            kind: "campaign",
+            label: "Host Connection Lost",
+            dice: "—",
+            total: 0,
+            detail: "The table host has been disconnected for over 5 minutes. Campaign data is unaffected; reopen the host tab to resume.",
+          });
+        }, HOST_GRACE_MS);
+        hostGraceTimers.set(identity.campaignId, timer);
+      });
+    });
+
+    socket.on(EVENTS.ROLLS_PAGE, (raw: unknown, ack?: Ack) => {
       try {
         const payload = z.object({
           beforeId: z.number().int().positive().optional(),
@@ -696,7 +827,7 @@ export async function createAshServer(options: AshServerOptions = {}) {
       }
     });
 
-    socket.on("notes:page", (raw: unknown, ack?: Ack) => {
+    socket.on(EVENTS.NOTES_PAGE, (raw: unknown, ack?: Ack) => {
       try {
         const payload = z.object({
           beforeId: z.number().int().positive().optional(),
@@ -825,29 +956,29 @@ export async function createAshServer(options: AshServerOptions = {}) {
     const actor = () =>
       actorName(db, identity, `${baseUrl}/play?code=${identity.code}`);
 
-    socket.on("path_encounters:read", (_raw: unknown, ack?: Ack) => {
+    socket.on(EVENTS.PATH_ENCOUNTERS_READ, (_raw: unknown, ack?: Ack) => {
       // Read-only: do not broadcast or mutate campaign revision just to refresh a panel.
       ack?.({ ok: true, pack: pathEncounters.view(identity.campaignId),
         catalogue: identity.role === "host" ? encounterCatalogue() : [] });
     });
-    socket.on("path_encounters:start", mutationAction("path_encounters:start", (raw: unknown) => {
+    socket.on(EVENTS.PATH_ENCOUNTERS_START, mutationAction(EVENTS.PATH_ENCOUNTERS_START, (raw: unknown) => {
       hostOnly();
       const payload = z.object({ pathId: z.enum(OUTER_PATH_IDS) }).parse(raw);
       return { pack: pathEncounters.start(identity.campaignId, payload.pathId) };
     }));
-    socket.on("path_encounters:arrive", mutationAction("path_encounters:arrive", (raw: unknown) => {
+    socket.on(EVENTS.PATH_ENCOUNTERS_ARRIVE, mutationAction(EVENTS.PATH_ENCOUNTERS_ARRIVE, (raw: unknown) => {
       requireEncounterResolved();
       const payload = z.object({ siteId: cleanText, notes: cleanText }).parse(raw);
       return { pack: pathEncounters.update(identity.campaignId, { kind: "arrive", ...payload }) };
     }));
-    socket.on("path_encounters:interact", mutationAction("path_encounters:interact", (raw: unknown) => {
+    socket.on(EVENTS.PATH_ENCOUNTERS_INTERACT, mutationAction(EVENTS.PATH_ENCOUNTERS_INTERACT, (raw: unknown) => {
       const payload = z.object({ interactionId: cleanText, outcome: z.enum(["success", "failure"]),
         notes: z.string().trim().max(500).default("") }).parse(raw);
       return { pack: pathEncounters.update(identity.campaignId, { kind: "interact", ...payload }) };
     }));
 
     socket.on(
-      "campaign:set_caller",
+      EVENTS.CAMPAIGN_SET_CALLER,
       action((raw: unknown) => {
         const payload = z.object({ callerToken: z.string().nullable() }).parse(raw);
         const currentCaller = db.getCallerToken(identity.campaignId);
@@ -888,7 +1019,7 @@ export async function createAshServer(options: AshServerOptions = {}) {
     );
 
     socket.on(
-      "host:correct",
+      EVENTS.HOST_CORRECT,
       action((raw: unknown) => {
         hostOnly();
         const payload = z
@@ -953,7 +1084,7 @@ export async function createAshServer(options: AshServerOptions = {}) {
     // --- Phase & Zone State Machine Events ---
 
     socket.on(
-      "phase:transition",
+      EVENTS.PHASE_TRANSITION,
       action((raw: unknown) => {
         hostOnly();
         const payload = z
@@ -972,7 +1103,7 @@ export async function createAshServer(options: AshServerOptions = {}) {
     );
 
     socket.on(
-      "zone:enter",
+      EVENTS.ZONE_ENTER,
       action((raw: unknown) => {
         hostOnly();
         const payload = z.object({ zoneId: z.string().min(1) }).parse(raw);
@@ -991,7 +1122,7 @@ export async function createAshServer(options: AshServerOptions = {}) {
     );
 
     socket.on(
-      "zone:exit",
+      EVENTS.ZONE_EXIT,
       action((_raw: unknown) => {
         hostOnly();
         requireHaven();
@@ -1035,7 +1166,7 @@ export async function createAshServer(options: AshServerOptions = {}) {
     // --- Generators (Settlement, NPC, Campaign) ---
 
     socket.on(
-      "settlement:generate",
+      EVENTS.SETTLEMENT_GENERATE,
       action((raw: unknown) => {
         const payload = (raw && typeof raw === "object") ? (raw as { existingTavern?: { name: string; vibe: string } }) : {};
         const row = db.db.prepare("SELECT tavern_establishment_json FROM campaigns WHERE id = ?").get(identity.campaignId) as { tavern_establishment_json?: string } | undefined;
@@ -1067,7 +1198,7 @@ export async function createAshServer(options: AshServerOptions = {}) {
     );
 
     socket.on(
-      "npc:generate",
+      EVENTS.NPC_GENERATE,
       action((raw: unknown) => {
         const payload = z
           .object({ zoneId: z.string().optional(), classed: z.boolean().optional() })
@@ -1096,7 +1227,7 @@ export async function createAshServer(options: AshServerOptions = {}) {
     );
 
     socket.on(
-      "campaign:complication",
+      EVENTS.CAMPAIGN_COMPLICATION,
       action((_raw: unknown) => {
         hostOnly();
         const state = db.getState(
@@ -1119,7 +1250,7 @@ export async function createAshServer(options: AshServerOptions = {}) {
     );
 
     socket.on(
-      "retainer:hire",
+      EVENTS.RETAINER_HIRE,
       action((raw: unknown) => {
         hostOnly();
         const payload = z
@@ -1170,8 +1301,8 @@ export async function createAshServer(options: AshServerOptions = {}) {
     );
 
     socket.on(
-      "party:rest",
-      mutationAction("party:rest", (_raw: unknown) => {
+      EVENTS.PARTY_REST,
+      mutationAction(EVENTS.PARTY_REST, (_raw: unknown) => {
         requireHaven();
         const state = db.getState(
           identity.campaignId,
@@ -1209,7 +1340,7 @@ export async function createAshServer(options: AshServerOptions = {}) {
     // --- Dice & Oracles ---
 
     socket.on(
-      "dice:roll",
+      EVENTS.DICE_ROLL,
       action((raw: unknown) => {
         const payload = z
           .object({
@@ -1231,7 +1362,7 @@ export async function createAshServer(options: AshServerOptions = {}) {
     );
 
     socket.on(
-      "oracle:binary",
+      EVENTS.ORACLE_BINARY,
       action((raw: unknown) => {
         const payload = z
           .object({
@@ -1259,7 +1390,7 @@ export async function createAshServer(options: AshServerOptions = {}) {
     );
 
     socket.on(
-      "oracle:reaction",
+      EVENTS.ORACLE_REACTION,
       action((raw: unknown) => {
         const payload = z
           .object({ chaModifier: z.number().int().min(-5).max(10).default(0) })
@@ -1332,7 +1463,7 @@ export async function createAshServer(options: AshServerOptions = {}) {
     );
 
     socket.on(
-      "character:create",
+      EVENTS.CHARACTER_CREATE,
       action((raw: unknown) => {
         const input = characterSchema.parse(raw);
         if (identity.role === "player") {
@@ -1421,7 +1552,7 @@ export async function createAshServer(options: AshServerOptions = {}) {
       }),
     );
 
-    socket.on("character:delete", action((raw: unknown) => {
+    socket.on(EVENTS.CHARACTER_DELETE, action((raw: unknown) => {
       const { characterId } = z.object({ characterId: z.number().int() }).parse(raw);
       const character = db.db.prepare("SELECT owner_token FROM characters WHERE campaign_id = ? AND id = ?")
         .get(identity.campaignId, characterId) as { owner_token: string | null } | undefined;
@@ -1443,7 +1574,7 @@ export async function createAshServer(options: AshServerOptions = {}) {
     }));
 
     socket.on(
-      "party:muster",
+      EVENTS.PARTY_MUSTER,
       action((raw: unknown) => {
         // The party adjustment stage before setting off. No GM approves it; the table's
         // caller speaks for the group.
@@ -1477,7 +1608,7 @@ export async function createAshServer(options: AshServerOptions = {}) {
     );
 
     socket.on(
-      "roster:select_active",
+      EVENTS.ROSTER_SELECT_ACTIVE,
       action((raw: unknown) => {
         const payload = z.object({ characterId: z.number().int() }).parse(raw);
         const result = db.swapActiveCharacter(identity.campaignId, identity.token, payload.characterId);
@@ -1495,7 +1626,7 @@ export async function createAshServer(options: AshServerOptions = {}) {
     );
 
     socket.on(
-      "table:ready",
+      EVENTS.TABLE_READY,
       action((raw: unknown) => {
         const payload = z.object({ ready: z.boolean() }).parse(raw);
         db.setDeviceReady(identity.campaignId, identity.token, payload.ready);
@@ -1504,7 +1635,7 @@ export async function createAshServer(options: AshServerOptions = {}) {
     );
 
     socket.on(
-      "campaign:start",
+      EVENTS.CAMPAIGN_START,
       action((_raw: unknown) => {
         if (identity.role !== "host") throw new Error("Only the table host can start the campaign");
         const result = db.startCampaign(identity.campaignId);
@@ -1523,7 +1654,7 @@ export async function createAshServer(options: AshServerOptions = {}) {
     );
 
     socket.on(
-      "character:level_up",
+      EVENTS.CHARACTER_LEVEL_UP,
       action((raw: unknown) => {
         const payload = z.object({ characterId: z.number().int() }).parse(raw);
         if (
@@ -1566,7 +1697,7 @@ export async function createAshServer(options: AshServerOptions = {}) {
     );
 
     socket.on(
-      "character:talent_roll",
+      EVENTS.CHARACTER_TALENT_ROLL,
       action((raw: unknown) => {
         const payload = z.object({ characterId: z.number().int() }).parse(raw);
         const state = db.getState(
@@ -1600,7 +1731,7 @@ export async function createAshServer(options: AshServerOptions = {}) {
       }),
     );
 
-    socket.on("character:spell_available", action((raw: unknown) => {
+    socket.on(EVENTS.CHARACTER_SPELL_AVAILABLE, action((raw: unknown) => {
       const payload = z.object({ characterId: z.number().int(), spellId: z.string(), available: z.boolean() }).parse(raw);
       if (identity.role !== "host" && payload.characterId !== identity.characterId) throw new Error("Only change your own spell ledger");
       const character = db.getState(identity.campaignId, "host", null, "").characters.find(c => c.id === payload.characterId);
@@ -1612,7 +1743,7 @@ export async function createAshServer(options: AshServerOptions = {}) {
     }));
 
     socket.on(
-      "character:hp",
+      EVENTS.CHARACTER_HP,
       action((raw: unknown) => {
         const payload = z
           .object({ characterId: z.number().int(), hp: z.number().int() })
@@ -1631,7 +1762,7 @@ export async function createAshServer(options: AshServerOptions = {}) {
     );
 
     socket.on(
-      "character:xp",
+      EVENTS.CHARACTER_XP,
       action((raw: unknown) => {
         hostOnly();
         const payload = z
@@ -1644,7 +1775,7 @@ export async function createAshServer(options: AshServerOptions = {}) {
     // --- Inventory & Equipment Management ---
 
     socket.on(
-      "inventory:equip",
+      EVENTS.INVENTORY_EQUIP,
       action((raw: unknown) => {
         const payload = z.object({ characterId: z.number().int(), instanceId: z.string() }).parse(raw);
         if (identity.role !== "host" && payload.characterId !== identity.characterId) {
@@ -1684,7 +1815,7 @@ export async function createAshServer(options: AshServerOptions = {}) {
     );
 
     socket.on(
-      "inventory:unequip",
+      EVENTS.INVENTORY_UNEQUIP,
       action((raw: unknown) => {
         const payload = z.object({ characterId: z.number().int(), instanceId: z.string() }).parse(raw);
         if (identity.role !== "host" && payload.characterId !== identity.characterId) {
@@ -1705,7 +1836,7 @@ export async function createAshServer(options: AshServerOptions = {}) {
     );
 
     socket.on(
-      "inventory:drop",
+      EVENTS.INVENTORY_DROP,
       action((raw: unknown) => {
         const payload = z.object({ characterId: z.number().int(), instanceId: z.string() }).parse(raw);
         if (identity.role !== "host" && payload.characterId !== identity.characterId) {
@@ -1722,7 +1853,7 @@ export async function createAshServer(options: AshServerOptions = {}) {
     );
 
     socket.on(
-      "inventory:add",
+      EVENTS.INVENTORY_ADD,
       action((raw: unknown) => {
         const payload = z
           .object({
@@ -1762,7 +1893,7 @@ export async function createAshServer(options: AshServerOptions = {}) {
     // --- Dual-Mode Contextual Rolls ---
 
     socket.on(
-      "roll:contextual",
+      EVENTS.ROLL_CONTEXTUAL,
       action((raw: unknown) => {
         const rawObj = raw && typeof raw === "object" ? (raw as Record<string, any>) : {};
         let rawType = rawObj.checkType ?? rawObj.type ?? "ability";
@@ -1974,7 +2105,7 @@ export async function createAshServer(options: AshServerOptions = {}) {
     );
 
     socket.on(
-      "spells:restore",
+      EVENTS.SPELLS_RESTORE,
       action((raw: unknown) => {
         const payload = z.object({ characterId: z.number().int() }).parse(raw);
         if (identity.role !== "host" && payload.characterId !== identity.characterId) {
@@ -2001,7 +2132,7 @@ export async function createAshServer(options: AshServerOptions = {}) {
     );
 
     socket.on(
-      "priest:penance",
+      EVENTS.PRIEST_PENANCE,
       action((raw: unknown) => {
         const payload = z.object({ characterId: z.number().int() }).parse(raw);
         if (identity.role !== "host" && payload.characterId !== identity.characterId) {
@@ -2029,7 +2160,7 @@ export async function createAshServer(options: AshServerOptions = {}) {
     );
 
     socket.on(
-      "character:choice",
+      EVENTS.CHARACTER_CHOICE,
       action((raw: unknown) => {
         const payload = z.object({ characterId: z.number().int(), choices: z.record(z.string(), z.any()) }).parse(raw);
         if (identity.role !== "host" && payload.characterId !== identity.characterId) {
@@ -2053,7 +2184,7 @@ export async function createAshServer(options: AshServerOptions = {}) {
      * the table drives them by hand and the server only enforces the bounds.
      */
     socket.on(
-      "character:resource",
+      EVENTS.CHARACTER_RESOURCE,
       action((raw: unknown) => {
         const payload = z
           .object({
@@ -2109,7 +2240,7 @@ export async function createAshServer(options: AshServerOptions = {}) {
     // --- Tavern & Camp Shared Sessions ---
 
     socket.on(
-      "tavern:open",
+      EVENTS.TAVERN_OPEN,
       action((raw: unknown) => {
         callerOrHostOnly();
         const sessionId = `tavern-${Date.now()}`;
@@ -2135,7 +2266,7 @@ export async function createAshServer(options: AshServerOptions = {}) {
     );
 
     socket.on(
-      "tavern:submit_choice",
+      EVENTS.TAVERN_SUBMIT_CHOICE,
       action((raw: unknown) => {
         const payload = z
           .object({
@@ -2180,7 +2311,7 @@ export async function createAshServer(options: AshServerOptions = {}) {
     );
 
     socket.on(
-      "tavern:resolve",
+      EVENTS.TAVERN_RESOLVE,
       action((raw: unknown) => {
         callerOrHostOnly();
         const session = db.getActiveSession(identity.campaignId, "tavern");
@@ -2265,7 +2396,7 @@ export async function createAshServer(options: AshServerOptions = {}) {
     );
 
     socket.on(
-      "camp:open",
+      EVENTS.CAMP_OPEN,
       action((raw: unknown) => {
         callerOrHostOnly();
         const sessionId = `camp-${Date.now()}`;
@@ -2291,7 +2422,7 @@ export async function createAshServer(options: AshServerOptions = {}) {
     );
 
     socket.on(
-      "camp:submit_duty",
+      EVENTS.CAMP_SUBMIT_DUTY,
       action((raw: unknown) => {
         const payload = z
           .object({
@@ -2332,7 +2463,7 @@ export async function createAshServer(options: AshServerOptions = {}) {
     );
 
     socket.on(
-      "camp:resolve",
+      EVENTS.CAMP_RESOLVE,
       action((raw: unknown) => {
         callerOrHostOnly();
         const session = db.getActiveSession(identity.campaignId, "camp");
@@ -2373,20 +2504,12 @@ export async function createAshServer(options: AshServerOptions = {}) {
                 ? "[ALERT: Night encounter! The watchman detected approaching danger before ambush.]"
                 : "[AMBUSH: Night encounter! No guards were posted!]",
             );
-            const wandering = db.getMonstersForZone(state.campaign.activeZoneId ?? "the_gloaming");
-            const monster = wandering[0] ?? {
-              id: 0,
-              monsterKey: "wolf",
-              name: "Prowling Wolf",
-              currentHp: 8,
-              maxHp: 8,
-              loreTier: 0,
-              ac: 12,
-              morale: 7,
-              attacks: ["Bite +2 (1d6)"],
-              traits: [],
-              lore: [],
-            };
+            const zoneId = state.campaign.activeZoneId ?? "the_gloaming";
+            const wandering = db.getMonstersForZone(zoneId);
+            if (wandering.length === 0) {
+              throw new Error(`No wandering monsters configured for zone "${zoneId}"`);
+            }
+            const monster = wandering[0];
             db.addEncounterWithMonsters(identity.campaignId, `Night Camp Attack: ${monster.name}`, [monster]);
           } else {
             logs.push("The camp was quiet and undisturbed under the stars.");
@@ -2432,7 +2555,7 @@ export async function createAshServer(options: AshServerOptions = {}) {
     );
 
     socket.on(
-      "hex:reveal",
+      EVENTS.HEX_REVEAL,
       action((raw: unknown) => {
         hostOnly();
         const payload = z
@@ -2459,7 +2582,7 @@ export async function createAshServer(options: AshServerOptions = {}) {
     );
 
     socket.on(
-      "hex:regenerate",
+      EVENTS.HEX_REGENERATE,
       action((raw: unknown) => {
         hostOnly();
         const payload = z
@@ -2482,7 +2605,7 @@ export async function createAshServer(options: AshServerOptions = {}) {
     );
 
     socket.on(
-      "wilderness:watch",
+      EVENTS.WILDERNESS_WATCH,
       action((raw: unknown) => {
         const payload = z
           .object({ biome: z.enum(["forest", "marsh", "mountain"]) })
@@ -2501,8 +2624,8 @@ export async function createAshServer(options: AshServerOptions = {}) {
     );
 
     socket.on(
-      "travel:move",
-      mutationAction("travel:move", (raw: unknown) => {
+      EVENTS.TRAVEL_MOVE,
+      mutationAction(EVENTS.TRAVEL_MOVE, (raw: unknown) => {
         requireEncounterResolved();
         const payload = z
           .object({
@@ -2727,25 +2850,11 @@ export async function createAshServer(options: AshServerOptions = {}) {
           encounterTriggered = true;
           const zoneToUse =
             actualHexRow.primary_zone || camp?.active_zone_id || "the_gloaming";
-          const manifest = db.getZoneManifest(zoneToUse);
-          const table =
-            manifest?.wanderingMonsterTable && manifest.wanderingMonsterTable.length > 0
-              ? manifest.wanderingMonsterTable
-              : ["wolf", "bandit", "giant_spider"];
-          const monsterKey = table[randomInt(table.length)];
-          const monster = db.getMonster(monsterKey) ?? {
-            id: 0,
-            monsterKey,
-            name: monsterKey,
-            currentHp: 8,
-            maxHp: 8,
-            loreTier: 0,
-            ac: 12,
-            morale: 7,
-            attacks: ["Strike +2 (1d6)"],
-            traits: [],
-            lore: [],
-          };
+          const wandering = db.getMonstersForZone(zoneToUse);
+          if (wandering.length === 0) {
+            throw new Error(`No wandering monsters configured for zone "${zoneToUse}"`);
+          }
+          const monster = wandering[randomInt(wandering.length)];
           encounterName = `Wilderness Encounter: ${monster.name}`;
           db.addEncounterWithMonsters(identity.campaignId, encounterName, [monster]);
         }
@@ -2815,7 +2924,7 @@ export async function createAshServer(options: AshServerOptions = {}) {
     );
 
     socket.on(
-      "site:discover",
+      EVENTS.SITE_DISCOVER,
       action((raw: unknown) => {
         const payload = z.object({ siteId: z.string().min(1) }).parse(raw);
         const camp = db.db
@@ -2849,7 +2958,7 @@ export async function createAshServer(options: AshServerOptions = {}) {
     );
 
     socket.on(
-      "expedition:select_objective",
+      EVENTS.EXPEDITION_SELECT_OBJECTIVE,
       action((raw: unknown) => {
         const payload = z
           .object({
@@ -2877,7 +2986,7 @@ export async function createAshServer(options: AshServerOptions = {}) {
     );
 
     socket.on(
-      "hex:search",
+      EVENTS.HEX_SEARCH,
       action((_raw: unknown) => {
         const camp = db.db
           .prepare("SELECT party_location_json, active_region_id FROM campaigns WHERE id = ?")
@@ -2919,7 +3028,7 @@ export async function createAshServer(options: AshServerOptions = {}) {
     );
 
     socket.on(
-      "expedition:forage",
+      EVENTS.EXPEDITION_FORAGE,
       action((_raw: unknown) => {
         const clock = db.advanceWatch(identity.campaignId, 1);
         const roll = rollDice("1d20");
@@ -2945,8 +3054,8 @@ export async function createAshServer(options: AshServerOptions = {}) {
     );
 
     socket.on(
-      "expedition:camp",
-      mutationAction("expedition:camp", (_raw: unknown) => {
+      EVENTS.EXPEDITION_CAMP,
+      mutationAction(EVENTS.EXPEDITION_CAMP, (_raw: unknown) => {
         const camp = db.db.prepare("SELECT watch FROM campaigns WHERE id = ?").get(identity.campaignId) as any;
         const clockBefore = camp?.watch ?? 1;
 
@@ -2986,8 +3095,8 @@ export async function createAshServer(options: AshServerOptions = {}) {
     );
 
     socket.on(
-      "expedition:camp_night",
-      mutationAction("expedition:camp_night", (raw: unknown) => {
+      EVENTS.EXPEDITION_CAMP_NIGHT,
+      mutationAction(EVENTS.EXPEDITION_CAMP_NIGHT, (raw: unknown) => {
         const payload = z
           .object({
             tasks: z
@@ -3204,26 +3313,13 @@ export async function createAshServer(options: AshServerOptions = {}) {
               if (s.zoneId) zoneKey = s.zoneId;
             } catch {}
           }
-          const zoneProfile =
-            (ZONE_PROFILES as any)[zoneKey] || (ZONE_PROFILES as any)["the_gloaming"];
-          const table =
-            zoneProfile?.wanderingMonsterTable && zoneProfile.wanderingMonsterTable.length > 0
-              ? zoneProfile.wanderingMonsterTable
-              : ["wolf", "bandit", "giant_spider"];
-          const monsterKey = table[randomInt(table.length)];
-          encounterName = `Midnight Stalkers: ${monsterKey.replace("_", " ")}`;
-          db.addEncounterWithMonsters(campaignId, encounterName, [
-            {
-              id: 0,
-              monsterKey,
-              name:
-                monsterKey.charAt(0).toUpperCase() +
-                monsterKey.slice(1).replace("_", " "),
-              currentHp: 10,
-              maxHp: 10,
-              loreTier: 1,
-            },
-          ]);
+          const wandering = db.getMonstersForZone(zoneKey);
+          if (wandering.length === 0) {
+            throw new Error(`No wandering monsters configured for zone "${zoneKey}"`);
+          }
+          const monster = wandering[randomInt(wandering.length)];
+          encounterName = `Midnight Stalkers: ${monster.name}`;
+          db.addEncounterWithMonsters(campaignId, encounterName, [monster]);
         }
 
         // 7. Chronicle roll entry
@@ -3257,7 +3353,7 @@ export async function createAshServer(options: AshServerOptions = {}) {
     );
 
     socket.on(
-      "expedition:force_march",
+      EVENTS.EXPEDITION_FORCE_MARCH,
       action((_raw: unknown) => {
         const campaignId = identity.campaignId;
         const camp = db.db
@@ -3302,7 +3398,7 @@ export async function createAshServer(options: AshServerOptions = {}) {
     );
 
     socket.on(
-      "encounter:flee",
+      EVENTS.ENCOUNTER_FLEE,
       action((_raw: unknown) => {
         const enc = db.db
           .prepare("SELECT * FROM encounters WHERE campaign_id = ? AND status = 'active' ORDER BY id DESC LIMIT 1")
@@ -3325,8 +3421,8 @@ export async function createAshServer(options: AshServerOptions = {}) {
     );
 
     socket.on(
-      "site:enter",
-      mutationAction("site:enter", (raw: unknown) => {
+      EVENTS.SITE_ENTER,
+      mutationAction(EVENTS.SITE_ENTER, (raw: unknown) => {
         requireEncounterResolved();
         const payload = z.object({ siteId: z.string().min(1) }).parse(raw);
         const camp = db.db.prepare("SELECT * FROM campaigns WHERE id = ?").get(identity.campaignId) as any;
@@ -3483,8 +3579,8 @@ export async function createAshServer(options: AshServerOptions = {}) {
     // --- M4: Dungeon Graph Exploration Handlers ---
 
     socket.on(
-      "dungeon:move_room",
-      mutationAction("dungeon:move_room", (raw: unknown) => {
+      EVENTS.DUNGEON_MOVE_ROOM,
+      mutationAction(EVENTS.DUNGEON_MOVE_ROOM, (raw: unknown) => {
         if (db.getCombatState(identity.campaignId)?.status === "active") throw new Error("Resolve combat before moving rooms");
         const payload = z.object({ toRoomId: z.number().int() }).parse(raw);
         const camp = db.db.prepare("SELECT * FROM campaigns WHERE id = ?").get(identity.campaignId) as any;
@@ -3567,7 +3663,7 @@ export async function createAshServer(options: AshServerOptions = {}) {
     );
 
     socket.on(
-      "dungeon:interact_door",
+      EVENTS.DUNGEON_INTERACT_DOOR,
       action((raw: unknown) => {
         callerOrHostOnly();
         const payload = z
@@ -3676,7 +3772,7 @@ export async function createAshServer(options: AshServerOptions = {}) {
     );
 
     socket.on(
-      "dungeon:disarm_trap",
+      EVENTS.DUNGEON_DISARM_TRAP,
       action((raw: unknown) => {
         callerOrHostOnly();
         const payload = z
@@ -3741,8 +3837,8 @@ export async function createAshServer(options: AshServerOptions = {}) {
     );
 
     socket.on(
-      "dungeon:recruit_rescued",
-      mutationAction("dungeon:recruit_rescued", (raw: unknown) => {
+      EVENTS.DUNGEON_RECRUIT_RESCUED,
+      mutationAction(EVENTS.DUNGEON_RECRUIT_RESCUED, (raw: unknown) => {
         const payload = z.object({
           roomId: z.number().int(),
           name: cleanText.max(50).optional(),
@@ -3804,8 +3900,8 @@ export async function createAshServer(options: AshServerOptions = {}) {
     );
 
     socket.on(
-      "dungeon:record_outcome",
-      mutationAction("dungeon:record_outcome", (raw: unknown) => {
+      EVENTS.DUNGEON_RECORD_OUTCOME,
+      mutationAction(EVENTS.DUNGEON_RECORD_OUTCOME, (raw: unknown) => {
         const payload = z.object({
           roomId: z.number().int(),
           outcome: z.enum(["defeated", "negotiated", "avoided", "disarmed", "overcame", "searched"]),
@@ -3870,8 +3966,8 @@ export async function createAshServer(options: AshServerOptions = {}) {
     );
 
     socket.on(
-      "dungeon:claim_treasure",
-      mutationAction("dungeon:claim_treasure", (raw: unknown) => {
+      EVENTS.DUNGEON_CLAIM_TREASURE,
+      mutationAction(EVENTS.DUNGEON_CLAIM_TREASURE, (raw: unknown) => {
         callerOrHostOnly();
         const payload = z.object({ roomId: z.number().int() }).parse(raw);
         const camp = db.db.prepare("SELECT * FROM campaigns WHERE id = ?").get(identity.campaignId) as any;
@@ -3915,8 +4011,8 @@ export async function createAshServer(options: AshServerOptions = {}) {
     );
 
     socket.on(
-      "dungeon:light_torch",
-      mutationAction("dungeon:light_torch", (raw: unknown) => {
+      EVENTS.DUNGEON_LIGHT_TORCH,
+      mutationAction(EVENTS.DUNGEON_LIGHT_TORCH, (raw: unknown) => {
         callerOrHostOnly();
         const camp = db.db.prepare("SELECT * FROM campaigns WHERE id = ?").get(identity.campaignId) as any;
         const siteId = camp?.active_site_id;
@@ -3957,7 +4053,7 @@ export async function createAshServer(options: AshServerOptions = {}) {
     );
 
     socket.on(
-      "dungeon:spot_trap",
+      EVENTS.DUNGEON_SPOT_TRAP,
       action((raw: unknown) => {
         callerOrHostOnly();
         const payload = z
@@ -3984,7 +4080,7 @@ export async function createAshServer(options: AshServerOptions = {}) {
     // --- M5: Turn-Based Combat Runner Handlers ---
 
     socket.on(
-      "combat:start",
+      EVENTS.COMBAT_START,
       action((raw: unknown) => {
         callerOrHostOnly();
         const payload = z
@@ -4144,7 +4240,7 @@ export async function createAshServer(options: AshServerOptions = {}) {
     );
 
     socket.on(
-      "combat:reveal_ac",
+      EVENTS.COMBAT_REVEAL_AC,
       action((raw: unknown) => {
         callerOrHostOnly();
         const payload = z
@@ -4167,7 +4263,7 @@ export async function createAshServer(options: AshServerOptions = {}) {
     );
 
     socket.on(
-      "combat:set_seating",
+      EVENTS.COMBAT_SET_SEATING,
       action((raw: unknown) => {
         callerOrHostOnly();
         const payload = z
@@ -4188,7 +4284,7 @@ export async function createAshServer(options: AshServerOptions = {}) {
       }),
     );
 
-    socket.on("npc:record", action((raw: unknown) => {
+    socket.on(EVENTS.NPC_RECORD, action((raw: unknown) => {
       callerOrHostOnly();
       const payload = z.object({ name: cleanText.max(80), role: cleanText.max(80), ancestry: cleanText.max(80), notes: z.string().max(4000).default("") }).parse(raw);
       const state = db.getState(identity.campaignId, identity.role, identity.characterId, "", identity.token);
@@ -4204,7 +4300,7 @@ export async function createAshServer(options: AshServerOptions = {}) {
     }));
 
     socket.on(
-      "npc:update_disposition",
+      EVENTS.NPC_UPDATE_DISPOSITION,
       action((raw: unknown) => {
         callerOrHostOnly();
         const payload = z
@@ -4233,7 +4329,7 @@ export async function createAshServer(options: AshServerOptions = {}) {
     );
 
     socket.on(
-      "combat:next_turn",
+      EVENTS.COMBAT_NEXT_TURN,
       action((raw: unknown) => {
         callerOrHostOnly();
         const combat = db.getCombatState(identity.campaignId);
@@ -4266,7 +4362,7 @@ export async function createAshServer(options: AshServerOptions = {}) {
       }),
     );
 
-    socket.on("combat:set_winner", action((raw: unknown) => {
+    socket.on(EVENTS.COMBAT_SET_WINNER, action((raw: unknown) => {
       callerOrHostOnly();
       const { seatId } = z.object({ seatId: z.string() }).parse(raw);
       const combat = db.getCombatState(identity.campaignId);
@@ -4279,7 +4375,7 @@ export async function createAshServer(options: AshServerOptions = {}) {
     }));
 
     socket.on(
-      "combat:set_initiative",
+      EVENTS.COMBAT_SET_INITIATIVE,
       action((raw: unknown) => {
         callerOrHostOnly();
         const payload = z
@@ -4312,7 +4408,7 @@ export async function createAshServer(options: AshServerOptions = {}) {
     );
 
     socket.on(
-      "combat:toggle_condition",
+      EVENTS.COMBAT_TOGGLE_CONDITION,
       action((raw: unknown) => {
         callerOrHostOnly();
         const payload = z
@@ -4359,9 +4455,9 @@ export async function createAshServer(options: AshServerOptions = {}) {
     );
 
     socket.on(
-      "combat:update_hp",
+      EVENTS.COMBAT_UPDATE_HP,
       mutationAction(
-        "combat:update_hp",
+        EVENTS.COMBAT_UPDATE_HP,
         (raw: unknown) => {
           const rawObj = raw && typeof raw === "object" ? (raw as Record<string, any>) : {};
           const payload = z
@@ -4460,9 +4556,9 @@ export async function createAshServer(options: AshServerOptions = {}) {
     );
 
     socket.on(
-      "combat:death_save",
+      EVENTS.COMBAT_DEATH_SAVE,
       mutationAction(
-        "combat:death_save",
+        EVENTS.COMBAT_DEATH_SAVE,
         (raw: unknown) => {
           const payload = z
             .object({
@@ -4543,7 +4639,7 @@ export async function createAshServer(options: AshServerOptions = {}) {
     );
 
     socket.on(
-      "combat:morale_check",
+      EVENTS.COMBAT_MORALE_CHECK,
       action((raw: unknown) => {
         callerOrHostOnly();
         const payload = z
@@ -4580,7 +4676,7 @@ export async function createAshServer(options: AshServerOptions = {}) {
     );
 
     socket.on(
-      "combat:end",
+      EVENTS.COMBAT_END,
       action((raw: unknown) => {
         callerOrHostOnly();
         const combat = db.getCombatState(identity.campaignId);
@@ -4677,7 +4773,7 @@ export async function createAshServer(options: AshServerOptions = {}) {
     // --- M6: Treasure Allocation, Return & Session Recovery Handlers ---
 
     socket.on(
-      "treasure:generate",
+      EVENTS.TREASURE_GENERATE,
       action((raw: unknown) => {
         callerOrHostOnly();
         const payload = z
@@ -4717,8 +4813,8 @@ export async function createAshServer(options: AshServerOptions = {}) {
     );
 
     socket.on(
-      "treasure:allocate",
-      mutationAction("treasure:allocate", (raw: unknown) => {
+      EVENTS.TREASURE_ALLOCATE,
+      mutationAction(EVENTS.TREASURE_ALLOCATE, (raw: unknown) => {
         const payload = z
           .object({
             rewardId: z.string(),
@@ -4818,8 +4914,8 @@ export async function createAshServer(options: AshServerOptions = {}) {
     );
 
     socket.on(
-      "session:award_xp",
-      mutationAction("session:award_xp", (raw: unknown) => {
+      EVENTS.SESSION_AWARD_XP,
+      mutationAction(EVENTS.SESSION_AWARD_XP, (raw: unknown) => {
         const payload = z
           .object({
             amount: z.number().int().min(1),
@@ -4884,8 +4980,8 @@ export async function createAshServer(options: AshServerOptions = {}) {
     );
 
     socket.on(
-      "session:return_sanctuary",
-      mutationAction("session:return_sanctuary", (raw: unknown) => {
+      EVENTS.SESSION_RETURN_SANCTUARY,
+      mutationAction(EVENTS.SESSION_RETURN_SANCTUARY, (raw: unknown) => {
         callerOrHostOnly();
         requireHaven();
         const state = db.getState(identity.campaignId, "host", null, "");
@@ -4932,7 +5028,7 @@ export async function createAshServer(options: AshServerOptions = {}) {
     );
 
     socket.on(
-      "site:resolve_deed",
+      EVENTS.SITE_RESOLVE_DEED,
       action((raw: unknown) => {
         callerOrHostOnly();
         const payload = z
@@ -4987,7 +5083,7 @@ export async function createAshServer(options: AshServerOptions = {}) {
     );
 
     socket.on(
-      "site:exit",
+      EVENTS.SITE_EXIT,
       action((_raw: unknown) => {
         const camp = db.db.prepare("SELECT * FROM campaigns WHERE id = ?").get(identity.campaignId) as any;
         callerOrHostOnly();
@@ -5017,7 +5113,7 @@ export async function createAshServer(options: AshServerOptions = {}) {
     );
 
     socket.on(
-      "dungeon:generate",
+      EVENTS.DUNGEON_GENERATE,
       action((_raw: unknown) => {
         hostOnly();
         const camp = db.db
@@ -5041,7 +5137,7 @@ export async function createAshServer(options: AshServerOptions = {}) {
     // --- Encounter Generator with 50% Monster Variant Coin-Flip ---
 
     socket.on(
-      "encounter:start",
+      EVENTS.ENCOUNTER_START,
       action((raw: unknown) => {
         hostOnly();
         const payload = z
@@ -5052,19 +5148,10 @@ export async function createAshServer(options: AshServerOptions = {}) {
           })
           .parse(raw);
 
-        const baseMonster = db.getMonster(payload.monsterKey) ?? {
-          id: 0,
-          monsterKey: payload.monsterKey,
-          name: payload.monsterKey,
-          currentHp: 10,
-          maxHp: 10,
-          loreTier: 0,
-          ac: 12,
-          morale: 7,
-          attacks: ["Strike +2 (1d6)"],
-          traits: [],
-          lore: [],
-        };
+        const baseMonster = db.getMonster(payload.monsterKey);
+        if (!baseMonster) {
+          throw new Error(`Unknown monster key "${payload.monsterKey}"`);
+        }
 
         const state = db.getState(
           identity.campaignId,
@@ -5110,7 +5197,7 @@ export async function createAshServer(options: AshServerOptions = {}) {
     );
 
     socket.on(
-      "encounter:hp",
+      EVENTS.ENCOUNTER_HP,
       action((raw: unknown) => {
         hostOnly();
         const payload = z
@@ -5128,7 +5215,7 @@ export async function createAshServer(options: AshServerOptions = {}) {
     );
 
     socket.on(
-      "encounter:lore",
+      EVENTS.ENCOUNTER_LORE,
       action((raw: unknown) => {
         const payload = z
           .object({
@@ -5170,7 +5257,7 @@ export async function createAshServer(options: AshServerOptions = {}) {
     );
 
     socket.on(
-      "encounter:morale",
+      EVENTS.ENCOUNTER_MORALE,
       action((raw: unknown) => {
         const payload = z.object({ monsterId: z.number().int() }).parse(raw);
         const row = db.getEncounterMonster(
@@ -5194,7 +5281,7 @@ export async function createAshServer(options: AshServerOptions = {}) {
     );
 
     socket.on(
-      "encounter:resolve",
+      EVENTS.ENCOUNTER_RESOLVE,
       action((raw: unknown) => {
         hostOnly();
         const payload = z.object({ encounterId: z.number().int() }).parse(raw);
@@ -5203,7 +5290,7 @@ export async function createAshServer(options: AshServerOptions = {}) {
     );
 
     socket.on(
-      "pressure:add",
+      EVENTS.PRESSURE_ADD,
       action((raw: unknown) => {
         hostOnly();
         const payload = z
@@ -5236,7 +5323,7 @@ export async function createAshServer(options: AshServerOptions = {}) {
     );
 
     socket.on(
-      "pressure:advance",
+      EVENTS.PRESSURE_ADVANCE,
       action((raw: unknown) => {
         hostOnly();
         const payload = z
@@ -5254,7 +5341,7 @@ export async function createAshServer(options: AshServerOptions = {}) {
     );
 
     socket.on(
-      "pressure:resolve",
+      EVENTS.PRESSURE_RESOLVE,
       action((raw: unknown) => {
         hostOnly();
         const payload = z.object({ pressureId: z.number().int() }).parse(raw);
@@ -5263,7 +5350,7 @@ export async function createAshServer(options: AshServerOptions = {}) {
     );
 
     socket.on(
-      "note:add",
+      EVENTS.NOTE_ADD,
       action((raw: unknown) => {
         const payload = z
           .object({

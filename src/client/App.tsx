@@ -1,4 +1,5 @@
 import { abilityMod as mod } from "../shared/table-companion";
+import { EVENTS } from "../shared/protocol";
 import { mergeTavernLeads, reportedLeadDanger } from "../shared/tavern-leads";
 import { RealmSelect } from "./RealmSelect";
 import { LanDiscoveryPanel } from "./LanDiscoveryPanel";
@@ -87,7 +88,7 @@ export function App() {
       setConnection("offline");
       setError(reason.message);
     });
-    next.on("state", (incoming: SlicesUpdate) => {
+    next.on(EVENTS.STATE, (incoming: SlicesUpdate) => {
       if (!incoming || !incoming.slices) {
         throw new Error("Server sent a state event without slices");
       }
@@ -97,14 +98,14 @@ export function App() {
           : patchStateWithSlices(current, incoming),
       );
     });
-    next.on("roll:appended", (roll: RollRecord) => {
+    next.on(EVENTS.ROLL_APPENDED, (roll: RollRecord) => {
       setState((current) => {
         if (!current) return current;
         if (current.rolls.some((r) => r.id === roll.id)) return current;
         return { ...current, rolls: [roll, ...current.rolls] };
       });
     });
-    next.on("note:appended", (note: WikiNote) => {
+    next.on(EVENTS.NOTE_APPENDED, (note: WikiNote) => {
       setState((current) => {
         if (!current) return current;
         if (current.notes.some((n) => n.id === note.id)) return current;
@@ -872,7 +873,7 @@ function CampaignSubbar({
                 className={`phase-pill-btn ${active ? "active" : ""}`}
                 onClick={() => {
                   act(
-                    "phase:transition",
+                    EVENTS.PHASE_TRANSITION,
                     { phase: p.id },
                     `Phase transition: ${p.label}`,
                   );
@@ -912,7 +913,7 @@ function CampaignSubbar({
                 value={state.campaign.callerToken ?? ""}
                 onChange={(e) =>
                   act(
-                    "campaign:set_caller",
+                    EVENTS.CAMPAIGN_SET_CALLER,
                     { callerToken: e.target.value || null },
                     "Caller assigned",
                   )
@@ -932,7 +933,7 @@ function CampaignSubbar({
                   className="caller-override-btn"
                   onClick={() =>
                     act(
-                      "campaign:set_caller",
+                      EVENTS.CAMPAIGN_SET_CALLER,
                       { callerToken: null },
                       "Host took direct Caller authority",
                     )
@@ -952,7 +953,7 @@ function CampaignSubbar({
                 style={{ fontSize: "10px", padding: "2px 6px" }}
                 onClick={() =>
                   act(
-                    "campaign:set_caller",
+                    EVENTS.CAMPAIGN_SET_CALLER,
                     { callerToken: state.me.token },
                     "Claimed Caller role",
                   )
@@ -968,7 +969,7 @@ function CampaignSubbar({
                 style={{ fontSize: "10px", padding: "2px 6px" }}
                 onClick={() =>
                   act(
-                    "campaign:set_caller",
+                    EVENTS.CAMPAIGN_SET_CALLER,
                     { callerToken: null },
                     "Released Caller role",
                   )
@@ -1049,7 +1050,7 @@ function ZoneDossierModal({
   const switchZone = async () => {
     if (targetZone === state.campaign.activeZoneId) return;
     await act(
-      "zone:enter",
+      EVENTS.ZONE_ENTER,
       { zoneId: targetZone },
       "Traveled to regional zone",
     );
@@ -1057,7 +1058,7 @@ function ZoneDossierModal({
   };
 
   const returnSanctuary = async () => {
-    await act("zone:exit", {}, `Returned to ${state.activeZone?.name ?? "sanctuary"}`);
+    await act(EVENTS.ZONE_EXIT, {}, `Returned to ${state.activeZone?.name ?? "sanctuary"}`);
     onClose();
   };
 
@@ -1210,7 +1211,7 @@ function TavernSessionCard({ state, act }: { state: CampaignState; act: Act }) {
   const submitChoice = async () => {
     if (!selectedCharId) return;
     await act(
-      "tavern:submit_choice",
+      EVENTS.TAVERN_SUBMIT_CHOICE,
       {
         characterId: selectedCharId,
         activity,
@@ -1222,11 +1223,11 @@ function TavernSessionCard({ state, act }: { state: CampaignState; act: Act }) {
   };
 
   const resolveTavern = async () => {
-    await act("tavern:resolve", {}, "Tavern gathering concluded!");
+    await act(EVENTS.TAVERN_RESOLVE, {}, "Tavern gathering concluded!");
   };
 
   const openTavern = async () => {
-    await act("tavern:open", {}, "Tavern gathering commenced!");
+    await act(EVENTS.TAVERN_OPEN, {}, "Tavern gathering commenced!");
   };
 
   return (
@@ -1373,11 +1374,11 @@ function LobbyView({
   const isReady = Boolean(state.me.ready);
 
   const toggleReady = () => {
-    act("table:ready", { ready: !isReady }, !isReady ? "Marked ready for expedition" : "Readiness cleared");
+    act(EVENTS.TABLE_READY, { ready: !isReady }, !isReady ? "Marked ready for expedition" : "Readiness cleared");
   };
 
   const startCampaign = () => {
-    act("campaign:start", {}, "Campaign started! Venturing into the Gloaming...");
+    act(EVENTS.CAMPAIGN_START, {}, "Campaign started! Venturing into the Gloaming...");
   };
 
   return (
@@ -1578,7 +1579,7 @@ function SanctuaryView({ state, act }: { state: CampaignState; act: Act }) {
   const hireRetainer = async () => {
     if (!npc) return;
     await act(
-      "retainer:hire",
+      EVENTS.RETAINER_HIRE,
       {
         name: retainerName || `${npc.ancestry} ${npc.className}`,
         ancestry: npc.ancestry,
@@ -1602,7 +1603,7 @@ function SanctuaryView({ state, act }: { state: CampaignState; act: Act }) {
       settlement.tavern?.name ||
       "The Tavern";
     await act(
-      "note:add",
+      EVENTS.NOTE_ADD,
       {
         section: "discovery",
         title: `${settlement.scale.name}: ${tavernName}`,
@@ -1634,7 +1635,7 @@ function SanctuaryView({ state, act }: { state: CampaignState; act: Act }) {
                 Boolean(state.campaign.activeSiteId)}
               className="primary rest-btn"
               onClick={() =>
-                act("session:return_sanctuary", {}, "Party recovered at the haven")
+                act(EVENTS.SESSION_RETURN_SANCTUARY, {}, "Party recovered at the haven")
               }
             >
               <Heart size={16} /> Full Party Rest & Recovery
@@ -1666,7 +1667,7 @@ function SanctuaryView({ state, act }: { state: CampaignState; act: Act }) {
                     {state.me.role === "host" && (
                       <button
                         className="small-btn"
-                        onClick={() => act("expedition:select_objective", { title: "" }, "Objective cleared")}
+                        onClick={() => act(EVENTS.EXPEDITION_SELECT_OBJECTIVE, { title: "" }, "Objective cleared")}
                       >
                         Clear Objective
                       </button>
@@ -1730,7 +1731,7 @@ function SanctuaryView({ state, act }: { state: CampaignState; act: Act }) {
                               className="small-btn primary wide"
                               onClick={() =>
                                 act(
-                                  "expedition:select_objective",
+                                  EVENTS.EXPEDITION_SELECT_OBJECTIVE,
                                   {
                                     leadId: lead.id,
                                     title: lead.title,
@@ -2072,7 +2073,7 @@ function OracleView({ state, act }: { state: CampaignState; act: Act }) {
           className="primary wide large-button"
           onClick={() =>
             act(
-              "oracle:binary",
+              EVENTS.ORACLE_BINARY,
               { question, likelihood },
               "The oracle has answered",
             )
@@ -2101,7 +2102,7 @@ function OracleView({ state, act }: { state: CampaignState; act: Act }) {
           <button
             className="wide"
             onClick={() =>
-              act("dice:roll", { expression: dice, label }, "Dice cast")
+              act(EVENTS.DICE_ROLL, { expression: dice, label }, "Dice cast")
             }
           >
             Roll {dice}
@@ -2121,7 +2122,7 @@ function OracleView({ state, act }: { state: CampaignState; act: Act }) {
           <button
             className="wide"
             onClick={() =>
-              act("oracle:reaction", { chaModifier: cha }, "Reaction resolved")
+              act(EVENTS.ORACLE_REACTION, { chaModifier: cha }, "Reaction resolved")
             }
           >
             Roll 2d6 reaction
@@ -2191,7 +2192,7 @@ function TreasureModal({
                         className="small-btn primary"
                         onClick={() =>
                           act(
-                            "treasure:allocate",
+                            EVENTS.TREASURE_ALLOCATE,
                             { rewardId: reward.id, allocation: { target: "party" } },
                             "Coins divided equally among the party",
                           )
@@ -2270,7 +2271,7 @@ function TreasureModal({
                                   className="small-btn primary"
                                   onClick={() =>
                                     act(
-                                      "treasure:allocate",
+                                      EVENTS.TREASURE_ALLOCATE,
                                       {
                                         rewardId: reward.id,
                                         allocation: {
@@ -2335,7 +2336,7 @@ function ChronicleView({ state, act, socket }: { state: CampaignState; act: Act;
   };
   const submit = async (e: FormEvent) => {
     e.preventDefault();
-    await act("note:add", form, "Chronicle entry added");
+    await act(EVENTS.NOTE_ADD, form, "Chronicle entry added");
     setForm({ ...form, title: "", body: "" });
   };
   return (
@@ -2494,7 +2495,7 @@ function PressureBoard({ state, act }: { state: CampaignState; act: Act }) {
 
   const submit = async (event: FormEvent) => {
     event.preventDefault();
-    await act("pressure:add", form, "Campaign pressure added");
+    await act(EVENTS.PRESSURE_ADD, form, "Campaign pressure added");
     setForm({ ...form, name: "", consequence: "" });
   };
 
@@ -2596,7 +2597,7 @@ function PressureBoard({ state, act }: { state: CampaignState; act: Act }) {
             className="small-btn record-complication-btn"
             onClick={() => {
               act(
-                "note:add",
+                EVENTS.NOTE_ADD,
                 {
                   section: "session",
                   title: "Campaign Complication",
@@ -2659,7 +2660,7 @@ function PressureBoard({ state, act }: { state: CampaignState; act: Act }) {
                   <div className="pressure-actions">
                     <button
                       onClick={() =>
-                        act("pressure:advance", {
+                        act(EVENTS.PRESSURE_ADVANCE, {
                           pressureId: pressure.id,
                           delta: -1,
                         })
@@ -2670,7 +2671,7 @@ function PressureBoard({ state, act }: { state: CampaignState; act: Act }) {
                     <button
                       className="primary"
                       onClick={() =>
-                        act("pressure:advance", {
+                        act(EVENTS.PRESSURE_ADVANCE, {
                           pressureId: pressure.id,
                           delta: 1,
                         })
@@ -2680,7 +2681,7 @@ function PressureBoard({ state, act }: { state: CampaignState; act: Act }) {
                     </button>
                     <button
                       onClick={() =>
-                        act("pressure:resolve", { pressureId: pressure.id })
+                        act(EVENTS.PRESSURE_RESOLVE, { pressureId: pressure.id })
                       }
                     >
                       Resolve
