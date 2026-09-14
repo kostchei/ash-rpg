@@ -430,6 +430,31 @@ export async function createAshServer(options: AshServerOptions = {}) {
     return response.json(monster);
   });
 
+  app.patch("/api/monsters/:id", (request, response) => {
+    const schema = z.object({
+      abilities: z.record(z.string(), z.number()).optional(),
+      traits: z.array(z.string()).optional(),
+      vulnerabilities: z.array(z.string()).optional(),
+      lore: z
+        .object({
+          common: z.string().optional(),
+          field: z.string().optional(),
+          obscure: z.string().optional(),
+          arcane: z.string().optional(),
+        })
+        .optional(),
+    });
+    const parsed = schema.safeParse(request.body);
+    if (!parsed.success) {
+      return response.status(400).json({ error: parsed.error.issues.map((i) => i.message).join("; ") });
+    }
+    if (!db.getMonsterFromDb(request.params.id)) {
+      return response.status(404).json({ error: "Monster not found" });
+    }
+    const updated = db.upsertMonsterOverride(request.params.id, parsed.data);
+    return response.json(updated);
+  });
+
   app.post("/api/regions/preview", (request, response) => {
     const parsed = regionGenerationConfigSchema.safeParse(request.body);
     if (!parsed.success) {

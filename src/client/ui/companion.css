@@ -47,3 +47,12 @@ button[aria-pressed=true] { color: var(--color-ember); border-color: var(--color
 button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 2px solid var(--color-border-focus); outline-offset: 3px; }
 @media (max-width: 1050px) { .table-companion-layout { grid-template-columns: minmax(0, 1fr); } .table-players { grid-column: auto; } }
 @media (max-width: 560px) { .reference-split { grid-template-columns: 1fr; } .reference-split nav { max-height: 24dvh; } .companion-modal { padding: 16px; } }
+.bestiary-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.bestiary-table th { text-align: left; padding: 4px 6px; color: var(--color-text-muted, #999); font-weight: 600; border-bottom: 1px solid var(--color-border-subtle); }
+.bestiary-table td { padding: 4px 6px; }
+.bestiary-table tr { cursor: pointer; }
+.bestiary-table tr:hover td { background: var(--color-bg-subtle); }
+.bestiary-table tr.active td { background: var(--color-ember-light); }
+.bestiary-ability-field { display: flex; flex-direction: column; font-size: 12px; gap: 2px; }
+.bestiary-ability-field input { width: 60px; }
+.bestiary-saved-flash { color: var(--color-ember); font-weight: 600; }

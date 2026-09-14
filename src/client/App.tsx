@@ -17,6 +17,7 @@ import { RECEIPTED_ACTIONS } from "../shared/mutations";
 import { createActionId, fetchOlderNotes, fetchOlderRolls, sendMutation } from "./mutations";
 
 import { CodexModal } from "./CodexModal";
+import { BestiaryManagerModal } from "./BestiaryManagerModal";
 import { DirectoryModal } from "./DirectoryModal";
 import {
   MusicServerControl,
@@ -567,6 +568,7 @@ function Campaign({
   const [showPartyModal, setShowPartyModal] = useState(false);
   const [createCharacterOnOpen, setCreateCharacterOnOpen] = useState(false);
   const [showCodexModal, setShowCodexModal] = useState(false);
+  const [showBestiaryModal, setShowBestiaryModal] = useState(false);
   const [showDirectoryModal, setShowDirectoryModal] = useState(false);
   const [directoryHex, setDirectoryHex] = useState<string>();
   const [mapFocus, setMapFocus] = useState<{ id: string; revision: number }>({ id: "00", revision: 0 });
@@ -706,6 +708,16 @@ function Campaign({
         >
           🎒 Party Ledger
         </button>
+        {state.me.role === "host" && (
+          <button
+            className="btn-hig"
+            style={{ padding: "4px 10px", fontSize: "12px", gap: "4px" }}
+            onClick={() => setShowBestiaryModal(true)}
+            title="Bestiary Manager: edit monster abilities, vulnerabilities, and lore"
+          >
+            🐉 Bestiary
+          </button>
+        )}
         <button className="icon-button" onClick={leave}>
           <LogOut size={18} />
         </button>
@@ -817,6 +829,10 @@ function Campaign({
         isOpen={showCodexModal}
         onClose={() => setShowCodexModal(false)}
       />
+
+      {state.me.role === "host" && (
+        <BestiaryManagerModal isOpen={showBestiaryModal} onClose={() => setShowBestiaryModal(false)} />
+      )}
 
       <DirectoryModal isOpen={showDirectoryModal} onClose={() => setShowDirectoryModal(false)} state={state} act={act} hexId={directoryHex}
         onMap={id => { setMapFocus(previous => ({ id, revision: previous.revision + 1 })); setTab("map"); setShowDirectoryModal(false); }}/>

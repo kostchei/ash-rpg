@@ -214,6 +214,10 @@ export class AshDatabase {
         move TEXT NOT NULL, abilities_json TEXT NOT NULL, alignment TEXT NOT NULL, traits_json TEXT NOT NULL,
         lore_json TEXT NOT NULL, harvest_json TEXT NOT NULL
       );
+      CREATE TABLE IF NOT EXISTS monster_overrides (
+        id TEXT PRIMARY KEY, abilities_json TEXT, traits_json TEXT, vulnerabilities_json TEXT,
+        lore_json TEXT, updated_at TEXT NOT NULL
+      );
       CREATE TABLE IF NOT EXISTS threat_vectors (
         id INTEGER PRIMARY KEY, campaign_id INTEGER NOT NULL REFERENCES campaigns(id) ON DELETE CASCADE,
         vector_key TEXT NOT NULL, name TEXT NOT NULL, shards INTEGER NOT NULL DEFAULT 0, confirmed INTEGER NOT NULL DEFAULT 0,
@@ -767,15 +771,28 @@ export class AshDatabase {
     }
   }
 
-  private rowToMonster(row: Row): EncounterMonster {
+  private rowToMonster(row: Row, override?: Row): EncounterMonster {
     const attacks = JSON.parse((row.attacks_json as string) || "[]");
-    const abilities = JSON.parse((row.abilities_json as string) || "{}");
-    const traits = JSON.parse((row.traits_json as string) || "[]");
+    let abilities = JSON.parse((row.abilities_json as string) || "{}");
+    let traits = JSON.parse((row.traits_json as string) || "[]");
     const loreRaw = JSON.parse((row.lore_json as string) || "{}");
     const harvest = JSON.parse((row.harvest_json as string) || "[]");
-    const lore = Array.isArray(loreRaw)
+    let lore = Array.isArray(loreRaw)
       ? loreRaw
       : [loreRaw.common, loreRaw.field, loreRaw.obscure, loreRaw.arcane].filter(Boolean);
+    let vulnerabilities: string[] = [];
+
+    if (override) {
+      if (override.abilities_json) abilities = JSON.parse(override.abilities_json as string);
+      if (override.traits_json) traits = JSON.parse(override.traits_json as string);
+      if (override.vulnerabilities_json) vulnerabilities = JSON.parse(override.vulnerabilities_json as string);
+      if (override.lore_json) {
+        const loreOverride = JSON.parse(override.lore_json as string);
+        lore = Array.isArray(loreOverride)
+          ? loreOverride
+          : [loreOverride.common, loreOverride.field, loreOverride.obscure, loreOverride.arcane].filter(Boolean);
+      }
+    }
 
     return {
       id: 0,
@@ -794,20 +811,27 @@ export class AshDatabase {
       alignment: (row.alignment as "L" | "N" | "C" | "U") ?? undefined,
       attacks,
       traits,
+      vulnerabilities,
       lore,
       harvest,
     };
   }
 
+  getMonsterOverride(id: string): Row | undefined {
+    return this.db.prepare("SELECT * FROM monster_overrides WHERE id = ?").get(id) as Row | undefined;
+  }
+
   getMonsterFromDb(id: string): EncounterMonster | undefined {
     const row = this.db.prepare("SELECT * FROM monsters WHERE id = ?").get(id) as Row | undefined;
     if (!row) return undefined;
-    return this.rowToMonster(row);
+    return this.rowToMonster(row, this.getMonsterOverride(id));
   }
 
   listMonstersFromDb(): EncounterMonster[] {
     const rows = this.db.prepare("SELECT * FROM monsters ORDER BY level ASC, name ASC").all() as Row[];
-    return rows.map((r) => this.rowToMonster(r));
+    const overrides = this.db.prepare("SELECT * FROM monster_overrides").all() as Row[];
+    const overrideMap = new Map(overrides.map((o) => [o.id as string, o]));
+    return rows.map((r) => this.rowToMonster(r, overrideMap.get(r.id as string)));
   }
 
   searchMonsters(query: string, source?: string): EncounterMonster[] {
@@ -820,7 +844,44 @@ export class AshDatabase {
     }
     sql += " ORDER BY level ASC, name ASC";
     const rows = this.db.prepare(sql).all(...params) as Row[];
-    return rows.map((r) => this.rowToMonster(r));
+    const overrides = this.db.prepare("SELECT * FROM monster_overrides").all() as Row[];
+    const overrideMap = new Map(overrides.map((o) => [o.id as string, o]));
+    return rows.map((r) => this.rowToMonster(r, overrideMap.get(r.id as string)));
+  }
+
+  /** Persists GM edits to a monster's abilities, traits, vulnerabilities, or lore, layered over the ingested base stats so re-ingestion never clobbers them. */
+  upsertMonsterOverride(
+    id: string,
+    patch: {
+      abilities?: Record<string, number>;
+      traits?: string[];
+      vulnerabilities?: string[];
+      lore?: { common?: string; field?: string; obscure?: string; arcane?: string };
+    },
+  ): EncounterMonster | undefined {
+    const existing = this.getMonsterOverride(id);
+    const abilities_json = patch.abilities !== undefined ? JSON.stringify(patch.abilities) : (existing?.abilities_json ?? null);
+    const traits_json = patch.traits !== undefined ? JSON.stringify(patch.traits) : (existing?.traits_json ?? null);
+    const vulnerabilities_json =
+      patch.vulnerabilities !== undefined ? JSON.stringify(patch.vulnerabilities) : (existing?.vulnerabilities_json ?? null);
+    const lore_json = patch.lore !== undefined ? JSON.stringify(patch.lore) : (existing?.lore_json ?? null);
+
+    this.db
+      .prepare(
+        `INSERT INTO monster_overrides (id, abilities_json, traits_json, vulnerabilities_json, lore_json, updated_at)
+         VALUES (?,?,?,?,?,?)
+         ON CONFLICT(id) DO UPDATE SET
+           abilities_json = excluded.abilities_json,
+           traits_json = excluded.traits_json,
+           vulnerabilities_json = excluded.vulnerabilities_json,
+           lore_json = excluded.lore_json,
+           updated_at = excluded.updated_at`,
+      )
+      .run(id, abilities_json, traits_json, vulnerabilities_json, lore_json, new Date().toISOString());
+
+    const updated = this.getMonsterFromDb(id);
+    if (updated) this.bestiaryCache.set(id, updated);
+    return updated;
   }
 
   getZoneManifest(zoneId: string): ZoneManifest | undefined {

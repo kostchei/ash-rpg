@@ -425,6 +425,7 @@ export interface EncounterMonster {
   alignment?: string;
   attacks?: string[];
   traits?: string[];
+  vulnerabilities?: string[];
   lore?: string[];
   harvest?: Array<{ reagent: string; dc: number; effect: string }>;
   isVariant?: boolean;
