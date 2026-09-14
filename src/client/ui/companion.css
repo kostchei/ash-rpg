@@ -21,6 +21,10 @@
 .spell-reference { display: flex; flex-wrap: wrap; gap: 12px; justify-content: space-between; margin: 12px 0; }
 .spell-reference input { width: auto; }
 .bloodied { color: var(--color-bloodied); }
+.monster-knowledge { font-size: 13px; margin-top: 8px; padding-top: 8px; border-top: 1px dashed var(--color-border-subtle); }
+.monster-knowledge.unknown { color: var(--color-text-muted, #777); font-style: italic; }
+.monster-knowledge ul { margin: 4px 0; padding-left: 18px; }
+.monster-knowledge .monster-lore li { font-style: italic; }
 .companion-modal { color: var(--color-text-primary); background: var(--color-bg-surface); border: 1px solid var(--color-border-strong); border-radius: var(--radius-lg); padding: 24px; width: min(900px, calc(100vw - 24px)); max-height: 90dvh; overflow-y: auto; box-shadow: var(--shadow-lg); }
 .companion-modal::backdrop { background: var(--color-bg-overlay); backdrop-filter: blur(3px); }
 .companion-modal header { margin-bottom: 16px; }

@@ -136,7 +136,7 @@
 .map-labels .hex-unknown-symbol { font: italic 27px Georgia, serif; fill: #909787; paint-order: stroke; stroke: #f2f3ee; stroke-width: 4px; }
 .map-labels .uncharted-label .hex-label { fill: #666d5f; stroke: #f2f3ee; font-weight: 400; font-style: italic; }
 .hex-rumor-mark { fill: #a6744f; }
-.hex-selection { fill: none; stroke: #984624; stroke-width: 3; stroke-linejoin: round; }
+.hex-selection { fill: none; stroke: #388e3c; stroke-width: 3.5; stroke-linejoin: round; }
 .party-marker-group circle { fill: #984624; stroke: #fff; stroke-width: 2; }
 .party-marker-group path { fill: #fff; }
 .map-legend {

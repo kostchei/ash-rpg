@@ -534,6 +534,35 @@ export function MapView({ state, act, focus, onDirectory }: { state: CampaignSta
   const selected =
     state.hexes.find((hex) => hex.id === selectedId) ?? state.hexes[0];
 
+  // Clicking a hex pin highlights it (green ring). Clicking the already-highlighted hex again
+  // confirms travel there, so the map itself acts as the "pick a destination, then go" control.
+  const handleMapSelect = (id: string) => {
+    if (id !== selectedId) {
+      setSelectedId(id);
+      return;
+    }
+    const hex = state.hexes.find((h) => h.id === id);
+    if (!hex) return;
+    const pLoc = state.campaign.partyLocation ?? { q: 0, r: 0 };
+    const isPartyHere = hex.q === pLoc.q && hex.r === pLoc.r;
+    if (isPartyHere) return;
+    const currentHex = state.hexes.find((h) => h.q === pLoc.q && h.r === pLoc.r);
+    const axialDist =
+      (Math.abs(pLoc.q - hex.q) + Math.abs(pLoc.q + pLoc.r - hex.q - hex.r) + Math.abs(pLoc.r - hex.r)) / 2;
+    const conn = hex.connections?.find(
+      (c) =>
+        (c.fromId === currentHex?.id && c.toId === hex.id) ||
+        (c.toId === currentHex?.id && c.fromId === hex.id),
+    );
+    const canTravel = axialDist === 1 || !!conn;
+    if (!canTravel) return;
+    if (isAllowanceReached) {
+      setForcedCampModalOpen(true);
+      return;
+    }
+    act(EVENTS.TRAVEL_MOVE, { toHexId: hex.id, mode: travelMode }, `Traveled to Hex ${hex.id} on ${travelMode}`);
+  };
+
   return (
     <div className="surface-grid map-layout">
       <section className="panel map-surface">
@@ -591,7 +620,7 @@ export function MapView({ state, act, focus, onDirectory }: { state: CampaignSta
             onDirectory={onDirectory}
           hexes={state.hexes}
           selectedId={selected.id}
-          onSelect={setSelectedId}
+          onSelect={handleMapSelect}
           partyLocation={state.campaign.partyLocation ?? { q: 0, r: 0 }}
         />
       </section>
