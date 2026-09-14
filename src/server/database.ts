@@ -357,6 +357,9 @@ export class AshDatabase {
     if (!campaignCols.some((c) => c.name === "is_secret_path")) {
       this.db.exec("ALTER TABLE campaigns ADD COLUMN is_secret_path INTEGER NOT NULL DEFAULT 0");
     }
+    if (!campaignCols.some((c) => c.name === "quest_log_json")) {
+      this.db.exec("ALTER TABLE campaigns ADD COLUMN quest_log_json TEXT");
+    }
 
     const deviceCols = this.db.pragma("table_info(devices)") as Array<{ name: string }>;
     if (!deviceCols.some((c) => c.name === "ready")) {
@@ -2740,6 +2743,35 @@ export class AshDatabase {
       .run(objective ? JSON.stringify(objective) : null, campaignId);
   }
 
+  getQuestLog(campaignId: number): ExpeditionObjective[] {
+    const row = this.db
+      .prepare("SELECT quest_log_json FROM campaigns WHERE id = ?")
+      .get(campaignId) as { quest_log_json?: string } | undefined;
+    return row?.quest_log_json ? JSON.parse(row.quest_log_json) : [];
+  }
+
+  private setQuestLog(campaignId: number, log: ExpeditionObjective[]) {
+    this.db
+      .prepare("UPDATE campaigns SET quest_log_json = ? WHERE id = ?")
+      .run(JSON.stringify(log), campaignId);
+  }
+
+  /** Add a lead to the tracked quest log if it isn't already there. Toggling never overwrites unrelated entries. */
+  addToQuestLog(campaignId: number, objective: ExpeditionObjective) {
+    const log = this.getQuestLog(campaignId);
+    if (objective.leadId && log.some((q) => q.leadId === objective.leadId)) return log;
+    const next = [...log, objective];
+    this.setQuestLog(campaignId, next);
+    return next;
+  }
+
+  /** Remove a tracked lead from the quest log by its leadId. */
+  removeFromQuestLog(campaignId: number, leadId: string) {
+    const log = this.getQuestLog(campaignId).filter((q) => q.leadId !== leadId);
+    this.setQuestLog(campaignId, log);
+    return log;
+  }
+
   setActiveSite(campaignId: number, siteId: string | null) {
     this.db
       .prepare("UPDATE campaigns SET active_site_id = ? WHERE id = ?")
@@ -3592,6 +3624,7 @@ export class AshDatabase {
         weather: campaignRow.weather ? String(campaignRow.weather) : "Overcast / Mild Breeze",
         rations: Number(campaignRow.rations ?? 12),
         activeObjective: campaignRow.active_objective_json ? JSON.parse(String(campaignRow.active_objective_json)) : null,
+        questLog: campaignRow.quest_log_json ? JSON.parse(String(campaignRow.quest_log_json)) : [],
         activeSiteId: activeSiteId ?? null,
         tavernEstablishment,
         adventurePath,
@@ -3745,12 +3778,13 @@ function rowToHex(
   }
 
   if (revealState === "rumored") {
+    base.name = String(row.name);
+    base.biome = String(row.biome);
+    if (row.elevation != null) base.elevation = Number(row.elevation);
+    if (row.road) base.road = String(row.road);
+    if (row.river) base.river = String(row.river);
     if (row.horizon_rumor) base.horizonRumor = String(row.horizon_rumor);
-    if (role === "host") {
-      if (row.road) base.road = String(row.road);
-      if (row.river) base.river = String(row.river);
-      if (connections.length > 0) base.connections = connections;
-    }
+    if (role === "host" && connections.length > 0) base.connections = connections;
     return base;
   }
 

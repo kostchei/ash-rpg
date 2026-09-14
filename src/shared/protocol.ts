@@ -52,6 +52,8 @@ export const EVENTS = {
   EXPEDITION_FORAGE: "expedition:forage",
   EXPEDITION_FORCE_MARCH: "expedition:force_march",
   EXPEDITION_SELECT_OBJECTIVE: "expedition:select_objective",
+  QUEST_LOG_ADD: "quest_log:add",
+  QUEST_LOG_REMOVE: "quest_log:remove",
   HEX_REGENERATE: "hex:regenerate",
   HEX_REVEAL: "hex:reveal",
   HEX_SEARCH: "hex:search",

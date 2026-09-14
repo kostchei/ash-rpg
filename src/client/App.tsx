@@ -1686,73 +1686,133 @@ function SanctuaryView({ state, act }: { state: CampaignState; act: Act }) {
                 </div>
               )}
 
-              <div className="leads-section" style={{ marginTop: "12px" }}>
-                <div className="eyebrow" style={{ marginBottom: "8px" }}>Expedition leads</div>
-                <div className="leads-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "12px" }}>
-                  {leads.map((lead) => {
-                    const isCurrentObj = state.campaign.activeObjective?.leadId === lead.id || state.campaign.activeObjective?.title === lead.title;
-                    return (
-                      <div
-                        key={lead.id}
-                        className={`lead-card ${lead.isPathLead ? "path-lead" : ""} ${isCurrentObj ? "active-lead" : ""}`}
-                        style={{
-                          background: isCurrentObj ? "rgba(217, 117, 56, 0.15)" : lead.isPathLead ? "rgba(79, 140, 201, 0.12)" : "rgba(255, 255, 255, 0.04)",
-                          border: isCurrentObj ? "1px solid var(--ember)" : lead.isPathLead ? "1px solid #4f8cc9" : "1px solid var(--line)",
-                          borderRadius: "6px",
-                          padding: "12px",
-                          display: "flex",
-                          flexDirection: "column",
-                          gap: "8px",
-                        }}
-                      >
-                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-                          {lead.isPathLead ? (
-                            <span className="badge-tag" style={{ background: "#4f8cc9", color: "#fff", fontSize: "10px" }}>🧭 ADVENTURE PATH</span>
-                          ) : lead.isFollowUp ? (
-                            <span className="badge-tag" style={{ background: "#9d4edd", color: "#fff", fontSize: "10px" }}>⭐ FOLLOW-UP INTEL</span>
-                          ) : (
-                            <span className="badge-tag" style={{ fontSize: "10px" }}>REGIONAL LEAD</span>
-                          )}
-                          <span style={{ fontSize: "11px", color: "var(--muted)" }}>{lead.sourceNpc ?? lead.source}</span>
-                        </div>
-                        <h4 style={{ margin: "0", fontSize: "14px" }}>{lead.title ?? "Expedition lead"}</h4>
-                        <p style={{ margin: "0", fontSize: "13px", fontStyle: "italic", color: "var(--ink)" }}>“{lead.claim}”</p>
-                        <div style={{ fontSize: "12px", color: "var(--muted)", display: "flex", flexDirection: "column", gap: "2px" }}>
-                          {lead.directionHint && <div><b>Direction:</b> {lead.directionHint}</div>}
-                          <div><b>Reported danger:</b> {reportedLeadDanger(lead, state.hexes)}</div>
-                          <div><b>Promised reward:</b> {lead.promisedReward || "No reward promised"}</div>
-                          {lead.preparationHint && <div><b>Preparation:</b> {lead.preparationHint}</div>}
-                        </div>
-                        <div style={{ marginTop: "auto", paddingTop: "8px" }}>
-                          {isCurrentObj ? (
-                            <span style={{ color: "var(--ember)", fontWeight: "bold", fontSize: "12px" }}>✓ Selected Expedition Objective</span>
-                          ) : (
-                            <button
-                              className="small-btn primary wide"
-                              onClick={() =>
-                                act(
-                                  EVENTS.EXPEDITION_SELECT_OBJECTIVE,
-                                  {
-                                    leadId: lead.id,
-                                    title: lead.title,
-                                    targetHexId: lead.targetHexId,
-                                    targetSiteId: lead.targetSiteId,
-                                    directionHint: lead.directionHint,
-                                    notes: lead.claim,
-                                  },
-                                  `Selected objective: ${lead.title}`,
-                                )
-                              }
-                            >
-                              Set as Active Objective
-                            </button>
-                          )}
+              {(() => {
+                const questLog = state.campaign.questLog ?? [];
+                const inQuestLog = (id: string) => questLog.some((q) => q.leadId === id);
+                const asObjective = (lead: (typeof leads)[number]) => ({
+                  leadId: lead.id,
+                  title: lead.title,
+                  targetHexId: lead.targetHexId,
+                  targetSiteId: lead.targetSiteId,
+                  directionHint: lead.directionHint,
+                  notes: lead.claim,
+                });
+                return (
+                  <>
+                    {questLog.length > 0 && (
+                      <div className="quest-log-section" style={{ marginTop: "12px" }}>
+                        <div className="eyebrow" style={{ marginBottom: "8px" }}>Quest Log ({questLog.length})</div>
+                        <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                          {questLog.map((quest) => {
+                            const isCurrentObj = state.campaign.activeObjective?.leadId === quest.leadId;
+                            return (
+                              <div
+                                key={quest.leadId ?? quest.title}
+                                style={{
+                                  display: "flex",
+                                  justifyContent: "space-between",
+                                  alignItems: "center",
+                                  gap: "8px",
+                                  padding: "8px 10px",
+                                  borderRadius: "6px",
+                                  background: isCurrentObj ? "rgba(217, 117, 56, 0.12)" : "rgba(255,255,255,0.03)",
+                                  border: isCurrentObj ? "1px solid var(--ember)" : "1px solid var(--line)",
+                                }}
+                              >
+                                <div style={{ fontSize: "13px" }}>
+                                  <b>{quest.title}</b>
+                                  {quest.directionHint && <span style={{ color: "var(--muted)" }}> · {quest.directionHint}</span>}
+                                  {quest.targetHexId && <span style={{ color: "var(--muted)" }}> · Hex {quest.targetHexId}</span>}
+                                </div>
+                                <div style={{ display: "flex", gap: "6px", flexShrink: 0 }}>
+                                  {!isCurrentObj && (
+                                    <button
+                                      className="small-btn"
+                                      onClick={() => act(EVENTS.EXPEDITION_SELECT_OBJECTIVE, quest, `Pinned objective: ${quest.title}`)}
+                                    >
+                                      Pin
+                                    </button>
+                                  )}
+                                  <button
+                                    className="small-btn"
+                                    onClick={() =>
+                                      act(EVENTS.QUEST_LOG_REMOVE, { leadId: quest.leadId }, `Removed from quest log: ${quest.title}`)
+                                    }
+                                  >
+                                    Remove
+                                  </button>
+                                </div>
+                              </div>
+                            );
+                          })}
                         </div>
                       </div>
-                    );
-                  })}
-                </div>
-              </div>
+                    )}
+
+                    <div className="leads-section" style={{ marginTop: "12px" }}>
+                      <div className="eyebrow" style={{ marginBottom: "8px" }}>Expedition leads</div>
+                      <div className="leads-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "12px" }}>
+                        {leads.map((lead) => {
+                          const tracked = inQuestLog(lead.id);
+                          return (
+                            <div
+                              key={lead.id}
+                              className={`lead-card ${lead.isPathLead ? "path-lead" : ""} ${tracked ? "active-lead" : ""}`}
+                              style={{
+                                background: tracked ? "rgba(217, 117, 56, 0.15)" : lead.isPathLead ? "rgba(79, 140, 201, 0.12)" : "rgba(255, 255, 255, 0.04)",
+                                border: tracked ? "1px solid var(--ember)" : lead.isPathLead ? "1px solid #4f8cc9" : "1px solid var(--line)",
+                                borderRadius: "6px",
+                                padding: "12px",
+                                display: "flex",
+                                flexDirection: "column",
+                                gap: "8px",
+                              }}
+                            >
+                              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                                {lead.isPathLead ? (
+                                  <span className="badge-tag" style={{ background: "#4f8cc9", color: "#fff", fontSize: "10px" }}>🧭 ADVENTURE PATH</span>
+                                ) : lead.isFollowUp ? (
+                                  <span className="badge-tag" style={{ background: "#9d4edd", color: "#fff", fontSize: "10px" }}>⭐ FOLLOW-UP INTEL</span>
+                                ) : (
+                                  <span className="badge-tag" style={{ fontSize: "10px" }}>REGIONAL LEAD</span>
+                                )}
+                                <span style={{ fontSize: "11px", color: "var(--muted)" }}>{lead.sourceNpc ?? lead.source}</span>
+                              </div>
+                              <h4 style={{ margin: "0", fontSize: "14px" }}>{lead.title ?? "Expedition lead"}</h4>
+                              <p style={{ margin: "0", fontSize: "13px", fontStyle: "italic", color: "var(--ink)" }}>“{lead.claim}”</p>
+                              <div style={{ fontSize: "12px", color: "var(--muted)", display: "flex", flexDirection: "column", gap: "2px" }}>
+                                {lead.directionHint && <div><b>Direction:</b> {lead.directionHint}</div>}
+                                <div><b>Reported danger:</b> {reportedLeadDanger(lead, state.hexes)}</div>
+                                <div><b>Promised reward:</b> {lead.promisedReward || "No reward promised"}</div>
+                                {lead.preparationHint && <div><b>Preparation:</b> {lead.preparationHint}</div>}
+                              </div>
+                              <div style={{ marginTop: "auto", paddingTop: "8px" }}>
+                                {tracked ? (
+                                  <button
+                                    className="small-btn wide"
+                                    onClick={() =>
+                                      act(EVENTS.QUEST_LOG_REMOVE, { leadId: lead.id }, `Removed from quest log: ${lead.title}`)
+                                    }
+                                  >
+                                    ✓ In Quest Log — Remove
+                                  </button>
+                                ) : (
+                                  <button
+                                    className="small-btn primary wide"
+                                    onClick={() => act(EVENTS.QUEST_LOG_ADD, asObjective(lead), `Added to quest log: ${lead.title}`)}
+                                  >
+                                    Add to Quest Log
+                                  </button>
+                                )}
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </>
+                );
+              })()}
             </article>
           )}
 

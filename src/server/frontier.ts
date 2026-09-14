@@ -75,6 +75,7 @@ export function materializeHex(
   campaignId: number,
   q: number,
   r: number,
+  initialRevealState: string = "unexplored",
 ): MaterializedHex {
   const existing = db.db
     .prepare("SELECT id FROM hexes WHERE campaign_id = ? AND q = ? AND r = ?")
@@ -139,7 +140,7 @@ export function materializeHex(
       String(structural.terrain),
       Number(structural.threat_tier),
       structural.landmark ? String(structural.landmark) : `Natural ${structural.terrain} landmark`,
-      "unexplored",
+      initialRevealState,
       road ? String(road.name) : null,
       river ? String(river.name) : null,
       null,
@@ -212,8 +213,20 @@ export function materializeNeighborhood(
   const created: MaterializedHex[] = [];
   for (const coord of [{ q, r }, ...neighborsOf(q, r)]) {
     if (!hasStructuralHex(db, campaignId, coord.q, coord.r)) continue;
-    const result = materializeHex(db, campaignId, coord.q, coord.r);
-    if (result.created) created.push(result);
+    const isCenter = coord.q === q && coord.r === r;
+    const result = materializeHex(db, campaignId, coord.q, coord.r, isCenter ? "unexplored" : "rumored");
+    if (result.created) {
+      created.push(result);
+    } else if (!isCenter) {
+      // Neighbor hex already existed from an earlier visit nearby; make sure standing next to
+      // it now still surfaces its terrain instead of leaving it stuck at "unexplored" forever.
+      const row = db.db
+        .prepare("SELECT reveal_state FROM hexes WHERE campaign_id = ? AND id = ?")
+        .get(campaignId, result.id) as { reveal_state: string } | undefined;
+      if (row?.reveal_state === "unexplored") {
+        db.revealHex(campaignId, result.id, "rumored");
+      }
+    }
   }
   return created;
 }

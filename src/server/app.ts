@@ -2986,6 +2986,43 @@ export async function createAshServer(options: AshServerOptions = {}) {
     );
 
     socket.on(
+      EVENTS.QUEST_LOG_ADD,
+      action((raw: unknown) => {
+        const payload = z
+          .object({
+            leadId: z.string().optional(),
+            title: z.string().min(1),
+            targetHexId: z.string().optional(),
+            targetSiteId: z.string().optional(),
+            directionHint: z.string().optional(),
+            notes: z.string().max(4000).optional(),
+          })
+          .parse(raw);
+
+        db.addToQuestLog(identity.campaignId, payload);
+        db.addRoll(identity.campaignId, {
+          actor: actor(),
+          kind: "expedition",
+          label: `Quest Logged: ${payload.title}`,
+          dice: "—",
+          total: 0,
+          detail: `Added to the quest log: "${payload.title}". Known direction: ${payload.directionHint || "Undisclosed"}.`,
+        });
+
+        return { ok: true };
+      }),
+    );
+
+    socket.on(
+      EVENTS.QUEST_LOG_REMOVE,
+      action((raw: unknown) => {
+        const payload = z.object({ leadId: z.string().min(1) }).parse(raw);
+        db.removeFromQuestLog(identity.campaignId, payload.leadId);
+        return { ok: true };
+      }),
+    );
+
+    socket.on(
       EVENTS.HEX_SEARCH,
       action((_raw: unknown) => {
         const camp = db.db

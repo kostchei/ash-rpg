@@ -194,6 +194,7 @@ export interface CampaignSummary {
   weather?: string;
   rations?: number;
   activeObjective?: ExpeditionObjective | null;
+  questLog?: ExpeditionObjective[];
   activeSiteId?: string | null;
   tavernEstablishment?: TavernEstablishment | null;
   adventurePath?: PublicAdventurePathSummary | null;
