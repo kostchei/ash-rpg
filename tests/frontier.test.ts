@@ -75,7 +75,9 @@ describe("Frontier expansion beyond the initial map", () => {
       expect(materialized.elevation).toBe(structural.elevation);
       expect(materialized.name).toBe(structural.name);
       expect(materialized.ring).toBe(3);
-      expect(materialized.reveal_state).toBe("unexplored");
+      // (0, -2) is the neighborhood's center and already charted, so every hex created here
+      // is a neighbor glimpsed from a distance rather than the ground the party stands on.
+      expect(materialized.reveal_state).toBe("rumored");
     }
     expect(publicHexes()).toHaveLength(22);
   });
