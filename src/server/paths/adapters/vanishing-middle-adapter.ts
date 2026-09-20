@@ -43,7 +43,6 @@ export function buildVanishingMiddleSites(zonePlan: CampaignActPlan): SitePlan[]
         storyXp: 1,
       },
       clues: ["The cosmic balance tilts whenever an oath sworn in blood is dishonored."],
-      monsterGroupsCount: 2,
       hasAuthoredCache: true,
       cacheQuality: "normal",
     },
@@ -64,7 +63,6 @@ export function buildVanishingMiddleSites(zonePlan: CampaignActPlan): SitePlan[]
         storyXp: 1,
       },
       clues: ["Three anchors are needed to stabilize the scales during the Weighing."],
-      monsterGroupsCount: 3,
       hasAuthoredCache: true,
       cacheQuality: "fabulous",
     },
@@ -85,7 +83,6 @@ export function buildVanishingMiddleSites(zonePlan: CampaignActPlan): SitePlan[]
         storyXp: 1,
       },
       clues: ["The cycle is preserved, and the mortal world endures for another age."],
-      monsterGroupsCount: 4,
       hasAuthoredCache: true,
       cacheQuality: "legendary",
       bossHoard: {

@@ -223,7 +223,6 @@ export const SitePlanSchema = z.object({
   siteFamily: z.enum(["cave", "ruin", "tomb", "overland", "dungeon"]),
   objective: ObjectivePlanSchema,
   clues: z.array(z.string()),
-  monsterGroupsCount: z.number().int().min(0).default(2),
   hasAuthoredCache: z.boolean().default(false),
   cacheQuality: TreasureQualitySchema.optional(),
   authoredCaches: z.array(AuthoredCacheSchema).optional(),

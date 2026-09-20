@@ -41,7 +41,6 @@ export function buildMindBelowSites(zonePlan: CampaignActPlan): SitePlan[] {
         storyXp: 1,
       },
       clues: ["Night-soil wagons bypass city gates at midnight heading along the river."],
-      monsterGroupsCount: 3,
       hasAuthoredCache: true,
       cacheQuality: "normal",
       authoredCaches: [
@@ -66,7 +65,6 @@ export function buildMindBelowSites(zonePlan: CampaignActPlan): SitePlan[] {
         storyXp: 1,
       },
       clues: ["A freight manifest details captive minds bound for the Karst Deeps."],
-      monsterGroupsCount: 3,
       hasAuthoredCache: true,
       cacheQuality: "normal",
       authoredCaches: [
@@ -91,7 +89,6 @@ export function buildMindBelowSites(zonePlan: CampaignActPlan): SitePlan[] {
         storyXp: 1,
       },
       clues: ["Sedated victims are loaded into sealed water tanks for descent."],
-      monsterGroupsCount: 3,
       hasAuthoredCache: true,
       cacheQuality: "normal",
       authoredCaches: [
@@ -116,7 +113,6 @@ export function buildMindBelowSites(zonePlan: CampaignActPlan): SitePlan[] {
         storyXp: 1,
       },
       clues: ["Controlled civic officials have falsified water-level surveys for decades."],
-      monsterGroupsCount: 3,
       hasAuthoredCache: true,
       cacheQuality: "fabulous",
       authoredCaches: [
@@ -142,7 +138,6 @@ export function buildMindBelowSites(zonePlan: CampaignActPlan): SitePlan[] {
         storyXp: 1,
       },
       clues: ["Voices in the well chant words in the old tongue of the deep sea."],
-      monsterGroupsCount: 3,
       hasAuthoredCache: true,
       cacheQuality: "fabulous",
       authoredCaches: [
@@ -167,7 +162,6 @@ export function buildMindBelowSites(zonePlan: CampaignActPlan): SitePlan[] {
         storyXp: 1,
       },
       clues: ["A psychic ward protects against mental domination if worn at the brow."],
-      monsterGroupsCount: 4,
       hasAuthoredCache: true,
       cacheQuality: "fabulous",
       authoredCaches: [
@@ -193,7 +187,6 @@ export function buildMindBelowSites(zonePlan: CampaignActPlan): SitePlan[] {
         storyXp: 1,
       },
       clues: ["The subterranean river connects directly to the Living Sandstone deeps."],
-      monsterGroupsCount: 4,
       hasAuthoredCache: true,
       cacheQuality: "fabulous",
       authoredCaches: [
@@ -221,7 +214,6 @@ export function buildMindBelowSites(zonePlan: CampaignActPlan): SitePlan[] {
         storyXp: 1,
       },
       clues: ["Derro engineers salvage scrap from sunken barges further downriver."],
-      monsterGroupsCount: 4,
       hasAuthoredCache: true,
       cacheQuality: "normal",
       authoredCaches: [
@@ -247,7 +239,6 @@ export function buildMindBelowSites(zonePlan: CampaignActPlan): SitePlan[] {
         storyXp: 1,
       },
       clues: ["The Savant's chorus installation amplifies telepathic compulsion across miles."],
-      monsterGroupsCount: 4,
       hasAuthoredCache: true,
       cacheQuality: "fabulous",
       authoredCaches: [
@@ -273,7 +264,6 @@ export function buildMindBelowSites(zonePlan: CampaignActPlan): SitePlan[] {
         storyXp: 1,
       },
       clues: ["The Nautilus can withstand the crushing depth of the Black Abyss."],
-      monsterGroupsCount: 4,
       hasAuthoredCache: true,
       cacheQuality: "fabulous",
       authoredCaches: [
@@ -299,7 +289,6 @@ export function buildMindBelowSites(zonePlan: CampaignActPlan): SitePlan[] {
         storyXp: 1,
       },
       clues: ["Gill charms enable prolonged underwater breathing in cold depths."],
-      monsterGroupsCount: 4,
       hasAuthoredCache: true,
       cacheQuality: "fabulous",
       authoredCaches: [
@@ -325,7 +314,6 @@ export function buildMindBelowSites(zonePlan: CampaignActPlan): SitePlan[] {
         storyXp: 1,
       },
       clues: ["Blood rites grant resistance to deep water pressure."],
-      monsterGroupsCount: 4,
       hasAuthoredCache: true,
       cacheQuality: "legendary",
       authoredCaches: [
@@ -352,7 +340,6 @@ export function buildMindBelowSites(zonePlan: CampaignActPlan): SitePlan[] {
         storyXp: 1,
       },
       clues: ["Maker suits provide thermal insulation and depth resistance."],
-      monsterGroupsCount: 4,
       hasAuthoredCache: true,
       cacheQuality: "fabulous",
       authoredCaches: [
@@ -378,7 +365,6 @@ export function buildMindBelowSites(zonePlan: CampaignActPlan): SitePlan[] {
         storyXp: 1,
       },
       clues: ["Reversing valves cuts the supply of captured minds from surface city locks."],
-      monsterGroupsCount: 4,
       hasAuthoredCache: true,
       cacheQuality: "fabulous",
       authoredCaches: [
@@ -404,7 +390,6 @@ export function buildMindBelowSites(zonePlan: CampaignActPlan): SitePlan[] {
         storyXp: 1,
       },
       clues: ["Destroying the Chorus frees dozens of enthralled scouts across the caves."],
-      monsterGroupsCount: 4,
       hasAuthoredCache: true,
       cacheQuality: "legendary",
       authoredCaches: [
@@ -431,7 +416,6 @@ export function buildMindBelowSites(zonePlan: CampaignActPlan): SitePlan[] {
         storyXp: 1,
       },
       clues: ["Ancient weapons forged with cold iron can bypass aboleth psychic mucus."],
-      monsterGroupsCount: 4,
       hasAuthoredCache: true,
       cacheQuality: "fabulous",
       authoredCaches: [
@@ -457,7 +441,6 @@ export function buildMindBelowSites(zonePlan: CampaignActPlan): SitePlan[] {
         storyXp: 1,
       },
       clues: ["The blessing allows free movement through turbulent subterranean currents."],
-      monsterGroupsCount: 4,
       hasAuthoredCache: true,
       cacheQuality: "fabulous",
       authoredCaches: [
@@ -483,7 +466,6 @@ export function buildMindBelowSites(zonePlan: CampaignActPlan): SitePlan[] {
         storyXp: 1,
       },
       clues: ["Past this gate lies the roofed sea where the Aboleth Savant dwells."],
-      monsterGroupsCount: 4,
       hasAuthoredCache: true,
       cacheQuality: "legendary",
       authoredCaches: [
@@ -512,7 +494,6 @@ export function buildMindBelowSites(zonePlan: CampaignActPlan): SitePlan[] {
         storyXp: 1,
       },
       clues: ["Faerzress radiation distorts teleportation and magical navigation."],
-      monsterGroupsCount: 5,
       hasAuthoredCache: true,
       cacheQuality: "legendary",
       authoredCaches: [
@@ -539,7 +520,6 @@ export function buildMindBelowSites(zonePlan: CampaignActPlan): SitePlan[] {
         storyXp: 1,
       },
       clues: ["Purging the well strips the Savant of knowledge of party battle tactics."],
-      monsterGroupsCount: 5,
       hasAuthoredCache: true,
       cacheQuality: "legendary",
       authoredCaches: [
@@ -566,7 +546,6 @@ export function buildMindBelowSites(zonePlan: CampaignActPlan): SitePlan[] {
         storyXp: 1,
       },
       clues: ["Venting removes the violent water surge in the final throne approach."],
-      monsterGroupsCount: 5,
       hasAuthoredCache: true,
       cacheQuality: "legendary",
       authoredCaches: [
@@ -593,7 +572,6 @@ export function buildMindBelowSites(zonePlan: CampaignActPlan): SitePlan[] {
         storyXp: 1,
       },
       clues: ["Defeating marshals here prevents them from joining the final confrontation."],
-      monsterGroupsCount: 5,
       hasAuthoredCache: true,
       cacheQuality: "legendary",
       authoredCaches: [
@@ -620,7 +598,6 @@ export function buildMindBelowSites(zonePlan: CampaignActPlan): SitePlan[] {
         storyXp: 1,
       },
       clues: ["Containment runes reduce the Savant's legendary resistance in combat."],
-      monsterGroupsCount: 5,
       hasAuthoredCache: true,
       cacheQuality: "legendary",
       authoredCaches: [
@@ -647,7 +624,6 @@ export function buildMindBelowSites(zonePlan: CampaignActPlan): SitePlan[] {
         storyXp: 1,
       },
       clues: ["Beyond lies the throne chamber where the Savant slumbers upon stolen minds."],
-      monsterGroupsCount: 5,
       hasAuthoredCache: true,
       cacheQuality: "legendary",
       authoredCaches: [
@@ -674,7 +650,6 @@ export function buildMindBelowSites(zonePlan: CampaignActPlan): SitePlan[] {
         storyXp: 1,
       },
       clues: ["The campaign concludes upon the fall or containment of the Savant!"],
-      monsterGroupsCount: 4,
       hasAuthoredCache: true,
       cacheQuality: "legendary",
       authoredCaches: [

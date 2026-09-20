@@ -22,7 +22,6 @@ const plan = SitePlanSchema.parse({
     storyXp: 1,
   },
   clues: ["A clue."],
-  monsterGroupsCount: 2,
   authoredCaches: [
     { quality: "fabulous", name: "Smuggler's Strongbox" },
     { quality: "normal", name: "Toll Box" },
