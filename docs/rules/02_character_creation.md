@@ -116,3 +116,23 @@ Answer the three world-building prompts from the [World Seeding Rules](03_player
   * Ranged: DEX modifier.
   * Spellcasting: INT (Arcane), WIS (Divine/Primal), or INT/WIS (Alchemist).
 * **Languages:** Common + your Ancestral Tongue + 1 bonus language per positive INT modifier.
+
+---
+
+## 🏔️ Stonetop Character Playbooks & Narrative Wiki
+
+For narrative-first campaigns, PbtA-style playbooks, or community-anchored hearth fantasy character creation, consult the **[Stonetop Compendium & Wiki](../stonetop/index.md)** nested directly under this branch:
+
+* **[Character Playbooks Directory](../stonetop/playbooks/index.md):**
+    * [**The Blessed**](../stonetop/playbooks/the_blessed.md) — Holy vessel of Danu, goddess of crops and the soil.
+    * [**The Fox**](../stonetop/playbooks/the_fox.md) — Cunning trickster, sharp opportunist, and problem solver.
+    * [**The Heavy**](../stonetop/playbooks/the_heavy.md) — The village champion, scarred veteran, or storm-marked warrior.
+    * [**The Judge**](../stonetop/playbooks/the_judge.md) — Arbiter of Aratis, upholder of ancient law and order.
+    * [**The Lightbearer**](../stonetop/playbooks/the_lightbearer.md) — Fiery priest of Helior the Sun, bringer of radiant truth.
+    * [**The Marshal**](../stonetop/playbooks/the_marshal.md) — Leader of the village militia and battlefield commander.
+    * [**The Ranger**](../stonetop/playbooks/the_ranger.md) — Scout of the Great Wood and companion to wild beasts.
+    * [**The Seeker**](../stonetop/playbooks/the_seeker.md) — Scholar of Things Below and tamperer with ancient arcana.
+    * [**The Would-be Hero**](../stonetop/playbooks/the_would_be_hero.md) — Eager youth marked by destiny to save their village.
+* **[Playbook Inserts & Special Moves](../stonetop/playbooks/inserts.md):** Inventory, Animal Companions, Crew, and Invocations.
+* **[The Steading Playbook](../stonetop/playbooks/steading_playbook.md):** The communal character sheet for Stonetop village itself.
+* **[Getting Started & First Session](../stonetop/02_getting_started.md):** Full guidelines for introducing PCs and beginning in the first spring.
