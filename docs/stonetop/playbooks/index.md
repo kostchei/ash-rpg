@@ -26,6 +26,7 @@ In Stonetop, every player character chooses an evocative **Playbook** that defin
 | [**The Ranger**](the_ranger.md) | Scout & Beast Master | Tracking in the Great Wood, foraging, beast companion, archery |
 | [**The Seeker**](the_seeker.md) | Scholar of Arcana & Ruin | Deciphering Maker ruins, Things Below, dangerous magical artifacts |
 | [**The Would-be Hero**](the_would_be_hero.md) | Fated & Audacious Youth | Raw luck, burning brightly, destiny, reckless courage, tragic stakes |
+| [**The Wizard**](the_wizard.md) | Vancian Scholar & Archmage | 1e AD&D Magic-User: priceless grimoires, memorization, Tenser/Elminster/Mordenkainen |
 
 ---
 
