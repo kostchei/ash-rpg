@@ -1,0 +1,594 @@
+# Actual runtime generator samples
+
+Seed: `ash-runtime-samples-2026-09-30`. Zone: the_gloaming.
+
+- Monster draws use the configured zone wandering table and stock bestiary stats. No oracle variants are applied.
+- Campaign profiles draw from the expanded pool using one plus the final ability count, minus stock and authored vulnerabilities. Non-damage themes without stored effects are marked as needing authoring.
+- Lore and harvest are shown only if returned by the existing database; this runner writes none.
+
+## Monsters
+
+| Name | LV | AC | HP | Source | Campaign weaknesses (themes marked *) | Carried treasure |
+|---|---:|---:|---:|---|---|---|
+| Ichor Ooze | 3 | 12 | 15 | cursed_scroll_1 | Stock: 0; Water*; Page of Pentacles*; Cruelty*; Six of Wands* | Mithral locket with a painting of a halfling (20 gp) |
+| Bogthorn | 2 | 13 | 11 | cursed_scroll_1 | Stock: 0; Five of Pentacles*; Wheel of Fortune*; Three of Pentacles* | None |
+| Bittermold | 1 | 12 | 5 | cursed_scroll_1 | Stock: 0; Queen of Cups*; The Empress* | None |
+| Marrow Fiend | 8 | 15 | 39 | cursed_scroll_1 | Stock: 0; Slashing (×2 damage); Three of Swords*; Worldliness* | Unearthed Wand (wand) — Magic wand, 3rd-tier spell (250 gp) |
+
+## Unguarded treasure
+
+| Discovering level | Returned item / coins | Quality | XP | Table basis |
+|---:|---|---|---:|---|
+| 1 | Radiant, polished pearl (40 gp) | fabulous | 3 | core_treasure_0-3_76-77 |
+| 5 | Rare incense that is repulsive to undead (50 gp) | normal | 1 | core_treasure_4-6_46-47 |
+| 8 | 4th-tier spell scroll (260 gp) | fabulous | 3 | core_treasure_7-9_80-81 |
+| 11 | Jade sculpture of a meditating elephant-man (140 gp) | normal | 1 | core_treasure_10+_30-31 |
+
+## Exact returned records and random draws
+
+```json
+{
+  "seed": "ash-runtime-samples-2026-09-30",
+  "mode": "existing_runtime_functions",
+  "functions": [
+    "AshDatabase.getMonstersForZone",
+    "AshDatabase.getCampaignMonster",
+    "AshDatabase.addEncounterWithMonsters",
+    "resolveGroupTreasure",
+    "generateUnguardedTreasure"
+  ],
+  "limitations": [
+    "Monster draws use the configured zone wandering table and stock bestiary stats. No oracle variants are applied.",
+    "Campaign profiles draw from the expanded pool using one plus the final ability count, minus stock and authored vulnerabilities. Non-damage themes without stored effects are marked as needing authoring.",
+    "Lore and harvest are shown only if returned by the existing database; this runner writes none."
+  ],
+  "monsters": [
+    {
+      "input": {
+        "zoneId": "the_gloaming",
+        "tableIndex": 5,
+        "monsterKey": "ichor_ooze"
+      },
+      "monster": {
+        "id": 0,
+        "monsterKey": "ichor_ooze",
+        "name": "Ichor Ooze",
+        "currentHp": 15,
+        "maxHp": 15,
+        "loreTier": 0,
+        "ac": 12,
+        "morale": 8,
+        "level": 3,
+        "family": "Ooze",
+        "source": "cursed_scroll_1",
+        "move": "near (climb)",
+        "abilities": {
+          "str": 3,
+          "dex": 2,
+          "con": 2,
+          "int": -3,
+          "wis": 1,
+          "cha": -3
+        },
+        "alignment": "N",
+        "attacks": [
+          "2 tendril +3 (1d6)"
+        ],
+        "traits": [
+          "Rubbery. Half damage from stabbing weapons.",
+          "Corrosive. Metal or wood that touches the ooze is destroyed on a d6 roll of 1."
+        ],
+        "lore": [],
+        "harvest": [],
+        "vulnerabilities": [
+          "Water: A specified form of water dissolves, weakens, or ritually unbinds it. [Theme; effect needs authoring.]",
+          "Page of Pentacles: A tangible promise of learning makes it relinquish a guarded advantage. [Theme; effect needs authoring.]",
+          "Cruelty: Its appetite for suffering makes it prolong an opportunity and expose a named weakness. [Theme; effect needs authoring.]",
+          "Six of Wands: Public praise or the prospect of acclaim makes it expose itself. [Theme; effect needs authoring.]"
+        ],
+        "campaignProfile": {
+          "versionKey": "40026b9f5511ea8cdff213d60fb6de9bd4ba086d143bff77349d7fbc0f1e5e77",
+          "specialAbilityCount": 3,
+          "requiredVulnerabilityCount": 4,
+          "stockVulnerabilityCount": 0,
+          "authoredVulnerabilityCount": 0,
+          "randomVulnerabilities": [
+            {
+              "id": "weakness_water",
+              "label": "Water",
+              "category": "physical_or_folkloric",
+              "prompt": "A specified form of water dissolves, weakens, or ritually unbinds it.",
+              "needsAuthoring": true
+            },
+            {
+              "id": "tarot_page_of_pentacles",
+              "label": "Page of Pentacles",
+              "category": "symbolic",
+              "prompt": "A tangible promise of learning makes it relinquish a guarded advantage.",
+              "needsAuthoring": true
+            },
+            {
+              "id": "pendragon_cruel",
+              "label": "Cruelty",
+              "category": "psychological",
+              "prompt": "Its appetite for suffering makes it prolong an opportunity and expose a named weakness.",
+              "needsAuthoring": true
+            },
+            {
+              "id": "tarot_six_of_wands",
+              "label": "Six of Wands",
+              "category": "symbolic",
+              "prompt": "Public praise or the prospect of acclaim makes it expose itself.",
+              "needsAuthoring": true
+            }
+          ],
+          "regenerationCounters": [],
+          "sourceNotes": []
+        }
+      },
+      "treasure": {
+        "roll": 1,
+        "present": true,
+        "quality": "normal",
+        "xpValue": 1,
+        "coins": {
+          "gp": 0,
+          "sp": 0,
+          "cp": 0
+        },
+        "items": [
+          "Mithral locket with a painting of a halfling (20 gp)"
+        ],
+        "tableBasis": "core_treasure_0-3_50-53"
+      },
+      "draws": {
+        "encounter": [
+          {
+            "maxExclusive": 8,
+            "result": 5
+          }
+        ],
+        "treasure": [
+          {
+            "maxExclusive": 6,
+            "result": 0
+          },
+          {
+            "maxExclusive": 79,
+            "result": 29
+          }
+        ]
+      }
+    },
+    {
+      "input": {
+        "zoneId": "the_gloaming",
+        "tableIndex": 1,
+        "monsterKey": "bogthorn"
+      },
+      "monster": {
+        "id": 0,
+        "monsterKey": "bogthorn",
+        "name": "Bogthorn",
+        "currentHp": 11,
+        "maxHp": 11,
+        "loreTier": 0,
+        "ac": 13,
+        "morale": 8,
+        "level": 2,
+        "family": "Plant",
+        "source": "cursed_scroll_1",
+        "move": "near (climb)",
+        "abilities": {
+          "str": 0,
+          "dex": 2,
+          "con": 2,
+          "int": -3,
+          "wis": 1,
+          "cha": -3
+        },
+        "alignment": "C",
+        "attacks": [
+          "1 stab +0 (1d4)",
+          "1 thorn hail (near) +2 (1d4 + poison)"
+        ],
+        "traits": [
+          "Poison. DC 12 CON or paralyzed for 1d4 rounds."
+        ],
+        "lore": [],
+        "harvest": [],
+        "vulnerabilities": [
+          "Five of Pentacles: An act of shelter or aid to the destitute strips its power over deprivation. [Theme; effect needs authoring.]",
+          "Wheel of Fortune: A wager, turn of chance, or repeated cycle makes its power unstable. [Theme; effect needs authoring.]",
+          "Three of Pentacles: Shared craftsmanship or a completed repair undoes its destructive purpose. [Theme; effect needs authoring.]"
+        ],
+        "campaignProfile": {
+          "versionKey": "324695846eee2196b1ad01ee2de7d54996ca2b70bdc5b6a6a1b8827013e8b6e4",
+          "specialAbilityCount": 2,
+          "requiredVulnerabilityCount": 3,
+          "stockVulnerabilityCount": 0,
+          "authoredVulnerabilityCount": 0,
+          "randomVulnerabilities": [
+            {
+              "id": "tarot_five_of_pentacles",
+              "label": "Five of Pentacles",
+              "category": "symbolic",
+              "prompt": "An act of shelter or aid to the destitute strips its power over deprivation.",
+              "needsAuthoring": true
+            },
+            {
+              "id": "tarot_wheel_of_fortune",
+              "label": "Wheel of Fortune",
+              "category": "symbolic",
+              "prompt": "A wager, turn of chance, or repeated cycle makes its power unstable.",
+              "needsAuthoring": true
+            },
+            {
+              "id": "tarot_three_of_pentacles",
+              "label": "Three of Pentacles",
+              "category": "symbolic",
+              "prompt": "Shared craftsmanship or a completed repair undoes its destructive purpose.",
+              "needsAuthoring": true
+            }
+          ],
+          "regenerationCounters": [],
+          "sourceNotes": []
+        }
+      },
+      "treasure": {
+        "roll": 4,
+        "present": false,
+        "quality": "poor",
+        "xpValue": 0,
+        "coins": {
+          "cp": 0,
+          "sp": 0,
+          "gp": 0
+        },
+        "items": [],
+        "tableBasis": "core_treasure_0-3_empty"
+      },
+      "draws": {
+        "encounter": [
+          {
+            "maxExclusive": 8,
+            "result": 1
+          }
+        ],
+        "treasure": [
+          {
+            "maxExclusive": 6,
+            "result": 3
+          }
+        ]
+      }
+    },
+    {
+      "input": {
+        "zoneId": "the_gloaming",
+        "tableIndex": 0,
+        "monsterKey": "bittermold"
+      },
+      "monster": {
+        "id": 0,
+        "monsterKey": "bittermold",
+        "name": "Bittermold",
+        "currentHp": 5,
+        "maxHp": 5,
+        "loreTier": 0,
+        "ac": 12,
+        "morale": 7,
+        "level": 1,
+        "family": "Plant",
+        "source": "cursed_scroll_1",
+        "move": "near",
+        "abilities": {
+          "str": 1,
+          "dex": 2,
+          "con": 1,
+          "int": 0,
+          "wis": 0,
+          "cha": 0
+        },
+        "alignment": "C",
+        "attacks": [
+          "1 shortsword +1 (1d6)",
+          "1 sling (far) +2 (1d4)"
+        ],
+        "traits": [
+          "Rubbery. Half damage from stabbing weapons."
+        ],
+        "lore": [],
+        "harvest": [],
+        "vulnerabilities": [
+          "Queen of Cups: Genuine empathy exposes the sorrow sustaining its hostility. [Theme; effect needs authoring.]",
+          "The Empress: An act of nurture, fertile earth, or a living garden overcomes its destructive nature. [Theme; effect needs authoring.]"
+        ],
+        "campaignProfile": {
+          "versionKey": "a1ce3d7c83859c6a9e275a9e8af4fd4c6d8cbb0db89c6981f4e05910b3a9331e",
+          "specialAbilityCount": 1,
+          "requiredVulnerabilityCount": 2,
+          "stockVulnerabilityCount": 0,
+          "authoredVulnerabilityCount": 0,
+          "randomVulnerabilities": [
+            {
+              "id": "tarot_queen_of_cups",
+              "label": "Queen of Cups",
+              "category": "symbolic",
+              "prompt": "Genuine empathy exposes the sorrow sustaining its hostility.",
+              "needsAuthoring": true
+            },
+            {
+              "id": "tarot_the_empress",
+              "label": "The Empress",
+              "category": "symbolic",
+              "prompt": "An act of nurture, fertile earth, or a living garden overcomes its destructive nature.",
+              "needsAuthoring": true
+            }
+          ],
+          "regenerationCounters": [],
+          "sourceNotes": []
+        }
+      },
+      "treasure": {
+        "roll": 6,
+        "present": false,
+        "quality": "poor",
+        "xpValue": 0,
+        "coins": {
+          "cp": 0,
+          "sp": 0,
+          "gp": 0
+        },
+        "items": [],
+        "tableBasis": "core_treasure_0-3_empty"
+      },
+      "draws": {
+        "encounter": [
+          {
+            "maxExclusive": 8,
+            "result": 0
+          }
+        ],
+        "treasure": [
+          {
+            "maxExclusive": 6,
+            "result": 5
+          }
+        ]
+      }
+    },
+    {
+      "input": {
+        "zoneId": "the_gloaming",
+        "tableIndex": 6,
+        "monsterKey": "marrow_fiend"
+      },
+      "monster": {
+        "id": 0,
+        "monsterKey": "marrow_fiend",
+        "name": "Marrow Fiend",
+        "currentHp": 39,
+        "maxHp": 39,
+        "loreTier": 0,
+        "ac": 15,
+        "morale": 12,
+        "level": 8,
+        "family": "Fiend",
+        "source": "cursed_scroll_1",
+        "move": "near (climb)",
+        "abilities": {
+          "str": 4,
+          "dex": 4,
+          "con": 3,
+          "int": 2,
+          "wis": 3,
+          "cha": 3
+        },
+        "alignment": "C",
+        "attacks": [
+          "2 claws +7 (1d10) and 1 sap gout (near line) +5 (2d6 + sap)"
+        ],
+        "traits": [
+          "Devour. Use turn to devour a humanoid body to regain 3d8"
+        ],
+        "lore": [],
+        "harvest": [],
+        "vulnerabilities": [
+          "Slashing: Takes twice the damage from slashing damage.",
+          "Three of Swords: Evidence of a betrayal reopens its wound and weakens its resolve. [Theme; effect needs authoring.]",
+          "Worldliness: A material pleasure or worldly status offer makes it neglect a sustaining obligation. [Theme; effect needs authoring.]"
+        ],
+        "campaignProfile": {
+          "versionKey": "39d33e237e12a02a9dde188ebc13c7244aa638c9ab3779f0da8d36cacbe90c06",
+          "specialAbilityCount": 2,
+          "requiredVulnerabilityCount": 3,
+          "stockVulnerabilityCount": 0,
+          "authoredVulnerabilityCount": 0,
+          "randomVulnerabilities": [
+            {
+              "id": "weakness_slashing",
+              "label": "Slashing",
+              "category": "damage",
+              "prompt": "Unusually susceptible to slashing damage.",
+              "effect": "Takes twice the damage from slashing damage.",
+              "needsAuthoring": false
+            },
+            {
+              "id": "tarot_three_of_swords",
+              "label": "Three of Swords",
+              "category": "symbolic",
+              "prompt": "Evidence of a betrayal reopens its wound and weakens its resolve.",
+              "needsAuthoring": true
+            },
+            {
+              "id": "pendragon_worldly",
+              "label": "Worldliness",
+              "category": "psychological",
+              "prompt": "A material pleasure or worldly status offer makes it neglect a sustaining obligation.",
+              "needsAuthoring": true
+            }
+          ],
+          "regenerationCounters": [],
+          "sourceNotes": []
+        }
+      },
+      "treasure": {
+        "roll": 3,
+        "present": true,
+        "quality": "fabulous",
+        "xpValue": 3,
+        "coins": {
+          "gp": 0,
+          "sp": 0,
+          "cp": 0
+        },
+        "items": [
+          "Unearthed Wand (wand) — Magic wand, 3rd-tier spell (250 gp)"
+        ],
+        "tableBasis": "core_treasure_7-9_78-79"
+      },
+      "draws": {
+        "encounter": [
+          {
+            "maxExclusive": 8,
+            "result": 6
+          }
+        ],
+        "treasure": [
+          {
+            "maxExclusive": 6,
+            "result": 2
+          },
+          {
+            "maxExclusive": 79,
+            "result": 56
+          },
+          {
+            "maxExclusive": 36,
+            "result": 34
+          }
+        ]
+      }
+    }
+  ],
+  "treasure": [
+    {
+      "discoveringLevel": 1,
+      "result": {
+        "roll": 76,
+        "entry": {
+          "min": 76,
+          "max": 77,
+          "description": "Radiant, polished pearl (40 gp)",
+          "valueGp": 40
+        },
+        "quality": "fabulous",
+        "xpValue": 3,
+        "coins": {
+          "gp": 0,
+          "sp": 0,
+          "cp": 0
+        },
+        "items": [
+          "Radiant, polished pearl (40 gp)"
+        ],
+        "tableBasis": "core_treasure_0-3_76-77"
+      },
+      "draws": [
+        {
+          "maxExclusive": 100,
+          "result": 75
+        }
+      ]
+    },
+    {
+      "discoveringLevel": 5,
+      "result": {
+        "roll": 46,
+        "entry": {
+          "min": 46,
+          "max": 47,
+          "description": "Rare incense that is repulsive to undead (50 gp)",
+          "valueGp": 50
+        },
+        "quality": "normal",
+        "xpValue": 1,
+        "coins": {
+          "gp": 0,
+          "sp": 0,
+          "cp": 0
+        },
+        "items": [
+          "Rare incense that is repulsive to undead (50 gp)"
+        ],
+        "tableBasis": "core_treasure_4-6_46-47"
+      },
+      "draws": [
+        {
+          "maxExclusive": 100,
+          "result": 46
+        }
+      ]
+    },
+    {
+      "discoveringLevel": 8,
+      "result": {
+        "roll": 80,
+        "entry": {
+          "min": 80,
+          "max": 81,
+          "description": "4th-tier spell scroll (260 gp)",
+          "valueGp": 260
+        },
+        "quality": "fabulous",
+        "xpValue": 3,
+        "coins": {
+          "gp": 0,
+          "sp": 0,
+          "cp": 0
+        },
+        "items": [
+          "4th-tier spell scroll (260 gp)"
+        ],
+        "tableBasis": "core_treasure_7-9_80-81"
+      },
+      "draws": [
+        {
+          "maxExclusive": 100,
+          "result": 80
+        }
+      ]
+    },
+    {
+      "discoveringLevel": 11,
+      "result": {
+        "roll": 30,
+        "entry": {
+          "min": 30,
+          "max": 31,
+          "description": "Jade sculpture of a meditating elephant-man (140 gp)",
+          "valueGp": 140
+        },
+        "quality": "normal",
+        "xpValue": 1,
+        "coins": {
+          "gp": 0,
+          "sp": 0,
+          "cp": 0
+        },
+        "items": [
+          "Jade sculpture of a meditating elephant-man (140 gp)"
+        ],
+        "tableBasis": "core_treasure_10+_30-31"
+      },
+      "draws": [
+        {
+          "maxExclusive": 100,
+          "result": 30
+        }
+      ]
+    }
+  ]
+}
+```

@@ -1,0 +1,145 @@
+{
+  "input_rows": 1470,
+  "mapped_rows": 1325,
+  "excluded_rows": 145,
+  "by_group": {
+    "Armour": 87,
+    "Armour component": 191,
+    "Equipment": 147,
+    "Shield": 93,
+    "Weapon": 807
+  },
+  "by_category": {
+    "chain": 28,
+    "leather": 92,
+    "none": 53,
+    "plate": 105,
+    "Arcane focus": 28,
+    "Holy symbol": 56,
+    "Quiver": 17,
+    "Spellbook": 4,
+    "Wand": 42,
+    "Round shield": 20,
+    "Shield": 73,
+    "Bastard sword": 3,
+    "Club": 15,
+    "Crossbow": 66,
+    "Dagger": 85,
+    "Falchion": 3,
+    "Greataxe": 49,
+    "Greatsword": 47,
+    "Handaxe": 54,
+    "Javelin": 21,
+    "Lance": 3,
+    "Longbow": 36,
+    "Longsword": 45,
+    "Mace": 36,
+    "Morningstar": 42,
+    "Pike": 71,
+    "Scimitar": 38,
+    "Shortbow": 28,
+    "Shortsword": 8,
+    "Spear": 28,
+    "Staff": 42,
+    "Stave": 29,
+    "Strikes": 18,
+    "Warhammer": 40
+  },
+  "source_heading_corrections": [
+    [
+      "Diablo II",
+      "Elite Helms"
+    ],
+    [
+      "Diablo II",
+      "Exceptional Axes"
+    ],
+    [
+      "Diablo II",
+      "Exceptional Bows"
+    ],
+    [
+      "Diablo II",
+      "Exceptional Crossbows"
+    ],
+    [
+      "Diablo II",
+      "Exceptional Daggers"
+    ],
+    [
+      "Diablo II",
+      "Exceptional Javelins"
+    ],
+    [
+      "Diablo II",
+      "Exceptional Mace Classes: Clubs, Maces and Hammers"
+    ],
+    [
+      "Diablo II",
+      "Exceptional Polearms"
+    ],
+    [
+      "Diablo II",
+      "Exceptional Scepters"
+    ],
+    [
+      "Diablo II",
+      "Exceptional Spears"
+    ],
+    [
+      "Diablo II",
+      "Exceptional Staves"
+    ],
+    [
+      "Diablo II",
+      "Exceptional Swords"
+    ],
+    [
+      "Diablo II",
+      "Exceptional Throwing Weapons"
+    ],
+    [
+      "Diablo II",
+      "Exceptional Wands"
+    ],
+    [
+      "Diablo II",
+      "Normal Amazon Bows, Spears and Javelins"
+    ],
+    [
+      "Diablo II",
+      "Normal Armor"
+    ],
+    [
+      "Diablo II",
+      "Normal Axes"
+    ],
+    [
+      "Diablo II",
+      "Normal Belts"
+    ],
+    [
+      "Diablo II",
+      "Normal Boots"
+    ],
+    [
+      "Diablo II",
+      "Normal Gloves"
+    ],
+    [
+      "Diablo II",
+      "Normal Shields"
+    ]
+  ],
+  "weapon_categories_without_diablo_match": [
+    "Blowgun",
+    "Boomerang",
+    "Chakram",
+    "Rapier",
+    "Razor chain",
+    "Sai",
+    "Shuriken",
+    "Sling",
+    "Whip"
+  ]
+}

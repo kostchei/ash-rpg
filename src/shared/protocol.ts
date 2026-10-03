@@ -47,6 +47,8 @@ export const EVENTS = {
   ENCOUNTER_MORALE: "encounter:morale",
   ENCOUNTER_RESOLVE: "encounter:resolve",
   ENCOUNTER_START: "encounter:start",
+  ENCOUNTER_ROLL: "encounter:roll",
+  ENCOUNTER_INSPECT: "encounter:inspect",
   EXPEDITION_CAMP: "expedition:camp",
   EXPEDITION_CAMP_NIGHT: "expedition:camp_night",
   EXPEDITION_FORAGE: "expedition:forage",

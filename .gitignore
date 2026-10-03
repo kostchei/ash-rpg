@@ -96,6 +96,8 @@ obj/
 
 # Databases & Runtime Game States
 *.sqlite
+*.sqlite-wal
+*.sqlite-shm
 *.sqlite3
 *.db
 *.db-journal
@@ -106,6 +108,9 @@ public/hexcrawl-tiles/
 campaigns/local_*
 saves/local_*
 backups/
+
+# Temporary item-name research downloads
+outputs/diablo-item-names/cache/
 
 # MkDocs Build
 site/

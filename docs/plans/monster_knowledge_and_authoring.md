@@ -1,5 +1,7 @@
 # Monster Knowledge, Tactics & Authoring Plan
 
+**2026-09-30 content-design update:** the requested expansion requires **one vulnerability plus an additional vulnerability per special ability**, including exceptional movement, immunities, AC 20+, and HP 100+. These vulnerabilities need not counter or map to the particular abilities. See the [current profile specification](monster_profile_design.md), [expanded vulnerability pool](../bestiary/vulnerability_pool.md), and [six draft samples](../bestiary/profile_samples.md). The imported catalogue currently contains **301** records. The audit, counts, and UI/knowledge proposals below are historical; the new samples do not implement them.
+
 Status: **planning only — nothing in this document has been implemented yet.**
 
 Three workstreams, done in order because each depends on the one before:

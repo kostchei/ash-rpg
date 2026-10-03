@@ -407,6 +407,25 @@ export interface DungeonRoom {
   createdAt: string;
 }
 
+export interface CampaignMonsterProfile {
+  versionKey: string;
+  form?: string;
+  specialAbilityCount: number;
+  requiredVulnerabilityCount: number;
+  stockVulnerabilityCount: number;
+  authoredVulnerabilityCount: number;
+  randomVulnerabilities: Array<{
+    id: string;
+    label: string;
+    category: string;
+    prompt: string;
+    effect?: string;
+    needsAuthoring: boolean;
+  }>;
+  regenerationCounters: Array<{ name: string; effect: string }>;
+  sourceNotes: string[];
+}
+
 export interface EncounterMonster {
   id: number;
   monsterKey: string;
@@ -428,6 +447,7 @@ export interface EncounterMonster {
   vulnerabilities?: string[];
   lore?: string[];
   harvest?: Array<{ reagent: string; dc: number; effect: string }>;
+  campaignProfile?: CampaignMonsterProfile;
   isVariant?: boolean;
   variantQuality?: string;
   variantStrength?: string;

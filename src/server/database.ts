@@ -25,6 +25,7 @@ function resolveClassId(className: string): string {
   return className.toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "");
 }
 import { generateHexMap } from "./generators/hex-map.js";
+import { campaignMonsterVersionKey, generateCampaignMonster } from "./generators/campaign-monsters.js";
 import { generateProceduralRegion, type GeneratedRegionWorld } from "./generators/procedural-region.js";
 import { questRewardBudget } from "../shared/quest-rewards.js";
 import { CUSTOM_MONSTER_TEMPLATES, resolveMonsterEntry } from "../shared/monster-aliases.js";
@@ -582,7 +583,15 @@ export class AshDatabase {
       this.db.exec("ALTER TABLE dungeon_rooms ADD COLUMN site_id TEXT");
     }
 
+    this.db.exec(`CREATE TABLE IF NOT EXISTS campaign_monster_profiles (
+      campaign_id INTEGER NOT NULL REFERENCES campaigns(id) ON DELETE CASCADE,
+      version_key TEXT NOT NULL, profile_json TEXT NOT NULL,
+      PRIMARY KEY (campaign_id, version_key)
+    )`);
     const encMonCols = this.db.pragma("table_info(encounter_monsters)") as Array<{ name: string }>;
+    if (!encMonCols.some((column) => column.name === "campaign_profile_json")) {
+      this.db.exec("ALTER TABLE encounter_monsters ADD COLUMN campaign_profile_json TEXT");
+    }
     if (!encMonCols.some((c) => c.name === "is_variant")) {
       this.db.exec("ALTER TABLE encounter_monsters ADD COLUMN is_variant INTEGER DEFAULT 0");
       this.db.exec("ALTER TABLE encounter_monsters ADD COLUMN variant_quality TEXT");
@@ -768,6 +777,11 @@ export class AshDatabase {
           harvest,
         });
       }
+    }
+    // Reapply persistent GM edits after the source catalogue has been loaded.
+    for (const override of this.db.prepare("SELECT id FROM monster_overrides").all() as Row[]) {
+      const edited = this.getMonsterFromDb(String(override.id));
+      if (edited) this.bestiaryCache.set(edited.monsterKey, edited);
     }
   }
 
@@ -3053,11 +3067,30 @@ export class AshDatabase {
     return { alreadyResolved: false, path };
   }
 
+  getCampaignMonster(campaignId: number, monster: EncounterMonster): EncounterMonster {
+    const versionKey = monster.campaignProfile?.versionKey ?? campaignMonsterVersionKey(monster);
+    const saved = this.db.prepare("SELECT profile_json FROM campaign_monster_profiles WHERE campaign_id = ? AND version_key = ?")
+      .get(campaignId, versionKey) as Row | undefined;
+    if (saved) return { ...monster, ...JSON.parse(String(saved.profile_json)) };
+    const campaign = this.db.prepare("SELECT code FROM campaigns WHERE id = ?").get(campaignId) as Row | undefined;
+    if (!campaign) throw new Error(`Unknown campaign ${campaignId}`);
+    const generated = generateCampaignMonster(monster, String(campaign.code));
+    const profile = {
+      traits: generated.traits, vulnerabilities: generated.vulnerabilities,
+      campaignProfile: generated.campaignProfile,
+      move: generated.move, ac: generated.ac, attacks: generated.attacks,
+    };
+    this.db.prepare("INSERT INTO campaign_monster_profiles (campaign_id, version_key, profile_json) VALUES (?,?,?)")
+      .run(campaignId, versionKey, JSON.stringify(profile));
+    return generated;
+  }
+
   addEncounterWithMonsters(
     campaignId: number,
     encounterName: string,
     monstersList: EncounterMonster[],
   ) {
+    const campaignMonsters = monstersList.map((monster) => this.getCampaignMonster(campaignId, monster));
     const result = this.db
       .prepare("INSERT INTO encounters (campaign_id,name,created_at) VALUES (?,?,?)")
       .run(campaignId, encounterName, now());
@@ -3065,11 +3098,11 @@ export class AshDatabase {
 
     const insert = this.db.prepare(`
       INSERT INTO encounter_monsters 
-      (encounter_id,monster_key,name,current_hp,max_hp,lore_tier,ac,morale,level,attacks_json,traits_json,lore_json,is_variant,variant_quality,variant_strength,variant_weakness)
-      VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+      (encounter_id,monster_key,name,current_hp,max_hp,lore_tier,ac,morale,level,attacks_json,traits_json,lore_json,is_variant,variant_quality,variant_strength,variant_weakness,campaign_profile_json)
+      VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
     `);
 
-    for (const m of monstersList) {
+    for (const m of campaignMonsters) {
       insert.run(
         encounterId,
         m.monsterKey,
@@ -3087,6 +3120,7 @@ export class AshDatabase {
         m.variantQuality ?? null,
         m.variantStrength ?? null,
         m.variantWeakness ?? null,
+        JSON.stringify({ campaignProfile: m.campaignProfile, vulnerabilities: m.vulnerabilities, move: m.move }),
       );
     }
     return encounterId;
@@ -3124,6 +3158,28 @@ export class AshDatabase {
       WHERE em.id = ? AND e.campaign_id = ?`,
       )
       .get(id, campaignId) as Row | undefined;
+  }
+
+  getEncounterMonsterDetails(campaignId: number, id: number): EncounterMonster | undefined {
+    const row = this.getEncounterMonster(campaignId, id);
+    if (!row) return undefined;
+    const base = this.getMonster(String(row.monster_key));
+    const saved = row.campaign_profile_json ? JSON.parse(String(row.campaign_profile_json)) : {};
+    return {
+      ...base, id, monsterKey: String(row.monster_key), name: String(row.name ?? base?.name ?? row.monster_key),
+      currentHp: Number(row.current_hp), maxHp: Number(row.max_hp), loreTier: Number(row.lore_tier),
+      ac: row.ac != null ? Number(row.ac) : base?.ac,
+      morale: row.morale != null ? Number(row.morale) : base?.morale,
+      level: row.level != null ? Number(row.level) : base?.level,
+      attacks: row.attacks_json ? JSON.parse(String(row.attacks_json)) : base?.attacks,
+      traits: row.traits_json ? JSON.parse(String(row.traits_json)) : base?.traits,
+      lore: row.lore_json ? JSON.parse(String(row.lore_json)) : base?.lore,
+      ...saved,
+      isVariant: Boolean(row.is_variant),
+      variantQuality: row.variant_quality ? String(row.variant_quality) : undefined,
+      variantStrength: row.variant_strength ? String(row.variant_strength) : undefined,
+      variantWeakness: row.variant_weakness ? String(row.variant_weakness) : undefined,
+    };
   }
 
   revealMonsterLore(campaignId: number, id: number, tier: number) {
@@ -3467,6 +3523,7 @@ export class AshDatabase {
           const lore = row.lore_json
             ? JSON.parse(String(row.lore_json))
             : staticMonster?.lore ?? [];
+          const profile = row.campaign_profile_json ? JSON.parse(String(row.campaign_profile_json)) : {};
 
           const combatant = this.getCombatState(campaignId, Number(encounter.id))?.combatants.find(c => c.refId === Number(row.id) && c.kind === "monster");
           const hpVisible = Number(row.current_hp) < Number(row.max_hp) / 2;
@@ -3480,18 +3537,19 @@ export class AshDatabase {
             loreTier: tier,
             level,
             family: staticMonster?.family,
-            move: staticMonster?.move,
+            move: profile.move ?? staticMonster?.move,
             abilities: staticMonster?.abilities,
             alignment: staticMonster?.alignment,
             harvest: staticMonster?.harvest,
             isVariant: Boolean(row.is_variant),
             variantQuality: row.variant_quality ? String(row.variant_quality) : undefined,
             variantStrength: row.variant_strength ? String(row.variant_strength) : undefined,
-            variantWeakness: row.variant_weakness ? String(row.variant_weakness) : undefined,
+            variantWeakness: tier >= 3 && row.variant_weakness ? String(row.variant_weakness) : undefined,
             ...(tier >= 1 ? { lore: lore.slice(0, tier) } : {}),
             ...(combatant?.acRevealed ? { ac } : {}),
             ...(tier >= 2 ? { morale, attacks: [...attacks] } : {}),
-            ...(tier >= 3 ? { traits: [...traits] } : {}),
+            ...(tier >= 3 ? { traits: [...traits], vulnerabilities: profile.vulnerabilities ?? staticMonster?.vulnerabilities,
+              campaignProfile: profile.campaignProfile } : {}),
           };
         }),
       }));

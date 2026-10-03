@@ -6,11 +6,12 @@
     "outDir": "dist/server",
     "rootDir": "src",
     "strict": true,
+    "allowJs": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "sourceMap": true,
     "declaration": false,
     "types": ["node"]
   },
-  "include": ["src/server/**/*.ts", "src/shared/**/*.ts"]
+  "include": ["src/server/**/*.ts", "src/server/**/*.mjs", "src/shared/**/*.ts"]
 }

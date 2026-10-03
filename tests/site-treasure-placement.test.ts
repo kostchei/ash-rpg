@@ -81,10 +81,10 @@ describe("site treasure placement", () => {
 
     // Same forced roll, different table: each site's finds come from its own band.
     for (const find of findsOf(low.rewardSources)) {
-      if (find.items.length > 0) expect(lowRows.has(find.items[0])).toBe(true);
+      if (find.items.length > 0) expect(lowRows.has(find.items[0].split(" — ").at(-1)!)).toBe(true);
     }
     for (const find of findsOf(high.rewardSources)) {
-      if (find.items.length > 0) expect(highRows.has(find.items[0])).toBe(true);
+      if (find.items.length > 0) expect(highRows.has(find.items[0].split(" — ").at(-1)!)).toBe(true);
     }
     const lowDescriptions = findsOf(low.rewardSources).flatMap((s) => s.items);
     const highDescriptions = findsOf(high.rewardSources).flatMap((s) => s.items);

@@ -82,7 +82,7 @@ export function CodexModal({ isOpen, onClose, state }: { isOpen: boolean; onClos
       ...SPELLS.map(spell => ({ id: `spell-${spell.id}`, category: "spells" as const, title: spell.name, tags: [spell.sphere], dc: 10 + spell.tier, summary: `Tier ${spell.tier} ${spell.sphere} · ${spell.range} · ${spell.duration}`, details: spell.description })),
       ...CLASSES.flatMap(c => [...(c.level1Features ?? []).map(f => ({ id: `${c.id}-${f.name}`, category: "talents" as const, title: `${c.name}: ${f.name}`, summary: f.description, details: f.description, tags: [c.name] })), ...(c.talentTable ?? []).map(t => ({ id: `${c.id}-talent-${t.roll}`, category: "talents" as const, title: `${c.name} talent ${t.roll}`, summary: t.effect, details: t.effect, tags: [c.name] }))]),
       ...monsterEntries,
-      ...state.encounters.flatMap(e => e.monsters.filter(m => m.loreTier > 0).map(m => ({ id: `known-${m.id}`, category: "discoveries" as const, title: m.name, summary: `Discovered lore ${m.loreTier}`, details: [...(m.lore ?? []), ...(m.traits ?? [])].join("\n"), tags: ["bestiary"] }))),
+      ...state.encounters.flatMap(e => e.monsters.filter(m => m.loreTier > 0).map(m => ({ id: `known-${m.id}`, category: "discoveries" as const, title: m.name, summary: `Discovered lore ${m.loreTier}`, details: [...(m.lore ?? []), ...(m.traits ?? []), ...(m.vulnerabilities ?? []).map(text => `Vulnerability: ${text}`)].join("\n"), tags: ["bestiary"] }))),
       ...(state.campaign.adventurePath?.activeSituation?.knownClues ?? []).map((clue, i) => ({ id: `clue-${i}`, category: "discoveries" as const, title: `Discovered clue ${i + 1}`, summary: clue, details: clue, tags: ["lore"] })),
     ];
   }, [state.encounters, state.campaign.adventurePath, isHost]);

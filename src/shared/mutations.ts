@@ -2,6 +2,7 @@ import { EVENTS } from "./protocol.js";
 
 /** Actions migrated to transactional receipts. Keep client and server in sync. */
 export const RECEIPTED_ACTIONS = new Set<string>([
+  EVENTS.ENCOUNTER_ROLL,
   EVENTS.PATH_ENCOUNTERS_START,
   EVENTS.PATH_ENCOUNTERS_ARRIVE,
   EVENTS.PATH_ENCOUNTERS_INTERACT,

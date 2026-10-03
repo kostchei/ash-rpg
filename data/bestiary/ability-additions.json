@@ -1,0 +1,215 @@
+{
+  "schemaVersion": 1,
+  "status": "draft",
+  "description": "Original ASH tactical ability proposals for audited monsters with no existing special abilities. Inspired by 4e design and the examples supplied in the design discussion. Not applied to source stats or runtime combat.",
+  "entries": [
+    {
+      "monsterId": "camel", "id": "camel_blinding_spit", "name": "Blinding Spit",
+      "use": "replaces the attack action", "trigger": "An enemy approaches its head", "range": "near",
+      "effect": "Make the existing spit attack (+0, 1d4 damage). On a hit, the target has disadvantage on attacks and sight-based checks until the end of the camel's next turn. This replaces the whole attack routine; no hoof attack is also made.",
+      "frequency": "once per fight", "telegraph": "It pulls back its lips and works its jaw while staring at the target.",
+      "behaviour": "Use against the nearest approaching enemy within near; choose randomly on ties.",
+      "inspiration": "4e-style ranged control: attach a brief tactical rider to an existing attack. Original ASH adaptation."
+    },
+    {
+      "monsterId": "centaur", "id": "centaur_running_spear", "name": "Running Spear",
+      "use": "combines normal movement and the normal spear attack action", "trigger": "A straight traversable route passes close to an enemy", "range": "normal movement; attacks remain close",
+      "effect": "Split its normal movement before and after its usual spear attacks. It can attack at any point along that movement, then finish the remaining distance. It gains no additional movement, attacks, or damage, and cannot also use its longbow.",
+      "frequency": "at will", "telegraph": "It lowers its spear and angles toward a route past the target.",
+      "behaviour": "Use when it can finish the move beyond close of its target without approaching another enemy; choose the nearest reachable isolated target, then randomly.",
+      "inspiration": "The 4e Mobile Melee Attack example supplied in the discussion: attack partway through movement."
+    },
+    {
+      "monsterId": "cyclops", "id": "cyclops_shattering_boulder", "name": "Shattering Boulder",
+      "use": "replaces the attack action", "trigger": "At least two enemies are close to a visible impact point", "range": "far; close radius at impact",
+      "effect": "Hurl a rock at the announced ground point. Every creature close to the point makes DC 12 DEX: failure takes 1d12 damage and falls prone; success takes no damage and stays standing. This replaces all greatclub and normal rock attacks. Requires a loose rock it can lift. Standing from prone uses movement; melee attacks against a prone creature have advantage.",
+      "frequency": "once per fight", "telegraph": "At the end of its preceding turn it raises a cracked boulder and announces the intended impact point.",
+      "behaviour": "Use on the visible impact point covering the most enemies and no allies; choose randomly between equally useful points.",
+      "inspiration": "4e-style brute area attack with forced positioning and a warning. Original ASH adaptation."
+    },
+    {
+      "monsterId": "tyrannosaurus", "id": "tyrannosaurus_pinning_bite", "name": "Pinning Bite",
+      "use": "replaces the attack action", "trigger": "A creature no larger than a horse is close", "range": "close",
+      "effect": "Make one existing bite attack (+8, 2d12 damage). A hit also holds the target in its jaws; the target cannot move away until it spends an action and succeeds on DC 15 STR, or the tyrannosaurus releases it. The tyrannosaurus cannot use other bites while holding the target, but can move and carry it. No automatic damage occurs while held. This replaces the normal three bites; dropping to 0 HP releases the target.",
+      "frequency": "at will; only one held target", "telegraph": "It opens its jaws over the target rather than snapping and withdrawing.",
+      "behaviour": "Use against the nearest eligible isolated creature; while holding one, retreat from its companions if a safe route exists.",
+      "inspiration": "4e-style grab control: trade multiattack damage for capture and movement. Original ASH adaptation."
+    },
+    {
+      "monsterId": "brachiosaurus", "id": "brachiosaurus_ground_shudder", "name": "Ground Shudder",
+      "use": "replaces the attack action", "trigger": "At least two enemies are close on the same solid ground", "range": "close",
+      "effect": "Make one existing stomp attack (+7, 2d10 damage) against a close target. Whether it hits or misses, all other creatures close to it on the same solid ground make DC 12 DEX or fall prone. No additional damage is dealt. Flying creatures are unaffected by the ground shock. This replaces the normal three stomps.",
+      "frequency": "once per fight", "telegraph": "It raises a forefoot high and the ground trembles as its weight shifts.",
+      "behaviour": "Use when two or more enemies crowd its feet and no herd mate is in the area; attack the nearest enemy, then randomly.",
+      "inspiration": "4e-style trample/brute control: an attack changes the surrounding formation. Original ASH adaptation."
+    },
+    {
+      "monsterId": "giant_hill", "id": "hill_giant_bowling_boulder", "name": "Bowling Boulder",
+      "use": "replaces the attack action", "trigger": "A visible enemy is on an unobstructed ground route", "range": "the existing boulder attack's far range",
+      "effect": "Make one existing boulder attack (+6, 2d10 damage). On a hit, the target makes DC 12 STR or is pushed up to near directly away from the giant, stopping at an obstacle or lethal drop. This replaces all normal attacks, and causes no extra collision damage.",
+      "frequency": "at will when a suitable boulder is available", "telegraph": "It rolls the boulder between its palms and looks down the intended route.",
+      "behaviour": "Use against the nearest enemy whose displacement would break a defensive line; otherwise use ordinary attacks.",
+      "inspiration": "4e-style forced-movement attack. Original ASH adaptation using the source boulder."
+    },
+    {
+      "monsterId": "gladiator", "id": "gladiator_pressing_exchange", "name": "Pressing Exchange",
+      "use": "modifies one hit in the normal longsword attack action", "trigger": "Its first longsword attack hits a close enemy", "range": "close",
+      "effect": "Instead of dealing damage with that first hit, force the target to make DC 12 STR. Failure pushes it a close distance; success prevents the push. The gladiator may follow with a close shift and use its remaining normal longsword attack if the target is still reachable. The shift comes from its normal movement allowance. No additional attack is granted.",
+      "frequency": "once on its turn", "telegraph": "It crowds the target with its shoulder and turns the first blade strike into a shove.",
+      "behaviour": "Use to move an enemy away from an ally or out of cover; if neither outcome is available, deal normal damage.",
+      "inspiration": "4e-style mobile melee and forced movement; original ASH attack substitution."
+    },
+    {
+      "monsterId": "guard", "id": "guard_interpose", "name": "Interpose",
+      "use": "triggered defence; spends its next attack action", "trigger": "A close ally is hit by a melee attack while the guard is standing", "range": "close",
+      "effect": "The guard immediately shifts to an unoccupied reachable position close to that ally and takes the triggering attack's damage and riders instead. The shift cannot pass through an enemy. It forfeits its next attack action, but may still move on that turn. It must be conscious and able to move; it cannot intercept area damage.",
+      "frequency": "once per fight", "telegraph": "It keeps its weapon across the approach to the person it protects.",
+      "behaviour": "Use for the protected person named before the encounter; if none is named, protect the close ally with the lowest current HP, choosing randomly on ties.",
+      "inspiration": "4e-style soldier role: protecting an ally through a limited triggered action. Original ASH adaptation."
+    },
+    {
+      "monsterId": "horse", "id": "horse_wheeling_kick", "name": "Wheeling Kick",
+      "use": "normal attack action with a movement rider", "trigger": "An enemy is close and an escape route is open", "range": "close",
+      "effect": "Make its existing hooves attack (+3, 1d6 damage). On a hit, push the target a close distance directly away. The horse may then use any unspent normal movement to retreat. The push stops at an obstacle or lethal drop; there is no extra attack or extra movement.",
+      "frequency": "at will", "telegraph": "It turns its hindquarters toward the threat and gathers its weight over its forelegs.",
+      "behaviour": "Kick the nearest close threat and retreat along the safest traversable route; choose randomly between equal routes.",
+      "inspiration": "4e-style mobile strike: an existing attack creates room to move. Original ASH adaptation."
+    },
+    {
+      "monsterId": "lion", "id": "lion_pouncing_rend", "name": "Pouncing Rend",
+      "use": "combines normal movement with one replacement attack", "trigger": "It can reach a target from outside close during its normal move", "range": "normal movement ending close",
+      "effect": "Move toward the target and make one existing rend attack (+4, 1d8 damage). On a hit the target makes DC 12 STR or falls prone. This replaces both normal rend attacks, uses the normal movement allowance, and deals no extra damage.",
+      "frequency": "at will when starting outside close", "telegraph": "It crouches low and fixes its gaze on a single target.",
+      "behaviour": "Pounce on the nearest reachable isolated creature; if already close, use its ordinary attacks instead.",
+      "inspiration": "4e-style pounce: combine movement with a knockdown rather than bonus attacks. Original ASH adaptation."
+    },
+    {
+      "monsterId": "mastiff", "id": "mastiff_hampering_bite", "name": "Hampering Bite",
+      "use": "modifies the existing bite attack", "trigger": "Its bite hits a close enemy", "range": "close",
+      "effect": "After normal bite damage (+1, 1d6), the target makes DC 9 STR. Failure halves its movement until the end of its next turn as the mastiff worries its clothing or leg. This does not immobilize it, grant automatic hits, or deal ongoing damage. Success prevents the movement penalty.",
+      "frequency": "once on its turn", "telegraph": "It circles low and snaps at legs rather than the torso.",
+      "behaviour": "Use on the nearest enemy moving toward its handler; if no handler is present, the nearest enemy.",
+      "inspiration": "4e-style skirmisher control: a basic attack imposes a short movement penalty. Original ASH adaptation."
+    },
+    {
+      "monsterId": "moose", "id": "moose_antler_sweep", "name": "Antler Sweep",
+      "use": "replaces the normal attack action", "trigger": "Two enemies are close on its forward side", "range": "close",
+      "effect": "Make one existing antler attack (+3, 1d6 damage) against each of up to two close creatures on its forward side. On a hit, push that target a close distance sideways to a visible safe position. This uses the source's two-attack allowance; it grants no extra attacks or damage. If both targets cannot be placed safely, only displace those that can.",
+      "frequency": "at will", "telegraph": "It lowers its antlers sideways and scrapes the ground.",
+      "behaviour": "Use to open a retreat route through two nearby enemies; otherwise use ordinary antler attacks.",
+      "inspiration": "4e-style sweep attack that breaks a front line. Original ASH adaptation."
+    },
+    {
+      "monsterId": "ogre", "id": "ogre_sweeping_club", "name": "Sweeping Club",
+      "use": "replaces the normal attack action", "trigger": "At least two enemies are close", "range": "close",
+      "effect": "Make one existing greatclub attack (+6, 2d6 damage) against each of two different close targets. Each hit also pushes its target a close distance directly away. These are the normal two attacks, restricted to different targets; no third attack or bonus damage is gained. Forced movement stops at obstacles and lethal drops.",
+      "frequency": "once per fight", "telegraph": "It draws the club wide for a waist-high sweep.",
+      "behaviour": "Use when two enemies block its approach; choose the two closest, then randomly on ties.",
+      "inspiration": "4e-style brute sweep and push. Original ASH adaptation."
+    },
+    {
+      "monsterId": "peasant", "id": "peasant_desperate_help", "name": "Desperate Help",
+      "use": "replaces the attack action", "trigger": "An ally is within near and threatened", "range": "near; the peasant must be visible and audible to the ally",
+      "effect": "Instead of attacking, distract an enemy with a shouted warning and feint. One allied creature within near gains advantage on its next attack against that enemy before the end of the peasant's next turn. The enemy must also be within near. Multiple Desperate Help uses cannot stack on the same attack.",
+      "frequency": "once per fight", "telegraph": "It grips an improvised weapon and calls out a warning to a companion.",
+      "behaviour": "Aid the threatened ally with lowest current HP, choosing randomly on ties; target the nearest enemy threatening that ally.",
+      "inspiration": "4e-style leader/minion cooperation, paid for with the user's own attack action. Original ASH adaptation."
+    },
+    {
+      "monsterId": "pirate", "id": "pirate_rolling_cutlass", "name": "Rolling Cutlass",
+      "use": "combines normal movement and the normal cutlass attack", "trigger": "A route across the deck or ground passes close to an enemy", "range": "normal movement; attack close",
+      "effect": "Move part of its normal allowance, make its existing cutlass attack (+1, 1d6), and finish the remaining movement. It may pass through an unoccupied close gap beside the target but cannot move through occupied spaces. It gains no extra movement or dagger attack.",
+      "frequency": "at will", "telegraph": "It watches the footing and lowers its body for a rolling advance.",
+      "behaviour": "Use when the move can finish behind cover or close to an ally; attack the nearest reachable enemy on that route.",
+      "inspiration": "The supplied 4e Mobile Melee Attack pattern, adapted to a pirate's ordinary attack."
+    },
+    {
+      "monsterId": "smilodon", "id": "smilodon_bloodied_pin", "name": "Bloodied Pin",
+      "use": "replaces the normal attack action", "trigger": "A bloodied enemy is close", "range": "close",
+      "effect": "Make one existing bite attack (+3, 1d6). On a hit the target makes DC 12 STR or falls prone and cannot stand until the end of the smilodon's next turn. It can act or crawl at half speed. Moving beyond close of the smilodon ends the restriction early. This replaces both normal bites; no bonus damage or follow-up attack occurs.",
+      "frequency": "once per fight", "telegraph": "It watches a wounded target's legs and gathers itself to pin them.",
+      "behaviour": "Use against the close bloodied enemy with lowest current HP, then randomly; otherwise use ordinary bites.",
+      "inspiration": "4e-style bloodied trigger coupled to positional control. Original ASH adaptation."
+    },
+    {
+      "monsterId": "soldier", "id": "soldier_covering_step", "name": "Covering Step",
+      "use": "triggered movement; spends its next movement", "trigger": "A close ally is hit by a melee attack", "range": "close",
+      "effect": "After the attack resolves, the soldier may shift a close distance into an unoccupied reachable space between attacker and ally. The ally gains +2 AC against that attacker while remaining close to the soldier, until the end of the soldier's next turn. The soldier cannot move on its next turn; it still has its normal attack action. The bonus does not stack with another Covering Step.",
+      "frequency": "once per fight", "telegraph": "It maintains a defensive angle beside its companions.",
+      "behaviour": "Protect the close ally with lowest current HP; choose randomly on ties. Use only if an interposing space is available.",
+      "inspiration": "4e-style soldier positioning and limited defensive reaction. Original ASH adaptation."
+    },
+    {
+      "monsterId": "thug", "id": "thug_cornering_shove", "name": "Cornering Shove",
+      "use": "replaces damage from one successful shortsword hit", "trigger": "A hit target can be moved close to one of the thug's allies", "range": "close",
+      "effect": "Instead of normal shortsword damage, the target makes DC 12 STR. Failure lets the thug push it a close distance to a visible safe space close to one of its allies; success prevents movement. No ally receives a free attack. The thug can use only its normal one attack.",
+      "frequency": "at will when a suitable ally and destination exist", "telegraph": "It turns the blade flat and glances toward an accomplice.",
+      "behaviour": "Use when displacement would put a lone enemy between two thugs; otherwise deal normal damage.",
+      "inspiration": "4e-style pack positioning; a setup action rather than an unbounded reaction chain. Original ASH adaptation."
+    },
+    {
+      "monsterId": "violet_fungus", "id": "violet_fungus_grasping_tendril", "name": "Grasping Tendril",
+      "use": "modifies one existing tendril hit", "trigger": "A tendril attack hits a creature within near", "range": "near",
+      "effect": "After dealing its existing tendril damage (+0, 1d4), the target makes DC 9 STR or is tethered to the fungus. It cannot move farther from the fungus but can move toward it and act normally. An action and DC 9 STR tears the tendril free; cutting it with a successful damaging attack against AC 9 also releases the target. No automatic damage occurs, and subsequent hits do not create more tethers. A tether ends if the fungus dies.",
+      "frequency": "at most one tethered target", "telegraph": "One tendril curls into a loop before striking.",
+      "behaviour": "Tether the nearest approaching enemy; once holding a target, use ordinary attacks without creating another tether.",
+      "inspiration": "4e-style controller: a simple attack creates a persistent positional problem. Original ASH adaptation."
+    },
+    {
+      "monsterId": "viperian", "id": "viperian_scimitar_feint", "name": "Scimitar Feint",
+      "use": "substitutes for the first attack of its normal two-scimitar routine", "trigger": "A close enemy is watching its blades", "range": "close",
+      "effect": "Make the first scimitar attack (+2) as a feint, dealing no damage even on a hit. If it hits, the target has disadvantage on its next attack against the viperian before the end of the viperian's next turn. The viperian may make its second ordinary scimitar attack (+2, 1d6) as normal. An enemy unable to see the feint is unaffected by its rider.",
+      "frequency": "once on its turn", "telegraph": "It reverses one blade and presents an apparently open guard.",
+      "behaviour": "Use against a close enemy preparing to attack it; otherwise use both scimitars for normal damage.",
+      "inspiration": "4e-style melee control: sacrifice one attack's damage for a defensive tactical effect. Original ASH adaptation."
+    },
+    {
+      "monsterId": "worg", "id": "worg_driving_bite", "name": "Driving Bite",
+      "use": "modifies its existing bite", "trigger": "Its bite hits and an allied worg or wolf is nearby", "range": "close",
+      "effect": "After normal bite damage (+3, 1d6), the target makes DC 12 STR. Failure lets the worg pull it a close distance toward a visible allied wolf or worg within near. The destination must be safe supporting ground, and the pull cannot pass an obstruction. No extra attack or ongoing damage is granted.",
+      "frequency": "once on its turn", "telegraph": "It circles opposite a companion and snaps sideways at the target.",
+      "behaviour": "Use when a safe pull would put the target close to an ally; choose the nearest suitable ally, then randomly.",
+      "inspiration": "4e-style coordinated pack movement; prepares an ally's normal turn without granting a free strike. Original ASH adaptation."
+    },
+    {
+      "monsterId": "donkey", "id": "donkey_braced_kick", "name": "Braced Kick",
+      "use": "replaces movement and modifies the normal attack", "trigger": "A close enemy is pressing it", "range": "close",
+      "effect": "Remain in place for this turn and make its existing hoof attack (+3, 1d4). On a hit the target makes DC 9 STR or is pushed a close distance directly away. The push ends at an obstruction or lethal drop. The donkey gains no extra attack, movement, or damage.",
+      "frequency": "at will", "telegraph": "It plants its forefeet and pins back its ears.",
+      "behaviour": "Use on the nearest close threat when guarding a burden or handler; otherwise retreat if possible.",
+      "inspiration": "4e-style stance tradeoff: surrender mobility to gain positional control. Original ASH adaptation."
+    },
+    {
+      "monsterId": "camel_silver", "id": "silver_camel_blinding_spit", "name": "Blinding Spit",
+      "use": "replaces the attack action", "trigger": "An enemy approaches its head", "range": "near",
+      "effect": "Make the existing spit attack (+0, 1d4 damage). On a hit, the target has disadvantage on attacks and sight-based checks until the end of the camel's next turn. This replaces the whole attack routine; no hoof attack is also made.",
+      "frequency": "once per fight", "telegraph": "It pulls back its lips and works its jaw while staring at the target.",
+      "behaviour": "Use against the nearest approaching enemy within near; choose randomly on ties.",
+      "inspiration": "The same original 4e-style ranged-control adaptation as the core camel, keeping the related creatures consistent."
+    },
+    {
+      "monsterId": "horse_war", "id": "war_horse_riders_opening", "name": "Rider's Opening",
+      "use": "replaces the horse's attack action", "trigger": "A conscious rider is mounted and a target is close", "range": "close",
+      "effect": "The horse feints a kick instead of attacking. Its rider gains advantage on their next melee attack against the chosen target before the end of the horse's next turn. This does not grant an immediate attack or additional rider action. The benefit ends if the rider dismounts and does not stack with another advantage-granting support effect.",
+      "frequency": "once per fight", "telegraph": "It squares its shoulders beside its rider's weapon arm.",
+      "behaviour": "Use against the nearest close target the rider can reach; if unmounted, use ordinary hooves attacks.",
+      "inspiration": "4e-style allied coordination with an explicit action cost. Original ASH adaptation."
+    },
+    {
+      "monsterId": "rookie", "id": "rookie_follow_the_veteran", "name": "Follow the Veteran",
+      "use": "modifies the normal attack action", "trigger": "An allied creature within near hit the intended target since the rookie's previous turn", "range": "the selected normal weapon's range",
+      "effect": "The rookie gains advantage on its next normal weapon attack against that target on this turn. It receives no extra attack or damage. Only a hit from an ally's ordinary attack action can qualify; triggered attacks and other Follow the Veteran attacks cannot qualify.",
+      "frequency": "once per fight", "telegraph": "It watches a more experienced ally's attack and repeats the opening.",
+      "behaviour": "Choose the nearest eligible target it can reach with its shortsword or javelin; otherwise attack normally.",
+      "inspiration": "The supplied 4e Bloodthirst example's allied follow-up idea, adapted to improve a normal turn rather than grant a reaction attack."
+    },
+    {
+      "monsterId": "hero", "id": "hero_rallying_stand", "name": "Rallying Stand",
+      "use": "replaces the attack action", "trigger": "The hero is bloodied and at least one ally is within near", "range": "near; allies must see or hear the hero",
+      "effect": "Instead of its normal attacks, the hero rallies conscious allies within near. Each gains advantage on its next morale check before the end of the encounter: roll 2d6 twice and use the lower total. Each bonus is consumed by that check and cannot stack with another Rallying Stand. This heals no HP and grants no attacks.",
+      "frequency": "once per fight", "telegraph": "Wounded, it plants its weapon and calls its companions by name.",
+      "behaviour": "Use on its first turn while bloodied if any conscious ally is within near; otherwise attack normally.",
+      "inspiration": "4e-style bloodied leader power: a visible change of state creates a limited rally. Original ASH adaptation."
+    }
+  ]
+}

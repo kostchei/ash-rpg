@@ -5,16 +5,52 @@ import { EVENTS } from "../shared/protocol";
 import type { Act } from "./ui/types";
 
 /** What the table currently knows about a monster, gated by the lore tier already revealed server-side. */
-function MonsterKnowledge({ monster }: { monster: EncounterMonster }) {
-  const known = (monster.lore?.length ?? 0) > 0 || (monster.attacks?.length ?? 0) > 0 || (monster.traits?.length ?? 0) > 0;
-  if (!known) {
-    return <p className="monster-knowledge unknown">No lore revealed yet — the table doesn't recognize this creature. Test an attack or investigate to learn more.</p>;
-  }
+function MonsterKnowledge({ monster, state, act }: { monster: EncounterMonster; state: CampaignState; act: Act }) {
+  const [characterId, setCharacterId] = useState(state.me.characterId ?? state.characters[0]?.id);
+  const [details, setDetails] = useState<EncounterMonster>();
+  const [treasure, setTreasure] = useState<{ present: boolean; coins: { gp: number; sp: number; cp: number }; items: string[] } | null>(null);
+  const [error, setError] = useState("");
+  const [busy, setBusy] = useState(false);
+  const inspect = async () => {
+    setBusy(true); setError("");
+    try {
+      const result = await act<{ monster: EncounterMonster; treasure: typeof treasure }>(EVENTS.ENCOUNTER_INSPECT, { monsterId: monster.id });
+      setDetails(result.monster);
+      setTreasure(result.treasure);
+    } catch (err) { setError(err instanceof Error ? err.message : "Unable to inspect encounter"); }
+    finally { setBusy(false); }
+  };
+  const known = (monster.lore?.length ?? 0) > 0 || (monster.attacks?.length ?? 0) > 0 || (monster.traits?.length ?? 0) > 0 || (monster.vulnerabilities?.length ?? 0) > 0;
   return <div className="monster-knowledge">
+    {!known && <p className="unknown">No lore revealed yet — the table doesn't recognize this creature. Test an attack or investigate to learn more.</p>}
     {monster.family && <p><b>Kind:</b> {monster.family}{monster.move ? ` · ${monster.move}` : ""}</p>}
     {monster.lore && monster.lore.length > 0 && <ul className="monster-lore">{monster.lore.map((l, i) => <li key={i}>{l}</li>)}</ul>}
     {monster.attacks && monster.attacks.length > 0 && <div><b>Attacks:</b><ul className="monster-attacks">{monster.attacks.map((a, i) => <li key={i}>{a}</li>)}</ul></div>}
     {monster.traits && monster.traits.length > 0 && <div><b>Traits:</b><ul className="monster-traits">{monster.traits.map((t, i) => <li key={i}>{t}</li>)}</ul></div>}
+    {monster.campaignProfile?.form && <p><b>Form:</b> {monster.campaignProfile.form}</p>}
+    {monster.vulnerabilities && monster.vulnerabilities.length > 0 && <div><b>Vulnerabilities:</b><ul>{monster.vulnerabilities.map((text, i) => <li key={i}>{text}</li>)}</ul></div>}
+    <div className="companion-actions">
+      {state.me.role === "host" && state.characters.length > 0 && <label>Lore researcher <select value={characterId ?? ""} onChange={event => setCharacterId(Number(event.target.value))}>
+        {state.characters.map(character => <option key={character.id} value={character.id}>{character.name}</option>)}
+      </select></label>}
+      <button onClick={() => void act(EVENTS.ENCOUNTER_LORE, { monsterId: monster.id, characterId })}>Recall lore</button>
+      {state.me.role === "host" && <button disabled={busy} onClick={() => details ? setDetails(undefined) : void inspect()}>{details ? "Hide referee details" : "Inspect encounter"}</button>}
+    </div>
+    {error && <p role="alert">{error}</p>}
+    {details && <section aria-label={`Referee details for ${details.name}`}>
+      <p><b>Referee details:</b> LV {details.level ?? "?"} · AC {details.ac ?? "?"} · HP {details.currentHp}/{details.maxHp} · Morale {details.morale ?? "?"}</p>
+      {details.source && <p><b>Source:</b> {details.source === "shadowdark_core" ? "Shadowdark Core" : details.source.replace(/^cursed_scroll_/, "Cursed Scroll ")}</p>}
+      {details.campaignProfile && <p>{details.campaignProfile.specialAbilityCount} special abilities · {details.campaignProfile.stockVulnerabilityCount} stock vulnerabilities · {details.campaignProfile.randomVulnerabilities.length} campaign draws{details.campaignProfile.form ? ` · ${details.campaignProfile.form}` : ""}</p>}
+      {details.attacks?.length ? <div><b>Attacks</b><ul>{details.attacks.map((text, index) => <li key={index}>{text}</li>)}</ul></div> : null}
+      {details.traits?.length ? <div><b>Abilities</b><ul>{details.traits.map((text, index) => <li key={index}>{text}</li>)}</ul></div> : null}
+      {details.vulnerabilities?.length ? <div><b>Vulnerabilities</b><ul>{details.vulnerabilities.map((text, index) => <li key={index}>{text}</li>)}</ul></div> : null}
+      {details.campaignProfile?.regenerationCounters.length ? <div><b>Regeneration counters</b><ul>{details.campaignProfile.regenerationCounters.map(entry => <li key={entry.name}>{entry.name}: {entry.effect}</li>)}</ul></div> : null}
+      {details.lore?.length ? <div><b>Lore</b><ul>{details.lore.map((text, index) => <li key={index}>{text}</li>)}</ul></div> : null}
+      {treasure && <div><b>Carried treasure</b>{treasure.present ? <>
+        {Object.values(treasure.coins).some(amount => amount > 0) && <p>{Object.entries(treasure.coins).filter(([, amount]) => amount > 0).map(([unit, amount]) => `${amount} ${unit}`).join(" · ")}</p>}
+        {treasure.items.length > 0 && <ul>{treasure.items.map((item, index) => <li key={index}>{item}</li>)}</ul>}
+      </> : <p>None. This group's treasure roll is saved.</p>}</div>}
+    </section>}
   </div>;
 }
 
@@ -27,7 +63,9 @@ export function CombatView({ state, act }: { state: CampaignState; act: Act }) {
   if (!combat || combat.status !== "active") {
     const pending = (state.encounters ?? []).find((e) => e.status === "active");
     if (!pending) {
-      return <section className="panel"><h2>Encounter & initiative</h2><p>No active combat. Engage a discovered encounter from the map or site.</p></section>;
+      return <section className="panel"><h2>Encounter & initiative</h2><p>No active combat. Engage a discovered encounter from the map or site.</p>
+        {canManage && <button onClick={() => void act(EVENTS.ENCOUNTER_ROLL, {})}>Roll wandering encounter</button>}
+      </section>;
     }
 
     const lastReaction = [...state.rolls]
@@ -44,7 +82,7 @@ export function CombatView({ state, act }: { state: CampaignState; act: Act }) {
       <div className="combat-cards">
         {pending.monsters.map((m) => <article className="companion-card" key={m.id}>
           <div className="companion-heading"><h3>{m.name}</h3><strong>AC {m.ac != null ? m.ac : "?"}</strong></div>
-          <MonsterKnowledge monster={m} />
+          <MonsterKnowledge monster={m} state={state} act={act} />
         </article>)}
       </div>
       {lastReaction ? (
@@ -88,7 +126,7 @@ export function CombatView({ state, act }: { state: CampaignState; act: Act }) {
         return <article className="companion-card" key={c.id}>
           <div className="companion-heading"><h3>{c.name}</h3><strong>AC {pc || c.acRevealed ? c.ac : "?"}</strong></div>
           {!pc && !c.acRevealed && <p>{c.acHint}<br/><button disabled={!canManage} onClick={() => void act(EVENTS.COMBAT_REVEAL_AC, { combatantId: c.id })}>Attack tested: reveal AC</button></p>}
-          {monsterInfo && <MonsterKnowledge monster={monsterInfo} />}
+          {monsterInfo && <MonsterKnowledge monster={monsterInfo} state={state} act={act} />}
           <strong className={!pc && hpVisible ? "bloodied" : ""}>{!pc && `${(c.hpStatus ?? "unharmed").replaceAll("_", " ")} · `}{hpVisible ? `${c.currentHp} / ${c.maxHp} HP` : "HP unknown"}</strong>
           <div className="companion-actions">
             {[-1, -5, 1].map(delta => <button key={delta} disabled={!editable} onClick={() => void act(EVENTS.COMBAT_UPDATE_HP, { combatantId: c.id, delta })}>{delta > 0 ? "+" : ""}{delta} HP</button>)}

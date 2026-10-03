@@ -34,7 +34,7 @@ describe("50% Real-Treasure Roll per Encounter Group & Negative Roll Persistence
     // Test across tiers 1, 2, and 3
     for (const level of [1, 5, 9]) {
       for (let roll = 1; roll <= 100; roll += 5) {
-        const mockRng: RandomSource = () => (roll - 1);
+        const mockRng: RandomSource = (max) => (roll - 1) % max;
         const pkg = selectRealTreasurePackage(level, mockRng);
         expect(["normal", "fabulous", "legendary"]).toContain(pkg.quality);
         expect(pkg.xpValue).toBeGreaterThanOrEqual(1);

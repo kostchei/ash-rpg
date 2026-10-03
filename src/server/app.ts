@@ -5196,7 +5196,44 @@ export async function createAshServer(options: AshServerOptions = {}) {
       }),
     );
 
-    // --- Encounter Generator with 50% Monster Variant Coin-Flip ---
+    // Read the persisted encounter privately; inspecting is not a lore reveal.
+    socket.on(EVENTS.ENCOUNTER_INSPECT, (raw: unknown, ack?: Ack) => {
+      try {
+        hostOnly();
+        const { monsterId } = z.object({ monsterId: z.number().int() }).parse(raw);
+        const monster = db.getEncounterMonsterDetails(identity.campaignId, monsterId);
+        if (!monster) throw new Error("Monster not found in this campaign");
+        const row = db.getEncounterMonster(identity.campaignId, monsterId)!;
+        const treasure = db.getTreasureRoll(identity.campaignId, `enc_${row.encounter_id}`);
+        ack?.({ ok: true, monster, treasure });
+      } catch (error) {
+        ack?.({ ok: false, error: error instanceof Error ? error.message : "Unable to inspect encounter" });
+      }
+    });
+
+    socket.on(EVENTS.ENCOUNTER_ROLL, mutationAction(EVENTS.ENCOUNTER_ROLL, (_raw: unknown) => {
+      callerOrHostOnly();
+      requireEncounterResolved();
+      const state = db.getState(identity.campaignId, identity.role, identity.characterId, "");
+      const zoneId = state.campaign.activeZoneId;
+      const table = db.getMonstersForZone(zoneId);
+      if (!table.length) throw new Error(`No wandering monsters configured for zone "${zoneId}"`);
+      const index = randomInt(table.length);
+      const monster = table[index];
+      const encounterId = db.addEncounterWithMonsters(identity.campaignId, monster.name, [monster]);
+      new RewardService(db).registerEncounterGroup(identity.campaignId, {
+        id: `enc_${encounterId}`, name: monster.name,
+        members: [{ key: monster.monsterKey, name: monster.name, count: 1, level: monster.level }],
+      });
+      db.addRoll(identity.campaignId, {
+        actor: actor(), kind: "encounter", label: `${monster.name} encountered`,
+        dice: `Zone wandering table (${table.length} entries)`, total: index + 1,
+        detail: `1 ${monster.name} · ${db.getZoneManifest(zoneId)?.name ?? zoneId}`,
+      });
+      return { encounterId };
+    }));
+
+    // Stock bestiary encounters by default. Oracle variants are explicit opt-in.
 
     socket.on(
       EVENTS.ENCOUNTER_START,
@@ -5229,8 +5266,7 @@ export async function createAshServer(options: AshServerOptions = {}) {
           ),
         );
 
-        // 50% variant coin flip (or forceVariant)
-        const isVariantRoll = payload.forceVariant ?? rollDie(2) === 1;
+        const isVariantRoll = payload.forceVariant === true;
 
         const resolvedMonster: EncounterMonster = isVariantRoll
           ? generateMonsterVariant(baseMonster, avgLevel)
@@ -5241,17 +5277,21 @@ export async function createAshServer(options: AshServerOptions = {}) {
           () => ({ ...resolvedMonster }),
         );
 
-        db.addEncounterWithMonsters(
+        const encounterId = db.addEncounterWithMonsters(
           identity.campaignId,
           resolvedMonster.name,
           monstersList,
         );
+        new RewardService(db).registerEncounterGroup(identity.campaignId, {
+          id: `enc_${encounterId}`, name: resolvedMonster.name,
+          members: [{ key: resolvedMonster.monsterKey, name: resolvedMonster.name, count: payload.count, level: resolvedMonster.level }],
+        });
 
         db.addRoll(identity.campaignId, {
           actor: "Table",
           kind: "encounter",
           label: `${resolvedMonster.name} encountered`,
-          dice: isVariantRoll ? "Coin flip (Variant!)" : "Coin flip (Standard)",
+          dice: isVariantRoll ? "Oracle variant requested" : "Stock bestiary",
           total: payload.count,
           detail: `${payload.count} appearing · ${isVariantRoll ? `Variant Quality: ${resolvedMonster.variantQuality}` : "Standard creature"}`,
         });

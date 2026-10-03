@@ -56,6 +56,24 @@ The 50% carried-treasure presence roll and the app's rule that a successful pres
 
 ## Where treasure actually sits in a site
 
+### Equipment names
+
+New core-table equipment finds draw a cosmetic Diablo base name from
+`data/treasure/diablo-name-pools.json`. The rules category remains visible, for
+example `Gladius (short sword) — Pair of elf-forged shortswords (14 gp)`.
+The complete printed description, quantity, value, spell tier, benefits and curses
+remain intact. Treasure quality, XP and coin values still come from the core row.
+Naming does not import Diablo statistics or resolve the listed magic effects.
+
+The pools derive from the reviewed `diablo_shadowdark_categories.csv` using
+`node scripts/ingest/build-diablo-name-pools.mjs <csv-path>`. Duplicate names across
+games receive only one entry per category. Full armour pools exclude helms and
+other components. Generic magic weapon/armour results receive a base category;
+named relics retain their names. Wands, holy symbols, spellbooks, arcane focuses
+and quivers use their approved equipment pools. Authored rewards and already
+saved treasure are not renamed. Generated names are saved with the reward and
+carried into the existing allocation flow, rather than rerolled for display.
+
 Three independent things put treasure in a site, and they do not compete for the same areas:
 
 1. **Carried treasure.** A monster area registers its encounter group, which makes one 50% presence roll on the monster's own level table.

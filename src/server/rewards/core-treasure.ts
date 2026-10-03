@@ -3,6 +3,7 @@ import { resolve } from "node:path";
 import { type TreasureQuality, TREASURE_XP_BY_QUALITY } from "../../shared/path-contracts.js";
 import { baselineEncounterValueGp } from "../../shared/quest-rewards.js";
 import { type RandomSource, rollDie, systemRandom } from "../rules.js";
+import { nameTreasureItem } from "./item-names.js";
 
 /**
  * The four core d100 treasure tables, extracted from the rulebook by
@@ -132,7 +133,7 @@ export function rollCoreTreasure(
     quality,
     xpValue: TREASURE_XP_BY_QUALITY[quality],
     coins: entry.coins ?? { gp: 0, sp: 0, cp: 0 },
-    items: entry.coins ? [] : [entry.description],
+    items: entry.coins ? [] : [nameTreasureItem(entry.description, rng)],
     tableBasis: `core_treasure_${table.band}_${entry.min}-${entry.max}`,
   };
 }
