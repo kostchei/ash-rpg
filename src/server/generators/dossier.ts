@@ -47,8 +47,7 @@ export function generateDossier(input: DossierInput, db: AshDatabase): DossierRe
   const coverage: DossierReport['coverage'] = [];
   const field = (label: string, value: string, provenance: Provenance, source: string): DossierField => ({ label, value, provenance, source });
   const tarot = (card: TarotReading): DossierField[] => [
-    field('Tarot draw', `${card.title} / ${card.orientation} / ${card.facet}`, 'generated', 'drawTarot; data/oracles/tarot-cards.json'),
-    field('Stored meaning', card.meaning, 'source', `Tarot card ${card.cardId}, ${card.orientation}, ${card.facet}`),
+    field('Tarot', `${card.title} / ${card.orientation} / ${card.facet.replaceAll('_', ' ')} — ${card.meaning}`, 'generated', `Seeded draw; verbatim stored meaning from data/oracles/tarot-cards.json: card ${card.cardId}, ${card.orientation}, ${card.facet}`),
   ];
   const missing = (value: string) => field('Unresolved', value, 'unresolved', 'No returned field or implemented completion procedure');
   const storySource = `dossier-story.ts v${STORY_TABLE_VERSION}; stored templates + explicit record links`;

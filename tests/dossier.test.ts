@@ -85,6 +85,6 @@ describe('procedural fieldbook', () => {
     expect(sourceLookup).not.toHaveBeenCalled(); sourceLookup.mockRestore();
     await request(server.app).post('/api/dossiers/pdf').send({ exportId: 'expired' }).expect(410);
     const html = await request(server.app).post('/api/dossiers/html').send(input).expect(200).expect('Content-Type', /text\/html/);
-    expect(html.text).toContain('Skeldir / Hrafnfjord'); expect(html.text).toContain('Stored meaning');
+    expect(html.text).toContain('Skeldir / Hrafnfjord'); expect(html.text).toContain('Tarot'); expect(html.text).not.toContain('Stored meaning');
   });
 });
