@@ -9,6 +9,7 @@ import { ZONE_PROFILES } from '../src/shared/zone-profiles.js';
 import { generateUnguardedTreasure } from '../src/server/rewards/core-treasure.js';
 import { resolveGroupTreasure } from '../src/server/rewards/treasure.js';
 import { reactionRoll, rollDie, type RandomSource } from '../src/server/rules.js';
+import { renderProceduralDossier } from './render-procedural-dossier.js';
 
 const seed = process.argv[2] ?? 'skeldir-hrafnfjord-2026-10-03';
 const output = 'outputs/hrafnfjord-10plus';
@@ -99,5 +100,6 @@ try {
   mkdirSync(output, { recursive: true });
   writeFileSync(`${output}/draws.json`, JSON.stringify(report, null, 2) + '\n');
   writeFileSync(`${output}/site-inputs.md`, sites.map(renderSiteInputBrief).join('\n\n---\n\n'));
+  writeFileSync(`${output}/procedural.md`, renderProceduralDossier(report));
   console.log(JSON.stringify({ seed, sites, encounters, npcs, treasures }, null, 2));
 } finally { db.close(); }
