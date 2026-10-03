@@ -1,6 +1,6 @@
 // Versioned, authored source tables. Generation selects text and fills explicit
 // record references; it does not ask a model to invent connective prose.
-export const STORY_TABLE_VERSION = '1';
+export const STORY_TABLE_VERSION = '2';
 export const ZONE_SCENES = {
   midnight_sun: ['Sea spray freezes along the landing ropes. Turf roofs and carved prows shelter beneath the basalt cliffs.', 'Pale light lies across the fjord. Smoke rises from the longhouses while armed skiffs watch the narrow passages.', 'Meltwater runs between the standing stones. Beyond the sheltered farms, snow still fills the mountain cuts.'],
   the_gloaming: ['Mist gathers between the trees and the old boundary stones. The nearest hearth is already hidden behind the branches.', 'Dark water fills the cart ruts. Smoke hangs over the clearing, and the barrow path disappears into the wood.', 'Reeds scrape the causeway. Beyond the last worked field, a line of ancient trees hides the road.'],
@@ -16,6 +16,23 @@ export const SITE_SCENES: Record<string, string[]> = {
   tomb: ['Burial passages branch from a narrow entry hall. Memorials and sealed thresholds distinguish the older chambers from later additions.', 'A descending stair reaches the burial rooms. Heavy doors divide the galleries, and the deepest approach offers little room to retreat.'],
 };
 export const NPC_APPEARANCE = ['A weathered travelling coat is carefully patched at the elbows.', 'A bundle of notes and practical tools hangs beside a well-used shoulder bag.', 'Their cloak is neatly fastened, but the hem shows the wear of a long journey.', 'They keep their possessions close and stop frequently to examine the route.', 'A repaired belt and mud-stained boots suggest more travel than comfort.'];
+export const REGIONAL_SITE_DETAILS = {
+  the_gloaming: ['Peat-black water marks the lowest thresholds.', 'Roots have lifted the paving near the entrance.', 'Mist gathers in the sheltered cuts between the outer walls.'],
+  red_sands: ['Wind-driven sand piles against the sheltered thresholds.', 'Shade ends abruptly beyond the entrance.', 'Red dust outlines tracks across the stone approach.'],
+  midnight_sun: ['Salt spray has crusted the exposed stone.', 'Meltwater runs along the outer approach.', 'Pale daylight reaches the entrance long after the hearth fires are lit.'],
+  river_of_night: ['Rainwater drips from the canopy over the approach.', 'Flood silt marks the lower walls.', 'Climbing roots narrow the older thresholds.'],
+  dwellers_in_the_deep: ['Mineral stains trace an old waterline.', 'A cold draught moves toward the deeper chambers.', 'Lamplight leaves the upper ledges in darkness.'],
+  city_of_masks: ['Masonry repairs mark where the older structure meets the occupied streets.', 'Canal damp has darkened the lowest stone courses.', 'A service passage offers an approach away from the public street.'],
+};
+export const FAMILY_ACTIVITY: Record<string, string[]> = {
+  Giant: ['The giant watches from above the approach, with room to use its long reach.', 'The giant blocks the broad approach and demands that visitors state their purpose.'],
+  Beast: ['The beast pauses beside fresh tracks. Visitors can observe it before entering its reach.', 'The beast holds its ground near the approach; its reaction determines whether it withdraws or attacks.'],
+  Dragon: ['The dragon surveys the approach from a position with room to turn.', 'The dragon watches the arrivals and waits for them to commit to a route.'],
+  Humanoid: ['The meeting begins at a guarded threshold. Visitors are asked to declare their business.', 'The occupants watch the approach while one steps forward to speak.'],
+  Undead: ['The undead waits in the shelter of the structure, where the approach narrows.', 'The undead stands between the visitors and the inner threshold.'],
+  Construct: ['The construct stands beside a worked threshold, motionless until visitors approach.', 'The construct occupies the passage; there is little room to pass without entering its reach.'],
+  aquatic: ['Movement breaks the water beside the approach. Visitors have time to choose between the bank and the exposed crossing.', 'The creature watches from the water near the landing. Its rolled reaction determines whether it approaches.'],
+};
 export const ENCOUNTER_ACTIVITY = {
   vampire: ['The vampire receives visitors beside a covered resting place and asks what they are prepared to offer.', 'The vampire watches the approach from shelter, letting a visitor speak before moving into view.'],
   demon_balor: ['The Balor occupies an open approach, where its wings and whip have room to move.', 'The Balor studies the arrivals before committing to violence. Its reaction determines whether the meeting begins with words or an attack.'],

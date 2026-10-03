@@ -5,6 +5,7 @@ export type DossierRequirement = typeof DOSSIER_REQUIREMENTS[number];
 export type Provenance = 'input' | 'selected' | 'generated' | 'source' | 'unresolved';
 export interface DossierInput {
   title: string; zoneId: CursedZoneId; seed: string; minimumLevel: number;
+  maximumLevel?: number; monsterKeys?: string[];
   counts: { sites: number; encounters: number; npcs: number; treasures: number };
   required: DossierRequirement[]; allowProxies: boolean;
 }

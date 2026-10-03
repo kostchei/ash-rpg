@@ -69,6 +69,16 @@ npx tsx scripts/preview-dossier.ts --serve
 
 This serves `http://localhost:3107/generator` using an in-memory source database and writes `outputs/hrafnfjord-10plus/fieldbook.html`, `fieldbook.json`, and `output/pdf/hrafnfjord-fieldbook.pdf`. Omit `--serve` to create only the examples.
 
+## Level ranges and monster selections
+
+The optional `maximumLevel` bounds the primary qualifying creature (the serpent in the Seawolf proxy). Required creatures also respect this bound. Use LV 1–3 for a novice packet; an unbounded minimum of 1 permits every higher-level entry and is not a level-1 balance setting. Site guardians still use act bands.
+
+The optional `monsterKeys` list selects an explicit existing-stock pool. Empty means the region's original wandering pool. This does not silently add to regional canon: every encounter exposes its selection policy. Required types are added separately and may be outside the custom pool. Sampling avoids repeated species, including already-selected companion species, until the pool is exhausted; repeat profiles have independent encounter seeds. Unknown or out-of-range keys fail validation rather than being dropped silently.
+
+`scripts/compare-dossiers.ts` creates twelve reproducible examples, one LV 1–3 and one LV 10–16 packet per region, with distinct seeds and declared monster selections. `outputs/region-comparison/index.html` compares the pre-change baseline with improved results and links all twelve readable HTML fieldbooks. JSON files are audit records. The input pool/range changes are intentional and disclosed; this is a sample review, not a statistical encounter-balance assessment. Stored story tables are now version 2 and include regional site details and family-based activities.
+
+Run `npx tsx scripts/compare-dossiers.ts`, then `python scripts/assemble-region-atlas.py` with `pypdf` and `reportlab` installed to create the bookmarked comparison atlas. The recorded baseline comes from commit `04974b7`; preserve it when regenerating current results. The isolated preview also serves the examples at `/comparison/` and the atlas at `/comparison/atlas.pdf`. Add `--skip-example` to its `--serve` command to keep the older Hrafnfjord example intact.
+
 ## Remaining work for more detailed procedural adventures
 
 The installed site generator provides section counts, names, objectives, targets and guardian picks; it does not produce complete room keys, clue placement or connected adventure text. The NPC generator provides scores, class, local colour, demeanor, motive and retainer stats; it does not fill all named subjects or equipment. Symbolic vulnerabilities usually lack effects. The treasure runtime leaves some magic-item attributes as placeholders. There is no exact Seawolf or generic demon-lord stat entry in this runner's source selection.

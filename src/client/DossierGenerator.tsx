@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react';
+import { useEffect, useState, type FormEvent } from 'react';
 import { Dices, Download, Printer, ArrowLeft, RefreshCw } from 'lucide-react';
 import { ZONE_PROFILES } from '../shared/zone-profiles';
 import { DOSSIER_REQUIREMENTS, type DossierInput, type DossierReport } from '../shared/dossier';
@@ -20,6 +20,8 @@ export function DossierGenerator() {
   const [busy, setBusy] = useState(false); const [exporting, setExporting] = useState(false); const [error, setError] = useState('');
   const [tab, setTab] = useState<'all' | 'site' | 'encounter' | 'npc' | 'treasure'>('all');
   const [provenance, setProvenance] = useState(false);
+  const [monsters, setMonsters] = useState<{ key: string; name: string; level: number }[]>([]);
+  useEffect(() => { fetch('/api/dossiers/monsters').then(r => { if (!r.ok) throw new Error('Monster catalogue unavailable'); return r.json(); }).then(setMonsters).catch(() => setError('Monster catalogue unavailable. Regional generation remains available.')); }, []);
   const generate = async (event: FormEvent) => {
     event.preventDefault(); setBusy(true); setError('');
     try {
@@ -42,7 +44,7 @@ export function DossierGenerator() {
     finally { setExporting(false); }
   };
   const fingerprint = (value: DossierInput) => JSON.stringify([value.title, value.zoneId, value.seed, value.minimumLevel,
-    value.counts.sites, value.counts.encounters, value.counts.npcs, value.counts.treasures, value.required, value.allowProxies]);
+    value.counts.sites, value.counts.encounters, value.counts.npcs, value.counts.treasures, value.required, value.allowProxies, value.maximumLevel, value.monsterKeys]);
   const stale = report && fingerprint(input) !== fingerprint(report.input);
   return <main className="dossier-app">
     <header className="dossier-header no-print"><a href="/"><ArrowLeft size={16} /> Back to ASH</a><span>ASH / FIELDWORK</span></header>
@@ -54,7 +56,11 @@ export function DossierGenerator() {
           <label>Region<select value={input.zoneId} onChange={e => setInput({ ...input, zoneId: e.target.value as DossierInput['zoneId'] })}>{Object.values(ZONE_PROFILES).map(zone => <option key={zone.id} value={zone.id}>{zone.name} / {zone.sourceVolume.split(': ').at(-1)}</option>)}</select></label>
           <label>Seed<div className="dossier-seed"><input required maxLength={100} value={input.seed} onChange={e => setInput({ ...input, seed: e.target.value })} /><button type="button" aria-label="New random seed" title="New random seed" onClick={() => setInput({ ...input, seed: crypto.randomUUID() })}><RefreshCw size={16} /></button></div></label>
           <label>Minimum encounter creature level<input type="number" min={1} max={20} required value={input.minimumLevel} onChange={e => setInput({ ...input, minimumLevel: Number(e.target.value) })} /></label>
+          <label>Maximum encounter creature level (optional)<input type="number" min={input.minimumLevel} max={30} value={input.maximumLevel ?? ''} onChange={e => setInput({ ...input, maximumLevel: e.target.value ? Number(e.target.value) : undefined })} /></label>
           <p className="dossier-help">At least one creature per encounter must meet this level. NPCs and site guardians keep their own level bands.</p>
+          <label>Stock monster pool (optional)<select multiple size={6} value={input.monsterKeys ?? []} onChange={e => setInput({ ...input, monsterKeys: Array.from(e.target.selectedOptions, option => option.value) })}>{monsters.filter(m => m.level >= input.minimumLevel && m.level <= (input.maximumLevel ?? Infinity) || input.monsterKeys?.includes(m.key)).map(m => <option key={m.key} value={m.key}>{m.name} / LV {m.level}</option>)}</select></label>
+          {!!input.monsterKeys?.length && <button type="button" onClick={() => setInput({ ...input, monsterKeys: [] })}>Use regional wandering pool</button>}
+          <p className="dossier-help">Select several with Ctrl/Cmd. Empty uses the regional wandering table. Selected stock creatures may come from other regions. Required types are added separately. Species repeat only after the pool is exhausted. For a level 1 packet, try LV 1–3; this is not a combat-balance guarantee.</p>
           <fieldset><legend>How many?</legend><div className="dossier-counts">{(Object.keys(labels) as (keyof typeof labels)[]).map(key => <label key={key}>{labels[key]}<input type="number" min={0} max={10} required value={input.counts[key]} onChange={e => setInput({ ...input, counts: { ...input.counts, [key]: Number(e.target.value) } })} /></label>)}</div></fieldset>
           <fieldset><legend>Required encounter types</legend>{DOSSIER_REQUIREMENTS.map(key => <label className="dossier-check" key={key}><input type="checkbox" checked={input.required.includes(key)} onChange={e => setInput({ ...input, required: e.target.checked ? [...input.required, key] : input.required.filter(value => value !== key) })} />{requirementNames[key]}</label>)}</fieldset>
           <label className="dossier-check"><input type="checkbox" checked={input.allowProxies} onChange={e => setInput({ ...input, allowProxies: e.target.checked })} />Allow named substitutes</label>
@@ -67,7 +73,7 @@ export function DossierGenerator() {
         {!report ? <div className="dossier-empty"><div className="dossier-eyebrow">Ready for the table</div><h2>A region, a seed,<br />a set of possibilities.</h2><p>Start with the Hrafnfjord preset or choose another region. Generate to read the adventure, then download a self-contained HTML file or a printable PDF.</p><div className="dossier-sample"><span>01 / Sites</span><span>02 / Encounters</span><span>03 / NPCs</span><span>04 / Treasure</span></div></div> : <>
           <div className="dossier-toolbar no-print"><div><button onClick={() => download('html')}><Download size={15} /> HTML</button><button disabled={exporting || busy} onClick={() => download('pdf')}><Download size={15} />{exporting ? 'Preparing PDF…' : 'PDF'}</button><button onClick={() => { setTab('all'); setTimeout(() => window.print(), 50); }}><Printer size={15} /> Print</button></div><button className="dossier-audit" onClick={() => download('json')}>Raw audit data</button></div>
           {stale && <p className="dossier-stale no-print">Inputs changed. Generate again to update this report; downloads still use the displayed result.</p>}
-          <header className="dossier-report-header"><div className="dossier-eyebrow">{report.zoneName} / {report.cards.length} records</div><h1>{report.input.title}</h1><p className="dossier-report-seed">Seed: {report.input.seed}</p></header>
+          <header className="dossier-report-header"><div className="dossier-eyebrow">{report.zoneName} / {report.cards.length} records</div><h1>{report.input.title}</h1><p className="dossier-report-seed">Seed: {report.input.seed}<br />Encounter creature LV {report.input.minimumLevel}–{report.input.maximumLevel ?? 'unbounded'} / {report.input.monsterKeys?.length ? 'selected stock pool' : 'regional wandering pool'}</p></header>
           <div className="dossier-story">{report.story.map(field => <p key={field.label}>{field.value}</p>)}</div>
           <details className="dossier-coverage" open={report.coverage.some(row => row.status !== 'met')}><summary>Requirement coverage</summary>{report.coverage.length ? report.coverage.map(row => <p key={row.requirement}><span className={`dossier-badge ${row.status}`}>{row.status}</span><strong>{requirementNames[row.requirement as keyof typeof requirementNames] ?? row.requirement}</strong> · {row.detail}</p>) : <p>No required creature types.</p>}</details>
           <nav className="dossier-tabs no-print" aria-label="Report sections">{(['all', 'site', 'encounter', 'npc', 'treasure'] as const).map(category => <button key={category} className={tab === category ? 'active' : ''} onClick={() => setTab(category)}>{({ all: 'All', site: 'Sites', encounter: 'Encounters', npc: 'NPCs', treasure: 'Treasure' })[category]}</button>)}<label className="dossier-check"><input type="checkbox" checked={provenance} onChange={e => setProvenance(e.target.checked)} />Show sources</label></nav>

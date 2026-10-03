@@ -1,0 +1,584 @@
+[
+  {
+    "region": "Wychfen",
+    "id": "the_gloaming",
+    "level": 1,
+    "seed": "region-review-2026-10-03-the_gloaming-lv1",
+    "required": [],
+    "monsters": [
+      {
+        "key": "bogthorn",
+        "name": "Bogthorn",
+        "level": 2
+      },
+      {
+        "key": "bogthorn",
+        "name": "Bogthorn",
+        "level": 2
+      },
+      {
+        "key": "dralech",
+        "name": "Dralech",
+        "level": 6
+      },
+      {
+        "key": "howler",
+        "name": "Howler",
+        "level": 1
+      },
+      {
+        "key": "bittermold",
+        "name": "Bittermold",
+        "level": 1
+      }
+    ],
+    "coverage": [],
+    "guardianLevels": [
+      1,
+      1,
+      2,
+      2,
+      1,
+      3,
+      2,
+      1,
+      3,
+      0
+    ],
+    "repeatedMonsters": 1,
+    "unresolved": 31,
+    "descriptions": [
+      "The outer walls have fallen, but the inner thresholds remain. Occupants can watch an approach without revealing the route behind them.",
+      "A low entrance leads into uneven galleries. Narrow shelves overlook the passage, and several exits are hidden by changes in level.",
+      "A low entrance leads into uneven galleries. Narrow shelves overlook the passage, and several exits are hidden by changes in level.",
+      "The outer walls have fallen, but the inner thresholds remain. Occupants can watch an approach without revealing the route behind them.",
+      "A descending stair reaches the burial rooms. Heavy doors divide the galleries, and the deepest approach offers little room to retreat."
+    ],
+    "opening": "Reeds scrape the causeway. Beyond the last worked field, a line of ancient trees hides the road.",
+    "treasureGp": 250.02
+  },
+  {
+    "region": "Wychfen",
+    "id": "the_gloaming",
+    "level": 10,
+    "seed": "region-review-2026-10-03-the_gloaming-lv10",
+    "error": "Error: No eligible results for zone-species-2. Lower the minimum creature level or choose a different zone."
+  },
+  {
+    "region": "The Silt Sea",
+    "id": "red_sands",
+    "level": 1,
+    "seed": "region-review-2026-10-03-red_sands-lv1",
+    "required": [],
+    "monsters": [
+      {
+        "key": "mirage",
+        "name": "Mirage",
+        "level": 8
+      },
+      {
+        "key": "mirage",
+        "name": "Mirage",
+        "level": 8
+      },
+      {
+        "key": "ras_godai",
+        "name": "Ras-Godai",
+        "level": 3
+      },
+      {
+        "key": "scrag",
+        "name": "Scrag",
+        "level": 2
+      },
+      {
+        "key": "ras_godai",
+        "name": "Ras-Godai",
+        "level": 3
+      }
+    ],
+    "coverage": [],
+    "guardianLevels": [
+      1,
+      3,
+      2,
+      1,
+      3,
+      1,
+      0,
+      2,
+      3,
+      1
+    ],
+    "repeatedMonsters": 2,
+    "unresolved": 34,
+    "descriptions": [
+      "Broken walls separate sheltered courts from exposed approaches. Old doorways still control movement between the surviving rooms.",
+      "Water and loose stone divide the chambers. A straight approach exposes visitors to anyone watching from the deeper ledges.",
+      "The outer walls have fallen, but the inner thresholds remain. Occupants can watch an approach without revealing the route behind them.",
+      "Water and loose stone divide the chambers. A straight approach exposes visitors to anyone watching from the deeper ledges.",
+      "Water and loose stone divide the chambers. A straight approach exposes visitors to anyone watching from the deeper ledges."
+    ],
+    "opening": "Heat shimmers above the stone flats. Caravans gather where the last shade reaches the well.",
+    "treasureGp": 170
+  },
+  {
+    "region": "The Silt Sea",
+    "id": "red_sands",
+    "level": 10,
+    "seed": "region-review-2026-10-03-red_sands-lv10",
+    "error": "Error: No eligible results for zone-species-2. Lower the minimum creature level or choose a different zone."
+  },
+  {
+    "region": "Hrafnfjord",
+    "id": "midnight_sun",
+    "level": 1,
+    "seed": "region-review-2026-10-03-midnight_sun-lv1",
+    "required": [],
+    "monsters": [
+      {
+        "key": "drake_lesser",
+        "name": "Drake Lesser",
+        "level": 6
+      },
+      {
+        "key": "drake_greater",
+        "name": "Drake Greater",
+        "level": 8
+      },
+      {
+        "key": "draugr",
+        "name": "Draugr",
+        "level": 5
+      },
+      {
+        "key": "nord",
+        "name": "Nord",
+        "level": 2
+      },
+      {
+        "key": "drake_greater",
+        "name": "Drake Greater",
+        "level": 8
+      }
+    ],
+    "coverage": [],
+    "guardianLevels": [
+      2,
+      3,
+      0,
+      1,
+      0,
+      1,
+      2,
+      1,
+      1,
+      3,
+      1,
+      3,
+      3
+    ],
+    "repeatedMonsters": 1,
+    "unresolved": 37,
+    "descriptions": [
+      "A low entrance leads into uneven galleries. Narrow shelves overlook the passage, and several exits are hidden by changes in level.",
+      "Burial passages branch from a narrow entry hall. Memorials and sealed thresholds distinguish the older chambers from later additions.",
+      "Water and loose stone divide the chambers. A straight approach exposes visitors to anyone watching from the deeper ledges.",
+      "The outer walls have fallen, but the inner thresholds remain. Occupants can watch an approach without revealing the route behind them.",
+      "Broken walls separate sheltered courts from exposed approaches. Old doorways still control movement between the surviving rooms."
+    ],
+    "opening": "Meltwater runs between the standing stones. Beyond the sheltered farms, snow still fills the mountain cuts.",
+    "treasureGp": 170.04
+  },
+  {
+    "region": "Hrafnfjord",
+    "id": "midnight_sun",
+    "level": 10,
+    "seed": "region-review-2026-10-03-midnight_sun-lv10",
+    "required": [
+      "seawolf"
+    ],
+    "monsters": [
+      {
+        "key": "nord",
+        "name": "Nord",
+        "level": 12
+      },
+      {
+        "key": "sea_serpent",
+        "name": "Sea Serpent",
+        "level": 12
+      },
+      {
+        "key": "sea_serpent",
+        "name": "Sea Serpent",
+        "level": 12
+      },
+      {
+        "key": "sea_serpent",
+        "name": "Sea Serpent",
+        "level": 12
+      },
+      {
+        "key": "sea_serpent",
+        "name": "Sea Serpent",
+        "level": 12
+      }
+    ],
+    "coverage": [
+      {
+        "requirement": "seawolf",
+        "status": "proxy",
+        "detail": "Explicit substitute: nord crew plus sea_serpent; crew are LV 2."
+      }
+    ],
+    "guardianLevels": [
+      7,
+      6,
+      7,
+      7,
+      5,
+      7,
+      7,
+      5,
+      9,
+      7,
+      10
+    ],
+    "repeatedMonsters": 3,
+    "unresolved": 37,
+    "descriptions": [
+      "The outer walls have fallen, but the inner thresholds remain. Occupants can watch an approach without revealing the route behind them.",
+      "Broken walls separate sheltered courts from exposed approaches. Old doorways still control movement between the surviving rooms.",
+      "A descending stair reaches the burial rooms. Heavy doors divide the galleries, and the deepest approach offers little room to retreat.",
+      "The outer walls have fallen, but the inner thresholds remain. Occupants can watch an approach without revealing the route behind them.",
+      "Burial passages branch from a narrow entry hall. Memorials and sealed thresholds distinguish the older chambers from later additions."
+    ],
+    "opening": "Sea spray freezes along the landing ropes. Turf roofs and carved prows shelter beneath the basalt cliffs.",
+    "treasureGp": 2630
+  },
+  {
+    "region": "Xaltemoc",
+    "id": "river_of_night",
+    "level": 1,
+    "seed": "region-review-2026-10-03-river_of_night-lv1",
+    "required": [],
+    "monsters": [
+      {
+        "key": "anaconda_giant",
+        "name": "Anaconda Giant",
+        "level": 7
+      },
+      {
+        "key": "basilisk_cultists",
+        "name": "Basilisk Cultist",
+        "level": 1
+      },
+      {
+        "key": "anaconda_giant",
+        "name": "Anaconda Giant",
+        "level": 7
+      },
+      {
+        "key": "jaguar_king",
+        "name": "Jaguar King",
+        "level": 12
+      },
+      {
+        "key": "basilisk_cultists",
+        "name": "Basilisk Cultist",
+        "level": 1
+      }
+    ],
+    "coverage": [],
+    "guardianLevels": [
+      1,
+      0,
+      3,
+      1,
+      1,
+      3,
+      1,
+      3,
+      2,
+      0,
+      2,
+      3
+    ],
+    "repeatedMonsters": 2,
+    "unresolved": 33,
+    "descriptions": [
+      "Broken walls separate sheltered courts from exposed approaches. Old doorways still control movement between the surviving rooms.",
+      "A descending stair reaches the burial rooms. Heavy doors divide the galleries, and the deepest approach offers little room to retreat.",
+      "The entrance drops into a worked passage. Old side doors and service cuts make the apparent main route only one way through.",
+      "Water and loose stone divide the chambers. A straight approach exposes visitors to anyone watching from the deeper ledges.",
+      "A long descent opens into intersecting galleries. Sound carries far enough to warn the occupants before intruders reach them."
+    ],
+    "opening": "Roots grip the old stonework. A narrow trail leaves the cultivated bank and vanishes beneath the canopy.",
+    "treasureGp": 84
+  },
+  {
+    "region": "Xaltemoc",
+    "id": "river_of_night",
+    "level": 10,
+    "seed": "region-review-2026-10-03-river_of_night-lv10",
+    "required": [
+      "demon_lord"
+    ],
+    "monsters": [
+      {
+        "key": "demon_balor",
+        "name": "Demon Balor",
+        "level": 16
+      },
+      {
+        "key": "jaguar_king",
+        "name": "Jaguar King",
+        "level": 12
+      },
+      {
+        "key": "jaguar_king",
+        "name": "Jaguar King",
+        "level": 12
+      },
+      {
+        "key": "catfish_giant",
+        "name": "Catfish Giant",
+        "level": 12
+      },
+      {
+        "key": "jaguar_king",
+        "name": "Jaguar King",
+        "level": 12
+      }
+    ],
+    "coverage": [
+      {
+        "requirement": "demon_lord",
+        "status": "proxy",
+        "detail": "Explicit substitute: demon_balor."
+      }
+    ],
+    "guardianLevels": [
+      7,
+      6,
+      6,
+      8,
+      7,
+      6,
+      7,
+      7,
+      5,
+      5
+    ],
+    "repeatedMonsters": 2,
+    "unresolved": 43,
+    "descriptions": [
+      "The entrance drops into a worked passage. Old side doors and service cuts make the apparent main route only one way through.",
+      "A long descent opens into intersecting galleries. Sound carries far enough to warn the occupants before intruders reach them.",
+      "Burial passages branch from a narrow entry hall. Memorials and sealed thresholds distinguish the older chambers from later additions.",
+      "A low entrance leads into uneven galleries. Narrow shelves overlook the passage, and several exits are hidden by changes in level.",
+      "A descending stair reaches the burial rooms. Heavy doors divide the galleries, and the deepest approach offers little room to retreat."
+    ],
+    "opening": "Rain ticks against the broad leaves. The river carries dark silt past the landing steps.",
+    "treasureGp": 1910
+  },
+  {
+    "region": "Morzamotha",
+    "id": "dwellers_in_the_deep",
+    "level": 1,
+    "seed": "region-review-2026-10-03-dwellers_in_the_deep-lv1",
+    "required": [],
+    "monsters": [
+      {
+        "key": "wendel",
+        "name": "Wendel",
+        "level": 2
+      },
+      {
+        "key": "wendel",
+        "name": "Wendel",
+        "level": 2
+      },
+      {
+        "key": "morzo_moth",
+        "name": "Morzo Moth",
+        "level": 8
+      },
+      {
+        "key": "troglodyte",
+        "name": "Troglodyte",
+        "level": 2
+      },
+      {
+        "key": "librarian_of_leng",
+        "name": "Librarian of Leng",
+        "level": 6
+      }
+    ],
+    "coverage": [],
+    "guardianLevels": [
+      1,
+      3,
+      2,
+      3,
+      1,
+      1,
+      3,
+      3,
+      1,
+      1,
+      2,
+      1
+    ],
+    "repeatedMonsters": 1,
+    "unresolved": 39,
+    "descriptions": [
+      "A long descent opens into intersecting galleries. Sound carries far enough to warn the occupants before intruders reach them.",
+      "A low entrance leads into uneven galleries. Narrow shelves overlook the passage, and several exits are hidden by changes in level.",
+      "A long descent opens into intersecting galleries. Sound carries far enough to warn the occupants before intruders reach them.",
+      "Broken walls separate sheltered courts from exposed approaches. Old doorways still control movement between the surviving rooms.",
+      "A low entrance leads into uneven galleries. Narrow shelves overlook the passage, and several exits are hidden by changes in level."
+    ],
+    "opening": "The cavern roof disappears above the lamps. A rope crossing leads toward abandoned stone chambers.",
+    "treasureGp": 144
+  },
+  {
+    "region": "Morzamotha",
+    "id": "dwellers_in_the_deep",
+    "level": 10,
+    "seed": "region-review-2026-10-03-dwellers_in_the_deep-lv10",
+    "required": [
+      "giant",
+      "vampire"
+    ],
+    "monsters": [
+      {
+        "key": "giant_cloud",
+        "name": "Giant Cloud",
+        "level": 10
+      },
+      {
+        "key": "vampire",
+        "name": "Vampire",
+        "level": 11
+      },
+      {
+        "key": "bezelak",
+        "name": "Bezelak",
+        "level": 16
+      },
+      {
+        "key": "bezelak",
+        "name": "Bezelak",
+        "level": 16
+      },
+      {
+        "key": "bezelak",
+        "name": "Bezelak",
+        "level": 16
+      }
+    ],
+    "coverage": [
+      {
+        "requirement": "giant",
+        "status": "met",
+        "detail": "Stock match: giant_cloud."
+      },
+      {
+        "requirement": "vampire",
+        "status": "met",
+        "detail": "Stock match: vampire."
+      }
+    ],
+    "guardianLevels": [
+      7,
+      7,
+      8,
+      8,
+      7,
+      7,
+      5,
+      8,
+      7,
+      7
+    ],
+    "repeatedMonsters": 2,
+    "unresolved": 37,
+    "descriptions": [
+      "The entrance drops into a worked passage. Old side doors and service cuts make the apparent main route only one way through.",
+      "A low entrance leads into uneven galleries. Narrow shelves overlook the passage, and several exits are hidden by changes in level.",
+      "A low entrance leads into uneven galleries. Narrow shelves overlook the passage, and several exits are hidden by changes in level.",
+      "Broken walls separate sheltered courts from exposed approaches. Old doorways still control movement between the surviving rooms.",
+      "Burial passages branch from a narrow entry hall. Memorials and sealed thresholds distinguish the older chambers from later additions."
+    ],
+    "opening": "Water falls somewhere beyond the lamplight. The stone passage carries a cold draught from the deeper galleries.",
+    "treasureGp": 1220
+  },
+  {
+    "region": "Meridia",
+    "id": "city_of_masks",
+    "level": 1,
+    "seed": "region-review-2026-10-03-city_of_masks-lv1",
+    "required": [],
+    "monsters": [
+      {
+        "key": "bard",
+        "name": "College Bard",
+        "level": 2
+      },
+      {
+        "key": "necromancer",
+        "name": "Plague Cultist Necromancer",
+        "level": 3
+      },
+      {
+        "key": "necromancer",
+        "name": "Plague Cultist Necromancer",
+        "level": 3
+      },
+      {
+        "key": "guard",
+        "name": "Guard",
+        "level": 1
+      },
+      {
+        "key": "duelist",
+        "name": "Meridian Duelist",
+        "level": 2
+      }
+    ],
+    "coverage": [],
+    "guardianLevels": [
+      2,
+      2,
+      1,
+      3,
+      1,
+      3,
+      2,
+      3,
+      1,
+      2,
+      1
+    ],
+    "repeatedMonsters": 1,
+    "unresolved": 30,
+    "descriptions": [
+      "A descending stair reaches the burial rooms. Heavy doors divide the galleries, and the deepest approach offers little room to retreat.",
+      "The entrance drops into a worked passage. Old side doors and service cuts make the apparent main route only one way through.",
+      "Broken walls separate sheltered courts from exposed approaches. Old doorways still control movement between the surviving rooms.",
+      "The entrance drops into a worked passage. Old side doors and service cuts make the apparent main route only one way through.",
+      "Burial passages branch from a narrow entry hall. Memorials and sealed thresholds distinguish the older chambers from later additions."
+    ],
+    "opening": "Rain darkens the piazza stones. Messengers cross the bridges while watchmen check the gates.",
+    "treasureGp": 51.11
+  },
+  {
+    "region": "Meridia",
+    "id": "city_of_masks",
+    "level": 10,
+    "seed": "region-review-2026-10-03-city_of_masks-lv10",
+    "error": "Error: No eligible results for zone-species-1. Lower the minimum creature level or choose a different zone."
+  }
+]

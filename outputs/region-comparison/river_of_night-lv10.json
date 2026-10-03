@@ -1,0 +1,6386 @@
+{
+  "version": 1,
+  "input": {
+    "title": "Xaltemoc / Level 10",
+    "zoneId": "river_of_night",
+    "seed": "region-review-2026-10-03-river_of_night-lv10",
+    "minimumLevel": 10,
+    "counts": {
+      "sites": 5,
+      "encounters": 5,
+      "npcs": 5,
+      "treasures": 5
+    },
+    "required": [
+      "demon_lord"
+    ],
+    "allowProxies": true,
+    "maximumLevel": 16,
+    "monsterKeys": [
+      "catfish_giant",
+      "jaguar_king",
+      "brachiosaurus",
+      "chimera",
+      "dragon_swamp"
+    ]
+  },
+  "zoneName": "Xaltemoc",
+  "coverage": [
+    {
+      "requirement": "demon_lord",
+      "status": "proxy",
+      "detail": "Explicit substitute: demon_balor."
+    }
+  ],
+  "cards": [
+    {
+      "id": "S1",
+      "category": "site",
+      "title": "Fortress of the Barren Family",
+      "fields": [
+        {
+          "label": "Description",
+          "value": "The entrance drops into a worked passage. Old side doors and service cuts make the apparent main route only one way through. Flood silt marks the lower walls.",
+          "provenance": "generated",
+          "source": "dossier-story.ts v2; stored templates + explicit record links"
+        },
+        {
+          "label": "At this site",
+          "value": "E1: Hrogar\nN1: Martor\nT1: Gold scarab dotted with miniature emeralds (220 gp)",
+          "provenance": "selected",
+          "source": "Round-robin allocation of non-site records; no implied friendship or control"
+        },
+        {
+          "label": "Shape",
+          "value": "deep tunnels; large; 12 areas; sections 12; risky",
+          "provenance": "generated",
+          "source": "generateSiteInputs / site-layout"
+        },
+        {
+          "label": "Tarot draw",
+          "value": "PIT / upright / creature_or_trap",
+          "provenance": "generated",
+          "source": "drawTarot; data/oracles/tarot-cards.json"
+        },
+        {
+          "label": "Stored meaning",
+          "value": "A pit trap, or a scavenger lurking at the bottom of a pit.",
+          "provenance": "source",
+          "source": "Tarot card pit, upright, creature_or_trap"
+        },
+        {
+          "label": "Hazard",
+          "value": "Swarm of army ants (DC 12 DEX or 2d6 piercing damage)",
+          "provenance": "generated",
+          "source": "Zone river_of_night hazard table"
+        },
+        {
+          "label": "Section 1 / copper-marked",
+          "value": "Lift the curse affecting the unworked memorial, on which wounds taken here do not close until it is lifted\nPrompt: Betray the Conflict\nHolder: Bear Brown, LV 7",
+          "provenance": "generated",
+          "source": "generateSiteInputs: objective, target, prompt and guardian streams"
+        },
+        {
+          "label": "Section 1 holder combat block",
+          "value": "Bear Brown / LV 7 / AC 13 / HP 25 / morale 10\nMove: [unresolved: malformed source movement field]\nAttacks: 2 claw +4 (1d8)\nCrush. Deals an extra die of damage if it hits the same target with both claws.\nThick Fur. Cold immune.",
+          "provenance": "source",
+          "source": "shadowdark_core: bear_brown"
+        },
+        {
+          "label": "Unresolved",
+          "value": "Bear Brown: movement source contains another stat block. Original source record is retained in the audit export; verify the bestiary before play.",
+          "provenance": "unresolved",
+          "source": "No returned field or implemented completion procedure"
+        },
+        {
+          "label": "Level policy",
+          "value": "Act 3 guardian band; site guardian levels do not follow the encounter minimum.",
+          "provenance": "selected",
+          "source": "ACT_LEVEL_BANDS"
+        },
+        {
+          "label": "Unresolved",
+          "value": "Detailed room keys, maps, clue placement and completed symbolic mechanics.",
+          "provenance": "unresolved",
+          "source": "No returned field or implemented completion procedure"
+        }
+      ]
+    },
+    {
+      "id": "S2",
+      "category": "site",
+      "title": "Spire of the Haunted Old Claim",
+      "fields": [
+        {
+          "label": "Description",
+          "value": "A long descent opens into intersecting galleries. Sound carries far enough to warn the occupants before intruders reach them. Rainwater drips from the canopy over the approach.",
+          "provenance": "generated",
+          "source": "dossier-story.ts v2; stored templates + explicit record links"
+        },
+        {
+          "label": "At this site",
+          "value": "E2: Iggs\nN2: Jaftor\nT2: Giant, egg-shaped emerald (240 gp)",
+          "provenance": "selected",
+          "source": "Round-robin allocation of non-site records; no implied friendship or control"
+        },
+        {
+          "label": "Shape",
+          "value": "deep tunnels; medium; 13 areas; sections 8 + 5; risky",
+          "provenance": "generated",
+          "source": "generateSiteInputs / site-layout"
+        },
+        {
+          "label": "Tarot draw",
+          "value": "PIT / reversed / person",
+          "provenance": "generated",
+          "source": "drawTarot; data/oracles/tarot-cards.json"
+        },
+        {
+          "label": "Stored meaning",
+          "value": "A person in a precarious position who soon will have a calamitous fall.",
+          "provenance": "source",
+          "source": "Tarot card pit, reversed, person"
+        },
+        {
+          "label": "Hazard",
+          "value": "Falling canopy branch / deadfall (DC 12 DEX or 1d8 bludgeoning)",
+          "provenance": "generated",
+          "source": "Zone river_of_night hazard table"
+        },
+        {
+          "label": "Section 1 / copper-marked",
+          "value": "Recover Magic wand, 5th-tier spell (virtue, flaw) (360 gp), in the rain-spoiled codex of the abandoned store\nPrompt: Free the Safety\nHolder: Reaver, LV 6",
+          "provenance": "generated",
+          "source": "generateSiteInputs: objective, target, prompt and guardian streams"
+        },
+        {
+          "label": "Section 1 holder combat block",
+          "value": "Reaver / LV 6 / AC 17 / HP 28 / morale 12\nMove: near\nAttacks: 3 bastard sword +4 (1d8 + 2)\nBloodlust. +2 damage with melee weapons (included).",
+          "provenance": "source",
+          "source": "shadowdark_core: reaver"
+        },
+        {
+          "label": "Unresolved",
+          "value": "Site relic contains unfilled magic-item attributes.",
+          "provenance": "unresolved",
+          "source": "No returned field or implemented completion procedure"
+        },
+        {
+          "label": "Section 2 / split-stone",
+          "value": "Recover an intact Bear Brown clutch in the overgrown egg nest\nPrompt: Pull the Hazard\nHolder: Drow Drider, LV 6",
+          "provenance": "generated",
+          "source": "generateSiteInputs: objective, target, prompt and guardian streams"
+        },
+        {
+          "label": "Section 2 holder combat block",
+          "value": "Drow Drider / LV 6 / AC 16 / HP 29 / morale 10\nMove: near (climb)\nAttacks: 3 longsword +3 (1d8); 2 longbow (far) +3 (1d8 + poison)\nPoison. DC 15 CON or paralyzed 1d4 rounds.\nSunblind. Blinded in bright light.",
+          "provenance": "source",
+          "source": "shadowdark_core: drow_drider"
+        },
+        {
+          "label": "Level policy",
+          "value": "Act 3 guardian band; site guardian levels do not follow the encounter minimum.",
+          "provenance": "selected",
+          "source": "ACT_LEVEL_BANDS"
+        },
+        {
+          "label": "Unresolved",
+          "value": "Detailed room keys, maps, clue placement and completed symbolic mechanics.",
+          "provenance": "unresolved",
+          "source": "No returned field or implemented completion procedure"
+        }
+      ]
+    },
+    {
+      "id": "S3",
+      "category": "site",
+      "title": "Farmstead of the Unfinished Family",
+      "fields": [
+        {
+          "label": "Description",
+          "value": "Burial passages branch from a narrow entry hall. Memorials and sealed thresholds distinguish the older chambers from later additions. Rainwater drips from the canopy over the approach.",
+          "provenance": "generated",
+          "source": "dossier-story.ts v2; stored templates + explicit record links"
+        },
+        {
+          "label": "At this site",
+          "value": "E3: Lenk Girilo of the Silver Stars\nN3: Clara\nT3: Ruby-eyed, gold idol, 3 Demonskin blessings (840 gp)",
+          "provenance": "selected",
+          "source": "Round-robin allocation of non-site records; no implied friendship or control"
+        },
+        {
+          "label": "Shape",
+          "value": "tomb; medium; 13 areas; sections 8 + 5; deadly",
+          "provenance": "generated",
+          "source": "generateSiteInputs / site-layout"
+        },
+        {
+          "label": "Tarot draw",
+          "value": "CELESTIAL / upright / place",
+          "provenance": "generated",
+          "source": "drawTarot; data/oracles/tarot-cards.json"
+        },
+        {
+          "label": "Stored meaning",
+          "value": "A location on the Upper Planes, or a place suffused with their influence.",
+          "provenance": "source",
+          "source": "Tarot card celestial, upright, place"
+        },
+        {
+          "label": "Hazard",
+          "value": "Toxic river leeches (DC 11 CON or drained 1d4 HP)",
+          "provenance": "generated",
+          "source": "Zone river_of_night hazard table"
+        },
+        {
+          "label": "Section 1 / copper-marked",
+          "value": "Clear the overgrown mountain pass, blocked by a rotted span with one rope left\nPrompt: Allow the Storm\nHolder: Orca, LV 8",
+          "provenance": "generated",
+          "source": "generateSiteInputs: objective, target, prompt and guardian streams"
+        },
+        {
+          "label": "Section 1 holder combat block",
+          "value": "Orca / LV 8 / AC 12 / HP 39 / morale 11\nMove: double near (swim)\nAttacks: 2 bite +5 (1d10)\nPod Hunter. Deals +2 damage when an ally is within near.",
+          "provenance": "source",
+          "source": "cursed_scroll_3: orca"
+        },
+        {
+          "label": "Section 2 / split-stone",
+          "value": "Clear the rain-spoiled canal reach, blocked by a rotted span with one rope left\nPrompt: Hint the People\nHolder: Bear Brown, LV 7",
+          "provenance": "generated",
+          "source": "generateSiteInputs: objective, target, prompt and guardian streams"
+        },
+        {
+          "label": "Section 2 holder combat block",
+          "value": "Bear Brown / LV 7 / AC 13 / HP 25 / morale 10\nMove: [unresolved: malformed source movement field]\nAttacks: 2 claw +4 (1d8)\nCrush. Deals an extra die of damage if it hits the same target with both claws.\nThick Fur. Cold immune.",
+          "provenance": "source",
+          "source": "shadowdark_core: bear_brown"
+        },
+        {
+          "label": "Unresolved",
+          "value": "Bear Brown: movement source contains another stat block. Original source record is retained in the audit export; verify the bestiary before play.",
+          "provenance": "unresolved",
+          "source": "No returned field or implemented completion procedure"
+        },
+        {
+          "label": "Level policy",
+          "value": "Act 3 guardian band; site guardian levels do not follow the encounter minimum.",
+          "provenance": "selected",
+          "source": "ACT_LEVEL_BANDS"
+        },
+        {
+          "label": "Unresolved",
+          "value": "Detailed room keys, maps, clue placement and completed symbolic mechanics.",
+          "provenance": "unresolved",
+          "source": "No returned field or implemented completion procedure"
+        }
+      ]
+    },
+    {
+      "id": "S4",
+      "category": "site",
+      "title": "Maze of the Buried Mechanism",
+      "fields": [
+        {
+          "label": "Description",
+          "value": "A low entrance leads into uneven galleries. Narrow shelves overlook the passage, and several exits are hidden by changes in level. Flood silt marks the lower walls.",
+          "provenance": "generated",
+          "source": "dossier-story.ts v2; stored templates + explicit record links"
+        },
+        {
+          "label": "At this site",
+          "value": "E4: Rinan\nN4: Rina\nT4: Chunk of meteorite wrapped around a ruby (250 gp)",
+          "provenance": "selected",
+          "source": "Round-robin allocation of non-site records; no implied friendship or control"
+        },
+        {
+          "label": "Shape",
+          "value": "caves; medium; 13 areas; sections 8 + 5; risky",
+          "provenance": "generated",
+          "source": "generateSiteInputs / site-layout"
+        },
+        {
+          "label": "Tarot draw",
+          "value": "PATH / reversed / creature_or_trap",
+          "provenance": "generated",
+          "source": "drawTarot; data/oracles/tarot-cards.json"
+        },
+        {
+          "label": "Stored meaning",
+          "value": "A creature that reacts to provocation without a plan or purpose.",
+          "provenance": "source",
+          "source": "Tarot card path, reversed, creature_or_trap"
+        },
+        {
+          "label": "Hazard",
+          "value": "Swarm of army ants (DC 12 DEX or 2d6 piercing damage)",
+          "provenance": "generated",
+          "source": "Zone river_of_night hazard table"
+        },
+        {
+          "label": "Section 1 / copper-marked",
+          "value": "Secure the overgrown stair well, blocked by a rotted span with one rope left\nPrompt: Capture the Safety\nHolder: Mage, LV 6",
+          "provenance": "generated",
+          "source": "generateSiteInputs: objective, target, prompt and guardian streams"
+        },
+        {
+          "label": "Section 1 holder combat block",
+          "value": "Mage / LV 6 / AC 11 / HP 27 / morale 10\nMove: near\nAttacks: 1 spell +5\nArcane Armor (INT Spell). Self. DC 12. AC 16 for 2d4 rounds.\nBlast (INT Spell). DC 12. Far, one target. 2d6 damage.\nCancel (INT Spell). DC 13. End one spell affecting a target within near.\nLevitate (INT Spell). DC 12. Close.\nFocus. Hover near for duration, vertical movement only.\nSnare (INT Spell). DC 13. Focus. One humanoid target within near paralyzed for duration.",
+          "provenance": "source",
+          "source": "shadowdark_core: mage"
+        },
+        {
+          "label": "Section 2 / split-stone",
+          "value": "Secure the overgrown winch platform, blocked by standing water past chest height\nPrompt: Gather the Theft\nHolder: Bear Brown, LV 7",
+          "provenance": "generated",
+          "source": "generateSiteInputs: objective, target, prompt and guardian streams"
+        },
+        {
+          "label": "Section 2 holder combat block",
+          "value": "Bear Brown / LV 7 / AC 13 / HP 25 / morale 10\nMove: [unresolved: malformed source movement field]\nAttacks: 2 claw +4 (1d8)\nCrush. Deals an extra die of damage if it hits the same target with both claws.\nThick Fur. Cold immune.",
+          "provenance": "source",
+          "source": "shadowdark_core: bear_brown"
+        },
+        {
+          "label": "Unresolved",
+          "value": "Bear Brown: movement source contains another stat block. Original source record is retained in the audit export; verify the bestiary before play.",
+          "provenance": "unresolved",
+          "source": "No returned field or implemented completion procedure"
+        },
+        {
+          "label": "Level policy",
+          "value": "Act 3 guardian band; site guardian levels do not follow the encounter minimum.",
+          "provenance": "selected",
+          "source": "ACT_LEVEL_BANDS"
+        },
+        {
+          "label": "Unresolved",
+          "value": "Detailed room keys, maps, clue placement and completed symbolic mechanics.",
+          "provenance": "unresolved",
+          "source": "No returned field or implemented completion procedure"
+        }
+      ]
+    },
+    {
+      "id": "S5",
+      "category": "site",
+      "title": "Steading of the Haunted Warlord",
+      "fields": [
+        {
+          "label": "Description",
+          "value": "A descending stair reaches the burial rooms. Heavy doors divide the galleries, and the deepest approach offers little room to retreat. Rainwater drips from the canopy over the approach.",
+          "provenance": "generated",
+          "source": "dossier-story.ts v2; stored templates + explicit record links"
+        },
+        {
+          "label": "At this site",
+          "value": "E5: Drago\nN5: Bruno\nT5: Ghost Wand (wand) — Magic wand, 5th-tier spell (virtue, flaw) (360 gp)",
+          "provenance": "selected",
+          "source": "Round-robin allocation of non-site records; no implied friendship or control"
+        },
+        {
+          "label": "Shape",
+          "value": "tomb; small; 15 areas; sections 5 + 5 + 5; deadly",
+          "provenance": "generated",
+          "source": "generateSiteInputs / site-layout"
+        },
+        {
+          "label": "Tarot draw",
+          "value": "PATH / upright / creature_or_trap",
+          "provenance": "generated",
+          "source": "drawTarot; data/oracles/tarot-cards.json"
+        },
+        {
+          "label": "Stored meaning",
+          "value": "A single-minded predator pursuing prey, or something deadly acting on instinct or purpose; it might be a trapped room navigable by only a single path.",
+          "provenance": "source",
+          "source": "Tarot card path, upright, creature_or_trap"
+        },
+        {
+          "label": "Hazard",
+          "value": "Swarm of army ants (DC 12 DEX or 2d6 piercing damage)",
+          "provenance": "generated",
+          "source": "Zone river_of_night hazard table"
+        },
+        {
+          "label": "Section 1 / copper-marked",
+          "value": "Recover Giant diamond, casts wish once without fail (720 gp), in the disputed reliquary of the trade route\nPrompt: Demand the Barrier\nHolder: Bear Brown, LV 7",
+          "provenance": "generated",
+          "source": "generateSiteInputs: objective, target, prompt and guardian streams"
+        },
+        {
+          "label": "Section 1 holder combat block",
+          "value": "Bear Brown / LV 7 / AC 13 / HP 25 / morale 10\nMove: [unresolved: malformed source movement field]\nAttacks: 2 claw +4 (1d8)\nCrush. Deals an extra die of damage if it hits the same target with both claws.\nThick Fur. Cold immune.",
+          "provenance": "source",
+          "source": "shadowdark_core: bear_brown"
+        },
+        {
+          "label": "Unresolved",
+          "value": "Bear Brown: movement source contains another stat block. Original source record is retained in the audit export; verify the bestiary before play.",
+          "provenance": "unresolved",
+          "source": "No returned field or implemented completion procedure"
+        },
+        {
+          "label": "Section 2 / split-stone",
+          "value": "Recover Flawless, dazzling diamond (360 gp), in the abandoned signet of the abandoned store\nPrompt: Reward the Integrity\nHolder: Hero, LV 5",
+          "provenance": "generated",
+          "source": "generateSiteInputs: objective, target, prompt and guardian streams"
+        },
+        {
+          "label": "Section 2 holder combat block",
+          "value": "Hero / LV 5 / AC 16 / HP 25 / morale 10\nMove: near\nAttacks: 3 bastard sword +5 (1d8); 1 spear (close/near) +5 (1d6)\n",
+          "provenance": "source",
+          "source": "cursed_scroll_2: hero"
+        },
+        {
+          "label": "Section 3 / white-thread",
+          "value": "Recover Giant diamond, casts wish once without fail (720 gp), in the disputed casket of the trade route\nPrompt: Betray the Safety\nHolder: Wolf Winter, LV 5",
+          "provenance": "generated",
+          "source": "generateSiteInputs: objective, target, prompt and guardian streams"
+        },
+        {
+          "label": "Section 3 holder combat block",
+          "value": "Wolf Winter / LV 5 / AC 12 / HP 23 / morale 9\nMove: double near\nAttacks: 2 bite +4 (1d6); 1 frost breath\nImpervious. Cold immune.\nFrost Breath. Fills a near-sized cube extending from winter wolf. DC 15 DEX or 3d8 damage. Cannot use again for 1d4 rounds.",
+          "provenance": "source",
+          "source": "shadowdark_core: wolf_winter"
+        },
+        {
+          "label": "Level policy",
+          "value": "Act 3 guardian band; site guardian levels do not follow the encounter minimum.",
+          "provenance": "selected",
+          "source": "ACT_LEVEL_BANDS"
+        },
+        {
+          "label": "Unresolved",
+          "value": "Detailed room keys, maps, clue placement and completed symbolic mechanics.",
+          "provenance": "unresolved",
+          "source": "No returned field or implemented completion procedure"
+        }
+      ]
+    },
+    {
+      "id": "E1",
+      "category": "encounter",
+      "title": "Hrogar",
+      "fields": [
+        {
+          "label": "Situation",
+          "value": "The Balor occupies an open approach, where its wings and whip have room to move.",
+          "provenance": "generated",
+          "source": "dossier-story.ts v2; stored templates + explicit record links"
+        },
+        {
+          "label": "Selection",
+          "value": "demon_lord: Explicit substitute: demon_balor.",
+          "provenance": "selected",
+          "source": "Required-type policy / zone wandering table"
+        },
+        {
+          "label": "Composition",
+          "value": "1 Demon Balor",
+          "provenance": "generated",
+          "source": "Singleton policy; Nord crew d6+6"
+        },
+        {
+          "label": "Terrain",
+          "value": "Cacao Groves",
+          "provenance": "generated",
+          "source": "Uniform zone label draw; swimming creatures prefer aquatic/coastal labels when available"
+        },
+        {
+          "label": "Tarot draw",
+          "value": "UNDEAD / upright / treasure",
+          "provenance": "generated",
+          "source": "drawTarot; data/oracles/tarot-cards.json"
+        },
+        {
+          "label": "Stored meaning",
+          "value": "A treasure depicting the dead or an Undead, something made from bones, or a magic item made by or for an Undead.",
+          "provenance": "source",
+          "source": "Tarot card undead, upright, treasure"
+        },
+        {
+          "label": "Reaction",
+          "value": "4 + 3 = 7: Cautious / neutral",
+          "provenance": "generated",
+          "source": "reactionRoll (2d6, CHA modifier 0)"
+        },
+        {
+          "label": "Stats",
+          "value": "LV 16; AC 19; HP 77; morale 12; move double near (fly); alignment C",
+          "provenance": "source",
+          "source": "shadowdark_core: demon_balor"
+        },
+        {
+          "label": "Ability modifiers",
+          "value": "STR 6 / DEX 2 / CON 5 / INT 4 / WIS 3 / CHA 4",
+          "provenance": "source",
+          "source": "Stock bestiary; modifiers, not scores"
+        },
+        {
+          "label": "Attacks",
+          "value": "3 greatsword +10 (2d12 + hellfire) and 1 fire whip (near) +10 (2d6 + grab)",
+          "provenance": "source",
+          "source": "shadowdark_core: demon_balor"
+        },
+        {
+          "label": "Ability",
+          "value": "Impervious. Fire immune. Only damaged by magical sources.",
+          "provenance": "source",
+          "source": "Stock traits / stored ability-additions.json"
+        },
+        {
+          "label": "Ability",
+          "value": "Grab. DC 18 STR or target bound in whip. 2d6 damage per round held, DC 18 STR on turn to break free. In place of fire whip attack, balor can fling a grabbed target double near on its turn.",
+          "provenance": "source",
+          "source": "Stock traits / stored ability-additions.json"
+        },
+        {
+          "label": "Ability",
+          "value": "Hellfire. DC 18 DEX or 2d8 damage per round until flames extinguished.",
+          "provenance": "source",
+          "source": "Stock traits / stored ability-additions.json"
+        },
+        {
+          "label": "Weakness",
+          "value": "Fire: Takes twice the damage from fire damage.",
+          "provenance": "source",
+          "source": "Campaign profile / vulnerability-pool.json"
+        },
+        {
+          "label": "Weakness",
+          "value": "Nine of Cups: Satisfying a particular craving makes it complacent or drowsy. [Theme; effect needs authoring.]",
+          "provenance": "unresolved",
+          "source": "Campaign profile / vulnerability-pool.json"
+        },
+        {
+          "label": "Weakness",
+          "value": "Knight of Wands: A dare exploits its eagerness and compels a dangerous commitment. [Theme; effect needs authoring.]",
+          "provenance": "unresolved",
+          "source": "Campaign profile / vulnerability-pool.json"
+        },
+        {
+          "label": "Weakness",
+          "value": "Lust: Desire makes it accept a dangerous bargain or surrender a protection. [Theme; effect needs authoring.]",
+          "provenance": "unresolved",
+          "source": "Campaign profile / vulnerability-pool.json"
+        },
+        {
+          "label": "Weakness",
+          "value": "The High Priestess: Revealing a guarded secret or invoking a forbidden mystery weakens it. [Theme; effect needs authoring.]",
+          "provenance": "unresolved",
+          "source": "Campaign profile / vulnerability-pool.json"
+        },
+        {
+          "label": "Weakness",
+          "value": "Acid: Takes twice the damage from acid damage.",
+          "provenance": "source",
+          "source": "Campaign profile / vulnerability-pool.json"
+        },
+        {
+          "label": "Weakness",
+          "value": "Lightning: Takes twice the damage from lightning damage.",
+          "provenance": "source",
+          "source": "Campaign profile / vulnerability-pool.json"
+        },
+        {
+          "label": "Carried treasure",
+          "value": "None\nQuality poor; XP value 0; core_treasure_10+_empty",
+          "provenance": "generated",
+          "source": "resolveGroupTreasure; companion level when present, otherwise primary creature level"
+        },
+        {
+          "label": "Unresolved",
+          "value": "Bespoke motive, clues, symbolic weakness effects and any magical companion bond.",
+          "provenance": "unresolved",
+          "source": "No returned field or implemented completion procedure"
+        },
+        {
+          "label": "Location",
+          "value": "S1: Fortress of the Barren Family",
+          "provenance": "selected",
+          "source": "Round-robin allocation; encounter terrain is a separate approach label"
+        }
+      ]
+    },
+    {
+      "id": "E2",
+      "category": "encounter",
+      "title": "Iggs",
+      "fields": [
+        {
+          "label": "Situation",
+          "value": "Movement breaks the water beside the approach. Visitors have time to choose between the bank and the exposed crossing.",
+          "provenance": "generated",
+          "source": "dossier-story.ts v2; stored templates + explicit record links"
+        },
+        {
+          "label": "Selection",
+          "value": "Uniform draw from user-selected stock pool (regional membership not assumed); LV 10-16. Without replacement until exhausted.",
+          "provenance": "selected",
+          "source": "Required-type policy / zone wandering table"
+        },
+        {
+          "label": "Composition",
+          "value": "1 Dragon Swamp",
+          "provenance": "generated",
+          "source": "Singleton policy; Nord crew d6+6"
+        },
+        {
+          "label": "Terrain",
+          "value": "Oxbow Lagoon",
+          "provenance": "generated",
+          "source": "Uniform zone label draw; swimming creatures prefer aquatic/coastal labels when available"
+        },
+        {
+          "label": "Tarot draw",
+          "value": "PATH / reversed / creature_or_trap",
+          "provenance": "generated",
+          "source": "drawTarot; data/oracles/tarot-cards.json"
+        },
+        {
+          "label": "Stored meaning",
+          "value": "A creature that reacts to provocation without a plan or purpose.",
+          "provenance": "source",
+          "source": "Tarot card path, reversed, creature_or_trap"
+        },
+        {
+          "label": "Reaction",
+          "value": "4 + 3 = 7: Cautious / neutral",
+          "provenance": "generated",
+          "source": "reactionRoll (2d6, CHA modifier 0)"
+        },
+        {
+          "label": "Stats",
+          "value": "LV 12; AC 16; HP 58; morale 12; move double near (burrow, swim); alignment C",
+          "provenance": "source",
+          "source": "shadowdark_core: dragon_swamp"
+        },
+        {
+          "label": "Ability modifiers",
+          "value": "STR 5 / DEX 3 / CON 4 / INT 4 / WIS 3 / CHA 3",
+          "provenance": "source",
+          "source": "Stock bestiary; modifiers, not scores"
+        },
+        {
+          "label": "Attacks",
+          "value": "3 rend +8 (2d10)\n1 smog breath",
+          "provenance": "source",
+          "source": "shadowdark_core: dragon_swamp"
+        },
+        {
+          "label": "Ability",
+          "value": "Smog Breath. Fills a near-sized cube extending from dragon. DC 15 CON or 2d10 damage and blinded for 1 round.",
+          "provenance": "source",
+          "source": "Stock traits / stored ability-additions.json"
+        },
+        {
+          "label": "Weakness",
+          "value": "Modesty: Humble acknowledgement or refusal of praise breaks a glamour or claim to superiority. [Theme; effect needs authoring.]",
+          "provenance": "unresolved",
+          "source": "Campaign profile / vulnerability-pool.json"
+        },
+        {
+          "label": "Weakness",
+          "value": "Music: A particular tune induces sleep, sorrow, compulsive movement, or a binding memory. [Theme; effect needs authoring.]",
+          "provenance": "unresolved",
+          "source": "Campaign profile / vulnerability-pool.json"
+        },
+        {
+          "label": "Weakness",
+          "value": "Iron: Contact with iron wounds it exceptionally or disrupts its enchantments. [Theme; effect needs authoring.]",
+          "provenance": "unresolved",
+          "source": "Campaign profile / vulnerability-pool.json"
+        },
+        {
+          "label": "Weakness",
+          "value": "Loud sounds: Loud sound overloads a particular sense or fractures its substance; it need not deal thunder damage. [Theme; effect needs authoring.]",
+          "provenance": "unresolved",
+          "source": "Campaign profile / vulnerability-pool.json"
+        },
+        {
+          "label": "Carried treasure",
+          "value": "None\nQuality poor; XP value 0; core_treasure_10+_empty",
+          "provenance": "generated",
+          "source": "resolveGroupTreasure; companion level when present, otherwise primary creature level"
+        },
+        {
+          "label": "Unresolved",
+          "value": "Bespoke motive, clues, symbolic weakness effects and any magical companion bond.",
+          "provenance": "unresolved",
+          "source": "No returned field or implemented completion procedure"
+        },
+        {
+          "label": "Location",
+          "value": "S2: Spire of the Haunted Old Claim",
+          "provenance": "selected",
+          "source": "Round-robin allocation; encounter terrain is a separate approach label"
+        }
+      ]
+    },
+    {
+      "id": "E3",
+      "category": "encounter",
+      "title": "Lenk Girilo of the Silver Stars",
+      "fields": [
+        {
+          "label": "Situation",
+          "value": "The beast pauses beside fresh tracks. Visitors can observe it before entering its reach.",
+          "provenance": "generated",
+          "source": "dossier-story.ts v2; stored templates + explicit record links"
+        },
+        {
+          "label": "Selection",
+          "value": "Uniform draw from user-selected stock pool (regional membership not assumed); LV 10-16. Without replacement until exhausted.",
+          "provenance": "selected",
+          "source": "Required-type policy / zone wandering table"
+        },
+        {
+          "label": "Composition",
+          "value": "1 Brachiosaurus",
+          "provenance": "generated",
+          "source": "Singleton policy; Nord crew d6+6"
+        },
+        {
+          "label": "Terrain",
+          "value": "Sandbar Crossing",
+          "provenance": "generated",
+          "source": "Uniform zone label draw; swimming creatures prefer aquatic/coastal labels when available"
+        },
+        {
+          "label": "Tarot draw",
+          "value": "DOOR / upright / treasure",
+          "provenance": "generated",
+          "source": "drawTarot; data/oracles/tarot-cards.json"
+        },
+        {
+          "label": "Stored meaning",
+          "value": "An art object that looks very different from various perspectives, or a magic item that creates portals or allows teleportation (such as an Amulet of the Planes).",
+          "provenance": "source",
+          "source": "Tarot card door, upright, treasure"
+        },
+        {
+          "label": "Reaction",
+          "value": "3 + 2 = 5: Suspicious / threatening",
+          "provenance": "generated",
+          "source": "reactionRoll (2d6, CHA modifier 0)"
+        },
+        {
+          "label": "Stats",
+          "value": "LV 12; AC 13; HP 57; morale 12; move double near; alignment N",
+          "provenance": "source",
+          "source": "shadowdark_core: brachiosaurus"
+        },
+        {
+          "label": "Ability modifiers",
+          "value": "STR 6 / DEX -1 / CON 3 / INT -3 / WIS 1 / CHA -3",
+          "provenance": "source",
+          "source": "Stock bestiary; modifiers, not scores"
+        },
+        {
+          "label": "Attacks",
+          "value": "3 stomp +7 (2d10)",
+          "provenance": "source",
+          "source": "shadowdark_core: brachiosaurus"
+        },
+        {
+          "label": "Ability",
+          "value": "Ground Shudder. replaces the attack action; once per fight. Trigger: At least two enemies are close on the same solid ground. Range: close. Make one existing stomp attack (+7, 2d10 damage) against a close target. Whether it hits or misses, all other creatures close to it on the same solid ground make DC 12 DEX or fall prone. No additional damage is dealt. Flying creatures are unaffected by the ground shock. This replaces the normal three stomps. Telegraph: It raises a forefoot high and the ground trembles as its weight shifts. Behaviour: Use when two or more enemies crowd its feet and no herd mate is in the area; attack the nearest enemy, then randomly.",
+          "provenance": "source",
+          "source": "Stock traits / stored ability-additions.json"
+        },
+        {
+          "label": "Weakness",
+          "value": "Four of Pentacles: Its attachment to a particular possession compels a disadvantageous concession. [Theme; effect needs authoring.]",
+          "provenance": "unresolved",
+          "source": "Campaign profile / vulnerability-pool.json"
+        },
+        {
+          "label": "Weakness",
+          "value": "Ace of Wands: A new undertaking or spark of creative fire disrupts its stagnation. [Theme; effect needs authoring.]",
+          "provenance": "unresolved",
+          "source": "Campaign profile / vulnerability-pool.json"
+        },
+        {
+          "label": "Carried treasure",
+          "value": "None\nQuality poor; XP value 0; core_treasure_10+_empty",
+          "provenance": "generated",
+          "source": "resolveGroupTreasure; companion level when present, otherwise primary creature level"
+        },
+        {
+          "label": "Unresolved",
+          "value": "Bespoke motive, clues, symbolic weakness effects and any magical companion bond.",
+          "provenance": "unresolved",
+          "source": "No returned field or implemented completion procedure"
+        },
+        {
+          "label": "Location",
+          "value": "S3: Farmstead of the Unfinished Family",
+          "provenance": "selected",
+          "source": "Round-robin allocation; encounter terrain is a separate approach label"
+        }
+      ]
+    },
+    {
+      "id": "E4",
+      "category": "encounter",
+      "title": "Rinan",
+      "fields": [
+        {
+          "label": "Situation",
+          "value": "The creature watches from the water near the landing. Its rolled reaction determines whether it approaches.",
+          "provenance": "generated",
+          "source": "dossier-story.ts v2; stored templates + explicit record links"
+        },
+        {
+          "label": "Selection",
+          "value": "Uniform draw from user-selected stock pool (regional membership not assumed); LV 10-16. Without replacement until exhausted.",
+          "provenance": "selected",
+          "source": "Required-type policy / zone wandering table"
+        },
+        {
+          "label": "Composition",
+          "value": "1 Catfish Giant",
+          "provenance": "generated",
+          "source": "Singleton policy; Nord crew d6+6"
+        },
+        {
+          "label": "Terrain",
+          "value": "Alluvial Mudflats",
+          "provenance": "generated",
+          "source": "Uniform zone label draw; swimming creatures prefer aquatic/coastal labels when available"
+        },
+        {
+          "label": "Tarot draw",
+          "value": "STATUE / upright / situation",
+          "provenance": "generated",
+          "source": "drawTarot; data/oracles/tarot-cards.json"
+        },
+        {
+          "label": "Stored meaning",
+          "value": "A situation with remarkable similarities to a significant historical event.",
+          "provenance": "source",
+          "source": "Tarot card statue, upright, situation"
+        },
+        {
+          "label": "Reaction",
+          "value": "1 + 3 = 4: Suspicious / threatening",
+          "provenance": "generated",
+          "source": "reactionRoll (2d6, CHA modifier 0)"
+        },
+        {
+          "label": "Stats",
+          "value": "LV 12; AC 13; HP 56; morale 12; move double near (swim); alignment N",
+          "provenance": "source",
+          "source": "cursed_scroll_4: catfish_giant"
+        },
+        {
+          "label": "Ability modifiers",
+          "value": "STR 4 / DEX 0 / CON 2 / INT -3 / WIS 1 / CHA -3",
+          "provenance": "source",
+          "source": "Stock bestiary; modifiers, not scores"
+        },
+        {
+          "label": "Attacks",
+          "value": "2 bite +9 (2d10 + swallow)",
+          "provenance": "source",
+          "source": "cursed_scroll_4: catfish_giant"
+        },
+        {
+          "label": "Ability",
+          "value": "Swallow. On a natural attack roll of 18-20, target is swallowed into giant catfish's stomach. Total darkness inside stomach and 2d8 damage per round. Giant catfish regurgitates all swallowed creatures if dealt at least 15 damage in one round to the inside of its gullet.",
+          "provenance": "source",
+          "source": "Stock traits / stored ability-additions.json"
+        },
+        {
+          "label": "Weakness",
+          "value": "Gullet injury: At least 15 damage inside its gullet in one round makes it regurgitate all swallowed creatures.",
+          "provenance": "source",
+          "source": "Campaign profile / vulnerability-pool.json"
+        },
+        {
+          "label": "Weakness",
+          "value": "Four of Swords: A particular silence, vigil, or rest rite stills its restless power. [Theme; effect needs authoring.]",
+          "provenance": "unresolved",
+          "source": "Campaign profile / vulnerability-pool.json"
+        },
+        {
+          "label": "Weakness",
+          "value": "Knight of Pentacles: A faithfully completed mundane duty dissolves a curse or debt it exploits. [Theme; effect needs authoring.]",
+          "provenance": "unresolved",
+          "source": "Campaign profile / vulnerability-pool.json"
+        },
+        {
+          "label": "Carried treasure",
+          "value": "Masterwork lute by realm's most famous luthier (140 gp)\nQuality normal; XP value 1; core_treasure_10+_32-33",
+          "provenance": "generated",
+          "source": "resolveGroupTreasure; companion level when present, otherwise primary creature level"
+        },
+        {
+          "label": "Unresolved",
+          "value": "Bespoke motive, clues, symbolic weakness effects and any magical companion bond.",
+          "provenance": "unresolved",
+          "source": "No returned field or implemented completion procedure"
+        },
+        {
+          "label": "Location",
+          "value": "S4: Maze of the Buried Mechanism",
+          "provenance": "selected",
+          "source": "Round-robin allocation; encounter terrain is a separate approach label"
+        }
+      ]
+    },
+    {
+      "id": "E5",
+      "category": "encounter",
+      "title": "Drago",
+      "fields": [
+        {
+          "label": "Situation",
+          "value": "The creature occupies the approach to the associated site. Its rolled reaction determines how it responds to visitors.",
+          "provenance": "generated",
+          "source": "dossier-story.ts v2; stored templates + explicit record links"
+        },
+        {
+          "label": "Selection",
+          "value": "Uniform draw from user-selected stock pool (regional membership not assumed); LV 10-16. Without replacement until exhausted.",
+          "provenance": "selected",
+          "source": "Required-type policy / zone wandering table"
+        },
+        {
+          "label": "Composition",
+          "value": "1 Chimera",
+          "provenance": "generated",
+          "source": "Singleton policy; Nord crew d6+6"
+        },
+        {
+          "label": "Terrain",
+          "value": "Basalt Volcanic Outcrop",
+          "provenance": "generated",
+          "source": "Uniform zone label draw; swimming creatures prefer aquatic/coastal labels when available"
+        },
+        {
+          "label": "Tarot draw",
+          "value": "MAP / upright / creature_or_trap",
+          "provenance": "generated",
+          "source": "drawTarot; data/oracles/tarot-cards.json"
+        },
+        {
+          "label": "Stored meaning",
+          "value": "A creature that tracks by scent.",
+          "provenance": "source",
+          "source": "Tarot card map, upright, creature_or_trap"
+        },
+        {
+          "label": "Reaction",
+          "value": "4 + 2 = 6: Suspicious / threatening",
+          "provenance": "generated",
+          "source": "reactionRoll (2d6, CHA modifier 0)"
+        },
+        {
+          "label": "Stats",
+          "value": "LV 10; AC 16; HP 49; morale 12; move double near (fly); alignment C",
+          "provenance": "source",
+          "source": "shadowdark_core: chimera"
+        },
+        {
+          "label": "Ability modifiers",
+          "value": "STR 5 / DEX 4 / CON 4 / INT -3 / WIS 2 / CHA -1",
+          "provenance": "source",
+          "source": "Stock bestiary; modifiers, not scores"
+        },
+        {
+          "label": "Attacks",
+          "value": "4 rend +7 (2d8) and 1 fire breath",
+          "provenance": "source",
+          "source": "shadowdark_core: chimera"
+        },
+        {
+          "label": "Ability",
+          "value": "Fire Breath. Fills a near-sized cube extending from chimera. DC 15 DEX or 4d6 damage.",
+          "provenance": "source",
+          "source": "Stock traits / stored ability-additions.json"
+        },
+        {
+          "label": "Weakness",
+          "value": "Strength: Gentleness shown in the presence of danger calms or weakens its savagery. [Theme; effect needs authoring.]",
+          "provenance": "unresolved",
+          "source": "Campaign profile / vulnerability-pool.json"
+        },
+        {
+          "label": "Weakness",
+          "value": "Six of Wands: Public praise or the prospect of acclaim makes it expose itself. [Theme; effect needs authoring.]",
+          "provenance": "unresolved",
+          "source": "Campaign profile / vulnerability-pool.json"
+        },
+        {
+          "label": "Weakness",
+          "value": "The Fool: Innocence, spontaneous trust, or a harmless absurdity defeats its solemn power. [Theme; effect needs authoring.]",
+          "provenance": "unresolved",
+          "source": "Campaign profile / vulnerability-pool.json"
+        },
+        {
+          "label": "Carried treasure",
+          "value": "Nagamaki (greatsword) — Five matching, ceremonial greatswords (12 gp each)\nQuality normal; XP value 1; core_treasure_10+_8-9",
+          "provenance": "generated",
+          "source": "resolveGroupTreasure; companion level when present, otherwise primary creature level"
+        },
+        {
+          "label": "Unresolved",
+          "value": "Bespoke motive, clues, symbolic weakness effects and any magical companion bond.",
+          "provenance": "unresolved",
+          "source": "No returned field or implemented completion procedure"
+        },
+        {
+          "label": "Location",
+          "value": "S5: Steading of the Haunted Warlord",
+          "provenance": "selected",
+          "source": "Round-robin allocation; encounter terrain is a separate approach label"
+        }
+      ]
+    },
+    {
+      "id": "N1",
+      "category": "npc",
+      "title": "Martor",
+      "fields": [
+        {
+          "label": "Description",
+          "value": "Martor is a Human Sage. Their cloak is neatly fastened, but the hem shows the wear of a long journey. Quotes holy proverbs; marks prayer symbols on armor.",
+          "provenance": "generated",
+          "source": "dossier-story.ts v2; stored templates + explicit record links"
+        },
+        {
+          "label": "Identity",
+          "value": "Human Sage; local colour Basilisk Warrior",
+          "provenance": "generated",
+          "source": "generateNpc; independent class/local-colour rolls"
+        },
+        {
+          "label": "Retainer",
+          "value": "LV 1; HP 1; morale 8; 2–5 gp/day",
+          "provenance": "generated",
+          "source": "generateNpc; NPC levels remain 1–3"
+        },
+        {
+          "label": "Ability scores",
+          "value": "STR 15 / DEX 12 / CON 17 / INT 13 / WIS 12 / CHA 10",
+          "provenance": "generated",
+          "source": "generateNpc: iron_man"
+        },
+        {
+          "label": "Demeanor",
+          "value": "Zealous & Devout\nQuotes holy proverbs; marks prayer symbols on armor.",
+          "provenance": "generated",
+          "source": "NPC demeanor/quirk table"
+        },
+        {
+          "label": "Motive",
+          "value": "Lost Heirloom\nSearching a nearby dungeon hex for a family relic.",
+          "provenance": "generated",
+          "source": "NPC motive table"
+        },
+        {
+          "label": "Faction",
+          "value": "Itzalca Free Communities",
+          "provenance": "generated",
+          "source": "Uniform draw from zone factions"
+        },
+        {
+          "label": "Reaction",
+          "value": "6 + 6 = 12: Allied / receptive",
+          "provenance": "generated",
+          "source": "reactionRoll"
+        },
+        {
+          "label": "Tarot draw",
+          "value": "TOWER / reversed / place",
+          "provenance": "generated",
+          "source": "drawTarot; data/oracles/tarot-cards.json"
+        },
+        {
+          "label": "Stored meaning",
+          "value": "A place that discourages interaction with others, such as a library or monastery, where rules of silence are strictly enforced.",
+          "provenance": "source",
+          "source": "Tarot card tower, reversed, place"
+        },
+        {
+          "label": "Unresolved",
+          "value": "Mechanical gear loadout, named subjects of motives and bespoke offers.",
+          "provenance": "unresolved",
+          "source": "No returned field or implemented completion procedure"
+        },
+        {
+          "label": "Location",
+          "value": "S1: Fortress of the Barren Family",
+          "provenance": "selected",
+          "source": "Round-robin allocation; encounter terrain is a separate approach label"
+        }
+      ]
+    },
+    {
+      "id": "N2",
+      "category": "npc",
+      "title": "Jaftor",
+      "fields": [
+        {
+          "label": "Description",
+          "value": "Jaftor is a High Elf Duelist. They keep their possessions close and stop frequently to examine the route. Speaks only in 2–3 word sentences; unfazed by threats.",
+          "provenance": "generated",
+          "source": "dossier-story.ts v2; stored templates + explicit record links"
+        },
+        {
+          "label": "Identity",
+          "value": "High Elf Duelist; local colour Wizard",
+          "provenance": "generated",
+          "source": "generateNpc; independent class/local-colour rolls"
+        },
+        {
+          "label": "Retainer",
+          "value": "LV 2; HP 11; morale 9; 2–5 gp/day",
+          "provenance": "generated",
+          "source": "generateNpc; NPC levels remain 1–3"
+        },
+        {
+          "label": "Ability scores",
+          "value": "STR 14 / DEX 9 / CON 15 / INT 17 / WIS 9 / CHA 8",
+          "provenance": "generated",
+          "source": "generateNpc: iron_man"
+        },
+        {
+          "label": "Demeanor",
+          "value": "Stoic & Laconic\nSpeaks only in 2–3 word sentences; unfazed by threats.",
+          "provenance": "generated",
+          "source": "NPC demeanor/quirk table"
+        },
+        {
+          "label": "Motive",
+          "value": "Lost Heirloom\nSearching a nearby dungeon hex for a family relic.",
+          "provenance": "generated",
+          "source": "NPC motive table"
+        },
+        {
+          "label": "Faction",
+          "value": "Black River Guides",
+          "provenance": "generated",
+          "source": "Uniform draw from zone factions"
+        },
+        {
+          "label": "Reaction",
+          "value": "2 + 6 = 8: Cautious / neutral",
+          "provenance": "generated",
+          "source": "reactionRoll"
+        },
+        {
+          "label": "Tarot draw",
+          "value": "COMET / upright / treasure",
+          "provenance": "generated",
+          "source": "drawTarot; data/oracles/tarot-cards.json"
+        },
+        {
+          "label": "Stored meaning",
+          "value": "A treasure that carries a curse, or one whose power is destined to be used for destructive ends.",
+          "provenance": "source",
+          "source": "Tarot card comet, upright, treasure"
+        },
+        {
+          "label": "Unresolved",
+          "value": "Mechanical gear loadout, named subjects of motives and bespoke offers.",
+          "provenance": "unresolved",
+          "source": "No returned field or implemented completion procedure"
+        },
+        {
+          "label": "Location",
+          "value": "S2: Spire of the Haunted Old Claim",
+          "provenance": "selected",
+          "source": "Round-robin allocation; encounter terrain is a separate approach label"
+        }
+      ]
+    },
+    {
+      "id": "N3",
+      "category": "npc",
+      "title": "Clara",
+      "fields": [
+        {
+          "label": "Description",
+          "value": "Clara is a Human Wizard. A weathered travelling coat is carefully patched at the elbows. Boasts of monster kills; wears a predator fang necklace.",
+          "provenance": "generated",
+          "source": "dossier-story.ts v2; stored templates + explicit record links"
+        },
+        {
+          "label": "Identity",
+          "value": "Human Wizard; local colour Ranger",
+          "provenance": "generated",
+          "source": "generateNpc; independent class/local-colour rolls"
+        },
+        {
+          "label": "Retainer",
+          "value": "LV 2; HP 5; morale 9; 10–20 gp/day + 1 salvage share",
+          "provenance": "generated",
+          "source": "generateNpc; NPC levels remain 1–3"
+        },
+        {
+          "label": "Ability scores",
+          "value": "INT 16 / WIS 16 / DEX 11 / CON 12 / CHA 16 / STR 9",
+          "provenance": "generated",
+          "source": "generateNpc: unearthed_arcana"
+        },
+        {
+          "label": "Demeanor",
+          "value": "Boastful & Loud\nBoasts of monster kills; wears a predator fang necklace.",
+          "provenance": "generated",
+          "source": "NPC demeanor/quirk table"
+        },
+        {
+          "label": "Motive",
+          "value": "Spiritual Pilgrimage\nTraveling to a holy shrine or megalith to lift a curse.",
+          "provenance": "generated",
+          "source": "NPC motive table"
+        },
+        {
+          "label": "Faction",
+          "value": "Itzalca Free Communities",
+          "provenance": "generated",
+          "source": "Uniform draw from zone factions"
+        },
+        {
+          "label": "Reaction",
+          "value": "6 + 1 = 7: Cautious / neutral",
+          "provenance": "generated",
+          "source": "reactionRoll"
+        },
+        {
+          "label": "Tarot draw",
+          "value": "MINE / reversed / situation",
+          "provenance": "generated",
+          "source": "drawTarot; data/oracles/tarot-cards.json"
+        },
+        {
+          "label": "Stored meaning",
+          "value": "The retrieval of something buried.",
+          "provenance": "source",
+          "source": "Tarot card mine, reversed, situation"
+        },
+        {
+          "label": "Unresolved",
+          "value": "Mechanical gear loadout, named subjects of motives and bespoke offers.",
+          "provenance": "unresolved",
+          "source": "No returned field or implemented completion procedure"
+        },
+        {
+          "label": "Location",
+          "value": "S3: Farmstead of the Unfinished Family",
+          "provenance": "selected",
+          "source": "Round-robin allocation; encounter terrain is a separate approach label"
+        }
+      ]
+    },
+    {
+      "id": "N4",
+      "category": "npc",
+      "title": "Rina",
+      "fields": [
+        {
+          "label": "Description",
+          "value": "Rina is a Human Ranger. They keep their possessions close and stop frequently to examine the route. Laughs heartily; buys the table a round of bitter ale.",
+          "provenance": "generated",
+          "source": "dossier-story.ts v2; stored templates + explicit record links"
+        },
+        {
+          "label": "Identity",
+          "value": "Human Ranger; local colour Thief",
+          "provenance": "generated",
+          "source": "generateNpc; independent class/local-colour rolls"
+        },
+        {
+          "label": "Retainer",
+          "value": "LV 1; HP 4; morale 8; 2–5 gp/day",
+          "provenance": "generated",
+          "source": "generateNpc; NPC levels remain 1–3"
+        },
+        {
+          "label": "Ability scores",
+          "value": "STR 10 / DEX 13 / CON 11 / INT 9 / WIS 16 / CHA 9",
+          "provenance": "generated",
+          "source": "generateNpc: iron_man"
+        },
+        {
+          "label": "Demeanor",
+          "value": "Jovial & Inquisitive\nLaughs heartily; buys the table a round of bitter ale.",
+          "provenance": "generated",
+          "source": "NPC demeanor/quirk table"
+        },
+        {
+          "label": "Motive",
+          "value": "Caravan Escort\nGuiding an exotic trade cart to the next frontier enclave.",
+          "provenance": "generated",
+          "source": "NPC motive table"
+        },
+        {
+          "label": "Faction",
+          "value": "Black River Guides",
+          "provenance": "generated",
+          "source": "Uniform draw from zone factions"
+        },
+        {
+          "label": "Reaction",
+          "value": "2 + 2 = 4: Suspicious / threatening",
+          "provenance": "generated",
+          "source": "reactionRoll"
+        },
+        {
+          "label": "Tarot draw",
+          "value": "RUIN / reversed / treasure",
+          "provenance": "generated",
+          "source": "drawTarot; data/oracles/tarot-cards.json"
+        },
+        {
+          "label": "Stored meaning",
+          "value": "Valuable trade goods, well-made equipment, or a deed to property.",
+          "provenance": "source",
+          "source": "Tarot card ruin, reversed, treasure"
+        },
+        {
+          "label": "Unresolved",
+          "value": "Mechanical gear loadout, named subjects of motives and bespoke offers.",
+          "provenance": "unresolved",
+          "source": "No returned field or implemented completion procedure"
+        },
+        {
+          "label": "Location",
+          "value": "S4: Maze of the Buried Mechanism",
+          "provenance": "selected",
+          "source": "Round-robin allocation; encounter terrain is a separate approach label"
+        }
+      ]
+    },
+    {
+      "id": "N5",
+      "category": "npc",
+      "title": "Bruno",
+      "fields": [
+        {
+          "label": "Description",
+          "value": "Bruno is a Dwarf Warlock. A weathered travelling coat is carefully patched at the elbows. Counts coins while talking; assesses your gear value.",
+          "provenance": "generated",
+          "source": "dossier-story.ts v2; stored templates + explicit record links"
+        },
+        {
+          "label": "Identity",
+          "value": "Dwarf Warlock; local colour Wizard",
+          "provenance": "generated",
+          "source": "generateNpc; independent class/local-colour rolls"
+        },
+        {
+          "label": "Retainer",
+          "value": "LV 3; HP 7; morale 10; 2–5 gp/day",
+          "provenance": "generated",
+          "source": "generateNpc; NPC levels remain 1–3"
+        },
+        {
+          "label": "Ability scores",
+          "value": "STR 11 / DEX 14 / CON 16 / INT 17 / WIS 8 / CHA 12",
+          "provenance": "generated",
+          "source": "generateNpc: iron_man"
+        },
+        {
+          "label": "Demeanor",
+          "value": "Mercenary & Transactional\nCounts coins while talking; assesses your gear value.",
+          "provenance": "generated",
+          "source": "NPC demeanor/quirk table"
+        },
+        {
+          "label": "Motive",
+          "value": "Hunting a Nemesis\nTracking an outlaw, monster, or rival who fled into the wilds.",
+          "provenance": "generated",
+          "source": "NPC motive table"
+        },
+        {
+          "label": "Faction",
+          "value": "Itzalca Free Communities",
+          "provenance": "generated",
+          "source": "Uniform draw from zone factions"
+        },
+        {
+          "label": "Reaction",
+          "value": "5 + 3 = 8: Cautious / neutral",
+          "provenance": "generated",
+          "source": "reactionRoll"
+        },
+        {
+          "label": "Tarot draw",
+          "value": "STAIRWAY / reversed / creature_or_trap",
+          "provenance": "generated",
+          "source": "drawTarot; data/oracles/tarot-cards.json"
+        },
+        {
+          "label": "Stored meaning",
+          "value": "A creature that is difficult to fight at first but becomes easier to defeat as the battle proceeds.",
+          "provenance": "source",
+          "source": "Tarot card stairway, reversed, creature_or_trap"
+        },
+        {
+          "label": "Unresolved",
+          "value": "Mechanical gear loadout, named subjects of motives and bespoke offers.",
+          "provenance": "unresolved",
+          "source": "No returned field or implemented completion procedure"
+        },
+        {
+          "label": "Location",
+          "value": "S5: Steading of the Haunted Warlord",
+          "provenance": "selected",
+          "source": "Round-robin allocation; encounter terrain is a separate approach label"
+        }
+      ]
+    },
+    {
+      "id": "T1",
+      "category": "treasure",
+      "title": "Gold scarab dotted with miniature emeralds (220 gp)",
+      "fields": [
+        {
+          "label": "Find",
+          "value": "Gold scarab dotted with miniature emeralds (220 gp)",
+          "provenance": "generated",
+          "source": "generateUnguardedTreasure; Core treasure + item-name pool"
+        },
+        {
+          "label": "Value",
+          "value": "220 gp; fabulous; XP value 3",
+          "provenance": "generated",
+          "source": "Runtime quality mapping; not an earned XP award"
+        },
+        {
+          "label": "Table",
+          "value": "core_treasure_10+_36-37; discovering LV 10",
+          "provenance": "source",
+          "source": "Selected row range; roll field is row lower bound, not original d100 face"
+        },
+        {
+          "label": "Tarot draw",
+          "value": "TOWER / upright / treasure",
+          "provenance": "generated",
+          "source": "drawTarot; data/oracles/tarot-cards.json"
+        },
+        {
+          "label": "Stored meaning",
+          "value": "An art object depicting an isolated place or a lonely person; alternatively, Daern’s Instant Fortress or a similar magic item.",
+          "provenance": "source",
+          "source": "Tarot card tower, upright, treasure"
+        },
+        {
+          "label": "Unresolved",
+          "value": "Owner, history and any spell/benefit/virtue/flaw placeholders in the item row.",
+          "provenance": "unresolved",
+          "source": "No returned field or implemented completion procedure"
+        },
+        {
+          "label": "Location",
+          "value": "S1: Fortress of the Barren Family",
+          "provenance": "selected",
+          "source": "Round-robin allocation; encounter terrain is a separate approach label"
+        }
+      ]
+    },
+    {
+      "id": "T2",
+      "category": "treasure",
+      "title": "Giant, egg-shaped emerald (240 gp)",
+      "fields": [
+        {
+          "label": "Find",
+          "value": "Giant, egg-shaped emerald (240 gp)",
+          "provenance": "generated",
+          "source": "generateUnguardedTreasure; Core treasure + item-name pool"
+        },
+        {
+          "label": "Value",
+          "value": "240 gp; fabulous; XP value 3",
+          "provenance": "generated",
+          "source": "Runtime quality mapping; not an earned XP award"
+        },
+        {
+          "label": "Table",
+          "value": "core_treasure_10+_46-47; discovering LV 10",
+          "provenance": "source",
+          "source": "Selected row range; roll field is row lower bound, not original d100 face"
+        },
+        {
+          "label": "Tarot draw",
+          "value": "WARRIOR / upright / person",
+          "provenance": "generated",
+          "source": "drawTarot; data/oracles/tarot-cards.json"
+        },
+        {
+          "label": "Stored meaning",
+          "value": "A person (perhaps a barbarian, fighter, or monk) who has trained in combat or served in the military.",
+          "provenance": "source",
+          "source": "Tarot card warrior, upright, person"
+        },
+        {
+          "label": "Unresolved",
+          "value": "Owner, history and any spell/benefit/virtue/flaw placeholders in the item row.",
+          "provenance": "unresolved",
+          "source": "No returned field or implemented completion procedure"
+        },
+        {
+          "label": "Location",
+          "value": "S2: Spire of the Haunted Old Claim",
+          "provenance": "selected",
+          "source": "Round-robin allocation; encounter terrain is a separate approach label"
+        }
+      ]
+    },
+    {
+      "id": "T3",
+      "category": "treasure",
+      "title": "Ruby-eyed, gold idol, 3 Demonskin blessings (840 gp)",
+      "fields": [
+        {
+          "label": "Find",
+          "value": "Ruby-eyed, gold idol, 3 Demonskin blessings (840 gp)",
+          "provenance": "generated",
+          "source": "generateUnguardedTreasure; Core treasure + item-name pool"
+        },
+        {
+          "label": "Value",
+          "value": "840 gp; fabulous; XP value 3",
+          "provenance": "generated",
+          "source": "Runtime quality mapping; not an earned XP award"
+        },
+        {
+          "label": "Table",
+          "value": "core_treasure_10+_84-85; discovering LV 10",
+          "provenance": "source",
+          "source": "Selected row range; roll field is row lower bound, not original d100 face"
+        },
+        {
+          "label": "Tarot draw",
+          "value": "MOON / reversed / treasure",
+          "provenance": "generated",
+          "source": "drawTarot; data/oracles/tarot-cards.json"
+        },
+        {
+          "label": "Stored meaning",
+          "value": "A treasure that seems more valuable than it is, perhaps an ordinary item that falsely appears magical.",
+          "provenance": "source",
+          "source": "Tarot card moon, reversed, treasure"
+        },
+        {
+          "label": "Unresolved",
+          "value": "Owner, history and any spell/benefit/virtue/flaw placeholders in the item row.",
+          "provenance": "unresolved",
+          "source": "No returned field or implemented completion procedure"
+        },
+        {
+          "label": "Location",
+          "value": "S3: Farmstead of the Unfinished Family",
+          "provenance": "selected",
+          "source": "Round-robin allocation; encounter terrain is a separate approach label"
+        }
+      ]
+    },
+    {
+      "id": "T4",
+      "category": "treasure",
+      "title": "Chunk of meteorite wrapped around a ruby (250 gp)",
+      "fields": [
+        {
+          "label": "Find",
+          "value": "Chunk of meteorite wrapped around a ruby (250 gp)",
+          "provenance": "generated",
+          "source": "generateUnguardedTreasure; Core treasure + item-name pool"
+        },
+        {
+          "label": "Value",
+          "value": "250 gp; fabulous; XP value 3",
+          "provenance": "generated",
+          "source": "Runtime quality mapping; not an earned XP award"
+        },
+        {
+          "label": "Table",
+          "value": "core_treasure_10+_60-61; discovering LV 10",
+          "provenance": "source",
+          "source": "Selected row range; roll field is row lower bound, not original d100 face"
+        },
+        {
+          "label": "Tarot draw",
+          "value": "RUIN / reversed / place",
+          "provenance": "generated",
+          "source": "drawTarot; data/oracles/tarot-cards.json"
+        },
+        {
+          "label": "Stored meaning",
+          "value": "A place meant to store goods, such as a warehouse or an armory.",
+          "provenance": "source",
+          "source": "Tarot card ruin, reversed, place"
+        },
+        {
+          "label": "Unresolved",
+          "value": "Owner, history and any spell/benefit/virtue/flaw placeholders in the item row.",
+          "provenance": "unresolved",
+          "source": "No returned field or implemented completion procedure"
+        },
+        {
+          "label": "Location",
+          "value": "S4: Maze of the Buried Mechanism",
+          "provenance": "selected",
+          "source": "Round-robin allocation; encounter terrain is a separate approach label"
+        }
+      ]
+    },
+    {
+      "id": "T5",
+      "category": "treasure",
+      "title": "Ghost Wand (wand) — Magic wand, 5th-tier spell (virtue, flaw) (360 gp)",
+      "fields": [
+        {
+          "label": "Find",
+          "value": "Ghost Wand (wand) — Magic wand, 5th-tier spell (virtue, flaw) (360 gp)",
+          "provenance": "generated",
+          "source": "generateUnguardedTreasure; Core treasure + item-name pool"
+        },
+        {
+          "label": "Value",
+          "value": "360 gp; fabulous; XP value 3",
+          "provenance": "generated",
+          "source": "Runtime quality mapping; not an earned XP award"
+        },
+        {
+          "label": "Table",
+          "value": "core_treasure_10+_78-79; discovering LV 10",
+          "provenance": "source",
+          "source": "Selected row range; roll field is row lower bound, not original d100 face"
+        },
+        {
+          "label": "Tarot draw",
+          "value": "FOOL / upright / creature_or_trap",
+          "provenance": "generated",
+          "source": "drawTarot; data/oracles/tarot-cards.json"
+        },
+        {
+          "label": "Stored meaning",
+          "value": "A naive Celestial or a flighty Fey, or a trap with a simple or obvious means of avoiding it.",
+          "provenance": "source",
+          "source": "Tarot card fool, upright, creature_or_trap"
+        },
+        {
+          "label": "Unresolved",
+          "value": "Owner, history and any spell/benefit/virtue/flaw placeholders in the item row.",
+          "provenance": "unresolved",
+          "source": "No returned field or implemented completion procedure"
+        },
+        {
+          "label": "Location",
+          "value": "S5: Steading of the Haunted Warlord",
+          "provenance": "selected",
+          "source": "Round-robin allocation; encounter terrain is a separate approach label"
+        }
+      ]
+    }
+  ],
+  "story": [
+    {
+      "label": "Opening",
+      "value": "Rain ticks against the broad leaves. The river carries dark silt past the landing steps.",
+      "provenance": "generated",
+      "source": "dossier-story.ts v2; stored templates + explicit record links"
+    },
+    {
+      "label": "The request",
+      "value": "Martor brings the work to the party through Itzalca Free Communities. Martor is searching the nearby wilderness for a family relic.",
+      "provenance": "generated",
+      "source": "dossier-story.ts v2; stored templates + explicit record links"
+    },
+    {
+      "label": "First expedition",
+      "value": "Begin at Fortress of the Barren Family. Lift the curse affecting the unworked memorial, on which wounds taken here do not close until it is lifted. Each section has its own holder and marked threshold. The other listed sites are additional jobs in the same region.",
+      "provenance": "generated",
+      "source": "dossier-story.ts v2; stored templates + explicit record links"
+    },
+    {
+      "label": "Stakes",
+      "value": "The job offers a way to settle a dispute over access. Taking the reward without completing the objectives leaves the route and its claim unresolved.",
+      "provenance": "generated",
+      "source": "dossier-story.ts v2; stored templates + explicit record links"
+    },
+    {
+      "label": "At the table",
+      "value": "The associated encounters use the listed reaction rolls. Treasure is allocated to the listed sites, but its discovery and access still need to be resolved in play. Tarot meanings are prompts; they do not add an unlisted power or compel an outcome.",
+      "provenance": "selected",
+      "source": "Published dossier assembly and play policy"
+    }
+  ],
+  "raw": {
+    "sites": [
+      {
+        "pathId": "regional",
+        "pathLabel": "Regional work",
+        "act": 3,
+        "siteId": "dossier-site-1",
+        "seed": "region-review-2026-10-03-river_of_night-lv10",
+        "name": {
+          "form": "Fortress",
+          "qualifier": "Barren",
+          "subject": "Family",
+          "full": "Fortress of the Barren Family"
+        },
+        "card": {
+          "cardId": "pit",
+          "title": "PIT",
+          "orientation": "upright",
+          "description": "A deep hole studded with spikes gapes in the earth. The Pit card represents a literal or metaphorical fall—losing status, wealth, or position.",
+          "facet": "creature_or_trap",
+          "meaning": "A pit trap, or a scavenger lurking at the bottom of a pit."
+        },
+        "objectiveMode": "different",
+        "objectives": [
+          {
+            "section": 1,
+            "mark": "copper-marked",
+            "kind": "lift_curse",
+            "prompt": {
+              "verb": "Betray",
+              "noun": "Conflict",
+              "phrase": "Betray the Conflict"
+            },
+            "target": {
+              "form": "memorial",
+              "name": "the unworked memorial, on which wounds taken here do not close until it is lifted",
+              "effect": "wounds taken here do not close until it is lifted"
+            },
+            "guardian": {
+              "id": "bear_brown",
+              "name": "Bear Brown",
+              "family": "Beast",
+              "level": 7,
+              "signature": true
+            }
+          }
+        ],
+        "zone": {
+          "id": "river_of_night",
+          "name": "Xaltemoc",
+          "theme": "Primeval Jungle, Ziggurats & Basilisk Cults",
+          "biomes": [
+            "Canopy Rainforest",
+            "Upland Ironwood Jungle",
+            "Black River Trunk",
+            "Silt Riverbank"
+          ],
+          "hazard": "Swarm of army ants (DC 12 DEX or 2d6 piercing damage)"
+        },
+        "site": {
+          "size": "large",
+          "sizeRoll": 6,
+          "sectionSizes": [
+            12
+          ],
+          "areas": 12,
+          "danger": "risky",
+          "kind": "deep tunnels"
+        }
+      },
+      {
+        "pathId": "regional",
+        "pathLabel": "Regional work",
+        "act": 3,
+        "siteId": "dossier-site-2",
+        "seed": "region-review-2026-10-03-river_of_night-lv10",
+        "name": {
+          "form": "Spire",
+          "qualifier": "Haunted",
+          "subject": "Old Claim",
+          "full": "Spire of the Haunted Old Claim"
+        },
+        "card": {
+          "cardId": "pit",
+          "title": "PIT",
+          "orientation": "reversed",
+          "description": "A deep hole studded with spikes gapes in the earth. The Pit card represents a literal or metaphorical fall—losing status, wealth, or position.",
+          "facet": "person",
+          "meaning": "A person in a precarious position who soon will have a calamitous fall."
+        },
+        "objectiveMode": "different",
+        "objectives": [
+          {
+            "section": 1,
+            "mark": "copper-marked",
+            "kind": "recover_relic",
+            "prompt": {
+              "verb": "Free",
+              "noun": "Safety",
+              "phrase": "Free the Safety"
+            },
+            "target": {
+              "form": "codex",
+              "name": "Magic wand, 5th-tier spell (virtue, flaw) (360 gp), in the rain-spoiled codex of the abandoned store",
+              "item": {
+                "description": "Magic wand, 5th-tier spell (virtue, flaw) (360 gp)",
+                "quality": "fabulous",
+                "valueGp": 360
+              }
+            },
+            "guardian": {
+              "id": "reaver",
+              "name": "Reaver",
+              "family": "Humanoid",
+              "level": 6,
+              "signature": false
+            }
+          },
+          {
+            "section": 2,
+            "mark": "split-stone",
+            "kind": "monster_eggs",
+            "prompt": {
+              "verb": "Pull",
+              "noun": "Hazard",
+              "phrase": "Pull the Hazard"
+            },
+            "target": {
+              "name": "an intact Bear Brown clutch in the overgrown egg nest",
+              "form": "egg nest",
+              "brood": {
+                "id": "bear_brown",
+                "name": "Bear Brown",
+                "family": "Beast",
+                "level": 7,
+                "signature": true
+              }
+            },
+            "guardian": {
+              "id": "drow_drider",
+              "name": "Drow Drider",
+              "family": "Humanoid",
+              "level": 6,
+              "signature": false
+            }
+          }
+        ],
+        "zone": {
+          "id": "river_of_night",
+          "name": "Xaltemoc",
+          "theme": "Primeval Jungle, Ziggurats & Basilisk Cults",
+          "biomes": [
+            "Canopy Rainforest",
+            "Upland Ironwood Jungle",
+            "Black River Trunk",
+            "Silt Riverbank"
+          ],
+          "hazard": "Falling canopy branch / deadfall (DC 12 DEX or 1d8 bludgeoning)"
+        },
+        "site": {
+          "size": "medium",
+          "sizeRoll": 4,
+          "sectionSizes": [
+            8,
+            5
+          ],
+          "areas": 13,
+          "danger": "risky",
+          "kind": "deep tunnels"
+        }
+      },
+      {
+        "pathId": "regional",
+        "pathLabel": "Regional work",
+        "act": 3,
+        "siteId": "dossier-site-3",
+        "seed": "region-review-2026-10-03-river_of_night-lv10",
+        "name": {
+          "form": "Farmstead",
+          "qualifier": "Unfinished",
+          "subject": "Family",
+          "full": "Farmstead of the Unfinished Family"
+        },
+        "card": {
+          "cardId": "celestial",
+          "title": "CELESTIAL",
+          "orientation": "upright",
+          "description": "A beautiful couatl twines through the clouds. This card suggests the involvement of celestial beings and service to the divine.",
+          "facet": "place",
+          "meaning": "A location on the Upper Planes, or a place suffused with their influence."
+        },
+        "objectiveMode": "similar",
+        "objectives": [
+          {
+            "section": 1,
+            "mark": "copper-marked",
+            "kind": "clear_border",
+            "prompt": {
+              "verb": "Allow",
+              "noun": "Storm",
+              "phrase": "Allow the Storm"
+            },
+            "target": {
+              "form": "mountain pass",
+              "name": "the overgrown mountain pass, blocked by a rotted span with one rope left",
+              "obstruction": "a rotted span with one rope left"
+            },
+            "guardian": {
+              "id": "orca",
+              "name": "Orca",
+              "family": "Beast",
+              "level": 8,
+              "signature": false
+            }
+          },
+          {
+            "section": 2,
+            "mark": "split-stone",
+            "kind": "clear_border",
+            "prompt": {
+              "verb": "Hint",
+              "noun": "People",
+              "phrase": "Hint the People"
+            },
+            "target": {
+              "form": "canal reach",
+              "name": "the rain-spoiled canal reach, blocked by a rotted span with one rope left",
+              "obstruction": "a rotted span with one rope left"
+            },
+            "guardian": {
+              "id": "bear_brown",
+              "name": "Bear Brown",
+              "family": "Beast",
+              "level": 7,
+              "signature": true
+            }
+          }
+        ],
+        "zone": {
+          "id": "river_of_night",
+          "name": "Xaltemoc",
+          "theme": "Primeval Jungle, Ziggurats & Basilisk Cults",
+          "biomes": [
+            "Canopy Rainforest",
+            "Upland Ironwood Jungle",
+            "Black River Trunk",
+            "Silt Riverbank"
+          ],
+          "hazard": "Toxic river leeches (DC 11 CON or drained 1d4 HP)"
+        },
+        "site": {
+          "size": "medium",
+          "sizeRoll": 4,
+          "sectionSizes": [
+            8,
+            5
+          ],
+          "areas": 13,
+          "danger": "deadly",
+          "kind": "tomb"
+        }
+      },
+      {
+        "pathId": "regional",
+        "pathLabel": "Regional work",
+        "act": 3,
+        "siteId": "dossier-site-4",
+        "seed": "region-review-2026-10-03-river_of_night-lv10",
+        "name": {
+          "form": "Maze",
+          "qualifier": "Buried",
+          "subject": "Mechanism",
+          "full": "Maze of the Buried Mechanism"
+        },
+        "card": {
+          "cardId": "path",
+          "title": "PATH",
+          "orientation": "reversed",
+          "description": "A well-worn path twists through the wilderness, with hidden dangers lurking in the shadows to both sides. This card suggests the importance of sticking with a plan and remaining focused on the destination.",
+          "facet": "creature_or_trap",
+          "meaning": "A creature that reacts to provocation without a plan or purpose."
+        },
+        "objectiveMode": "similar",
+        "objectives": [
+          {
+            "section": 1,
+            "mark": "copper-marked",
+            "kind": "secure_descent",
+            "prompt": {
+              "verb": "Capture",
+              "noun": "Safety",
+              "phrase": "Capture the Safety"
+            },
+            "target": {
+              "form": "stair well",
+              "name": "the overgrown stair well, blocked by a rotted span with one rope left",
+              "obstruction": "a rotted span with one rope left"
+            },
+            "guardian": {
+              "id": "mage",
+              "name": "Mage",
+              "family": "Humanoid",
+              "level": 6,
+              "signature": false
+            }
+          },
+          {
+            "section": 2,
+            "mark": "split-stone",
+            "kind": "secure_descent",
+            "prompt": {
+              "verb": "Gather",
+              "noun": "Theft",
+              "phrase": "Gather the Theft"
+            },
+            "target": {
+              "form": "winch platform",
+              "name": "the overgrown winch platform, blocked by standing water past chest height",
+              "obstruction": "standing water past chest height"
+            },
+            "guardian": {
+              "id": "bear_brown",
+              "name": "Bear Brown",
+              "family": "Beast",
+              "level": 7,
+              "signature": true
+            }
+          }
+        ],
+        "zone": {
+          "id": "river_of_night",
+          "name": "Xaltemoc",
+          "theme": "Primeval Jungle, Ziggurats & Basilisk Cults",
+          "biomes": [
+            "Canopy Rainforest",
+            "Upland Ironwood Jungle",
+            "Black River Trunk",
+            "Silt Riverbank"
+          ],
+          "hazard": "Swarm of army ants (DC 12 DEX or 2d6 piercing damage)"
+        },
+        "site": {
+          "size": "medium",
+          "sizeRoll": 5,
+          "sectionSizes": [
+            8,
+            5
+          ],
+          "areas": 13,
+          "danger": "risky",
+          "kind": "caves"
+        }
+      },
+      {
+        "pathId": "regional",
+        "pathLabel": "Regional work",
+        "act": 3,
+        "siteId": "dossier-site-5",
+        "seed": "region-review-2026-10-03-river_of_night-lv10",
+        "name": {
+          "form": "Steading",
+          "qualifier": "Haunted",
+          "subject": "Warlord",
+          "full": "Steading of the Haunted Warlord"
+        },
+        "card": {
+          "cardId": "path",
+          "title": "PATH",
+          "orientation": "upright",
+          "description": "A well-worn path twists through the wilderness, with hidden dangers lurking in the shadows to both sides. This card suggests the importance of sticking with a plan and remaining focused on the destination.",
+          "facet": "creature_or_trap",
+          "meaning": "A single-minded predator pursuing prey, or something deadly acting on instinct or purpose; it might be a trapped room navigable by only a single path."
+        },
+        "objectiveMode": "similar",
+        "objectives": [
+          {
+            "section": 1,
+            "mark": "copper-marked",
+            "kind": "recover_relic",
+            "prompt": {
+              "verb": "Demand",
+              "noun": "Barrier",
+              "phrase": "Demand the Barrier"
+            },
+            "target": {
+              "form": "reliquary",
+              "name": "Giant diamond, casts wish once without fail (720 gp), in the disputed reliquary of the trade route",
+              "item": {
+                "description": "Giant diamond, casts wish once without fail (720 gp)",
+                "quality": "fabulous",
+                "valueGp": 720
+              }
+            },
+            "guardian": {
+              "id": "bear_brown",
+              "name": "Bear Brown",
+              "family": "Beast",
+              "level": 7,
+              "signature": true
+            }
+          },
+          {
+            "section": 2,
+            "mark": "split-stone",
+            "kind": "recover_relic",
+            "prompt": {
+              "verb": "Reward",
+              "noun": "Integrity",
+              "phrase": "Reward the Integrity"
+            },
+            "target": {
+              "form": "signet",
+              "name": "Flawless, dazzling diamond (360 gp), in the abandoned signet of the abandoned store",
+              "item": {
+                "description": "Flawless, dazzling diamond (360 gp)",
+                "quality": "fabulous",
+                "valueGp": 360
+              }
+            },
+            "guardian": {
+              "id": "hero",
+              "name": "Hero",
+              "family": "Humanoid",
+              "level": 5,
+              "signature": false
+            }
+          },
+          {
+            "section": 3,
+            "mark": "white-thread",
+            "kind": "recover_relic",
+            "prompt": {
+              "verb": "Betray",
+              "noun": "Safety",
+              "phrase": "Betray the Safety"
+            },
+            "target": {
+              "form": "casket",
+              "name": "Giant diamond, casts wish once without fail (720 gp), in the disputed casket of the trade route",
+              "item": {
+                "description": "Giant diamond, casts wish once without fail (720 gp)",
+                "quality": "fabulous",
+                "valueGp": 720
+              }
+            },
+            "guardian": {
+              "id": "wolf_winter",
+              "name": "Wolf Winter",
+              "family": "Beast",
+              "level": 5,
+              "signature": false
+            }
+          }
+        ],
+        "zone": {
+          "id": "river_of_night",
+          "name": "Xaltemoc",
+          "theme": "Primeval Jungle, Ziggurats & Basilisk Cults",
+          "biomes": [
+            "Canopy Rainforest",
+            "Upland Ironwood Jungle",
+            "Black River Trunk",
+            "Silt Riverbank"
+          ],
+          "hazard": "Swarm of army ants (DC 12 DEX or 2d6 piercing damage)"
+        },
+        "site": {
+          "size": "small",
+          "sizeRoll": 1,
+          "sectionSizes": [
+            5,
+            5,
+            5
+          ],
+          "areas": 15,
+          "danger": "deadly",
+          "kind": "tomb"
+        }
+      }
+    ],
+    "holderSources": [
+      {
+        "id": 0,
+        "monsterKey": "bear_brown",
+        "name": "Bear Brown",
+        "currentHp": 25,
+        "maxHp": 25,
+        "loreTier": 0,
+        "ac": 13,
+        "morale": 10,
+        "level": 7,
+        "family": "Beast",
+        "source": "shadowdark_core",
+        "move": "near (climb) S +4, D +1, C +3, I -2, W +1, Ch -2, AL N, LV 5 Crush. Deals an extra die of damage if it hits the same target with both claws. BEAR, POLAR A mighty, white bear that thrives in arctic environments. AC 13, HP 34, ATK 2 claw +6 (2d6), MV near (climb)",
+        "abilities": {
+          "str": 4,
+          "dex": 1,
+          "con": 3,
+          "int": -2,
+          "wis": 1,
+          "cha": -2
+        },
+        "alignment": "N",
+        "attacks": [
+          "2 claw +4 (1d8)"
+        ],
+        "traits": [
+          "Crush. Deals an extra die of damage if it hits the same target with both claws.",
+          "Thick Fur. Cold immune."
+        ],
+        "lore": [],
+        "harvest": []
+      },
+      {
+        "id": 0,
+        "monsterKey": "reaver",
+        "name": "Reaver",
+        "currentHp": 28,
+        "maxHp": 28,
+        "loreTier": 0,
+        "ac": 17,
+        "morale": 12,
+        "level": 6,
+        "family": "Humanoid",
+        "source": "shadowdark_core",
+        "move": "near",
+        "abilities": {
+          "str": 3,
+          "dex": 0,
+          "con": 1,
+          "int": 0,
+          "wis": 0,
+          "cha": 2
+        },
+        "alignment": "C",
+        "attacks": [
+          "3 bastard sword +4 (1d8 + 2)"
+        ],
+        "traits": [
+          "Bloodlust. +2 damage with melee weapons (included)."
+        ],
+        "lore": [],
+        "harvest": []
+      },
+      {
+        "id": 0,
+        "monsterKey": "drow_drider",
+        "name": "Drow Drider",
+        "currentHp": 29,
+        "maxHp": 29,
+        "loreTier": 0,
+        "ac": 16,
+        "morale": 10,
+        "level": 6,
+        "family": "Humanoid",
+        "source": "shadowdark_core",
+        "move": "near (climb)",
+        "abilities": {
+          "str": 3,
+          "dex": 3,
+          "con": 2,
+          "int": 2,
+          "wis": 2,
+          "cha": 0
+        },
+        "alignment": "C",
+        "attacks": [
+          "3 longsword +3 (1d8)",
+          "2 longbow (far) +3 (1d8 + poison)"
+        ],
+        "traits": [
+          "Poison. DC 15 CON or paralyzed 1d4 rounds.",
+          "Sunblind. Blinded in bright light."
+        ],
+        "lore": [],
+        "harvest": []
+      },
+      {
+        "id": 0,
+        "monsterKey": "orca",
+        "name": "Orca",
+        "currentHp": 39,
+        "maxHp": 39,
+        "loreTier": 0,
+        "ac": 12,
+        "morale": 11,
+        "level": 8,
+        "family": "Beast",
+        "source": "cursed_scroll_3",
+        "move": "double near (swim)",
+        "abilities": {
+          "str": 4,
+          "dex": 0,
+          "con": 3,
+          "int": -2,
+          "wis": 1,
+          "cha": -2
+        },
+        "alignment": "N",
+        "attacks": [
+          "2 bite +5 (1d10)"
+        ],
+        "traits": [
+          "Pod Hunter. Deals +2 damage when an ally is within near."
+        ],
+        "lore": [],
+        "harvest": []
+      },
+      {
+        "id": 0,
+        "monsterKey": "bear_brown",
+        "name": "Bear Brown",
+        "currentHp": 25,
+        "maxHp": 25,
+        "loreTier": 0,
+        "ac": 13,
+        "morale": 10,
+        "level": 7,
+        "family": "Beast",
+        "source": "shadowdark_core",
+        "move": "near (climb) S +4, D +1, C +3, I -2, W +1, Ch -2, AL N, LV 5 Crush. Deals an extra die of damage if it hits the same target with both claws. BEAR, POLAR A mighty, white bear that thrives in arctic environments. AC 13, HP 34, ATK 2 claw +6 (2d6), MV near (climb)",
+        "abilities": {
+          "str": 4,
+          "dex": 1,
+          "con": 3,
+          "int": -2,
+          "wis": 1,
+          "cha": -2
+        },
+        "alignment": "N",
+        "attacks": [
+          "2 claw +4 (1d8)"
+        ],
+        "traits": [
+          "Crush. Deals an extra die of damage if it hits the same target with both claws.",
+          "Thick Fur. Cold immune."
+        ],
+        "lore": [],
+        "harvest": []
+      },
+      {
+        "id": 0,
+        "monsterKey": "mage",
+        "name": "Mage",
+        "currentHp": 27,
+        "maxHp": 27,
+        "loreTier": 0,
+        "ac": 11,
+        "morale": 10,
+        "level": 6,
+        "family": "Humanoid",
+        "source": "shadowdark_core",
+        "move": "near",
+        "abilities": {
+          "str": -1,
+          "dex": 1,
+          "con": 0,
+          "int": 3,
+          "wis": 1,
+          "cha": 0
+        },
+        "alignment": "L",
+        "attacks": [
+          "1 spell +5"
+        ],
+        "traits": [
+          "Arcane Armor (INT Spell). Self. DC 12. AC 16 for 2d4 rounds.",
+          "Blast (INT Spell). DC 12. Far, one target. 2d6 damage.",
+          "Cancel (INT Spell). DC 13. End one spell affecting a target within near.",
+          "Levitate (INT Spell). DC 12. Close.",
+          "Focus. Hover near for duration, vertical movement only.",
+          "Snare (INT Spell). DC 13. Focus. One humanoid target within near paralyzed for duration."
+        ],
+        "lore": [],
+        "harvest": []
+      },
+      {
+        "id": 0,
+        "monsterKey": "bear_brown",
+        "name": "Bear Brown",
+        "currentHp": 25,
+        "maxHp": 25,
+        "loreTier": 0,
+        "ac": 13,
+        "morale": 10,
+        "level": 7,
+        "family": "Beast",
+        "source": "shadowdark_core",
+        "move": "near (climb) S +4, D +1, C +3, I -2, W +1, Ch -2, AL N, LV 5 Crush. Deals an extra die of damage if it hits the same target with both claws. BEAR, POLAR A mighty, white bear that thrives in arctic environments. AC 13, HP 34, ATK 2 claw +6 (2d6), MV near (climb)",
+        "abilities": {
+          "str": 4,
+          "dex": 1,
+          "con": 3,
+          "int": -2,
+          "wis": 1,
+          "cha": -2
+        },
+        "alignment": "N",
+        "attacks": [
+          "2 claw +4 (1d8)"
+        ],
+        "traits": [
+          "Crush. Deals an extra die of damage if it hits the same target with both claws.",
+          "Thick Fur. Cold immune."
+        ],
+        "lore": [],
+        "harvest": []
+      },
+      {
+        "id": 0,
+        "monsterKey": "bear_brown",
+        "name": "Bear Brown",
+        "currentHp": 25,
+        "maxHp": 25,
+        "loreTier": 0,
+        "ac": 13,
+        "morale": 10,
+        "level": 7,
+        "family": "Beast",
+        "source": "shadowdark_core",
+        "move": "near (climb) S +4, D +1, C +3, I -2, W +1, Ch -2, AL N, LV 5 Crush. Deals an extra die of damage if it hits the same target with both claws. BEAR, POLAR A mighty, white bear that thrives in arctic environments. AC 13, HP 34, ATK 2 claw +6 (2d6), MV near (climb)",
+        "abilities": {
+          "str": 4,
+          "dex": 1,
+          "con": 3,
+          "int": -2,
+          "wis": 1,
+          "cha": -2
+        },
+        "alignment": "N",
+        "attacks": [
+          "2 claw +4 (1d8)"
+        ],
+        "traits": [
+          "Crush. Deals an extra die of damage if it hits the same target with both claws.",
+          "Thick Fur. Cold immune."
+        ],
+        "lore": [],
+        "harvest": []
+      },
+      {
+        "id": 0,
+        "monsterKey": "hero",
+        "name": "Hero",
+        "currentHp": 25,
+        "maxHp": 25,
+        "loreTier": 0,
+        "ac": 16,
+        "morale": 10,
+        "level": 5,
+        "family": "Humanoid",
+        "source": "cursed_scroll_2",
+        "move": "near",
+        "abilities": {
+          "str": 3,
+          "dex": 1,
+          "con": 3,
+          "int": 0,
+          "wis": 1,
+          "cha": 1
+        },
+        "alignment": "N",
+        "attacks": [
+          "3 bastard sword +5 (1d8)",
+          "1 spear (close/near) +5 (1d6)"
+        ],
+        "traits": [],
+        "lore": [],
+        "harvest": []
+      },
+      {
+        "id": 0,
+        "monsterKey": "wolf_winter",
+        "name": "Wolf Winter",
+        "currentHp": 23,
+        "maxHp": 23,
+        "loreTier": 0,
+        "ac": 12,
+        "morale": 9,
+        "level": 5,
+        "family": "Beast",
+        "source": "shadowdark_core",
+        "move": "double near",
+        "abilities": {
+          "str": 3,
+          "dex": 2,
+          "con": 1,
+          "int": 0,
+          "wis": 1,
+          "cha": 0
+        },
+        "alignment": "C",
+        "attacks": [
+          "2 bite +4 (1d6)",
+          "1 frost breath"
+        ],
+        "traits": [
+          "Impervious. Cold immune.",
+          "Frost Breath. Fills a near-sized cube extending from winter wolf. DC 15 DEX or 3d8 damage. Cannot use again for 1d4 rounds."
+        ],
+        "lore": [],
+        "harvest": []
+      }
+    ],
+    "encounters": [
+      {
+        "choice": {
+          "key": "demon_balor",
+          "policy": "demon_lord: Explicit substitute: demon_balor."
+        },
+        "title": "Hrogar",
+        "count": 1,
+        "monster": {
+          "id": 0,
+          "monsterKey": "demon_balor",
+          "name": "Demon Balor",
+          "currentHp": 77,
+          "maxHp": 77,
+          "loreTier": 0,
+          "ac": 19,
+          "morale": 12,
+          "level": 16,
+          "family": "Fiend",
+          "source": "shadowdark_core",
+          "move": "double near (fly)",
+          "abilities": {
+            "str": 6,
+            "dex": 2,
+            "con": 5,
+            "int": 4,
+            "wis": 3,
+            "cha": 4
+          },
+          "alignment": "C",
+          "attacks": [
+            "3 greatsword +10 (2d12 + hellfire) and 1 fire whip (near) +10 (2d6 + grab)"
+          ],
+          "traits": [
+            "Impervious. Fire immune. Only damaged by magical sources.",
+            "Grab. DC 18 STR or target bound in whip. 2d6 damage per round held, DC 18 STR on turn to break free. In place of fire whip attack, balor can fling a grabbed target double near on its turn.",
+            "Hellfire. DC 18 DEX or 2d8 damage per round until flames extinguished."
+          ],
+          "lore": [],
+          "harvest": [],
+          "vulnerabilities": [
+            "Fire: Takes twice the damage from fire damage.",
+            "Nine of Cups: Satisfying a particular craving makes it complacent or drowsy. [Theme; effect needs authoring.]",
+            "Knight of Wands: A dare exploits its eagerness and compels a dangerous commitment. [Theme; effect needs authoring.]",
+            "Lust: Desire makes it accept a dangerous bargain or surrender a protection. [Theme; effect needs authoring.]",
+            "The High Priestess: Revealing a guarded secret or invoking a forbidden mystery weakens it. [Theme; effect needs authoring.]",
+            "Acid: Takes twice the damage from acid damage.",
+            "Lightning: Takes twice the damage from lightning damage."
+          ],
+          "campaignProfile": {
+            "versionKey": "c380616433484011c510a9cdc59d8c9326ed05d1324cdf72dbe80d5c84feba0f",
+            "specialAbilityCount": 6,
+            "requiredVulnerabilityCount": 7,
+            "stockVulnerabilityCount": 0,
+            "authoredVulnerabilityCount": 0,
+            "randomVulnerabilities": [
+              {
+                "id": "weakness_fire",
+                "label": "Fire",
+                "category": "damage",
+                "prompt": "Fire consumes its substance or causes unusually severe damage.",
+                "effect": "Takes twice the damage from fire damage.",
+                "needsAuthoring": false
+              },
+              {
+                "id": "tarot_nine_of_cups",
+                "label": "Nine of Cups",
+                "category": "symbolic",
+                "prompt": "Satisfying a particular craving makes it complacent or drowsy.",
+                "needsAuthoring": true
+              },
+              {
+                "id": "tarot_knight_of_wands",
+                "label": "Knight of Wands",
+                "category": "symbolic",
+                "prompt": "A dare exploits its eagerness and compels a dangerous commitment.",
+                "needsAuthoring": true
+              },
+              {
+                "id": "pendragon_lustful",
+                "label": "Lust",
+                "category": "psychological",
+                "prompt": "Desire makes it accept a dangerous bargain or surrender a protection.",
+                "needsAuthoring": true
+              },
+              {
+                "id": "tarot_the_high_priestess",
+                "label": "The High Priestess",
+                "category": "symbolic",
+                "prompt": "Revealing a guarded secret or invoking a forbidden mystery weakens it.",
+                "needsAuthoring": true
+              },
+              {
+                "id": "weakness_acid",
+                "label": "Acid",
+                "category": "damage",
+                "prompt": "Acid dissolves its structure or causes unusually severe damage.",
+                "effect": "Takes twice the damage from acid damage.",
+                "needsAuthoring": false
+              },
+              {
+                "id": "weakness_lightning",
+                "label": "Lightning",
+                "category": "damage",
+                "prompt": "Electrical damage disrupts its body or an unstable animating charge.",
+                "effect": "Takes twice the damage from lightning damage.",
+                "needsAuthoring": false
+              }
+            ],
+            "regenerationCounters": [],
+            "sourceNotes": []
+          }
+        },
+        "reading": {
+          "cardId": "undead",
+          "title": "UNDEAD",
+          "orientation": "upright",
+          "description": "A lich beckons souls of the dead. This card can point to anything that refuses to die, from old grudges and unresolved issues to Undead creatures.",
+          "facet": "treasure",
+          "meaning": "A treasure depicting the dead or an Undead, something made from bones, or a magic item made by or for an Undead."
+        },
+        "reaction": {
+          "dice": [
+            4,
+            3
+          ],
+          "total": 7,
+          "reaction": "Cautious / neutral"
+        },
+        "terrain": "Cacao Groves",
+        "treasure": {
+          "roll": 6,
+          "present": false,
+          "quality": "poor",
+          "xpValue": 0,
+          "coins": {
+            "cp": 0,
+            "sp": 0,
+            "gp": 0
+          },
+          "items": [],
+          "tableBasis": "core_treasure_10+_empty"
+        }
+      },
+      {
+        "choice": {
+          "key": "dragon_swamp",
+          "policy": "Uniform draw from user-selected stock pool (regional membership not assumed); LV 10-16. Without replacement until exhausted."
+        },
+        "title": "Iggs",
+        "count": 1,
+        "monster": {
+          "id": 0,
+          "monsterKey": "dragon_swamp",
+          "name": "Dragon Swamp",
+          "currentHp": 58,
+          "maxHp": 58,
+          "loreTier": 0,
+          "ac": 16,
+          "morale": 12,
+          "level": 12,
+          "family": "Dragon",
+          "source": "shadowdark_core",
+          "move": "double near (burrow, swim)",
+          "abilities": {
+            "str": 5,
+            "dex": 3,
+            "con": 4,
+            "int": 4,
+            "wis": 3,
+            "cha": 3
+          },
+          "alignment": "C",
+          "attacks": [
+            "3 rend +8 (2d10)",
+            "1 smog breath"
+          ],
+          "traits": [
+            "Smog Breath. Fills a near-sized cube extending from dragon. DC 15 CON or 2d10 damage and blinded for 1 round."
+          ],
+          "lore": [],
+          "harvest": [],
+          "vulnerabilities": [
+            "Modesty: Humble acknowledgement or refusal of praise breaks a glamour or claim to superiority. [Theme; effect needs authoring.]",
+            "Music: A particular tune induces sleep, sorrow, compulsive movement, or a binding memory. [Theme; effect needs authoring.]",
+            "Iron: Contact with iron wounds it exceptionally or disrupts its enchantments. [Theme; effect needs authoring.]",
+            "Loud sounds: Loud sound overloads a particular sense or fractures its substance; it need not deal thunder damage. [Theme; effect needs authoring.]"
+          ],
+          "campaignProfile": {
+            "versionKey": "6feaa8c711a87b9c03b615a07ce2919e430c3a3057baa74a3675b6104e968bd7",
+            "specialAbilityCount": 3,
+            "requiredVulnerabilityCount": 4,
+            "stockVulnerabilityCount": 0,
+            "authoredVulnerabilityCount": 0,
+            "randomVulnerabilities": [
+              {
+                "id": "pendragon_modest",
+                "label": "Modesty",
+                "category": "psychological",
+                "prompt": "Humble acknowledgement or refusal of praise breaks a glamour or claim to superiority.",
+                "needsAuthoring": true
+              },
+              {
+                "id": "weakness_music",
+                "label": "Music",
+                "category": "physical_or_folkloric",
+                "prompt": "A particular tune induces sleep, sorrow, compulsive movement, or a binding memory.",
+                "needsAuthoring": true
+              },
+              {
+                "id": "weakness_iron",
+                "label": "Iron",
+                "category": "physical_or_folkloric",
+                "prompt": "Contact with iron wounds it exceptionally or disrupts its enchantments.",
+                "needsAuthoring": true
+              },
+              {
+                "id": "weakness_loud_sounds",
+                "label": "Loud sounds",
+                "category": "physical_or_folkloric",
+                "prompt": "Loud sound overloads a particular sense or fractures its substance; it need not deal thunder damage.",
+                "needsAuthoring": true
+              }
+            ],
+            "regenerationCounters": [],
+            "sourceNotes": []
+          }
+        },
+        "reading": {
+          "cardId": "path",
+          "title": "PATH",
+          "orientation": "reversed",
+          "description": "A well-worn path twists through the wilderness, with hidden dangers lurking in the shadows to both sides. This card suggests the importance of sticking with a plan and remaining focused on the destination.",
+          "facet": "creature_or_trap",
+          "meaning": "A creature that reacts to provocation without a plan or purpose."
+        },
+        "reaction": {
+          "dice": [
+            4,
+            3
+          ],
+          "total": 7,
+          "reaction": "Cautious / neutral"
+        },
+        "terrain": "Oxbow Lagoon",
+        "treasure": {
+          "roll": 5,
+          "present": false,
+          "quality": "poor",
+          "xpValue": 0,
+          "coins": {
+            "cp": 0,
+            "sp": 0,
+            "gp": 0
+          },
+          "items": [],
+          "tableBasis": "core_treasure_10+_empty"
+        }
+      },
+      {
+        "choice": {
+          "key": "brachiosaurus",
+          "policy": "Uniform draw from user-selected stock pool (regional membership not assumed); LV 10-16. Without replacement until exhausted."
+        },
+        "title": "Lenk Girilo of the Silver Stars",
+        "count": 1,
+        "monster": {
+          "id": 0,
+          "monsterKey": "brachiosaurus",
+          "name": "Brachiosaurus",
+          "currentHp": 57,
+          "maxHp": 57,
+          "loreTier": 0,
+          "ac": 13,
+          "morale": 12,
+          "level": 12,
+          "family": "Beast",
+          "source": "shadowdark_core",
+          "move": "double near",
+          "abilities": {
+            "str": 6,
+            "dex": -1,
+            "con": 3,
+            "int": -3,
+            "wis": 1,
+            "cha": -3
+          },
+          "alignment": "N",
+          "attacks": [
+            "3 stomp +7 (2d10)"
+          ],
+          "traits": [
+            "Ground Shudder. replaces the attack action; once per fight. Trigger: At least two enemies are close on the same solid ground. Range: close. Make one existing stomp attack (+7, 2d10 damage) against a close target. Whether it hits or misses, all other creatures close to it on the same solid ground make DC 12 DEX or fall prone. No additional damage is dealt. Flying creatures are unaffected by the ground shock. This replaces the normal three stomps. Telegraph: It raises a forefoot high and the ground trembles as its weight shifts. Behaviour: Use when two or more enemies crowd its feet and no herd mate is in the area; attack the nearest enemy, then randomly."
+          ],
+          "lore": [],
+          "harvest": [],
+          "vulnerabilities": [
+            "Four of Pentacles: Its attachment to a particular possession compels a disadvantageous concession. [Theme; effect needs authoring.]",
+            "Ace of Wands: A new undertaking or spark of creative fire disrupts its stagnation. [Theme; effect needs authoring.]"
+          ],
+          "campaignProfile": {
+            "versionKey": "5757eef4ebb87462633d24c7b3d0ff258b656511a568e9d8b3813bd03fb69043",
+            "specialAbilityCount": 1,
+            "requiredVulnerabilityCount": 2,
+            "stockVulnerabilityCount": 0,
+            "authoredVulnerabilityCount": 0,
+            "randomVulnerabilities": [
+              {
+                "id": "tarot_four_of_pentacles",
+                "label": "Four of Pentacles",
+                "category": "symbolic",
+                "prompt": "Its attachment to a particular possession compels a disadvantageous concession.",
+                "needsAuthoring": true
+              },
+              {
+                "id": "tarot_ace_of_wands",
+                "label": "Ace of Wands",
+                "category": "symbolic",
+                "prompt": "A new undertaking or spark of creative fire disrupts its stagnation.",
+                "needsAuthoring": true
+              }
+            ],
+            "regenerationCounters": [],
+            "sourceNotes": []
+          }
+        },
+        "reading": {
+          "cardId": "door",
+          "title": "DOOR",
+          "orientation": "upright",
+          "description": "A large wooden door bars the path ahead. The Door card offers an opportunity to change.",
+          "facet": "treasure",
+          "meaning": "An art object that looks very different from various perspectives, or a magic item that creates portals or allows teleportation (such as an Amulet of the Planes)."
+        },
+        "reaction": {
+          "dice": [
+            3,
+            2
+          ],
+          "total": 5,
+          "reaction": "Suspicious / threatening"
+        },
+        "terrain": "Sandbar Crossing",
+        "treasure": {
+          "roll": 5,
+          "present": false,
+          "quality": "poor",
+          "xpValue": 0,
+          "coins": {
+            "cp": 0,
+            "sp": 0,
+            "gp": 0
+          },
+          "items": [],
+          "tableBasis": "core_treasure_10+_empty"
+        }
+      },
+      {
+        "choice": {
+          "key": "catfish_giant",
+          "policy": "Uniform draw from user-selected stock pool (regional membership not assumed); LV 10-16. Without replacement until exhausted."
+        },
+        "title": "Rinan",
+        "count": 1,
+        "monster": {
+          "id": 0,
+          "monsterKey": "catfish_giant",
+          "name": "Catfish Giant",
+          "currentHp": 56,
+          "maxHp": 56,
+          "loreTier": 0,
+          "ac": 13,
+          "morale": 12,
+          "level": 12,
+          "family": "Beast",
+          "source": "cursed_scroll_4",
+          "move": "double near (swim)",
+          "abilities": {
+            "str": 4,
+            "dex": 0,
+            "con": 2,
+            "int": -3,
+            "wis": 1,
+            "cha": -3
+          },
+          "alignment": "N",
+          "attacks": [
+            "2 bite +9 (2d10 + swallow)"
+          ],
+          "traits": [
+            "Swallow. On a natural attack roll of 18-20, target is swallowed into giant catfish's stomach. Total darkness inside stomach and 2d8 damage per round. Giant catfish regurgitates all swallowed creatures if dealt at least 15 damage in one round to the inside of its gullet."
+          ],
+          "lore": [],
+          "harvest": [],
+          "vulnerabilities": [
+            "Gullet injury: At least 15 damage inside its gullet in one round makes it regurgitate all swallowed creatures.",
+            "Four of Swords: A particular silence, vigil, or rest rite stills its restless power. [Theme; effect needs authoring.]",
+            "Knight of Pentacles: A faithfully completed mundane duty dissolves a curse or debt it exploits. [Theme; effect needs authoring.]"
+          ],
+          "campaignProfile": {
+            "versionKey": "a388684ae96199de7f43b4369743d9a1b6421accaaf9db17f66533af5fc1d62a",
+            "specialAbilityCount": 2,
+            "requiredVulnerabilityCount": 3,
+            "stockVulnerabilityCount": 1,
+            "authoredVulnerabilityCount": 0,
+            "randomVulnerabilities": [
+              {
+                "id": "tarot_four_of_swords",
+                "label": "Four of Swords",
+                "category": "symbolic",
+                "prompt": "A particular silence, vigil, or rest rite stills its restless power.",
+                "needsAuthoring": true
+              },
+              {
+                "id": "tarot_knight_of_pentacles",
+                "label": "Knight of Pentacles",
+                "category": "symbolic",
+                "prompt": "A faithfully completed mundane duty dissolves a curse or debt it exploits.",
+                "needsAuthoring": true
+              }
+            ],
+            "regenerationCounters": [],
+            "sourceNotes": []
+          }
+        },
+        "reading": {
+          "cardId": "statue",
+          "title": "STATUE",
+          "orientation": "upright",
+          "description": "A statue depicts the god Istus offering the original Deck of Many Things as a gift. The Statue card is a reminder of the past.",
+          "facet": "situation",
+          "meaning": "A situation with remarkable similarities to a significant historical event."
+        },
+        "reaction": {
+          "dice": [
+            1,
+            3
+          ],
+          "total": 4,
+          "reaction": "Suspicious / threatening"
+        },
+        "terrain": "Alluvial Mudflats",
+        "treasure": {
+          "roll": 1,
+          "present": true,
+          "quality": "normal",
+          "xpValue": 1,
+          "coins": {
+            "gp": 0,
+            "sp": 0,
+            "cp": 0
+          },
+          "items": [
+            "Masterwork lute by realm's most famous luthier (140 gp)"
+          ],
+          "tableBasis": "core_treasure_10+_32-33"
+        }
+      },
+      {
+        "choice": {
+          "key": "chimera",
+          "policy": "Uniform draw from user-selected stock pool (regional membership not assumed); LV 10-16. Without replacement until exhausted."
+        },
+        "title": "Drago",
+        "count": 1,
+        "monster": {
+          "id": 0,
+          "monsterKey": "chimera",
+          "name": "Chimera",
+          "currentHp": 49,
+          "maxHp": 49,
+          "loreTier": 0,
+          "ac": 16,
+          "morale": 12,
+          "level": 10,
+          "family": "Monstrosity",
+          "source": "shadowdark_core",
+          "move": "double near (fly)",
+          "abilities": {
+            "str": 5,
+            "dex": 4,
+            "con": 4,
+            "int": -3,
+            "wis": 2,
+            "cha": -1
+          },
+          "alignment": "C",
+          "attacks": [
+            "4 rend +7 (2d8) and 1 fire breath"
+          ],
+          "traits": [
+            "Fire Breath. Fills a near-sized cube extending from chimera. DC 15 DEX or 4d6 damage."
+          ],
+          "lore": [],
+          "harvest": [],
+          "vulnerabilities": [
+            "Strength: Gentleness shown in the presence of danger calms or weakens its savagery. [Theme; effect needs authoring.]",
+            "Six of Wands: Public praise or the prospect of acclaim makes it expose itself. [Theme; effect needs authoring.]",
+            "The Fool: Innocence, spontaneous trust, or a harmless absurdity defeats its solemn power. [Theme; effect needs authoring.]"
+          ],
+          "campaignProfile": {
+            "versionKey": "3e44c7c6573a83cac93eee9b3beef4cd0b47e1665ee78acb032d782064988c53",
+            "specialAbilityCount": 2,
+            "requiredVulnerabilityCount": 3,
+            "stockVulnerabilityCount": 0,
+            "authoredVulnerabilityCount": 0,
+            "randomVulnerabilities": [
+              {
+                "id": "tarot_strength",
+                "label": "Strength",
+                "category": "symbolic",
+                "prompt": "Gentleness shown in the presence of danger calms or weakens its savagery.",
+                "needsAuthoring": true
+              },
+              {
+                "id": "tarot_six_of_wands",
+                "label": "Six of Wands",
+                "category": "symbolic",
+                "prompt": "Public praise or the prospect of acclaim makes it expose itself.",
+                "needsAuthoring": true
+              },
+              {
+                "id": "tarot_the_fool",
+                "label": "The Fool",
+                "category": "symbolic",
+                "prompt": "Innocence, spontaneous trust, or a harmless absurdity defeats its solemn power.",
+                "needsAuthoring": true
+              }
+            ],
+            "regenerationCounters": [],
+            "sourceNotes": []
+          }
+        },
+        "reading": {
+          "cardId": "map",
+          "title": "MAP",
+          "orientation": "upright",
+          "description": "X marks the spot on an elaborate treasure map. The Map card provides guidance that leads to the goal of the quest.",
+          "facet": "creature_or_trap",
+          "meaning": "A creature that tracks by scent."
+        },
+        "reaction": {
+          "dice": [
+            4,
+            2
+          ],
+          "total": 6,
+          "reaction": "Suspicious / threatening"
+        },
+        "terrain": "Basalt Volcanic Outcrop",
+        "treasure": {
+          "roll": 2,
+          "present": true,
+          "quality": "normal",
+          "xpValue": 1,
+          "coins": {
+            "gp": 0,
+            "sp": 0,
+            "cp": 0
+          },
+          "items": [
+            "Nagamaki (greatsword) — Five matching, ceremonial greatswords (12 gp each)"
+          ],
+          "tableBasis": "core_treasure_10+_8-9"
+        }
+      }
+    ],
+    "npcs": [
+      {
+        "title": "Martor",
+        "npc": {
+          "ancestry": "Human",
+          "isWildcardAncestry": false,
+          "className": "Sage",
+          "isWildcardClass": false,
+          "zoneSubclass": "Basilisk Warrior",
+          "abilities": {
+            "str": 15,
+            "dex": 12,
+            "con": 17,
+            "int": 13,
+            "wis": 12,
+            "cha": 10
+          },
+          "abilityMethod": "iron_man",
+          "demeanor": "Zealous & Devout",
+          "quirk": "Quotes holy proverbs; marks prayer symbols on armor.",
+          "motive": "Lost Heirloom",
+          "interaction": "Searching a nearby dungeon hex for a family relic.",
+          "retainerStats": {
+            "level": 1,
+            "hp": 1,
+            "morale": 8,
+            "dailyWage": "2–5 gp/day"
+          }
+        },
+        "reading": {
+          "cardId": "tower",
+          "title": "TOWER",
+          "orientation": "reversed",
+          "description": "A tall, ornate tower made of black stone looms over a desolate landscape. The Tower card represents isolation.",
+          "facet": "place",
+          "meaning": "A place that discourages interaction with others, such as a library or monastery, where rules of silence are strictly enforced."
+        },
+        "faction": {
+          "id": "itzalca_tribes",
+          "name": "Itzalca Free Communities",
+          "disposition": "Friendly",
+          "asset": "Dugout war canoes, elevated villages, and jungle trail knowledge",
+          "agenda": "Preserve tribal autonomy, fish the waterways, and drive off dangerous cultists."
+        },
+        "reaction": {
+          "dice": [
+            6,
+            6
+          ],
+          "total": 12,
+          "reaction": "Allied / receptive"
+        }
+      },
+      {
+        "title": "Jaftor",
+        "npc": {
+          "ancestry": "High Elf",
+          "isWildcardAncestry": false,
+          "className": "Duelist",
+          "isWildcardClass": false,
+          "zoneSubclass": "Wizard",
+          "abilities": {
+            "str": 14,
+            "dex": 9,
+            "con": 15,
+            "int": 17,
+            "wis": 9,
+            "cha": 8
+          },
+          "abilityMethod": "iron_man",
+          "demeanor": "Stoic & Laconic",
+          "quirk": "Speaks only in 2–3 word sentences; unfazed by threats.",
+          "motive": "Lost Heirloom",
+          "interaction": "Searching a nearby dungeon hex for a family relic.",
+          "retainerStats": {
+            "level": 2,
+            "hp": 11,
+            "morale": 9,
+            "dailyWage": "2–5 gp/day"
+          }
+        },
+        "reading": {
+          "cardId": "comet",
+          "title": "COMET",
+          "orientation": "upright",
+          "description": "A comet with an enormous tail streaks across the winter sky at night, outshining the stars. The Comet card brings dire warnings or devastation.",
+          "facet": "treasure",
+          "meaning": "A treasure that carries a curse, or one whose power is destined to be used for destructive ends."
+        },
+        "faction": {
+          "id": "river_rangers",
+          "name": "Black River Guides",
+          "disposition": "Neutral",
+          "asset": "Confluence trading post and portage gear",
+          "agenda": "Charter canoe expeditions, trade exotic pelts, and scout unmapped inland tributaries."
+        },
+        "reaction": {
+          "dice": [
+            2,
+            6
+          ],
+          "total": 8,
+          "reaction": "Cautious / neutral"
+        }
+      },
+      {
+        "title": "Clara",
+        "npc": {
+          "ancestry": "Human",
+          "isWildcardAncestry": false,
+          "className": "Wizard",
+          "isWildcardClass": false,
+          "zoneSubclass": "Ranger",
+          "abilities": {
+            "int": 16,
+            "wis": 16,
+            "dex": 11,
+            "con": 12,
+            "cha": 16,
+            "str": 9
+          },
+          "abilityMethod": "unearthed_arcana",
+          "demeanor": "Boastful & Loud",
+          "quirk": "Boasts of monster kills; wears a predator fang necklace.",
+          "motive": "Spiritual Pilgrimage",
+          "interaction": "Traveling to a holy shrine or megalith to lift a curse.",
+          "retainerStats": {
+            "level": 2,
+            "hp": 5,
+            "morale": 9,
+            "dailyWage": "10–20 gp/day + 1 salvage share"
+          }
+        },
+        "reading": {
+          "cardId": "mine",
+          "title": "MINE",
+          "orientation": "reversed",
+          "description": "A well-crafted pick leans against a wall at the entrance to a mine. The Mine card represents something valuable underground or buried in the earth.",
+          "facet": "situation",
+          "meaning": "The retrieval of something buried."
+        },
+        "faction": {
+          "id": "itzalca_tribes",
+          "name": "Itzalca Free Communities",
+          "disposition": "Friendly",
+          "asset": "Dugout war canoes, elevated villages, and jungle trail knowledge",
+          "agenda": "Preserve tribal autonomy, fish the waterways, and drive off dangerous cultists."
+        },
+        "reaction": {
+          "dice": [
+            6,
+            1
+          ],
+          "total": 7,
+          "reaction": "Cautious / neutral"
+        }
+      },
+      {
+        "title": "Rina",
+        "npc": {
+          "ancestry": "Human",
+          "isWildcardAncestry": false,
+          "className": "Ranger",
+          "isWildcardClass": false,
+          "zoneSubclass": "Thief",
+          "abilities": {
+            "str": 10,
+            "dex": 13,
+            "con": 11,
+            "int": 9,
+            "wis": 16,
+            "cha": 9
+          },
+          "abilityMethod": "iron_man",
+          "demeanor": "Jovial & Inquisitive",
+          "quirk": "Laughs heartily; buys the table a round of bitter ale.",
+          "motive": "Caravan Escort",
+          "interaction": "Guiding an exotic trade cart to the next frontier enclave.",
+          "retainerStats": {
+            "level": 1,
+            "hp": 4,
+            "morale": 8,
+            "dailyWage": "2–5 gp/day"
+          }
+        },
+        "reading": {
+          "cardId": "ruin",
+          "title": "RUIN",
+          "orientation": "reversed",
+          "description": "An elegant sword and crown disintegrate into eddies of ash. The Ruin card warns of the inevitability of decay and the danger of material attachments.",
+          "facet": "treasure",
+          "meaning": "Valuable trade goods, well-made equipment, or a deed to property."
+        },
+        "faction": {
+          "id": "river_rangers",
+          "name": "Black River Guides",
+          "disposition": "Neutral",
+          "asset": "Confluence trading post and portage gear",
+          "agenda": "Charter canoe expeditions, trade exotic pelts, and scout unmapped inland tributaries."
+        },
+        "reaction": {
+          "dice": [
+            2,
+            2
+          ],
+          "total": 4,
+          "reaction": "Suspicious / threatening"
+        }
+      },
+      {
+        "title": "Bruno",
+        "npc": {
+          "ancestry": "Dwarf",
+          "isWildcardAncestry": false,
+          "className": "Warlock",
+          "isWildcardClass": false,
+          "zoneSubclass": "Wizard",
+          "abilities": {
+            "str": 11,
+            "dex": 14,
+            "con": 16,
+            "int": 17,
+            "wis": 8,
+            "cha": 12
+          },
+          "abilityMethod": "iron_man",
+          "demeanor": "Mercenary & Transactional",
+          "quirk": "Counts coins while talking; assesses your gear value.",
+          "motive": "Hunting a Nemesis",
+          "interaction": "Tracking an outlaw, monster, or rival who fled into the wilds.",
+          "retainerStats": {
+            "level": 3,
+            "hp": 7,
+            "morale": 10,
+            "dailyWage": "2–5 gp/day"
+          }
+        },
+        "reading": {
+          "cardId": "stairway",
+          "title": "STAIRWAY",
+          "orientation": "reversed",
+          "description": "A spiral stairway leads both up and down, but the downward stairs are cluttered and dark. This card points to a change in difficulty either increasing or decreasing.",
+          "facet": "creature_or_trap",
+          "meaning": "A creature that is difficult to fight at first but becomes easier to defeat as the battle proceeds."
+        },
+        "faction": {
+          "id": "itzalca_tribes",
+          "name": "Itzalca Free Communities",
+          "disposition": "Friendly",
+          "asset": "Dugout war canoes, elevated villages, and jungle trail knowledge",
+          "agenda": "Preserve tribal autonomy, fish the waterways, and drive off dangerous cultists."
+        },
+        "reaction": {
+          "dice": [
+            5,
+            3
+          ],
+          "total": 8,
+          "reaction": "Cautious / neutral"
+        }
+      }
+    ],
+    "treasures": [
+      {
+        "result": {
+          "roll": 36,
+          "entry": {
+            "min": 36,
+            "max": 37,
+            "description": "Gold scarab dotted with miniature emeralds (220 gp)",
+            "valueGp": 220
+          },
+          "quality": "fabulous",
+          "xpValue": 3,
+          "coins": {
+            "gp": 0,
+            "sp": 0,
+            "cp": 0
+          },
+          "items": [
+            "Gold scarab dotted with miniature emeralds (220 gp)"
+          ],
+          "tableBasis": "core_treasure_10+_36-37"
+        },
+        "reading": {
+          "cardId": "tower",
+          "title": "TOWER",
+          "orientation": "upright",
+          "description": "A tall, ornate tower made of black stone looms over a desolate landscape. The Tower card represents isolation.",
+          "facet": "treasure",
+          "meaning": "An art object depicting an isolated place or a lonely person; alternatively, Daern’s Instant Fortress or a similar magic item."
+        }
+      },
+      {
+        "result": {
+          "roll": 46,
+          "entry": {
+            "min": 46,
+            "max": 47,
+            "description": "Giant, egg-shaped emerald (240 gp)",
+            "valueGp": 240
+          },
+          "quality": "fabulous",
+          "xpValue": 3,
+          "coins": {
+            "gp": 0,
+            "sp": 0,
+            "cp": 0
+          },
+          "items": [
+            "Giant, egg-shaped emerald (240 gp)"
+          ],
+          "tableBasis": "core_treasure_10+_46-47"
+        },
+        "reading": {
+          "cardId": "warrior",
+          "title": "WARRIOR",
+          "orientation": "upright",
+          "description": "A barbarian holds a greataxe. The Warrior card embodies physical strength and fighting acumen.",
+          "facet": "person",
+          "meaning": "A person (perhaps a barbarian, fighter, or monk) who has trained in combat or served in the military."
+        }
+      },
+      {
+        "result": {
+          "roll": 84,
+          "entry": {
+            "min": 84,
+            "max": 85,
+            "description": "Ruby-eyed, gold idol, 3 Demonskin blessings (840 gp)",
+            "valueGp": 840
+          },
+          "quality": "fabulous",
+          "xpValue": 3,
+          "coins": {
+            "gp": 0,
+            "sp": 0,
+            "cp": 0
+          },
+          "items": [
+            "Ruby-eyed, gold idol, 3 Demonskin blessings (840 gp)"
+          ],
+          "tableBasis": "core_treasure_10+_84-85"
+        },
+        "reading": {
+          "cardId": "moon",
+          "title": "MOON",
+          "orientation": "reversed",
+          "description": "A crescent moon looms large in the autumn sky. The Moon card points to hidden potential.",
+          "facet": "treasure",
+          "meaning": "A treasure that seems more valuable than it is, perhaps an ordinary item that falsely appears magical."
+        }
+      },
+      {
+        "result": {
+          "roll": 60,
+          "entry": {
+            "min": 60,
+            "max": 61,
+            "description": "Chunk of meteorite wrapped around a ruby (250 gp)",
+            "valueGp": 250
+          },
+          "quality": "fabulous",
+          "xpValue": 3,
+          "coins": {
+            "gp": 0,
+            "sp": 0,
+            "cp": 0
+          },
+          "items": [
+            "Chunk of meteorite wrapped around a ruby (250 gp)"
+          ],
+          "tableBasis": "core_treasure_10+_60-61"
+        },
+        "reading": {
+          "cardId": "ruin",
+          "title": "RUIN",
+          "orientation": "reversed",
+          "description": "An elegant sword and crown disintegrate into eddies of ash. The Ruin card warns of the inevitability of decay and the danger of material attachments.",
+          "facet": "place",
+          "meaning": "A place meant to store goods, such as a warehouse or an armory."
+        }
+      },
+      {
+        "result": {
+          "roll": 78,
+          "entry": {
+            "min": 78,
+            "max": 79,
+            "description": "Magic wand, 5th-tier spell (virtue, flaw) (360 gp)",
+            "valueGp": 360
+          },
+          "quality": "fabulous",
+          "xpValue": 3,
+          "coins": {
+            "gp": 0,
+            "sp": 0,
+            "cp": 0
+          },
+          "items": [
+            "Ghost Wand (wand) — Magic wand, 5th-tier spell (virtue, flaw) (360 gp)"
+          ],
+          "tableBasis": "core_treasure_10+_78-79"
+        },
+        "reading": {
+          "cardId": "fool",
+          "title": "FOOL",
+          "orientation": "upright",
+          "description": "A person walks down a path, unwittingly dropping items along the way. The Fool card represents innocence.",
+          "facet": "creature_or_trap",
+          "meaning": "A naive Celestial or a flighty Fey, or a trap with a simple or obvious means of avoiding it."
+        }
+      }
+    ],
+    "links": [
+      {
+        "record": "E1",
+        "site": "S1"
+      },
+      {
+        "record": "E2",
+        "site": "S2"
+      },
+      {
+        "record": "E3",
+        "site": "S3"
+      },
+      {
+        "record": "E4",
+        "site": "S4"
+      },
+      {
+        "record": "E5",
+        "site": "S5"
+      },
+      {
+        "record": "N1",
+        "site": "S1"
+      },
+      {
+        "record": "N2",
+        "site": "S2"
+      },
+      {
+        "record": "N3",
+        "site": "S3"
+      },
+      {
+        "record": "N4",
+        "site": "S4"
+      },
+      {
+        "record": "N5",
+        "site": "S5"
+      },
+      {
+        "record": "T1",
+        "site": "S1"
+      },
+      {
+        "record": "T2",
+        "site": "S2"
+      },
+      {
+        "record": "T3",
+        "site": "S3"
+      },
+      {
+        "record": "T4",
+        "site": "S4"
+      },
+      {
+        "record": "T5",
+        "site": "S5"
+      }
+    ],
+    "trace": {
+      "site-description-0": [
+        {
+          "bound": 2,
+          "index": 0
+        }
+      ],
+      "site-region-detail-0": [
+        {
+          "bound": 3,
+          "index": 1
+        }
+      ],
+      "site-description-1": [
+        {
+          "bound": 2,
+          "index": 1
+        }
+      ],
+      "site-region-detail-1": [
+        {
+          "bound": 3,
+          "index": 0
+        }
+      ],
+      "site-description-2": [
+        {
+          "bound": 2,
+          "index": 0
+        }
+      ],
+      "site-region-detail-2": [
+        {
+          "bound": 3,
+          "index": 0
+        }
+      ],
+      "site-description-3": [
+        {
+          "bound": 2,
+          "index": 0
+        }
+      ],
+      "site-region-detail-3": [
+        {
+          "bound": 3,
+          "index": 1
+        }
+      ],
+      "site-description-4": [
+        {
+          "bound": 2,
+          "index": 1
+        }
+      ],
+      "site-region-detail-4": [
+        {
+          "bound": 3,
+          "index": 0
+        }
+      ],
+      "zone-species-2": [
+        {
+          "bound": 5,
+          "index": 4
+        }
+      ],
+      "zone-species-3": [
+        {
+          "bound": 4,
+          "index": 2
+        }
+      ],
+      "zone-species-4": [
+        {
+          "bound": 3,
+          "index": 0
+        }
+      ],
+      "zone-species-5": [
+        {
+          "bound": 2,
+          "index": 1
+        }
+      ],
+      "encounter-card-0": [
+        {
+          "bound": 65,
+          "index": 34
+        },
+        {
+          "bound": 2,
+          "index": 0
+        },
+        {
+          "bound": 5,
+          "index": 3
+        }
+      ],
+      "encounter-reaction-0": [
+        {
+          "bound": 6,
+          "index": 3
+        },
+        {
+          "bound": 6,
+          "index": 2
+        }
+      ],
+      "encounter-terrain-0": [
+        {
+          "bound": 17,
+          "index": 13
+        }
+      ],
+      "encounter-loot-0": [
+        {
+          "bound": 6,
+          "index": 5
+        }
+      ],
+      "encounter-name-0": [
+        {
+          "bound": 16777216,
+          "index": 5063070
+        },
+        {
+          "bound": 16777216,
+          "index": 1284081
+        },
+        {
+          "bound": 16777216,
+          "index": 11991074
+        }
+      ],
+      "encounter-activity-0": [
+        {
+          "bound": 2,
+          "index": 0
+        }
+      ],
+      "encounter-card-1": [
+        {
+          "bound": 65,
+          "index": 56
+        },
+        {
+          "bound": 2,
+          "index": 1
+        },
+        {
+          "bound": 5,
+          "index": 1
+        }
+      ],
+      "encounter-reaction-1": [
+        {
+          "bound": 6,
+          "index": 3
+        },
+        {
+          "bound": 6,
+          "index": 2
+        }
+      ],
+      "encounter-terrain-1": [
+        {
+          "bound": 5,
+          "index": 2
+        }
+      ],
+      "encounter-loot-1": [
+        {
+          "bound": 6,
+          "index": 4
+        }
+      ],
+      "encounter-name-1": [
+        {
+          "bound": 16777216,
+          "index": 5467825
+        },
+        {
+          "bound": 16777216,
+          "index": 6471872
+        },
+        {
+          "bound": 16777216,
+          "index": 5614028
+        }
+      ],
+      "encounter-activity-1": [
+        {
+          "bound": 2,
+          "index": 0
+        }
+      ],
+      "encounter-card-2": [
+        {
+          "bound": 65,
+          "index": 44
+        },
+        {
+          "bound": 2,
+          "index": 0
+        },
+        {
+          "bound": 5,
+          "index": 3
+        }
+      ],
+      "encounter-reaction-2": [
+        {
+          "bound": 6,
+          "index": 2
+        },
+        {
+          "bound": 6,
+          "index": 1
+        }
+      ],
+      "encounter-terrain-2": [
+        {
+          "bound": 17,
+          "index": 7
+        }
+      ],
+      "encounter-loot-2": [
+        {
+          "bound": 6,
+          "index": 4
+        }
+      ],
+      "encounter-name-2": [
+        {
+          "bound": 16777216,
+          "index": 14504648
+        },
+        {
+          "bound": 16777216,
+          "index": 1493865
+        },
+        {
+          "bound": 16777216,
+          "index": 6063981
+        },
+        {
+          "bound": 16777216,
+          "index": 8411296
+        },
+        {
+          "bound": 16777216,
+          "index": 7755032
+        },
+        {
+          "bound": 16777216,
+          "index": 10691231
+        },
+        {
+          "bound": 16777216,
+          "index": 13075886
+        },
+        {
+          "bound": 16777216,
+          "index": 868871
+        }
+      ],
+      "encounter-activity-2": [
+        {
+          "bound": 2,
+          "index": 0
+        }
+      ],
+      "encounter-card-3": [
+        {
+          "bound": 65,
+          "index": 64
+        },
+        {
+          "bound": 2,
+          "index": 0
+        },
+        {
+          "bound": 5,
+          "index": 4
+        }
+      ],
+      "encounter-reaction-3": [
+        {
+          "bound": 6,
+          "index": 0
+        },
+        {
+          "bound": 6,
+          "index": 2
+        }
+      ],
+      "encounter-terrain-3": [
+        {
+          "bound": 5,
+          "index": 3
+        }
+      ],
+      "encounter-loot-3": [
+        {
+          "bound": 6,
+          "index": 0
+        },
+        {
+          "bound": 93,
+          "index": 25
+        }
+      ],
+      "encounter-name-3": [
+        {
+          "bound": 16777216,
+          "index": 8625441
+        },
+        {
+          "bound": 16777216,
+          "index": 9649729
+        },
+        {
+          "bound": 16777216,
+          "index": 5184333
+        },
+        {
+          "bound": 16777216,
+          "index": 7970687
+        }
+      ],
+      "encounter-activity-3": [
+        {
+          "bound": 2,
+          "index": 1
+        }
+      ],
+      "encounter-card-4": [
+        {
+          "bound": 65,
+          "index": 53
+        },
+        {
+          "bound": 2,
+          "index": 0
+        },
+        {
+          "bound": 5,
+          "index": 1
+        }
+      ],
+      "encounter-reaction-4": [
+        {
+          "bound": 6,
+          "index": 3
+        },
+        {
+          "bound": 6,
+          "index": 1
+        }
+      ],
+      "encounter-terrain-4": [
+        {
+          "bound": 17,
+          "index": 14
+        }
+      ],
+      "encounter-loot-4": [
+        {
+          "bound": 6,
+          "index": 1
+        },
+        {
+          "bound": 95,
+          "index": 2
+        },
+        {
+          "bound": 32,
+          "index": 22
+        }
+      ],
+      "encounter-name-4": [
+        {
+          "bound": 16777216,
+          "index": 9941012
+        },
+        {
+          "bound": 16777216,
+          "index": 5722362
+        },
+        {
+          "bound": 16777216,
+          "index": 12488969
+        }
+      ],
+      "encounter-activity-4": [
+        {
+          "bound": 2,
+          "index": 0
+        }
+      ],
+      "npc-0": [
+        {
+          "bound": 100,
+          "index": 72
+        },
+        {
+          "bound": 5,
+          "index": 1
+        },
+        {
+          "bound": 100,
+          "index": 56
+        },
+        {
+          "bound": 4,
+          "index": 0
+        },
+        {
+          "bound": 2,
+          "index": 0
+        },
+        {
+          "bound": 6,
+          "index": 0
+        },
+        {
+          "bound": 6,
+          "index": 0
+        },
+        {
+          "bound": 6,
+          "index": 1
+        },
+        {
+          "bound": 6,
+          "index": 3
+        },
+        {
+          "bound": 6,
+          "index": 0
+        },
+        {
+          "bound": 6,
+          "index": 5
+        },
+        {
+          "bound": 6,
+          "index": 4
+        },
+        {
+          "bound": 6,
+          "index": 2
+        },
+        {
+          "bound": 6,
+          "index": 4
+        },
+        {
+          "bound": 6,
+          "index": 1
+        },
+        {
+          "bound": 6,
+          "index": 2
+        },
+        {
+          "bound": 6,
+          "index": 5
+        },
+        {
+          "bound": 6,
+          "index": 3
+        },
+        {
+          "bound": 6,
+          "index": 1
+        },
+        {
+          "bound": 6,
+          "index": 1
+        },
+        {
+          "bound": 6,
+          "index": 3
+        },
+        {
+          "bound": 6,
+          "index": 0
+        },
+        {
+          "bound": 6,
+          "index": 5
+        },
+        {
+          "bound": 6,
+          "index": 5
+        },
+        {
+          "bound": 6,
+          "index": 1
+        },
+        {
+          "bound": 6,
+          "index": 0
+        },
+        {
+          "bound": 6,
+          "index": 1
+        },
+        {
+          "bound": 6,
+          "index": 1
+        },
+        {
+          "bound": 6,
+          "index": 2
+        },
+        {
+          "bound": 6,
+          "index": 2
+        },
+        {
+          "bound": 6,
+          "index": 4
+        },
+        {
+          "bound": 6,
+          "index": 4
+        },
+        {
+          "bound": 6,
+          "index": 0
+        },
+        {
+          "bound": 6,
+          "index": 1
+        },
+        {
+          "bound": 6,
+          "index": 4
+        },
+        {
+          "bound": 6,
+          "index": 0
+        },
+        {
+          "bound": 6,
+          "index": 3
+        },
+        {
+          "bound": 6,
+          "index": 5
+        },
+        {
+          "bound": 6,
+          "index": 4
+        },
+        {
+          "bound": 6,
+          "index": 5
+        },
+        {
+          "bound": 6,
+          "index": 1
+        },
+        {
+          "bound": 6,
+          "index": 4
+        },
+        {
+          "bound": 6,
+          "index": 2
+        },
+        {
+          "bound": 6,
+          "index": 3
+        },
+        {
+          "bound": 6,
+          "index": 5
+        },
+        {
+          "bound": 6,
+          "index": 2
+        },
+        {
+          "bound": 6,
+          "index": 1
+        },
+        {
+          "bound": 6,
+          "index": 0
+        },
+        {
+          "bound": 6,
+          "index": 0
+        },
+        {
+          "bound": 6,
+          "index": 4
+        },
+        {
+          "bound": 6,
+          "index": 2
+        },
+        {
+          "bound": 6,
+          "index": 5
+        },
+        {
+          "bound": 6,
+          "index": 0
+        },
+        {
+          "bound": 6,
+          "index": 4
+        },
+        {
+          "bound": 6,
+          "index": 1
+        },
+        {
+          "bound": 6,
+          "index": 2
+        },
+        {
+          "bound": 6,
+          "index": 1
+        },
+        {
+          "bound": 6,
+          "index": 1
+        },
+        {
+          "bound": 6,
+          "index": 3
+        },
+        {
+          "bound": 6,
+          "index": 2
+        },
+        {
+          "bound": 6,
+          "index": 0
+        },
+        {
+          "bound": 6,
+          "index": 0
+        },
+        {
+          "bound": 6,
+          "index": 2
+        },
+        {
+          "bound": 6,
+          "index": 4
+        },
+        {
+          "bound": 6,
+          "index": 3
+        },
+        {
+          "bound": 6,
+          "index": 5
+        },
+        {
+          "bound": 6,
+          "index": 2
+        },
+        {
+          "bound": 6,
+          "index": 1
+        },
+        {
+          "bound": 6,
+          "index": 1
+        },
+        {
+          "bound": 6,
+          "index": 3
+        },
+        {
+          "bound": 6,
+          "index": 3
+        },
+        {
+          "bound": 6,
+          "index": 5
+        },
+        {
+          "bound": 6,
+          "index": 4
+        },
+        {
+          "bound": 6,
+          "index": 3
+        },
+        {
+          "bound": 6,
+          "index": 3
+        },
+        {
+          "bound": 6,
+          "index": 0
+        },
+        {
+          "bound": 6,
+          "index": 3
+        },
+        {
+          "bound": 6,
+          "index": 3
+        },
+        {
+          "bound": 6,
+          "index": 3
+        },
+        {
+          "bound": 6,
+          "index": 3
+        },
+        {
+          "bound": 6,
+          "index": 0
+        },
+        {
+          "bound": 6,
+          "index": 0
+        },
+        {
+          "bound": 6,
+          "index": 5
+        },
+        {
+          "bound": 6,
+          "index": 0
+        },
+        {
+          "bound": 6,
+          "index": 0
+        },
+        {
+          "bound": 6,
+          "index": 4
+        },
+        {
+          "bound": 6,
+          "index": 1
+        },
+        {
+          "bound": 6,
+          "index": 4
+        },
+        {
+          "bound": 6,
+          "index": 0
+        },
+        {
+          "bound": 6,
+          "index": 4
+        },
+        {
+          "bound": 6,
+          "index": 5
+        },
+        {
+          "bound": 6,
+          "index": 4
+        },
+        {
+          "bound": 6,
+          "index": 2
+        },
+        {
+          "bound": 6,
+          "index": 4
+        },
+        {
+          "bound": 6,
+          "index": 1
+        },
+        {
+          "bound": 6,
+          "index": 0
+        },
+        {
+          "bound": 6,
+          "index": 0
+        },
+        {
+          "bound": 6,
+          "index": 4
+        },
+        {
+          "bound": 6,
+          "index": 2
+        },
+        {
+          "bound": 6,
+          "index": 0
+        },
+        {
+          "bound": 6,
+          "index": 4
+        },
+        {
+          "bound": 6,
+          "index": 4
+        },
+        {
+          "bound": 6,
+          "index": 0
+        },
+        {
+          "bound": 6,
+          "index": 5
+        },
+        {
+          "bound": 6,
+          "index": 5
+        },
+        {
+          "bound": 6,
+          "index": 4
+        },
+        {
+          "bound": 6,
+          "index": 5
+        },
+        {
+          "bound": 6,
+          "index": 0
+        },
+        {
+          "bound": 6,
+          "index": 1
+        },
+        {
+          "bound": 6,
+          "index": 3
+        },
+        {
+          "bound": 6,
+          "index": 4
+        },
+        {
+          "bound": 6,
+          "index": 2
+        },
+        {
+          "bound": 6,
+          "index": 1
+        },
+        {
+          "bound": 6,
+          "index": 3
+        },
+        {
+          "bound": 6,
+          "index": 5
+        },
+        {
+          "bound": 6,
+          "index": 3
+        },
+        {
+          "bound": 6,
+          "index": 4
+        },
+        {
+          "bound": 6,
+          "index": 1
+        },
+        {
+          "bound": 6,
+          "index": 4
+        },
+        {
+          "bound": 6,
+          "index": 4
+        },
+        {
+          "bound": 6,
+          "index": 5
+        },
+        {
+          "bound": 6,
+          "index": 5
+        },
+        {
+          "bound": 6,
+          "index": 4
+        },
+        {
+          "bound": 6,
+          "index": 4
+        },
+        {
+          "bound": 6,
+          "index": 4
+        },
+        {
+          "bound": 6,
+          "index": 2
+        },
+        {
+          "bound": 6,
+          "index": 2
+        },
+        {
+          "bound": 6,
+          "index": 3
+        },
+        {
+          "bound": 6,
+          "index": 4
+        },
+        {
+          "bound": 6,
+          "index": 3
+        },
+        {
+          "bound": 6,
+          "index": 4
+        },
+        {
+          "bound": 6,
+          "index": 0
+        },
+        {
+          "bound": 18,
+          "index": 8
+        },
+        {
+          "bound": 12,
+          "index": 4
+        },
+        {
+          "bound": 12,
+          "index": 4
+        },
+        {
+          "bound": 3,
+          "index": 0
+        },
+        {
+          "bound": 4,
+          "index": 0
+        }
+      ],
+      "npc-name-0": [
+        {
+          "bound": 16777216,
+          "index": 8810396
+        },
+        {
+          "bound": 16777216,
+          "index": 1833863
+        },
+        {
+          "bound": 16777216,
+          "index": 9073358
+        }
+      ],
+      "npc-card-0": [
+        {
+          "bound": 65,
+          "index": 33
+        },
+        {
+          "bound": 2,
+          "index": 1
+        },
+        {
+          "bound": 5,
+          "index": 2
+        }
+      ],
+      "npc-faction-0": [
+        {
+          "bound": 3,
+          "index": 0
+        }
+      ],
+      "npc-reaction-0": [
+        {
+          "bound": 6,
+          "index": 5
+        },
+        {
+          "bound": 6,
+          "index": 5
+        }
+      ],
+      "npc-description-0": [
+        {
+          "bound": 5,
+          "index": 2
+        }
+      ],
+      "npc-1": [
+        {
+          "bound": 100,
+          "index": 95
+        },
+        {
+          "bound": 5,
+          "index": 3
+        },
+        {
+          "bound": 100,
+          "index": 42
+        },
+        {
+          "bound": 4,
+          "index": 3
+        },
+        {
+          "bound": 6,
+          "index": 1
+        },
+        {
+          "bound": 6,
+          "index": 5
+        },
+        {
+          "bound": 6,
+          "index": 5
+        },
+        {
+          "bound": 6,
+          "index": 1
+        },
+        {
+          "bound": 6,
+          "index": 2
+        },
+        {
+          "bound": 6,
+          "index": 3
+        },
+        {
+          "bound": 6,
+          "index": 4
+        },
+        {
+          "bound": 6,
+          "index": 0
+        },
+        {
+          "bound": 6,
+          "index": 0
+        },
+        {
+          "bound": 6,
+          "index": 4
+        },
+        {
+          "bound": 6,
+          "index": 3
+        },
+        {
+          "bound": 6,
+          "index": 5
+        },
+        {
+          "bound": 6,
+          "index": 3
+        },
+        {
+          "bound": 6,
+          "index": 0
+        },
+        {
+          "bound": 6,
+          "index": 2
+        },
+        {
+          "bound": 6,
+          "index": 4
+        },
+        {
+          "bound": 6,
+          "index": 2
+        },
+        {
+          "bound": 6,
+          "index": 2
+        },
+        {
+          "bound": 6,
+          "index": 5
+        },
+        {
+          "bound": 6,
+          "index": 1
+        },
+        {
+          "bound": 6,
+          "index": 3
+        },
+        {
+          "bound": 6,
+          "index": 5
+        },
+        {
+          "bound": 6,
+          "index": 5
+        },
+        {
+          "bound": 6,
+          "index": 3
+        },
+        {
+          "bound": 6,
+          "index": 4
+        },
+        {
+          "bound": 6,
+          "index": 1
+        },
+        {
+          "bound": 6,
+          "index": 1
+        },
+        {
+          "bound": 6,
+          "index": 0
+        },
+        {
+          "bound": 6,
+          "index": 2
+        },
+        {
+          "bound": 6,
+          "index": 2
+        },
+        {
+          "bound": 6,
+          "index": 1
+        },
+        {
+          "bound": 6,
+          "index": 2
+        },
+        {
+          "bound": 6,
+          "index": 3
+        },
+        {
+          "bound": 6,
+          "index": 5
+        },
+        {
+          "bound": 6,
+          "index": 3
+        },
+        {
+          "bound": 6,
+          "index": 0
+        },
+        {
+          "bound": 6,
+          "index": 0
+        },
+        {
+          "bound": 6,
+          "index": 2
+        },
+        {
+          "bound": 6,
+          "index": 3
+        },
+        {
+          "bound": 6,
+          "index": 1
+        },
+        {
+          "bound": 6,
+          "index": 3
+        },
+        {
+          "bound": 6,
+          "index": 1
+        },
+        {
+          "bound": 6,
+          "index": 3
+        },
+        {
+          "bound": 6,
+          "index": 2
+        },
+        {
+          "bound": 6,
+          "index": 5
+        },
+        {
+          "bound": 6,
+          "index": 3
+        },
+        {
+          "bound": 6,
+          "index": 0
+        },
+        {
+          "bound": 6,
+          "index": 0
+        },
+        {
+          "bound": 6,
+          "index": 4
+        },
+        {
+          "bound": 6,
+          "index": 1
+        },
+        {
+          "bound": 6,
+          "index": 3
+        },
+        {
+          "bound": 6,
+          "index": 3
+        },
+        {
+          "bound": 6,
+          "index": 0
+        },
+        {
+          "bound": 6,
+          "index": 0
+        },
+        {
+          "bound": 6,
+          "index": 5
+        },
+        {
+          "bound": 6,
+          "index": 1
+        },
+        {
+          "bound": 6,
+          "index": 5
+        },
+        {
+          "bound": 6,
+          "index": 5
+        },
+        {
+          "bound": 6,
+          "index": 2
+        },
+        {
+          "bound": 6,
+          "index": 2
+        },
+        {
+          "bound": 6,
+          "index": 2
+        },
+        {
+          "bound": 6,
+          "index": 4
+        },
+        {
+          "bound": 6,
+          "index": 5
+        },
+        {
+          "bound": 6,
+          "index": 3
+        },
+        {
+          "bound": 6,
+          "index": 5
+        },
+        {
+          "bound": 6,
+          "index": 4
+        },
+        {
+          "bound": 6,
+          "index": 5
+        },
+        {
+          "bound": 6,
+          "index": 3
+        },
+        {
+          "bound": 6,
+          "index": 3
+        },
+        {
+          "bound": 6,
+          "index": 0
+        },
+        {
+          "bound": 6,
+          "index": 3
+        },
+        {
+          "bound": 6,
+          "index": 0
+        },
+        {
+          "bound": 6,
+          "index": 2
+        },
+        {
+          "bound": 14,
+          "index": 10
+        },
+        {
+          "bound": 12,
+          "index": 6
+        },
+        {
+          "bound": 12,
+          "index": 4
+        },
+        {
+          "bound": 3,
+          "index": 1
+        },
+        {
+          "bound": 8,
+          "index": 7
+        }
+      ],
+      "npc-name-1": [
+        {
+          "bound": 16777216,
+          "index": 15773994
+        },
+        {
+          "bound": 16777216,
+          "index": 14119672
+        },
+        {
+          "bound": 16777216,
+          "index": 9088934
+        }
+      ],
+      "npc-card-1": [
+        {
+          "bound": 65,
+          "index": 7
+        },
+        {
+          "bound": 2,
+          "index": 0
+        },
+        {
+          "bound": 5,
+          "index": 3
+        }
+      ],
+      "npc-faction-1": [
+        {
+          "bound": 3,
+          "index": 2
+        }
+      ],
+      "npc-reaction-1": [
+        {
+          "bound": 6,
+          "index": 1
+        },
+        {
+          "bound": 6,
+          "index": 5
+        }
+      ],
+      "npc-description-1": [
+        {
+          "bound": 5,
+          "index": 3
+        }
+      ],
+      "npc-2": [
+        {
+          "bound": 100,
+          "index": 31
+        },
+        {
+          "bound": 5,
+          "index": 1
+        },
+        {
+          "bound": 100,
+          "index": 29
+        },
+        {
+          "bound": 4,
+          "index": 0
+        },
+        {
+          "bound": 2,
+          "index": 1
+        },
+        {
+          "bound": 6,
+          "index": 5
+        },
+        {
+          "bound": 18,
+          "index": 3
+        },
+        {
+          "bound": 6,
+          "index": 3
+        },
+        {
+          "bound": 6,
+          "index": 4
+        },
+        {
+          "bound": 6,
+          "index": 5
+        },
+        {
+          "bound": 6,
+          "index": 0
+        },
+        {
+          "bound": 6,
+          "index": 0
+        },
+        {
+          "bound": 6,
+          "index": 4
+        },
+        {
+          "bound": 6,
+          "index": 0
+        },
+        {
+          "bound": 6,
+          "index": 2
+        },
+        {
+          "bound": 6,
+          "index": 2
+        },
+        {
+          "bound": 6,
+          "index": 4
+        },
+        {
+          "bound": 6,
+          "index": 4
+        },
+        {
+          "bound": 6,
+          "index": 0
+        },
+        {
+          "bound": 6,
+          "index": 2
+        },
+        {
+          "bound": 6,
+          "index": 5
+        },
+        {
+          "bound": 6,
+          "index": 4
+        },
+        {
+          "bound": 6,
+          "index": 2
+        },
+        {
+          "bound": 6,
+          "index": 1
+        },
+        {
+          "bound": 6,
+          "index": 4
+        },
+        {
+          "bound": 6,
+          "index": 2
+        },
+        {
+          "bound": 6,
+          "index": 5
+        },
+        {
+          "bound": 6,
+          "index": 2
+        },
+        {
+          "bound": 6,
+          "index": 1
+        },
+        {
+          "bound": 6,
+          "index": 2
+        },
+        {
+          "bound": 6,
+          "index": 4
+        },
+        {
+          "bound": 6,
+          "index": 5
+        },
+        {
+          "bound": 6,
+          "index": 4
+        },
+        {
+          "bound": 6,
+          "index": 1
+        },
+        {
+          "bound": 6,
+          "index": 2
+        },
+        {
+          "bound": 6,
+          "index": 0
+        },
+        {
+          "bound": 6,
+          "index": 4
+        },
+        {
+          "bound": 12,
+          "index": 1
+        },
+        {
+          "bound": 12,
+          "index": 5
+        },
+        {
+          "bound": 3,
+          "index": 1
+        },
+        {
+          "bound": 4,
+          "index": 1
+        }
+      ],
+      "npc-name-2": [
+        {
+          "bound": 16777216,
+          "index": 6364741
+        },
+        {
+          "bound": 16777216,
+          "index": 2049009
+        }
+      ],
+      "npc-card-2": [
+        {
+          "bound": 65,
+          "index": 54
+        },
+        {
+          "bound": 2,
+          "index": 1
+        },
+        {
+          "bound": 5,
+          "index": 4
+        }
+      ],
+      "npc-faction-2": [
+        {
+          "bound": 3,
+          "index": 0
+        }
+      ],
+      "npc-reaction-2": [
+        {
+          "bound": 6,
+          "index": 5
+        },
+        {
+          "bound": 6,
+          "index": 0
+        }
+      ],
+      "npc-description-2": [
+        {
+          "bound": 5,
+          "index": 0
+        }
+      ],
+      "npc-3": [
+        {
+          "bound": 100,
+          "index": 38
+        },
+        {
+          "bound": 5,
+          "index": 0
+        },
+        {
+          "bound": 100,
+          "index": 79
+        },
+        {
+          "bound": 4,
+          "index": 1
+        },
+        {
+          "bound": 6,
+          "index": 0
+        },
+        {
+          "bound": 6,
+          "index": 5
+        },
+        {
+          "bound": 6,
+          "index": 0
+        },
+        {
+          "bound": 6,
+          "index": 3
+        },
+        {
+          "bound": 6,
+          "index": 0
+        },
+        {
+          "bound": 6,
+          "index": 2
+        },
+        {
+          "bound": 6,
+          "index": 4
+        },
+        {
+          "bound": 6,
+          "index": 1
+        },
+        {
+          "bound": 6,
+          "index": 0
+        },
+        {
+          "bound": 6,
+          "index": 1
+        },
+        {
+          "bound": 6,
+          "index": 4
+        },
+        {
+          "bound": 6,
+          "index": 2
+        },
+        {
+          "bound": 6,
+          "index": 1
+        },
+        {
+          "bound": 6,
+          "index": 3
+        },
+        {
+          "bound": 6,
+          "index": 4
+        },
+        {
+          "bound": 6,
+          "index": 2
+        },
+        {
+          "bound": 6,
+          "index": 3
+        },
+        {
+          "bound": 6,
+          "index": 4
+        },
+        {
+          "bound": 6,
+          "index": 2
+        },
+        {
+          "bound": 6,
+          "index": 5
+        },
+        {
+          "bound": 6,
+          "index": 4
+        },
+        {
+          "bound": 6,
+          "index": 5
+        },
+        {
+          "bound": 6,
+          "index": 0
+        },
+        {
+          "bound": 6,
+          "index": 5
+        },
+        {
+          "bound": 6,
+          "index": 2
+        },
+        {
+          "bound": 6,
+          "index": 0
+        },
+        {
+          "bound": 6,
+          "index": 0
+        },
+        {
+          "bound": 6,
+          "index": 1
+        },
+        {
+          "bound": 6,
+          "index": 5
+        },
+        {
+          "bound": 6,
+          "index": 4
+        },
+        {
+          "bound": 6,
+          "index": 1
+        },
+        {
+          "bound": 6,
+          "index": 2
+        },
+        {
+          "bound": 6,
+          "index": 5
+        },
+        {
+          "bound": 6,
+          "index": 0
+        },
+        {
+          "bound": 6,
+          "index": 0
+        },
+        {
+          "bound": 6,
+          "index": 3
+        },
+        {
+          "bound": 6,
+          "index": 2
+        },
+        {
+          "bound": 6,
+          "index": 4
+        },
+        {
+          "bound": 6,
+          "index": 2
+        },
+        {
+          "bound": 6,
+          "index": 2
+        },
+        {
+          "bound": 6,
+          "index": 1
+        },
+        {
+          "bound": 6,
+          "index": 1
+        },
+        {
+          "bound": 6,
+          "index": 5
+        },
+        {
+          "bound": 6,
+          "index": 0
+        },
+        {
+          "bound": 6,
+          "index": 1
+        },
+        {
+          "bound": 6,
+          "index": 3
+        },
+        {
+          "bound": 6,
+          "index": 2
+        },
+        {
+          "bound": 6,
+          "index": 5
+        },
+        {
+          "bound": 6,
+          "index": 5
+        },
+        {
+          "bound": 6,
+          "index": 5
+        },
+        {
+          "bound": 6,
+          "index": 0
+        },
+        {
+          "bound": 6,
+          "index": 1
+        },
+        {
+          "bound": 6,
+          "index": 1
+        },
+        {
+          "bound": 6,
+          "index": 4
+        },
+        {
+          "bound": 6,
+          "index": 5
+        },
+        {
+          "bound": 6,
+          "index": 5
+        },
+        {
+          "bound": 6,
+          "index": 2
+        },
+        {
+          "bound": 6,
+          "index": 3
+        },
+        {
+          "bound": 6,
+          "index": 4
+        },
+        {
+          "bound": 6,
+          "index": 1
+        },
+        {
+          "bound": 6,
+          "index": 4
+        },
+        {
+          "bound": 6,
+          "index": 5
+        },
+        {
+          "bound": 6,
+          "index": 3
+        },
+        {
+          "bound": 6,
+          "index": 1
+        },
+        {
+          "bound": 6,
+          "index": 3
+        },
+        {
+          "bound": 6,
+          "index": 2
+        },
+        {
+          "bound": 6,
+          "index": 5
+        },
+        {
+          "bound": 6,
+          "index": 1
+        },
+        {
+          "bound": 6,
+          "index": 0
+        },
+        {
+          "bound": 6,
+          "index": 4
+        },
+        {
+          "bound": 6,
+          "index": 2
+        },
+        {
+          "bound": 6,
+          "index": 0
+        },
+        {
+          "bound": 6,
+          "index": 1
+        },
+        {
+          "bound": 6,
+          "index": 4
+        },
+        {
+          "bound": 6,
+          "index": 4
+        },
+        {
+          "bound": 6,
+          "index": 3
+        },
+        {
+          "bound": 6,
+          "index": 5
+        },
+        {
+          "bound": 6,
+          "index": 5
+        },
+        {
+          "bound": 6,
+          "index": 0
+        },
+        {
+          "bound": 6,
+          "index": 0
+        },
+        {
+          "bound": 6,
+          "index": 1
+        },
+        {
+          "bound": 6,
+          "index": 1
+        },
+        {
+          "bound": 6,
+          "index": 4
+        },
+        {
+          "bound": 6,
+          "index": 2
+        },
+        {
+          "bound": 6,
+          "index": 5
+        },
+        {
+          "bound": 6,
+          "index": 2
+        },
+        {
+          "bound": 6,
+          "index": 0
+        },
+        {
+          "bound": 6,
+          "index": 2
+        },
+        {
+          "bound": 6,
+          "index": 0
+        },
+        {
+          "bound": 6,
+          "index": 2
+        },
+        {
+          "bound": 6,
+          "index": 2
+        },
+        {
+          "bound": 6,
+          "index": 2
+        },
+        {
+          "bound": 6,
+          "index": 4
+        },
+        {
+          "bound": 6,
+          "index": 1
+        },
+        {
+          "bound": 6,
+          "index": 3
+        },
+        {
+          "bound": 6,
+          "index": 3
+        },
+        {
+          "bound": 6,
+          "index": 4
+        },
+        {
+          "bound": 6,
+          "index": 3
+        },
+        {
+          "bound": 6,
+          "index": 1
+        },
+        {
+          "bound": 6,
+          "index": 4
+        },
+        {
+          "bound": 6,
+          "index": 2
+        },
+        {
+          "bound": 6,
+          "index": 3
+        },
+        {
+          "bound": 6,
+          "index": 1
+        },
+        {
+          "bound": 6,
+          "index": 5
+        },
+        {
+          "bound": 6,
+          "index": 5
+        },
+        {
+          "bound": 6,
+          "index": 3
+        },
+        {
+          "bound": 6,
+          "index": 0
+        },
+        {
+          "bound": 6,
+          "index": 3
+        },
+        {
+          "bound": 6,
+          "index": 3
+        },
+        {
+          "bound": 18,
+          "index": 12
+        },
+        {
+          "bound": 12,
+          "index": 5
+        },
+        {
+          "bound": 12,
+          "index": 3
+        },
+        {
+          "bound": 3,
+          "index": 0
+        },
+        {
+          "bound": 8,
+          "index": 3
+        }
+      ],
+      "npc-name-3": [
+        {
+          "bound": 16777216,
+          "index": 5895671
+        },
+        {
+          "bound": 16777216,
+          "index": 4066354
+        }
+      ],
+      "npc-card-3": [
+        {
+          "bound": 65,
+          "index": 60
+        },
+        {
+          "bound": 2,
+          "index": 1
+        },
+        {
+          "bound": 5,
+          "index": 3
+        }
+      ],
+      "npc-faction-3": [
+        {
+          "bound": 3,
+          "index": 2
+        }
+      ],
+      "npc-reaction-3": [
+        {
+          "bound": 6,
+          "index": 1
+        },
+        {
+          "bound": 6,
+          "index": 1
+        }
+      ],
+      "npc-description-3": [
+        {
+          "bound": 5,
+          "index": 3
+        }
+      ],
+      "npc-4": [
+        {
+          "bound": 100,
+          "index": 10
+        },
+        {
+          "bound": 5,
+          "index": 2
+        },
+        {
+          "bound": 100,
+          "index": 27
+        },
+        {
+          "bound": 4,
+          "index": 3
+        },
+        {
+          "bound": 6,
+          "index": 4
+        },
+        {
+          "bound": 6,
+          "index": 1
+        },
+        {
+          "bound": 6,
+          "index": 3
+        },
+        {
+          "bound": 6,
+          "index": 0
+        },
+        {
+          "bound": 6,
+          "index": 0
+        },
+        {
+          "bound": 6,
+          "index": 3
+        },
+        {
+          "bound": 6,
+          "index": 3
+        },
+        {
+          "bound": 6,
+          "index": 3
+        },
+        {
+          "bound": 6,
+          "index": 3
+        },
+        {
+          "bound": 6,
+          "index": 4
+        },
+        {
+          "bound": 6,
+          "index": 2
+        },
+        {
+          "bound": 6,
+          "index": 5
+        },
+        {
+          "bound": 6,
+          "index": 5
+        },
+        {
+          "bound": 6,
+          "index": 0
+        },
+        {
+          "bound": 6,
+          "index": 4
+        },
+        {
+          "bound": 6,
+          "index": 5
+        },
+        {
+          "bound": 6,
+          "index": 1
+        },
+        {
+          "bound": 6,
+          "index": 3
+        },
+        {
+          "bound": 6,
+          "index": 4
+        },
+        {
+          "bound": 6,
+          "index": 5
+        },
+        {
+          "bound": 6,
+          "index": 0
+        },
+        {
+          "bound": 6,
+          "index": 4
+        },
+        {
+          "bound": 6,
+          "index": 4
+        },
+        {
+          "bound": 6,
+          "index": 4
+        },
+        {
+          "bound": 6,
+          "index": 0
+        },
+        {
+          "bound": 6,
+          "index": 3
+        },
+        {
+          "bound": 6,
+          "index": 5
+        },
+        {
+          "bound": 6,
+          "index": 0
+        },
+        {
+          "bound": 6,
+          "index": 5
+        },
+        {
+          "bound": 6,
+          "index": 0
+        },
+        {
+          "bound": 6,
+          "index": 1
+        },
+        {
+          "bound": 6,
+          "index": 4
+        },
+        {
+          "bound": 6,
+          "index": 1
+        },
+        {
+          "bound": 6,
+          "index": 3
+        },
+        {
+          "bound": 6,
+          "index": 3
+        },
+        {
+          "bound": 6,
+          "index": 2
+        },
+        {
+          "bound": 6,
+          "index": 4
+        },
+        {
+          "bound": 6,
+          "index": 5
+        },
+        {
+          "bound": 6,
+          "index": 4
+        },
+        {
+          "bound": 6,
+          "index": 5
+        },
+        {
+          "bound": 6,
+          "index": 0
+        },
+        {
+          "bound": 6,
+          "index": 2
+        },
+        {
+          "bound": 6,
+          "index": 0
+        },
+        {
+          "bound": 6,
+          "index": 1
+        },
+        {
+          "bound": 6,
+          "index": 3
+        },
+        {
+          "bound": 6,
+          "index": 2
+        },
+        {
+          "bound": 6,
+          "index": 4
+        },
+        {
+          "bound": 6,
+          "index": 1
+        },
+        {
+          "bound": 6,
+          "index": 1
+        },
+        {
+          "bound": 6,
+          "index": 3
+        },
+        {
+          "bound": 6,
+          "index": 2
+        },
+        {
+          "bound": 6,
+          "index": 4
+        },
+        {
+          "bound": 6,
+          "index": 1
+        },
+        {
+          "bound": 6,
+          "index": 1
+        },
+        {
+          "bound": 6,
+          "index": 5
+        },
+        {
+          "bound": 6,
+          "index": 4
+        },
+        {
+          "bound": 6,
+          "index": 3
+        },
+        {
+          "bound": 6,
+          "index": 4
+        },
+        {
+          "bound": 6,
+          "index": 4
+        },
+        {
+          "bound": 6,
+          "index": 0
+        },
+        {
+          "bound": 6,
+          "index": 1
+        },
+        {
+          "bound": 6,
+          "index": 1
+        },
+        {
+          "bound": 6,
+          "index": 0
+        },
+        {
+          "bound": 6,
+          "index": 0
+        },
+        {
+          "bound": 6,
+          "index": 4
+        },
+        {
+          "bound": 6,
+          "index": 3
+        },
+        {
+          "bound": 6,
+          "index": 5
+        },
+        {
+          "bound": 6,
+          "index": 5
+        },
+        {
+          "bound": 6,
+          "index": 4
+        },
+        {
+          "bound": 6,
+          "index": 1
+        },
+        {
+          "bound": 6,
+          "index": 0
+        },
+        {
+          "bound": 6,
+          "index": 0
+        },
+        {
+          "bound": 6,
+          "index": 0
+        },
+        {
+          "bound": 6,
+          "index": 4
+        },
+        {
+          "bound": 6,
+          "index": 1
+        },
+        {
+          "bound": 6,
+          "index": 3
+        },
+        {
+          "bound": 6,
+          "index": 1
+        },
+        {
+          "bound": 6,
+          "index": 0
+        },
+        {
+          "bound": 6,
+          "index": 2
+        },
+        {
+          "bound": 6,
+          "index": 2
+        },
+        {
+          "bound": 6,
+          "index": 5
+        },
+        {
+          "bound": 6,
+          "index": 2
+        },
+        {
+          "bound": 6,
+          "index": 2
+        },
+        {
+          "bound": 6,
+          "index": 4
+        },
+        {
+          "bound": 6,
+          "index": 0
+        },
+        {
+          "bound": 6,
+          "index": 4
+        },
+        {
+          "bound": 6,
+          "index": 3
+        },
+        {
+          "bound": 6,
+          "index": 0
+        },
+        {
+          "bound": 6,
+          "index": 2
+        },
+        {
+          "bound": 6,
+          "index": 4
+        },
+        {
+          "bound": 6,
+          "index": 2
+        },
+        {
+          "bound": 6,
+          "index": 1
+        },
+        {
+          "bound": 6,
+          "index": 2
+        },
+        {
+          "bound": 6,
+          "index": 4
+        },
+        {
+          "bound": 6,
+          "index": 3
+        },
+        {
+          "bound": 6,
+          "index": 4
+        },
+        {
+          "bound": 6,
+          "index": 3
+        },
+        {
+          "bound": 6,
+          "index": 5
+        },
+        {
+          "bound": 6,
+          "index": 0
+        },
+        {
+          "bound": 6,
+          "index": 2
+        },
+        {
+          "bound": 6,
+          "index": 2
+        },
+        {
+          "bound": 6,
+          "index": 1
+        },
+        {
+          "bound": 6,
+          "index": 0
+        },
+        {
+          "bound": 6,
+          "index": 1
+        },
+        {
+          "bound": 6,
+          "index": 1
+        },
+        {
+          "bound": 6,
+          "index": 0
+        },
+        {
+          "bound": 6,
+          "index": 5
+        },
+        {
+          "bound": 6,
+          "index": 2
+        },
+        {
+          "bound": 6,
+          "index": 4
+        },
+        {
+          "bound": 6,
+          "index": 5
+        },
+        {
+          "bound": 6,
+          "index": 3
+        },
+        {
+          "bound": 6,
+          "index": 0
+        },
+        {
+          "bound": 6,
+          "index": 4
+        },
+        {
+          "bound": 6,
+          "index": 3
+        },
+        {
+          "bound": 6,
+          "index": 4
+        },
+        {
+          "bound": 6,
+          "index": 5
+        },
+        {
+          "bound": 6,
+          "index": 3
+        },
+        {
+          "bound": 6,
+          "index": 5
+        },
+        {
+          "bound": 6,
+          "index": 4
+        },
+        {
+          "bound": 6,
+          "index": 5
+        },
+        {
+          "bound": 6,
+          "index": 5
+        },
+        {
+          "bound": 6,
+          "index": 1
+        },
+        {
+          "bound": 6,
+          "index": 2
+        },
+        {
+          "bound": 6,
+          "index": 2
+        },
+        {
+          "bound": 6,
+          "index": 1
+        },
+        {
+          "bound": 6,
+          "index": 5
+        },
+        {
+          "bound": 6,
+          "index": 3
+        },
+        {
+          "bound": 13,
+          "index": 11
+        },
+        {
+          "bound": 12,
+          "index": 3
+        },
+        {
+          "bound": 12,
+          "index": 1
+        },
+        {
+          "bound": 3,
+          "index": 2
+        },
+        {
+          "bound": 6,
+          "index": 0
+        }
+      ],
+      "npc-name-4": [
+        {
+          "bound": 16777216,
+          "index": 1675855
+        },
+        {
+          "bound": 16777216,
+          "index": 2829777
+        }
+      ],
+      "npc-card-4": [
+        {
+          "bound": 65,
+          "index": 63
+        },
+        {
+          "bound": 2,
+          "index": 1
+        },
+        {
+          "bound": 5,
+          "index": 1
+        }
+      ],
+      "npc-faction-4": [
+        {
+          "bound": 3,
+          "index": 0
+        }
+      ],
+      "npc-reaction-4": [
+        {
+          "bound": 6,
+          "index": 4
+        },
+        {
+          "bound": 6,
+          "index": 2
+        }
+      ],
+      "npc-description-4": [
+        {
+          "bound": 5,
+          "index": 0
+        }
+      ],
+      "treasure-0": [
+        {
+          "bound": 100,
+          "index": 36
+        }
+      ],
+      "treasure-card-0": [
+        {
+          "bound": 65,
+          "index": 33
+        },
+        {
+          "bound": 2,
+          "index": 0
+        },
+        {
+          "bound": 5,
+          "index": 3
+        }
+      ],
+      "treasure-1": [
+        {
+          "bound": 100,
+          "index": 45
+        }
+      ],
+      "treasure-card-1": [
+        {
+          "bound": 65,
+          "index": 35
+        },
+        {
+          "bound": 2,
+          "index": 0
+        },
+        {
+          "bound": 5,
+          "index": 0
+        }
+      ],
+      "treasure-2": [
+        {
+          "bound": 100,
+          "index": 84
+        }
+      ],
+      "treasure-card-2": [
+        {
+          "bound": 65,
+          "index": 55
+        },
+        {
+          "bound": 2,
+          "index": 1
+        },
+        {
+          "bound": 5,
+          "index": 3
+        }
+      ],
+      "treasure-3": [
+        {
+          "bound": 100,
+          "index": 60
+        }
+      ],
+      "treasure-card-3": [
+        {
+          "bound": 65,
+          "index": 60
+        },
+        {
+          "bound": 2,
+          "index": 1
+        },
+        {
+          "bound": 5,
+          "index": 2
+        }
+      ],
+      "treasure-4": [
+        {
+          "bound": 100,
+          "index": 78
+        },
+        {
+          "bound": 36,
+          "index": 12
+        }
+      ],
+      "treasure-card-4": [
+        {
+          "bound": 65,
+          "index": 14
+        },
+        {
+          "bound": 2,
+          "index": 0
+        },
+        {
+          "bound": 5,
+          "index": 1
+        }
+      ],
+      "story-opening": [
+        {
+          "bound": 3,
+          "index": 0
+        }
+      ],
+      "story-stakes": [
+        {
+          "bound": 3,
+          "index": 1
+        }
+      ]
+    },
+    "storyTableVersion": "2"
+  }
+}

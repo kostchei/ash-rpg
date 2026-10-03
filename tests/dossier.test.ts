@@ -43,6 +43,29 @@ describe('procedural fieldbook', () => {
     const report = generateDossier({ ...input, minimumLevel: 20, required: [], counts: { sites: 1, encounters: 0, npcs: 1, treasures: 1 } }, server.db);
     expect(report.cards).toHaveLength(3);
   });
+  it('respects level ceilings and explicit stock pools without avoidable repeats', () => {
+    const report = generateDossier({ ...input, minimumLevel: 1, maximumLevel: 3, required: [], monsterKeys: ['nord', 'dverg', 'sea_nymph', 'wolf', 'boar'] }, server.db);
+    const raw = report.raw as { encounters: { choice: { key: string }; monster: { level: number } }[] };
+    expect(raw.encounters.every(e => e.monster.level >= 1 && e.monster.level <= 3)).toBe(true);
+    expect(new Set(raw.encounters.map(e => e.choice.key)).size).toBe(5);
+    const nord = report.cards.find(c => c.fields.some(f => f.label === 'Composition' && f.value === '1 Nord'))!;
+    expect(nord.fields.find(f => f.label === 'Situation')!.value).not.toMatch(/serpent/);
+    const bounded = generateDossier({ ...input, maximumLevel: 12 }, server.db);
+    expect(bounded.coverage.find(c => c.requirement === 'demon_lord')!.status).toBe('unresolved');
+  });
+  it('validates custom monster keys and exposes an existing-stock catalogue', async () => {
+    await request(server.app).post('/api/dossiers/generate').send({ ...input, maximumLevel: 1 }).expect(400);
+    await request(server.app).post('/api/dossiers/generate').send({ ...input, monsterKeys: ['invented_monster'] }).expect(422);
+    await request(server.app).post('/api/dossiers/generate').send({ ...input, monsterKeys: ['nord'] }).expect(422);
+    const catalogue = await request(server.app).get('/api/dossiers/monsters').expect(200);
+    expect(catalogue.body.some((m: { key: string; level: number }) => m.key === 'nord' && m.level === 2)).toBe(true);
+  });
+  it('discloses exhausted pools and gives repeated species independent profiles', () => {
+    const report = generateDossier({ ...input, seed: 'profile-diversity', required: [], monsterKeys: ['vampire'] }, server.db);
+    const raw = report.raw as { encounters: { monster: unknown }[] };
+    expect(report.cards.filter(c => c.category === 'encounter').slice(1).every(c => c.fields.some(f => f.label === 'Selection' && f.value.includes('pool exhausted')))).toBe(true);
+    expect(new Set(raw.encounters.map(e => JSON.stringify(e.monster))).size).toBeGreaterThan(1);
+  });
   it('escapes all user and source text in the standalone HTML', () => {
     const report = generateDossier({ ...input, title: '<script>alert(1)</script>' }, server.db);
     report.cards[0].fields[0].value = '<img src=x onerror=alert(1)>';

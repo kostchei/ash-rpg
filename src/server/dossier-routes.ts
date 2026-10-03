@@ -7,6 +7,7 @@ import { randomUUID } from 'node:crypto';
 import type { DossierReport } from '../shared/dossier.js';
 
 export function registerDossierRoutes(app: Express, db: AshDatabase) {
+  app.get('/api/dossiers/monsters', (_request, response) => response.json(db.listMonsters().map(m => ({ key: m.monsterKey, name: m.name, level: m.level, family: m.family }))));
   const snapshots = new Map<string, { report: DossierReport; createdAt: number }>();
   for (const format of ['generate', 'html', 'pdf'] as const) {
     app.post(`/api/dossiers/${format}`, async (request, response) => {

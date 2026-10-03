@@ -11,17 +11,20 @@ import { reactionRoll, rollDie, type RandomSource } from '../rules.js';
 import { generateUnguardedTreasure } from '../rewards/core-treasure.js';
 import { resolveGroupTreasure } from '../rewards/treasure.js';
 import type { EncounterMonster } from '../../shared/types.js';
-import { ZONE_SCENES, SITE_SCENES, NPC_APPEARANCE, ENCOUNTER_ACTIVITY, JOB_STAKES, MOTIVE_SENTENCES, OBJECTIVE_VERBS, STORY_TABLE_VERSION } from './dossier-story.js';
+import { ZONE_SCENES, SITE_SCENES, REGIONAL_SITE_DETAILS, FAMILY_ACTIVITY, NPC_APPEARANCE, ENCOUNTER_ACTIVITY, JOB_STAKES, MOTIVE_SENTENCES, OBJECTIVE_VERBS, STORY_TABLE_VERSION } from './dossier-story.js';
 
 const count = z.number().int().min(0).max(10);
 export const dossierInputSchema = z.object({
   title: z.string().trim().min(1).max(100), seed: z.string().trim().min(1).max(100),
   zoneId: z.enum(['the_gloaming', 'red_sands', 'midnight_sun', 'river_of_night', 'dwellers_in_the_deep', 'city_of_masks']),
   minimumLevel: z.number().int().min(1).max(20),
+  maximumLevel: z.number().int().min(1).max(30).optional(),
+  monsterKeys: z.array(z.string().min(1).max(80)).max(30).refine(x => new Set(x).size === x.length, 'Monster choices must be unique').optional(),
   counts: z.object({ sites: count, encounters: count, npcs: count, treasures: count }),
   required: z.array(z.enum(DOSSIER_REQUIREMENTS)).max(4).refine(x => new Set(x).size === x.length, 'Required types must be unique'),
   allowProxies: z.boolean(),
 }).refine(x => Object.values(x.counts).some(Boolean), 'Choose at least one record')
+  .refine(x => x.maximumLevel === undefined || x.maximumLevel >= x.minimumLevel, 'Maximum level must be at least the minimum')
   .refine(x => x.counts.encounters >= x.required.length, 'Encounter count must cover all required types');
 
 export function generateDossier(input: DossierInput, db: AshDatabase): DossierReport {
@@ -33,7 +36,7 @@ export function generateDossier(input: DossierInput, db: AshDatabase): DossierRe
     return bound => { const index = rng(bound); draws.push({ bound, index }); return index; };
   };
   const pick = <T,>(list: T[], key: string): T => {
-    if (!list.length) throw new Error(`No eligible results for ${key}. Lower the minimum creature level or choose a different zone.`);
+    if (!list.length) throw new Error(`No eligible results for ${key}. Select an existing-stock monster pool, adjust the level range, or choose a different zone.`);
     return list[stream(key)(list.length)];
   };
   const name = (key: string, ancestry?: string) => {
@@ -53,7 +56,8 @@ export function generateDossier(input: DossierInput, db: AshDatabase): DossierRe
   const holderSources: unknown[] = [];
   const sites = Array.from({ length: input.counts.sites }, (_, i) => {
     const site = generateSiteInputs({ pathId: 'regional', act, zoneId: input.zoneId, seed: input.seed, siteId: `dossier-site-${i + 1}` });
-    const fields = [field('Description', pick(SITE_SCENES[site.site.kind], `site-description-${i}`), 'generated', storySource), field('Shape', `${site.site.kind}; ${site.site.size}; ${site.site.areas} areas; sections ${site.site.sectionSizes.join(' + ')}; ${site.site.danger}`, 'generated', 'generateSiteInputs / site-layout'),
+    const description = `${pick(SITE_SCENES[site.site.kind], `site-description-${i}`)} ${pick(REGIONAL_SITE_DETAILS[input.zoneId], `site-region-detail-${i}`)}`;
+    const fields = [field('Description', description, 'generated', storySource), field('Shape', `${site.site.kind}; ${site.site.size}; ${site.site.areas} areas; sections ${site.site.sectionSizes.join(' + ')}; ${site.site.danger}`, 'generated', 'generateSiteInputs / site-layout'),
       ...tarot(site.card), field('Hazard', site.zone!.hazard, 'generated', `Zone ${input.zoneId} hazard table`)];
     for (const objective of site.objectives) {
       fields.push(field(`Section ${objective.section} / ${objective.mark}`, `${OBJECTIVE_VERBS[objective.kind] ?? objective.kind.replaceAll('_', ' ')} ${objective.target.name}\nPrompt: ${objective.prompt.phrase}\nHolder: ${objective.guardian.name}, LV ${objective.guardian.level}`, 'generated', 'generateSiteInputs: objective, target, prompt and guardian streams'));
@@ -70,22 +74,35 @@ export function generateDossier(input: DossierInput, db: AshDatabase): DossierRe
     fields.push(field('Level policy', `Act ${act} guardian band; site guardian levels do not follow the encounter minimum.`, 'selected', 'ACT_LEVEL_BANDS'), missing('Detailed room keys, maps, clue placement and completed symbolic mechanics.'));
     cards.push({ id: `S${i + 1}`, category: 'site', title: site.name.full, fields }); return site;
   });
-  const eligible = db.getMonstersForZone(input.zoneId).filter(m => (m.level ?? 0) >= input.minimumLevel);
+  const qualifies = (level: number | undefined) => level !== undefined && level >= input.minimumLevel && level <= (input.maximumLevel ?? Infinity);
+  const customPool = input.monsterKeys?.length ? input.monsterKeys.map(key => {
+    const entry = db.getMonster(key);
+    if (!entry) throw new Error(`Unknown stock monster: ${key}`);
+    if (!qualifies(entry.level)) throw new Error(`${entry.name} does not meet the selected encounter level range.`);
+    return entry;
+  }) : undefined;
+  const eligible = (customPool ?? db.getMonstersForZone(input.zoneId)).filter(m => qualifies(m.level));
   const keys: { key: string; policy: string; companion?: string }[] = [];
   for (const required of input.required) {
     let key: string | undefined; let proxy = false;
-    if (required === 'vampire' && (db.getMonster('vampire')?.level ?? 0) >= input.minimumLevel) key = 'vampire';
+    if (required === 'vampire' && qualifies(db.getMonster('vampire')?.level)) key = 'vampire';
     if (required === 'giant') {
-      const giants = db.listMonsters().filter(m => m.family === 'Giant' && (m.level ?? 0) >= input.minimumLevel);
+      const giants = db.listMonsters().filter(m => m.family === 'Giant' && qualifies(m.level));
       if (giants.length) key = pick(giants, 'required-giant').monsterKey;
     }
-    if (required === 'demon_lord' && input.allowProxies && (db.getMonster('demon_balor')?.level ?? 0) >= input.minimumLevel) { key = 'demon_balor'; proxy = true; }
-    if (required === 'seawolf' && input.allowProxies && (db.getMonster('sea_serpent')?.level ?? 0) >= input.minimumLevel) { key = 'nord'; proxy = true; }
+    if (required === 'demon_lord' && input.allowProxies && qualifies(db.getMonster('demon_balor')?.level)) { key = 'demon_balor'; proxy = true; }
+    if (required === 'seawolf' && input.allowProxies && qualifies(db.getMonster('sea_serpent')?.level)) { key = 'nord'; proxy = true; }
     const detail = key ? `${proxy ? 'Explicit substitute' : 'Stock match'}: ${key}${required === 'seawolf' ? ' crew plus sea_serpent; crew are LV 2' : ''}.` : 'No exact supported entry meeting this minimum and substitution policy. No invented replacement.';
     coverage.push({ requirement: required, status: key ? proxy ? 'proxy' : 'met' : 'unresolved', detail });
     if (key) keys.push({ key, policy: `${required}: ${detail}`, ...(required === 'seawolf' ? { companion: 'sea_serpent' } : {}) });
   }
-  while (keys.length < input.counts.encounters) keys.push({ key: pick(eligible, `zone-species-${keys.length + 1}`).monsterKey, policy: `Uniform draw from eligible ${input.zoneId} wandering entries; LV >= ${input.minimumLevel}. Repeats allowed.` });
+  while (keys.length < input.counts.encounters) {
+    const used = new Set(keys.flatMap(choice => [choice.key, choice.companion].filter(Boolean)));
+    const unused = eligible.filter(entry => !used.has(entry.monsterKey));
+    const pool = unused.length ? unused : eligible;
+    keys.push({ key: pick(pool, `zone-species-${keys.length + 1}`).monsterKey,
+      policy: `Uniform draw from ${customPool ? 'user-selected stock pool (regional membership not assumed)' : `${input.zoneId} wandering entries`}; LV ${input.minimumLevel}-${input.maximumLevel ?? 'unbounded'}. Without replacement until exhausted${unused.length ? '' : '; pool exhausted, repeat permitted'}.` });
+  }
   const monsterFields = (monster: EncounterMonster, prefix = ''): DossierField[] => {
     const fields = [field(`${prefix}Stats`, `LV ${monster.level}; AC ${monster.ac}; HP ${monster.maxHp}; morale ${monster.morale}; move ${monster.move}; alignment ${monster.alignment}`, 'source', `${monster.source}: ${monster.monsterKey}`),
       field(`${prefix}Ability modifiers`, Object.entries(monster.abilities ?? {}).map(([k, v]) => `${k.toUpperCase()} ${v}`).join(' / '), 'source', 'Stock bestiary; modifiers, not scores'),
@@ -95,8 +112,8 @@ export function generateDossier(input: DossierInput, db: AshDatabase): DossierRe
     return fields;
   };
   const encounters = keys.map((choice, i) => {
-    const base = db.getMonster(choice.key)!; const monster = generateCampaignMonster(base, input.seed);
-    const companion = choice.companion ? generateCampaignMonster(db.getMonster(choice.companion)!, input.seed) : undefined;
+    const base = db.getMonster(choice.key)!; const monster = generateCampaignMonster(base, `${input.seed}::encounter-${i}`);
+    const companion = choice.companion ? generateCampaignMonster(db.getMonster(choice.companion)!, `${input.seed}::encounter-${i}::companion`) : undefined;
     const count = choice.key === 'nord' && choice.companion ? rollDie(6, stream(`crew-${i}`)) + 6 : 1;
     const reading = drawTarot(stream(`encounter-card-${i}`)); const reaction = reactionRoll(0, stream(`encounter-reaction-${i}`));
     const allTerrain = zone.terrainPriors.flatMap(t => t.biomes);
@@ -110,7 +127,8 @@ export function generateDossier(input: DossierInput, db: AshDatabase): DossierRe
       ...(companion ? monsterFields(companion, 'Companion ') : []),
       field('Carried treasure', `${treasure.present ? [...treasure.items, ...Object.entries(treasure.coins).filter(([, v]) => v > 0).map(([k, v]) => `${v} ${k}`)].join('; ') : 'None'}\nQuality ${treasure.quality}; XP value ${treasure.xpValue}; ${treasure.tableBasis}`, 'generated', 'resolveGroupTreasure; companion level when present, otherwise primary creature level'),
       missing('Bespoke motive, clues, symbolic weakness effects and any magical companion bond.')];
-    const activityPool = ENCOUNTER_ACTIVITY[choice.key as keyof typeof ENCOUNTER_ACTIVITY] ?? ENCOUNTER_ACTIVITY.default;
+    const specialActivity = choice.key === 'nord' && !companion ? undefined : ENCOUNTER_ACTIVITY[choice.key as keyof typeof ENCOUNTER_ACTIVITY];
+    const activityPool = specialActivity ?? FAMILY_ACTIVITY[/swim/.test(monster.move ?? '') ? 'aquatic' : base.family ?? ''] ?? ENCOUNTER_ACTIVITY.default;
     fields.unshift(field('Situation', pick(activityPool, `encounter-activity-${i}`), 'generated', storySource));
     cards.push({ id: `E${i + 1}`, category: 'encounter', title, fields }); return { choice, title, count, monster, companion, reading, reaction, terrain, treasure };
   });

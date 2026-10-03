@@ -1,0 +1,848 @@
+[
+  {
+    "region": "Wychfen",
+    "id": "the_gloaming",
+    "level": 1,
+    "seed": "region-review-2026-10-03-the_gloaming-lv1",
+    "required": [],
+    "maximumLevel": 3,
+    "monsterPool": [
+      "bittermold",
+      "bogthorn",
+      "hexling",
+      "howler",
+      "ichor_ooze"
+    ],
+    "monsters": [
+      {
+        "key": "bogthorn",
+        "name": "Bogthorn",
+        "level": 2
+      },
+      {
+        "key": "bittermold",
+        "name": "Bittermold",
+        "level": 1
+      },
+      {
+        "key": "howler",
+        "name": "Howler",
+        "level": 1
+      },
+      {
+        "key": "ichor_ooze",
+        "name": "Ichor Ooze",
+        "level": 3
+      },
+      {
+        "key": "hexling",
+        "name": "Hexling",
+        "level": 2
+      }
+    ],
+    "coverage": [],
+    "guardianLevels": [
+      1,
+      1,
+      2,
+      2,
+      1,
+      3,
+      2,
+      1,
+      3,
+      0
+    ],
+    "repeatedMonsters": 0,
+    "unresolved": 32,
+    "descriptions": [
+      "The outer walls have fallen, but the inner thresholds remain. Occupants can watch an approach without revealing the route behind them. Peat-black water marks the lowest thresholds.",
+      "A low entrance leads into uneven galleries. Narrow shelves overlook the passage, and several exits are hidden by changes in level. Mist gathers in the sheltered cuts between the outer walls.",
+      "A low entrance leads into uneven galleries. Narrow shelves overlook the passage, and several exits are hidden by changes in level. Roots have lifted the paving near the entrance.",
+      "The outer walls have fallen, but the inner thresholds remain. Occupants can watch an approach without revealing the route behind them. Peat-black water marks the lowest thresholds.",
+      "A descending stair reaches the burial rooms. Heavy doors divide the galleries, and the deepest approach offers little room to retreat. Peat-black water marks the lowest thresholds."
+    ],
+    "opening": "Reeds scrape the causeway. Beyond the last worked field, a line of ancient trees hides the road.",
+    "treasureGp": 250.02
+  },
+  {
+    "region": "Wychfen",
+    "id": "the_gloaming",
+    "level": 10,
+    "seed": "region-review-2026-10-03-the_gloaming-lv10",
+    "required": [
+      "vampire"
+    ],
+    "maximumLevel": 16,
+    "monsterPool": [
+      "vampire",
+      "dragon_forest",
+      "dragon_swamp",
+      "chimera",
+      "lich",
+      "mummy"
+    ],
+    "monsters": [
+      {
+        "key": "vampire",
+        "name": "Vampire",
+        "level": 11
+      },
+      {
+        "key": "dragon_swamp",
+        "name": "Dragon Swamp",
+        "level": 12
+      },
+      {
+        "key": "dragon_forest",
+        "name": "Dragon Forest",
+        "level": 12
+      },
+      {
+        "key": "lich",
+        "name": "Lich",
+        "level": 13
+      },
+      {
+        "key": "mummy",
+        "name": "Mummy",
+        "level": 10
+      }
+    ],
+    "coverage": [
+      {
+        "requirement": "vampire",
+        "status": "met",
+        "detail": "Stock match: vampire."
+      }
+    ],
+    "guardianLevels": [
+      9,
+      7,
+      5,
+      6,
+      5,
+      8,
+      7,
+      8,
+      9,
+      7
+    ],
+    "repeatedMonsters": 0,
+    "unresolved": 45,
+    "descriptions": [
+      "A descending stair reaches the burial rooms. Heavy doors divide the galleries, and the deepest approach offers little room to retreat. Mist gathers in the sheltered cuts between the outer walls.",
+      "Broken walls separate sheltered courts from exposed approaches. Old doorways still control movement between the surviving rooms. Peat-black water marks the lowest thresholds.",
+      "The outer walls have fallen, but the inner thresholds remain. Occupants can watch an approach without revealing the route behind them. Roots have lifted the paving near the entrance.",
+      "Burial passages branch from a narrow entry hall. Memorials and sealed thresholds distinguish the older chambers from later additions. Peat-black water marks the lowest thresholds.",
+      "Broken walls separate sheltered courts from exposed approaches. Old doorways still control movement between the surviving rooms. Roots have lifted the paving near the entrance."
+    ],
+    "opening": "Mist gathers between the trees and the old boundary stones. The nearest hearth is already hidden behind the branches.",
+    "treasureGp": 3020
+  },
+  {
+    "region": "The Silt Sea",
+    "id": "red_sands",
+    "level": 1,
+    "seed": "region-review-2026-10-03-red_sands-lv1",
+    "required": [],
+    "maximumLevel": 3,
+    "monsterPool": [
+      "camel_silver",
+      "ras_godai",
+      "siruul",
+      "scrag",
+      "scorpion_giant"
+    ],
+    "monsters": [
+      {
+        "key": "siruul",
+        "name": "Siruul",
+        "level": 2
+      },
+      {
+        "key": "scrag",
+        "name": "Scrag",
+        "level": 2
+      },
+      {
+        "key": "scorpion_giant",
+        "name": "Scorpion Giant",
+        "level": 3
+      },
+      {
+        "key": "ras_godai",
+        "name": "Ras-Godai",
+        "level": 3
+      },
+      {
+        "key": "camel_silver",
+        "name": "Camel Silver",
+        "level": 2
+      }
+    ],
+    "coverage": [],
+    "guardianLevels": [
+      1,
+      3,
+      2,
+      1,
+      3,
+      1,
+      0,
+      2,
+      3,
+      1
+    ],
+    "repeatedMonsters": 0,
+    "unresolved": 32,
+    "descriptions": [
+      "Broken walls separate sheltered courts from exposed approaches. Old doorways still control movement between the surviving rooms. Shade ends abruptly beyond the entrance.",
+      "Water and loose stone divide the chambers. A straight approach exposes visitors to anyone watching from the deeper ledges. Wind-driven sand piles against the sheltered thresholds.",
+      "The outer walls have fallen, but the inner thresholds remain. Occupants can watch an approach without revealing the route behind them. Wind-driven sand piles against the sheltered thresholds.",
+      "Water and loose stone divide the chambers. A straight approach exposes visitors to anyone watching from the deeper ledges. Shade ends abruptly beyond the entrance.",
+      "Water and loose stone divide the chambers. A straight approach exposes visitors to anyone watching from the deeper ledges. Wind-driven sand piles against the sheltered thresholds."
+    ],
+    "opening": "Heat shimmers above the stone flats. Caravans gather where the last shade reaches the well.",
+    "treasureGp": 170
+  },
+  {
+    "region": "The Silt Sea",
+    "id": "red_sands",
+    "level": 10,
+    "seed": "region-review-2026-10-03-red_sands-lv10",
+    "required": [
+      "giant"
+    ],
+    "maximumLevel": 16,
+    "monsterPool": [
+      "djinni",
+      "dragon_desert",
+      "mummy",
+      "golem_iron",
+      "roc"
+    ],
+    "monsters": [
+      {
+        "key": "giant_storm",
+        "name": "Giant Storm",
+        "level": 12
+      },
+      {
+        "key": "roc",
+        "name": "Roc",
+        "level": 15
+      },
+      {
+        "key": "golem_iron",
+        "name": "Golem Iron",
+        "level": 10
+      },
+      {
+        "key": "mummy",
+        "name": "Mummy",
+        "level": 10
+      },
+      {
+        "key": "dragon_desert",
+        "name": "Dragon Desert",
+        "level": 13
+      }
+    ],
+    "coverage": [
+      {
+        "requirement": "giant",
+        "status": "met",
+        "detail": "Stock match: giant_storm."
+      }
+    ],
+    "guardianLevels": [
+      7,
+      8,
+      6,
+      7,
+      9,
+      5,
+      6,
+      7,
+      5,
+      8,
+      7
+    ],
+    "repeatedMonsters": 0,
+    "unresolved": 41,
+    "descriptions": [
+      "A long descent opens into intersecting galleries. Sound carries far enough to warn the occupants before intruders reach them. Shade ends abruptly beyond the entrance.",
+      "The entrance drops into a worked passage. Old side doors and service cuts make the apparent main route only one way through. Wind-driven sand piles against the sheltered thresholds.",
+      "Burial passages branch from a narrow entry hall. Memorials and sealed thresholds distinguish the older chambers from later additions. Shade ends abruptly beyond the entrance.",
+      "A long descent opens into intersecting galleries. Sound carries far enough to warn the occupants before intruders reach them. Wind-driven sand piles against the sheltered thresholds.",
+      "The entrance drops into a worked passage. Old side doors and service cuts make the apparent main route only one way through. Shade ends abruptly beyond the entrance."
+    ],
+    "opening": "Heat shimmers above the stone flats. Caravans gather where the last shade reaches the well.",
+    "treasureGp": 1530
+  },
+  {
+    "region": "Hrafnfjord",
+    "id": "midnight_sun",
+    "level": 1,
+    "seed": "region-review-2026-10-03-midnight_sun-lv1",
+    "required": [],
+    "maximumLevel": 3,
+    "monsterPool": [
+      "nord",
+      "dverg",
+      "sea_nymph",
+      "wolf",
+      "boar"
+    ],
+    "monsters": [
+      {
+        "key": "nord",
+        "name": "Nord",
+        "level": 2
+      },
+      {
+        "key": "dverg",
+        "name": "Dverg",
+        "level": 3
+      },
+      {
+        "key": "sea_nymph",
+        "name": "Sea Nymph",
+        "level": 3
+      },
+      {
+        "key": "boar",
+        "name": "Boar",
+        "level": 3
+      },
+      {
+        "key": "wolf",
+        "name": "Wolf",
+        "level": 2
+      }
+    ],
+    "coverage": [],
+    "guardianLevels": [
+      2,
+      3,
+      0,
+      1,
+      0,
+      1,
+      2,
+      1,
+      1,
+      3,
+      1,
+      3,
+      3
+    ],
+    "repeatedMonsters": 0,
+    "unresolved": 29,
+    "descriptions": [
+      "A low entrance leads into uneven galleries. Narrow shelves overlook the passage, and several exits are hidden by changes in level. Meltwater runs along the outer approach.",
+      "Burial passages branch from a narrow entry hall. Memorials and sealed thresholds distinguish the older chambers from later additions. Meltwater runs along the outer approach.",
+      "Water and loose stone divide the chambers. A straight approach exposes visitors to anyone watching from the deeper ledges. Pale daylight reaches the entrance long after the hearth fires are lit.",
+      "The outer walls have fallen, but the inner thresholds remain. Occupants can watch an approach without revealing the route behind them. Salt spray has crusted the exposed stone.",
+      "Broken walls separate sheltered courts from exposed approaches. Old doorways still control movement between the surviving rooms. Pale daylight reaches the entrance long after the hearth fires are lit."
+    ],
+    "opening": "Meltwater runs between the standing stones. Beyond the sheltered farms, snow still fills the mountain cuts.",
+    "treasureGp": 170.04
+  },
+  {
+    "region": "Hrafnfjord",
+    "id": "midnight_sun",
+    "level": 10,
+    "seed": "region-review-2026-10-03-midnight_sun-lv10",
+    "required": [
+      "seawolf"
+    ],
+    "maximumLevel": 16,
+    "monsterPool": [
+      "sea_serpent",
+      "dragon_frost",
+      "remorhaz",
+      "giant_storm",
+      "valkyrie"
+    ],
+    "monsters": [
+      {
+        "key": "nord",
+        "name": "11 Nord (LV 2) + Sea Serpent",
+        "level": 12
+      },
+      {
+        "key": "valkyrie",
+        "name": "Valkyrie",
+        "level": 14
+      },
+      {
+        "key": "giant_storm",
+        "name": "Giant Storm",
+        "level": 12
+      },
+      {
+        "key": "dragon_frost",
+        "name": "Dragon Frost",
+        "level": 14
+      },
+      {
+        "key": "remorhaz",
+        "name": "Remorhaz",
+        "level": 10
+      }
+    ],
+    "coverage": [
+      {
+        "requirement": "seawolf",
+        "status": "proxy",
+        "detail": "Explicit substitute: nord crew plus sea_serpent; crew are LV 2."
+      }
+    ],
+    "guardianLevels": [
+      7,
+      6,
+      7,
+      7,
+      5,
+      7,
+      7,
+      5,
+      9,
+      7,
+      10
+    ],
+    "repeatedMonsters": 0,
+    "unresolved": 45,
+    "descriptions": [
+      "The outer walls have fallen, but the inner thresholds remain. Occupants can watch an approach without revealing the route behind them. Salt spray has crusted the exposed stone.",
+      "Broken walls separate sheltered courts from exposed approaches. Old doorways still control movement between the surviving rooms. Meltwater runs along the outer approach.",
+      "A descending stair reaches the burial rooms. Heavy doors divide the galleries, and the deepest approach offers little room to retreat. Pale daylight reaches the entrance long after the hearth fires are lit.",
+      "The outer walls have fallen, but the inner thresholds remain. Occupants can watch an approach without revealing the route behind them. Pale daylight reaches the entrance long after the hearth fires are lit.",
+      "Burial passages branch from a narrow entry hall. Memorials and sealed thresholds distinguish the older chambers from later additions. Meltwater runs along the outer approach."
+    ],
+    "opening": "Sea spray freezes along the landing ropes. Turf roofs and carved prows shelter beneath the basalt cliffs.",
+    "treasureGp": 2630
+  },
+  {
+    "region": "Xaltemoc",
+    "id": "river_of_night",
+    "level": 1,
+    "seed": "region-review-2026-10-03-river_of_night-lv1",
+    "required": [],
+    "maximumLevel": 3,
+    "monsterPool": [
+      "ant_giant",
+      "basilisk_hatchling",
+      "condor_dire",
+      "javelina",
+      "stone_warrior"
+    ],
+    "monsters": [
+      {
+        "key": "ant_giant",
+        "name": "Ant Giant",
+        "level": 1
+      },
+      {
+        "key": "condor_dire",
+        "name": "Condor Dire",
+        "level": 3
+      },
+      {
+        "key": "basilisk_hatchling",
+        "name": "Basilisk Hatchling",
+        "level": 1
+      },
+      {
+        "key": "stone_warrior",
+        "name": "Stone Warrior",
+        "level": 1
+      },
+      {
+        "key": "javelina",
+        "name": "Javelina",
+        "level": 1
+      }
+    ],
+    "coverage": [],
+    "guardianLevels": [
+      1,
+      0,
+      3,
+      1,
+      1,
+      3,
+      1,
+      3,
+      2,
+      0,
+      2,
+      3
+    ],
+    "repeatedMonsters": 0,
+    "unresolved": 31,
+    "descriptions": [
+      "Broken walls separate sheltered courts from exposed approaches. Old doorways still control movement between the surviving rooms. Flood silt marks the lower walls.",
+      "A descending stair reaches the burial rooms. Heavy doors divide the galleries, and the deepest approach offers little room to retreat. Climbing roots narrow the older thresholds.",
+      "The entrance drops into a worked passage. Old side doors and service cuts make the apparent main route only one way through. Flood silt marks the lower walls.",
+      "Water and loose stone divide the chambers. A straight approach exposes visitors to anyone watching from the deeper ledges. Climbing roots narrow the older thresholds.",
+      "A long descent opens into intersecting galleries. Sound carries far enough to warn the occupants before intruders reach them. Flood silt marks the lower walls."
+    ],
+    "opening": "Roots grip the old stonework. A narrow trail leaves the cultivated bank and vanishes beneath the canopy.",
+    "treasureGp": 84
+  },
+  {
+    "region": "Xaltemoc",
+    "id": "river_of_night",
+    "level": 10,
+    "seed": "region-review-2026-10-03-river_of_night-lv10",
+    "required": [
+      "demon_lord"
+    ],
+    "maximumLevel": 16,
+    "monsterPool": [
+      "catfish_giant",
+      "jaguar_king",
+      "brachiosaurus",
+      "chimera",
+      "dragon_swamp"
+    ],
+    "monsters": [
+      {
+        "key": "demon_balor",
+        "name": "Demon Balor",
+        "level": 16
+      },
+      {
+        "key": "dragon_swamp",
+        "name": "Dragon Swamp",
+        "level": 12
+      },
+      {
+        "key": "brachiosaurus",
+        "name": "Brachiosaurus",
+        "level": 12
+      },
+      {
+        "key": "catfish_giant",
+        "name": "Catfish Giant",
+        "level": 12
+      },
+      {
+        "key": "chimera",
+        "name": "Chimera",
+        "level": 10
+      }
+    ],
+    "coverage": [
+      {
+        "requirement": "demon_lord",
+        "status": "proxy",
+        "detail": "Explicit substitute: demon_balor."
+      }
+    ],
+    "guardianLevels": [
+      7,
+      6,
+      6,
+      8,
+      7,
+      6,
+      7,
+      7,
+      5,
+      5
+    ],
+    "repeatedMonsters": 0,
+    "unresolved": 40,
+    "descriptions": [
+      "The entrance drops into a worked passage. Old side doors and service cuts make the apparent main route only one way through. Flood silt marks the lower walls.",
+      "A long descent opens into intersecting galleries. Sound carries far enough to warn the occupants before intruders reach them. Rainwater drips from the canopy over the approach.",
+      "Burial passages branch from a narrow entry hall. Memorials and sealed thresholds distinguish the older chambers from later additions. Rainwater drips from the canopy over the approach.",
+      "A low entrance leads into uneven galleries. Narrow shelves overlook the passage, and several exits are hidden by changes in level. Flood silt marks the lower walls.",
+      "A descending stair reaches the burial rooms. Heavy doors divide the galleries, and the deepest approach offers little room to retreat. Rainwater drips from the canopy over the approach."
+    ],
+    "opening": "Rain ticks against the broad leaves. The river carries dark silt past the landing steps.",
+    "treasureGp": 1910
+  },
+  {
+    "region": "Morzamotha",
+    "id": "dwellers_in_the_deep",
+    "level": 1,
+    "seed": "region-review-2026-10-03-dwellers_in_the_deep-lv1",
+    "required": [],
+    "maximumLevel": 3,
+    "monsterPool": [
+      "dremir",
+      "nuln",
+      "wendel",
+      "darkmantle",
+      "bat_giant"
+    ],
+    "monsters": [
+      {
+        "key": "darkmantle",
+        "name": "Darkmantle",
+        "level": 1
+      },
+      {
+        "key": "wendel",
+        "name": "Wendel",
+        "level": 2
+      },
+      {
+        "key": "nuln",
+        "name": "Nuln",
+        "level": 3
+      },
+      {
+        "key": "bat_giant",
+        "name": "Bat Giant",
+        "level": 2
+      },
+      {
+        "key": "dremir",
+        "name": "Dremir",
+        "level": 3
+      }
+    ],
+    "coverage": [],
+    "guardianLevels": [
+      1,
+      3,
+      2,
+      3,
+      1,
+      1,
+      3,
+      3,
+      1,
+      1,
+      2,
+      1
+    ],
+    "repeatedMonsters": 0,
+    "unresolved": 33,
+    "descriptions": [
+      "A long descent opens into intersecting galleries. Sound carries far enough to warn the occupants before intruders reach them. Mineral stains trace an old waterline.",
+      "A low entrance leads into uneven galleries. Narrow shelves overlook the passage, and several exits are hidden by changes in level. A cold draught moves toward the deeper chambers.",
+      "A long descent opens into intersecting galleries. Sound carries far enough to warn the occupants before intruders reach them. A cold draught moves toward the deeper chambers.",
+      "Broken walls separate sheltered courts from exposed approaches. Old doorways still control movement between the surviving rooms. Mineral stains trace an old waterline.",
+      "A low entrance leads into uneven galleries. Narrow shelves overlook the passage, and several exits are hidden by changes in level. Lamplight leaves the upper ledges in darkness."
+    ],
+    "opening": "The cavern roof disappears above the lamps. A rope crossing leads toward abandoned stone chambers.",
+    "treasureGp": 144
+  },
+  {
+    "region": "Morzamotha",
+    "id": "dwellers_in_the_deep",
+    "level": 10,
+    "seed": "region-review-2026-10-03-dwellers_in_the_deep-lv10",
+    "required": [
+      "giant",
+      "vampire"
+    ],
+    "maximumLevel": 16,
+    "monsterPool": [
+      "bezelak",
+      "purple_worm",
+      "golem_iron",
+      "lich",
+      "archmage"
+    ],
+    "monsters": [
+      {
+        "key": "giant_cloud",
+        "name": "Giant Cloud",
+        "level": 10
+      },
+      {
+        "key": "vampire",
+        "name": "Vampire",
+        "level": 11
+      },
+      {
+        "key": "purple_worm",
+        "name": "Purple Worm",
+        "level": 12
+      },
+      {
+        "key": "bezelak",
+        "name": "Bezelak",
+        "level": 16
+      },
+      {
+        "key": "archmage",
+        "name": "Archmage",
+        "level": 10
+      }
+    ],
+    "coverage": [
+      {
+        "requirement": "giant",
+        "status": "met",
+        "detail": "Stock match: giant_cloud."
+      },
+      {
+        "requirement": "vampire",
+        "status": "met",
+        "detail": "Stock match: vampire."
+      }
+    ],
+    "guardianLevels": [
+      7,
+      7,
+      8,
+      8,
+      7,
+      7,
+      5,
+      8,
+      7,
+      7
+    ],
+    "repeatedMonsters": 0,
+    "unresolved": 40,
+    "descriptions": [
+      "The entrance drops into a worked passage. Old side doors and service cuts make the apparent main route only one way through. Lamplight leaves the upper ledges in darkness.",
+      "A low entrance leads into uneven galleries. Narrow shelves overlook the passage, and several exits are hidden by changes in level. Mineral stains trace an old waterline.",
+      "A low entrance leads into uneven galleries. Narrow shelves overlook the passage, and several exits are hidden by changes in level. A cold draught moves toward the deeper chambers.",
+      "Broken walls separate sheltered courts from exposed approaches. Old doorways still control movement between the surviving rooms. Mineral stains trace an old waterline.",
+      "Burial passages branch from a narrow entry hall. Memorials and sealed thresholds distinguish the older chambers from later additions. Mineral stains trace an old waterline."
+    ],
+    "opening": "Water falls somewhere beyond the lamplight. The stone passage carries a cold draught from the deeper galleries.",
+    "treasureGp": 1220
+  },
+  {
+    "region": "Meridia",
+    "id": "city_of_masks",
+    "level": 1,
+    "seed": "region-review-2026-10-03-city_of_masks-lv1",
+    "required": [],
+    "maximumLevel": 3,
+    "monsterPool": [
+      "guard",
+      "bandit",
+      "cultist",
+      "animated_armor",
+      "wererat"
+    ],
+    "monsters": [
+      {
+        "key": "bandit",
+        "name": "Bandit",
+        "level": 1
+      },
+      {
+        "key": "cultist",
+        "name": "Cultist",
+        "level": 2
+      },
+      {
+        "key": "animated_armor",
+        "name": "Animated Armor",
+        "level": 2
+      },
+      {
+        "key": "wererat",
+        "name": "Wererat",
+        "level": 3
+      },
+      {
+        "key": "guard",
+        "name": "Guard",
+        "level": 1
+      }
+    ],
+    "coverage": [],
+    "guardianLevels": [
+      2,
+      2,
+      1,
+      3,
+      1,
+      3,
+      2,
+      3,
+      1,
+      2,
+      1
+    ],
+    "repeatedMonsters": 0,
+    "unresolved": 30,
+    "descriptions": [
+      "A descending stair reaches the burial rooms. Heavy doors divide the galleries, and the deepest approach offers little room to retreat. Masonry repairs mark where the older structure meets the occupied streets.",
+      "The entrance drops into a worked passage. Old side doors and service cuts make the apparent main route only one way through. A service passage offers an approach away from the public street.",
+      "Broken walls separate sheltered courts from exposed approaches. Old doorways still control movement between the surviving rooms. Masonry repairs mark where the older structure meets the occupied streets.",
+      "The entrance drops into a worked passage. Old side doors and service cuts make the apparent main route only one way through. Canal damp has darkened the lowest stone courses.",
+      "Burial passages branch from a narrow entry hall. Memorials and sealed thresholds distinguish the older chambers from later additions. A service passage offers an approach away from the public street."
+    ],
+    "opening": "Rain darkens the piazza stones. Messengers cross the bridges while watchmen check the gates.",
+    "treasureGp": 51.11
+  },
+  {
+    "region": "Meridia",
+    "id": "city_of_masks",
+    "level": 10,
+    "seed": "region-review-2026-10-03-city_of_masks-lv10",
+    "required": [],
+    "maximumLevel": 16,
+    "monsterPool": [
+      "archmage",
+      "golem_iron",
+      "vampire",
+      "lich",
+      "angel_principi"
+    ],
+    "monsters": [
+      {
+        "key": "angel_principi",
+        "name": "Angel Principi",
+        "level": 11
+      },
+      {
+        "key": "lich",
+        "name": "Lich",
+        "level": 13
+      },
+      {
+        "key": "archmage",
+        "name": "Archmage",
+        "level": 10
+      },
+      {
+        "key": "vampire",
+        "name": "Vampire",
+        "level": 11
+      },
+      {
+        "key": "golem_iron",
+        "name": "Golem Iron",
+        "level": 10
+      }
+    ],
+    "coverage": [],
+    "guardianLevels": [
+      7,
+      7,
+      7,
+      7,
+      7,
+      7,
+      7
+    ],
+    "repeatedMonsters": 0,
+    "unresolved": 51,
+    "descriptions": [
+      "A descending stair reaches the burial rooms. Heavy doors divide the galleries, and the deepest approach offers little room to retreat. Masonry repairs mark where the older structure meets the occupied streets.",
+      "A long descent opens into intersecting galleries. Sound carries far enough to warn the occupants before intruders reach them. Canal damp has darkened the lowest stone courses.",
+      "A long descent opens into intersecting galleries. Sound carries far enough to warn the occupants before intruders reach them. Masonry repairs mark where the older structure meets the occupied streets.",
+      "Burial passages branch from a narrow entry hall. Memorials and sealed thresholds distinguish the older chambers from later additions. Canal damp has darkened the lowest stone courses.",
+      "The outer walls have fallen, but the inner thresholds remain. Occupants can watch an approach without revealing the route behind them. Canal damp has darkened the lowest stone courses."
+    ],
+    "opening": "Canal water laps against the landing. Above it, shuttered galleries overlook the crowded quay.",
+    "treasureGp": 1760
+  }
+]

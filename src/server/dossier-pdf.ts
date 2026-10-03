@@ -34,7 +34,7 @@ export function renderDossierPdf(report: DossierReport): Promise<Buffer> {
     paragraph('ASH / PROCEDURAL FIELDBOOK', 10, '#426451', true);
     paragraph(report.input.title, 30, '#203d30', true);
     paragraph(report.zoneName, 17);
-    paragraph(`Seed: ${report.input.seed}\nZone: ${report.input.zoneId}\nMinimum encounter creature level: ${report.input.minimumLevel}\nRecords: ${report.cards.length} | Format version: ${report.version}`, 10);
+    paragraph(`Seed: ${report.input.seed}\nZone: ${report.input.zoneId}\nEncounter creature level range: ${report.input.minimumLevel}-${report.input.maximumLevel ?? 'unbounded'}\nMonster pool: ${report.input.monsterKeys?.length ? report.input.monsterKeys.join(', ') : 'regional wandering table'}\nRecords: ${report.cards.length} | Format version: ${report.version}`, 10);
     paragraph('Story and descriptions use stored, versioned templates. Tarot meanings remain prompts. Missing mechanics remain unresolved.', 12);
     for (const field of report.story) paragraph(field.value, 11);
     paragraph('PROVENANCE', 11, '#203d30', true);
@@ -67,7 +67,7 @@ export function renderDossierPdf(report: DossierReport): Promise<Buffer> {
     }
     currentRecord = 'Sources and generation policy';
     doc.addPage(); paragraph('Sources and generation policy', 20, '#203d30', true);
-    paragraph('Story and description templates: dossier-story.ts, version 1. These are authored source tables selected by the seeded generator, not live prose from a language model. Record locations follow a published round-robin allocation rule.', 10);
+    paragraph('Story and description templates: dossier-story.ts; version recorded in the audit export and field sources. These are authored source tables selected by the seeded generator, not live prose from a language model. Record locations follow a published round-robin allocation rule.', 10);
     const sources = [...new Set(report.cards.flatMap(card => card.fields.map(field => field.source)))];
     for (const source of sources) paragraph(source, 8.5, '#58674f');
     const pages = doc.bufferedPageRange();
