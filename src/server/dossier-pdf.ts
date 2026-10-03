@@ -58,7 +58,7 @@ export function renderDossierPdf(report: DossierReport): Promise<Buffer> {
           if (fieldIndex === card.fields.length - 4) ensure(card.fields.slice(fieldIndex).reduce((total, next) => total + fieldHeight(next), 0) + 12);
           doc.font('Helvetica').fontSize(10);
           const needed = doc.heightOfString(printable(field.value), { width, lineGap: 2 }) + 28;
-          ensure(Math.min(needed, 140));
+          ensure(Math.min(needed, doc.page.height - 115));
           paragraph(`${field.provenance.toUpperCase()} / ${field.label}`, 8, field.provenance === 'unresolved' ? '#88611b' : '#426451', true);
           paragraph(field.value);
         }

@@ -106,8 +106,11 @@ export function generateDossier(input: DossierInput, db: AshDatabase): DossierRe
     const fields = [field(`${prefix}Stats`, `LV ${monster.level}; AC ${monster.ac}; HP ${monster.maxHp}; morale ${monster.morale}; move ${monster.move}; alignment ${monster.alignment}`, 'source', `${monster.source}: ${monster.monsterKey}`),
       field(`${prefix}Ability modifiers`, Object.entries(monster.abilities ?? {}).map(([k, v]) => `${k.toUpperCase()} ${v}`).join(' / '), 'source', 'Stock bestiary; modifiers, not scores'),
       field(`${prefix}Attacks`, (monster.attacks ?? []).join('\n') || 'None returned', 'source', `${monster.source}: ${monster.monsterKey}`)];
-    for (const trait of monster.traits ?? []) fields.push(field(`${prefix}Ability`, trait, 'source', 'Stock traits / stored ability-additions.json'));
-    for (const weakness of monster.vulnerabilities ?? []) fields.push(field(`${prefix}Weakness`, weakness, weakness.includes('[Theme;') ? 'unresolved' : 'source', 'Campaign profile / vulnerability-pool.json'));
+    const traits = monster.traits ?? [];
+    const weaknesses = monster.vulnerabilities ?? [];
+    const numbered = (entries: string[]) => entries.map((entry, index) => `${index + 1}. ${entry}`).join('\n');
+    if (traits.length) fields.push(field(`${prefix}Abilities`, numbered(traits), 'source', 'Stock traits / stored ability-additions.json'));
+    if (weaknesses.length) fields.push(field(`${prefix}Weaknesses`, numbered(weaknesses), weaknesses.some(weakness => weakness.includes('[Theme;')) ? 'unresolved' : 'source', 'Campaign profile / vulnerability-pool.json; entries marked [Theme;] need authored mechanics'));
     return fields;
   };
   const encounters = keys.map((choice, i) => {
