@@ -3,10 +3,12 @@ import { BESTIARY_ENTRIES } from "../src/shared/bestiary-data.js";
 import { QUEST_RISK_LEVELS } from "../src/shared/danger.js";
 import { PATH_FLAVOR_PROFILES, pathFlavor } from "../src/shared/path-flavor.js";
 import { SITE_OBJECTIVE_TYPES } from "../src/shared/site-objectives.js";
-import { PROMPT_NOUNS, PROMPT_VERBS, TARGET_FORMS } from "../src/shared/site-oracles.js";
+import { PROMPT_NOUNS, PROMPT_VERBS, SITE_FORMS, SITE_SUBJECTS, SITE_QUALIFIERS, TARGET_FORMS } from "../src/shared/site-oracles.js";
+import { SITE_PERSON_NAMES } from "../src/shared/character-names.js";
+import { SITE_PLACE_NAMES, SITE_NAME_STYLES } from "../src/shared/site-name-qualifiers.js";
 import { TAROT_DECK, TAROT_FACETS } from "../src/shared/tarot-deck.js";
 import {
-  ACT_LEVEL_BANDS, SITE_KINDS, SITE_SIZES, eligibleMonsters, generateSiteInputs,
+  ACT_LEVEL_BANDS, SITE_KINDS, SITE_SIZES, eligibleMonsters, generateSiteInputs, generateSiteName, siteNamePool,
   renderSiteInputBrief, siteSizeForRoll,
 } from "../src/server/generators/site-inputs.js";
 import { OBJECTIVE_PATH_PROFILES } from "../src/server/generators/site-objectives.js";
@@ -67,6 +69,46 @@ describe("Path flavour profiles", () => {
 });
 
 describe("Site oracles", () => {
+  it("keeps every naming pool at 100 distinct, equally reachable entries for every path", () => {
+    for (const pool of [SITE_FORMS, SITE_QUALIFIERS, SITE_SUBJECTS, SITE_PERSON_NAMES, SITE_PLACE_NAMES]) {
+      expect(pool).toHaveLength(100);
+      expect(new Set(pool).size).toBe(100);
+    }
+    for (const profile of Object.values(PATH_FLAVOR_PROFILES)) {
+      for (const [generic, additions] of [[SITE_FORMS, profile.siteForms], [SITE_QUALIFIERS, profile.siteQualifiers], [SITE_SUBJECTS, profile.siteSubjects]] as const) {
+        const active = siteNamePool(generic, additions);
+        expect(active).toHaveLength(100);
+        expect(new Set(active).size).toBe(100);
+        for (const word of additions) expect(active).toContain(word);
+      }
+      const pool = siteNamePool(SITE_QUALIFIERS, profile.siteQualifiers);
+      const draws = pool.map((_, index) => {
+        let call = 0;
+        return generateSiteName(profile, (max) => {
+          if (call++ === 1) {
+            expect(max).toBe(pool.length);
+            return index;
+          }
+          return 0;
+        }).qualifier;
+      });
+      expect(draws).toEqual(pool);
+      expect(new Set(draws).size).toBe(pool.length);
+    }
+  });
+  it("renders the requested styles and reuses the supplied tarot title", () => {
+    const profile = pathFlavor('regional');
+    const named = (form: string, qualifier: string, style: typeof SITE_NAME_STYLES[number]) => {
+      const rolls = [siteNamePool(SITE_FORMS, profile.siteForms).indexOf(form), siteNamePool(SITE_QUALIFIERS, profile.siteQualifiers).indexOf(qualifier), 0];
+      return generateSiteName(profile, () => rolls.shift() ?? 0, { style, person: 'Hrdoford', place: 'Greymere', tarotTitle: 'EURYALE' });
+    };
+    expect(named('Tower', 'Black', 'person').full).toBe("Hrdoford's Black Tower");
+    expect(named('Tunnels', 'Dread', 'place').full).toBe('The Dread Tunnels of Greymere');
+    expect(named('Keep', 'Brazen', 'short').full).toBe('Brazen Keep');
+    expect(named('Tower', 'Black', 'tarot')).toMatchObject({ full: 'Tower of the Euryale', tarotTitle: 'EURYALE' });
+    expect(named('Tower', 'Black', 'plain').full).toBe('Tower of the Idol');
+    expect(named('Tower', 'Black', 'epithet_subject').full).toBe('Tower of the Black Idol');
+  });
   it("supplies a target form for all fifteen objective kinds", () => {
     for (const kind of SITE_OBJECTIVE_TYPES) {
       expect(TARGET_FORMS[kind]?.length, `no target forms for ${kind}`).toBeGreaterThan(0);

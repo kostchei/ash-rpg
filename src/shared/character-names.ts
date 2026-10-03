@@ -9,6 +9,8 @@ const NAME_LISTS: Record<string, readonly string[]> = {
 
 const PREFIXES = "Ar Mar Il Rin Gir El Nev Rom Jaf Bran".split(" ");
 const SUFFIXES = "fen ten esa ien an tor ilo ek ora as".split(" ");
+/** All 100 combinations of the existing stored character-name syllables. */
+export const SITE_PERSON_NAMES = PREFIXES.flatMap(prefix => SUFFIXES.map(suffix => prefix + suffix));
 const ANCESTRY_LIST: Record<string, string> = {
   "High Elf": "Elf", "Wood Elf": "Elf", Drow: "Elf", Orc: "Half-Orc", Derro: "Dwarf",
 };

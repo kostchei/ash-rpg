@@ -1,5 +1,6 @@
 import { BESTIARY_ENTRIES, type BestiaryReferenceEntry } from "../../shared/bestiary-data.js";
-import { randomCharacterName } from "../../shared/character-names.js";
+import { randomCharacterName, SITE_PERSON_NAMES } from "../../shared/character-names.js";
+import { SITE_NAME_STYLES, SITE_PLACE_NAMES, type SiteNameStyle } from "../../shared/site-name-qualifiers.js";
 import type { QuestRiskLevel } from "../../shared/danger.js";
 import { canonicalPathId, pathFlavor, type PathFlavorProfile } from "../../shared/path-flavor.js";
 import {
@@ -70,6 +71,10 @@ export interface GeneratedSiteName {
   qualifier: string;
   subject: string;
   full: string;
+  style: SiteNameStyle;
+  person?: string;
+  place?: string;
+  tarotTitle?: string;
 }
 
 export interface GeneratedPrompt {
@@ -161,6 +166,7 @@ export interface SiteObjectiveInput {
 }
 
 export interface SiteInputOptions {
+  namingStyle?: SiteNameStyle;
   pathId: string;
   act: 1 | 2 | 3;
   siteId: string;
@@ -200,14 +206,33 @@ export function drawTarot(rng: RandomSource): TarotReading {
   };
 }
 
-export function generateSiteName(profile: PathFlavorProfile, rng: RandomSource): GeneratedSiteName {
-  // Half of each column is the path's own words, half the generic oracle.
-  const pick = (generic: readonly string[], pathWords: readonly string[]): string =>
-    deterministicPickOne(rng(2) === 0 ? pathWords : generic, rng);
-  const form = pick(SITE_FORMS, profile.siteForms);
-  const qualifier = pick(SITE_QUALIFIERS, profile.siteQualifiers);
-  const subject = pick(SITE_SUBJECTS, profile.siteSubjects);
-  return { form, qualifier, subject, full: `${form} of the ${qualifier} ${subject}` };
+export function siteNamePool(generic: readonly string[], pathWords: readonly string[]): string[] {
+  const additions = [...new Set(pathWords)];
+  return [...generic.filter(word => !additions.includes(word)).slice(0, 100 - additions.length), ...additions];
+}
+
+export function generateSiteName(profile: PathFlavorProfile, rng: RandomSource,
+  context: { style?: SiteNameStyle; person?: string; place?: string; tarotTitle?: string } = {}): GeneratedSiteName {
+  const form = deterministicPickOne(siteNamePool(SITE_FORMS, profile.siteForms), rng);
+  const qualifier = deterministicPickOne(siteNamePool(SITE_QUALIFIERS, profile.siteQualifiers), rng);
+  const subject = deterministicPickOne(siteNamePool(SITE_SUBJECTS, profile.siteSubjects), rng);
+  const style = context.style ?? deterministicPickOne(SITE_NAME_STYLES, rng);
+  const base = { form, qualifier, subject, style };
+  if (style === 'person') {
+    const person = context.person ?? deterministicPickOne(SITE_PERSON_NAMES, rng);
+    return { ...base, person, full: `${person}${person.endsWith('s') ? "'" : "'s"} ${qualifier} ${form}` };
+  }
+  if (style === 'place') {
+    const place = context.place ?? deterministicPickOne(SITE_PLACE_NAMES, rng);
+    return { ...base, place, full: `The ${qualifier} ${form} of ${place}` };
+  }
+  if (style === 'tarot') {
+    const tarotTitle = context.tarotTitle ?? deterministicPickOne(TAROT_DECK, rng).title;
+    const title = tarotTitle.toLowerCase().replace(/\b\w/g, char => char.toUpperCase()).replace(/^The /, '');
+    return { ...base, tarotTitle, full: `${form} of the ${title}` };
+  }
+  const full = style === 'short' ? `${qualifier} ${form}` : style === 'plain' ? `${form} of the ${subject}` : `${form} of the ${qualifier} ${subject}`;
+  return { ...base, full };
 }
 
 /**
@@ -358,8 +383,8 @@ export function generateSiteInputs(options: SiteInputOptions): SiteInputBundle {
   const profile = pathFlavor(pathId);
   const canonical = canonicalPathId(pathId);
 
-  const name = generateSiteName(profile, deriveStream(seed, `${siteId}:name`));
   const card = drawTarot(deriveStream(seed, `${siteId}:card`));
+  const name = generateSiteName(profile, deriveStream(seed, `${siteId}:name`), { tarotTitle: card.title, style: options.namingStyle });
 
   const siteRng = deriveStream(seed, `${siteId}:site`);
   const sizeRoll = options.sizeRoll ?? rollDie(6, siteRng);

@@ -3,12 +3,14 @@ import { Dices, Download, Printer, ArrowLeft, RefreshCw } from 'lucide-react';
 import { ZONE_PROFILES } from '../shared/zone-profiles';
 import { DOSSIER_REQUIREMENTS, type DossierInput, type DossierReport } from '../shared/dossier';
 import { renderDossierHtml } from '../shared/dossier-format';
+import { SITE_NAME_STYLES, type SiteNameStyle } from '../shared/site-name-qualifiers';
 import './dossier.css';
 
 const defaults: DossierInput = { title: 'Skeldir / Hrafnfjord', zoneId: 'midnight_sun', seed: 'skeldir-hrafnfjord-2026-10-03', minimumLevel: 10,
   counts: { sites: 5, encounters: 5, npcs: 5, treasures: 5 }, required: [...DOSSIER_REQUIREMENTS], allowProxies: true };
 const labels = { sites: 'Sites', encounters: 'Encounters', npcs: 'NPCs', treasures: 'Treasures' };
 const requirementNames = { vampire: 'Vampire', seawolf: 'Seawolf', demon_lord: 'Demon lord', giant: 'Giant' };
+const namingStyles = { epithet_subject: 'Type, qualifier and subject', person: 'Named after a person', place: 'Named after a place', short: 'Short: Brazen Keep', tarot: 'Named after the tarot draw', plain: 'Type and subject' };
 const save = (blob: Blob, filename: string) => {
   const url = URL.createObjectURL(blob); const anchor = document.createElement('a'); anchor.href = url; anchor.download = filename; anchor.click();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
@@ -44,7 +46,7 @@ export function DossierGenerator() {
     finally { setExporting(false); }
   };
   const fingerprint = (value: DossierInput) => JSON.stringify([value.title, value.zoneId, value.seed, value.minimumLevel,
-    value.counts.sites, value.counts.encounters, value.counts.npcs, value.counts.treasures, value.required, value.allowProxies, value.maximumLevel, value.monsterKeys]);
+    value.counts.sites, value.counts.encounters, value.counts.npcs, value.counts.treasures, value.required, value.allowProxies, value.maximumLevel, value.monsterKeys, value.namingStyle]);
   const stale = report && fingerprint(input) !== fingerprint(report.input);
   return <main className="dossier-app">
     <header className="dossier-header no-print"><a href="/"><ArrowLeft size={16} /> Back to ASH</a><span>ASH / FIELDWORK</span></header>
@@ -54,6 +56,7 @@ export function DossierGenerator() {
         <form onSubmit={generate}>
           <label>Title<input required maxLength={100} value={input.title} onChange={e => setInput({ ...input, title: e.target.value })} /></label>
           <label>Region<select value={input.zoneId} onChange={e => setInput({ ...input, zoneId: e.target.value as DossierInput['zoneId'] })}>{Object.values(ZONE_PROFILES).map(zone => <option key={zone.id} value={zone.id}>{zone.name} / {zone.sourceVolume.split(': ').at(-1)}</option>)}</select></label>
+          <label>Site naming style<select value={input.namingStyle ?? ''} onChange={e => setInput({ ...input, namingStyle: e.target.value ? e.target.value as SiteNameStyle : undefined })}><option value="">Mix all six styles</option>{SITE_NAME_STYLES.map(style => <option key={style} value={style}>{namingStyles[style]}</option>)}</select></label>
           <label>Seed<div className="dossier-seed"><input required maxLength={100} value={input.seed} onChange={e => setInput({ ...input, seed: e.target.value })} /><button type="button" aria-label="New random seed" title="New random seed" onClick={() => setInput({ ...input, seed: crypto.randomUUID() })}><RefreshCw size={16} /></button></div></label>
           <label>Minimum encounter creature level<input type="number" min={1} max={20} required value={input.minimumLevel} onChange={e => setInput({ ...input, minimumLevel: Number(e.target.value) })} /></label>
           <label>Maximum encounter creature level (optional)<input type="number" min={input.minimumLevel} max={30} value={input.maximumLevel ?? ''} onChange={e => setInput({ ...input, maximumLevel: e.target.value ? Number(e.target.value) : undefined })} /></label>

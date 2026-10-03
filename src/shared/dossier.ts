@@ -1,4 +1,5 @@
 import type { CursedZoneId } from './types.js';
+import type { SiteNameStyle } from './site-name-qualifiers.js';
 
 export const DOSSIER_REQUIREMENTS = ['vampire', 'seawolf', 'demon_lord', 'giant'] as const;
 export type DossierRequirement = typeof DOSSIER_REQUIREMENTS[number];
@@ -6,6 +7,7 @@ export type Provenance = 'input' | 'selected' | 'generated' | 'source' | 'unreso
 export interface DossierInput {
   title: string; zoneId: CursedZoneId; seed: string; minimumLevel: number;
   maximumLevel?: number; monsterKeys?: string[];
+  namingStyle?: SiteNameStyle;
   counts: { sites: number; encounters: number; npcs: number; treasures: number };
   required: DossierRequirement[]; allowProxies: boolean;
 }

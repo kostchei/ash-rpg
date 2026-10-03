@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { DOSSIER_REQUIREMENTS, type DossierCard, type DossierField, type DossierInput, type DossierReport, type Provenance } from '../../shared/dossier.js';
 import { ZONE_PROFILES } from '../../shared/zone-profiles.js';
+import { SITE_NAME_SOURCE, SITE_NAME_STYLES } from '../../shared/site-name-qualifiers.js';
 import { randomAnchorName, randomCharacterName } from '../../shared/character-names.js';
 import type { AshDatabase } from '../database.js';
 import { createRandomSource } from './prng.js';
@@ -19,6 +20,7 @@ export const dossierInputSchema = z.object({
   zoneId: z.enum(['the_gloaming', 'red_sands', 'midnight_sun', 'river_of_night', 'dwellers_in_the_deep', 'city_of_masks']),
   minimumLevel: z.number().int().min(1).max(20),
   maximumLevel: z.number().int().min(1).max(30).optional(),
+  namingStyle: z.enum(SITE_NAME_STYLES).optional(),
   monsterKeys: z.array(z.string().min(1).max(80)).max(30).refine(x => new Set(x).size === x.length, 'Monster choices must be unique').optional(),
   counts: z.object({ sites: count, encounters: count, npcs: count, treasures: count }),
   required: z.array(z.enum(DOSSIER_REQUIREMENTS)).max(4).refine(x => new Set(x).size === x.length, 'Required types must be unique'),
@@ -54,9 +56,9 @@ export function generateDossier(input: DossierInput, db: AshDatabase): DossierRe
   const act = input.minimumLevel >= 7 ? 3 : input.minimumLevel >= 4 ? 2 : 1;
   const holderSources: unknown[] = [];
   const sites = Array.from({ length: input.counts.sites }, (_, i) => {
-    const site = generateSiteInputs({ pathId: 'regional', act, zoneId: input.zoneId, seed: input.seed, siteId: `dossier-site-${i + 1}` });
+    const site = generateSiteInputs({ pathId: 'regional', act, zoneId: input.zoneId, seed: input.seed, siteId: `dossier-site-${i + 1}`, namingStyle: input.namingStyle });
     const description = `${pick(SITE_SCENES[site.site.kind], `site-description-${i}`)} ${pick(REGIONAL_SITE_DETAILS[input.zoneId], `site-region-detail-${i}`)}`;
-    const fields = [field('Description', description, 'generated', storySource), field('Shape', `${site.site.kind}; ${site.site.size}; ${site.site.areas} areas; sections ${site.site.sectionSizes.join(' + ')}; ${site.site.danger}`, 'generated', 'generateSiteInputs / site-layout'),
+    const fields = [field('Name', site.name.full, 'generated', SITE_NAME_SOURCE), field('Description', description, 'generated', storySource), field('Shape', `${site.site.kind}; ${site.site.size}; ${site.site.areas} areas; sections ${site.site.sectionSizes.join(' + ')}; ${site.site.danger}`, 'generated', 'generateSiteInputs / site-layout'),
       ...tarot(site.card), field('Hazard', site.zone!.hazard, 'generated', `Zone ${input.zoneId} hazard table`)];
     for (const objective of site.objectives) {
       fields.push(field(`Section ${objective.section} / ${objective.mark}`, `${OBJECTIVE_VERBS[objective.kind] ?? objective.kind.replaceAll('_', ' ')} ${objective.target.name}\nPrompt: ${objective.prompt.phrase}\nHolder: ${objective.guardian.name}, LV ${objective.guardian.level}`, 'generated', 'generateSiteInputs: objective, target, prompt and guardian streams'));

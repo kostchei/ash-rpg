@@ -2,7 +2,8 @@
  * Generic site-generation oracles: the vocabulary every adventure path draws on
  * before its own flavour is mixed in. The structure follows the familiar solo
  * three-column site name (form / qualifier / subject) and the two-column
- * verb + noun prompt, but the words are ASH's own.
+ * verb + noun prompt. Name forms and subjects are ASH's own; qualifiers use
+ * Cairn's credited d100 and prompts use the cited SoloDark tables below.
  *
  * Nothing here is an objective. These tables supply the *inputs* a site brief
  * needs — a place name, an intent phrase, and the form of the thing at stake —
@@ -16,14 +17,16 @@ export const SITE_FORMS = [
   "Tunnels", "Halls", "Tower", "Steading", "Undercity", "Aerie", "Vaults", "Observatory",
   "Sepulcher", "Barrow", "Palace", "Keep", "Caverns", "Garden", "Maze", "Pyramid",
   "Sanctum", "Mines", "Lair", "Pits", "Grotto", "Depths", "Stronghold", "Warrens",
+  "Temple", "Shrine", "Monastery", "Cathedral", "Belfry", "Hermitage", "Priory", "Rectory", "Oratory", "Reliquary",
+  "Longhouse", "Mead Hall", "Farmstead", "Mill", "Granary", "Barn", "Lodge", "Manor", "Manse", "Villa",
+  "Castle", "Bastion", "Redoubt", "Watchpost", "Gatehouse", "Barracks", "Armory", "Stockade", "Rampart", "Outpost",
+  "Crypt", "Ossuary", "Mausoleum", "Necropolis", "Cemetery", "Catacombs", "Cairn", "Dolmen", "Burial Mound", "Memorial",
+  "Bridge", "Causeway", "Aqueduct", "Waterworks", "Cistern", "Reservoir", "Well", "Bathhouse", "Sluice", "Canal",
+  "Harbor", "Quay", "Dockyard", "Boathouse", "Lighthouse", "Shipyard", "Foundry", "Quarry", "Icehouse", "Market",
 ] as const;
 
-/** Column 2: the qualifier that tells the table what went wrong here. */
-export const SITE_QUALIFIERS = [
-  "Haunted", "Forgotten", "Disgraced", "Barren", "Bound", "Cursed", "Drowned", "Hollow",
-  "Sealed", "Blighted", "Sundered", "Abandoned", "Quiet", "Buried", "Unfinished", "Breached",
-  "Contested", "Shuttered", "Rewritten", "Waking", "Starved", "Weeping",
-] as const;
+/** Column 2: the published Cairn d100 adjective table, credited at its source. */
+export { SITE_QUALIFIERS } from './site-name-qualifiers.js';
 
 /** Column 3: whose place it was, or what it was for. */
 export const SITE_SUBJECTS = [
@@ -32,6 +35,12 @@ export const SITE_SUBJECTS = [
   "Hoard", "Usurper", "Saint", "Mechanism", "Brothers", "Lord", "Descendant", "Abomination",
   "Hermit", "Warlord", "Hunter", "Guild", "Philosopher", "Queen", "Secret", "Emperor",
   "Crown", "Ancestor", "Runes", "Assassin", "Relic", "Blessing", "Ritual", "Overlord",
+  "Pilgrim", "Exile", "Widow", "Orphan", "Witch", "Seer", "Oracle", "Scribe", "Scholar", "Alchemist",
+  "Smith", "Mason", "Weaver", "Potter", "Brewer", "Miller", "Merchant", "Ferryman", "Navigator", "Captain",
+  "Admiral", "Marshal", "Warden", "Reeve", "Judge", "Chancellor", "Prince", "Princess", "Regent", "Empress",
+  "Prophet", "Martyr", "Abbot", "Abbess", "Priest", "Priestess", "Penitent", "Apostate", "Heretic", "Acolyte",
+  "Dragon", "Serpent", "Wolf", "Raven", "Stag", "Boar", "Bear", "Owl", "Fox", "Lion",
+  "Sun", "Moon", "Star", "Comet", "Flame", "Storm", "Tide", "Thorn", "Bell", "Mirror",
 ] as const;
 
 /**

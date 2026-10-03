@@ -27,6 +27,15 @@ describe('procedural fieldbook', () => {
     expect(report.coverage.filter(row => row.status === 'unresolved').map(row => row.requirement)).toEqual(['seawolf', 'demon_lord']);
     expect(report.cards.filter(card => card.category === 'encounter')).toHaveLength(5);
   });
+  it('accepts a naming style through the API and uses the actual site tarot draws', async () => {
+    const response = await request(server.app).post('/api/dossiers/generate').send({ ...input, namingStyle: 'tarot' }).expect(200);
+    const sites = response.body.raw.sites;
+    expect(response.body.input.namingStyle).toBe('tarot');
+    expect(sites.every((site: { name: { style: string; tarotTitle: string }; card: { title: string } }) => site.name.style === 'tarot' && site.name.tarotTitle === site.card.title)).toBe(true);
+    const normal = generateDossier(input, server.db).raw as { sites: { card: unknown; objectives: unknown }[] };
+    expect(sites.map((site: { card: unknown; objectives: unknown }) => [site.card, site.objectives])).toEqual(normal.sites.map(site => [site.card, site.objectives]));
+    await request(server.app).post('/api/dossiers/generate').send({ ...input, namingStyle: 'invented' }).expect(400);
+  });
   it('flags malformed source movement while retaining the original audit record', () => {
     const report = generateDossier({ ...input, seed: 'skeldir-hrafnfjord-2026-10-03' }, server.db);
     const fields = report.cards.flatMap(card => card.fields);
