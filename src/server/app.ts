@@ -90,6 +90,7 @@ import { assignActZones } from "./paths/zone-plan.js";
 import { OUTER_PATH_IDS } from "../shared/path-encounters.js";
 import { PathEncounterService } from "./paths/encounters/service.js";
 import { encounterCatalogue } from "./paths/encounters/catalog.js";
+import { registerDossierRoutes } from './dossier-routes.js';
 
 const cleanText = z.string().trim().min(1).max(500);
 
@@ -331,6 +332,7 @@ export async function createAshServer(options: AshServerOptions = {}) {
   const baseUrl = `http://${resolvedHost.address}:${port}`;
 
   app.use(express.json({ limit: "100kb" }));
+  registerDossierRoutes(app, db);
   app.get("/api/health", (_request, response) =>
     response.json({ ok: true, service: "ASH Table Companion" }),
   );

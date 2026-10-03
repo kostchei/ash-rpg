@@ -22,6 +22,21 @@ console.log('1. Building latest client and server...');
 execFileSync('cmd.exe', ['/d', '/c', 'npm run build'], { stdio: 'inherit' });
 
 console.log('2. Syncing updated code and assets into release folder...');
+// Code can introduce new runtime dependencies. Keep the packaged installation
+// in step with the lockfile without reinstalling unchanged dependencies.
+const lockfile = readFileSync('package-lock.json', 'utf8');
+const releaseLockfile = join(out, 'package-lock.json');
+if (!existsSync(releaseLockfile) || readFileSync(releaseLockfile, 'utf8') !== lockfile) {
+  cpSync('package.json', join(out, 'package.json'));
+  cpSync('package-lock.json', releaseLockfile);
+  try {
+    execFileSync('cmd.exe', ['/d', '/c', 'npm ci --omit=dev --no-audit --no-fund'], { cwd: out, stdio: 'inherit' });
+  } catch (error) {
+    // An unsuccessful install must be retried on the next update.
+    rmSync(releaseLockfile, { force: true });
+    throw error;
+  }
+}
 for (const folder of ['dist/client', 'dist/server']) {
   const dest = join(out, folder);
   rmSync(dest, { recursive: true, force: true });

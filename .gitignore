@@ -111,6 +111,7 @@ backups/
 
 # Temporary item-name research downloads
 outputs/diablo-item-names/cache/
+tmp/pdfs/
 
 # MkDocs Build
 site/

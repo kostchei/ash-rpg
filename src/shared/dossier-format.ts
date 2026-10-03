@@ -1,0 +1,29 @@
+import type { DossierReport } from './dossier.js';
+
+export const DOSSIER_CSS = `
+:root{color-scheme:light}*{box-sizing:border-box}body{margin:0;background:#ede9df;color:#202922;font:15px/1.6 system-ui,sans-serif}
+.packet{max-width:960px;margin:32px auto;padding:48px;background:#fffdf8;box-shadow:0 8px 40px #25382c15}
+.packet h1,.packet h2,.packet h3{font-family:Georgia,serif;line-height:1.15}.packet h1{font-size:42px;margin:10px 0 20px}.packet h2{font-size:28px;margin:36px 0 18px;border-bottom:2px solid #284b3d;padding-bottom:10px}.packet h3{font-size:24px;margin:0 0 18px}
+.packet .kicker{font-size:11px;text-transform:uppercase;letter-spacing:2px;color:#426451}.packet .intro{max-width:70ch;color:#526055}.packet .meta{padding:14px 0;border-top:1px solid #dadfd7;border-bottom:1px solid #dadfd7;font:12px/1.7 ui-monospace,monospace;overflow-wrap:anywhere}
+.packet .legend{display:flex;gap:12px;flex-wrap:wrap;margin:18px 0}.packet .badge{font:10px/1.4 system-ui,sans-serif;text-transform:uppercase;letter-spacing:.7px;padding:3px 7px;border:1px solid #c8d3c9;background:#edf2eb;border-radius:3px;white-space:nowrap}
+.packet .badge.unresolved,.packet .badge.proxy{background:#fff2d6;border-color:#d9bd7a;color:#6f5015}.packet .badge.source{background:#edf0f4;color:#475569}.packet .coverage{border:1px solid #dadfd7;padding:16px}.packet .coverage p{margin:8px 0}.packet .record{border:1px solid #d6ddd3;border-top:4px solid #284b3d;padding:24px;margin:18px 0 28px}.packet .field{display:grid;grid-template-columns:155px 1fr;gap:18px;padding:12px 0;border-top:1px solid #e3e7df;break-inside:avoid}.packet .field-label{font-size:12px;font-weight:600}.packet .field-label .badge{display:inline-block;margin-top:5px}.packet .value{white-space:pre-wrap;overflow-wrap:anywhere;margin:0}.packet .source-note{font-size:10px;color:#687466;line-height:1.4;margin:6px 0 0;overflow-wrap:anywhere}.packet .notes{font-size:12px;color:#5c665d}.packet footer{margin-top:28px;border-top:1px solid #dadfd7;padding-top:16px;font-size:11px;color:#647263}
+@media(max-width:650px){.packet{margin:0;padding:24px}.packet h1{font-size:32px}.packet .record{padding:18px}.packet .field{grid-template-columns:1fr;gap:8px}}
+@page{size:A4;margin:16mm 15mm 18mm}
+@media print{body{background:white;font-size:10pt}.packet{max-width:none;box-shadow:none;margin:0;padding:0;background:white}.packet h1{font-size:28pt}.packet h2{font-size:19pt;break-before:page}.packet h3{font-size:16pt;break-after:avoid}.packet .record{padding:14px;break-inside:auto}.packet .field{grid-template-columns:120px 1fr}.packet .field-label{font-size:9pt}.packet .source-note{font-size:7pt}.packet .badge{font-size:7pt}.packet .legend,.packet .coverage{break-inside:avoid}a{color:inherit;text-decoration:none}.no-print{display:none!important}}
+`;
+export function escapeDossierHtml(value: string): string {
+  return value.replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]!));
+}
+export function renderDossierHtml(report: DossierReport): string {
+  const e = escapeDossierHtml;
+  const sections = ['site', 'encounter', 'npc', 'treasure'] as const;
+  const names = { site: 'Sites', encounter: 'Encounters', npc: 'NPCs', treasure: 'Treasures' };
+  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${e(report.input.title)} — ASH dossier</title><style>${DOSSIER_CSS}</style></head><body><main class="packet">
+  <header><div class="kicker">ASH / Procedural fieldbook</div><h1>${e(report.input.title)}</h1><p class="intro">${e(report.zoneName)} · Seeded story templates, encounters, people and treasure. Oracle meanings remain prompts. Unfilled details remain unresolved.</p><div class="meta">SEED ${e(report.input.seed)}<br>ZONE ${e(report.input.zoneId)} · MINIMUM ENCOUNTER CREATURE LV ${report.input.minimumLevel}<br>VERSION ${report.version} · ${report.cards.length} RECORDS</div></header>
+  <section class="story">${report.story.map(field => `<p>${e(field.value)}</p>`).join('')}</section>
+  <div class="legend">${['input', 'selected', 'generated', 'source', 'unresolved'].map(label => `<span class="badge ${label}">${label}</span>`).join('')}</div>
+  <section class="coverage"><strong>Requirement coverage</strong>${report.coverage.length ? report.coverage.map(row => `<p><span class="badge ${row.status}">${e(row.status)}</span> <strong>${e(row.requirement.replaceAll('_', ' '))}</strong> — ${e(row.detail)}</p>`).join('') : '<p>No required creature types selected.</p>'}<p class="notes">Site guardian levels follow act bands; NPCs retain generated levels 1–3. Encounter minimum means at least one qualifying creature per encounter, not a balanced combat. Substitutes are not exact matches.</p></section>
+  ${sections.map(section => { const cards = report.cards.filter(card => card.category === section); return cards.length ? `<section><h2>${names[section]} <small>(${cards.length})</small></h2>${cards.map(card => `<article class="record" id="${e(card.id)}"><div class="kicker">${e(card.id)} / generated name</div><h3>${e(card.title)}</h3>${card.fields.map(field => `<div class="field"><div class="field-label">${e(field.label)}<br><span class="badge ${e(field.provenance)}">${e(field.provenance)}</span></div><div><p class="value">${e(field.value)}</p><p class="source-note">${e(field.source)}</p></div></div>`).join('')}</article>`).join('')}</section>` : ''; }).join('')}
+  <footer>Story and descriptions use stored, versioned templates and explicit record-allocation rules. No language model completes this report. Required types and substitute policies are explicit selections. The JSON export preserves raw records and runner-owned random draws. Internal generator draws are reproducible from seed and versioned code.</footer>
+  </main></body></html>`;
+}

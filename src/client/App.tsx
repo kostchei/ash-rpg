@@ -293,6 +293,7 @@ function Welcome({
             <ScrollText /> Persistent chronicle
           </span>
         </div>
+        <a href="/generator" style={{ color: 'inherit', textDecoration: 'underline' }}>Open the procedural adventure generator</a>
         <div style={{ marginTop: 16, display: "flex", alignItems: "center", gap: 8 }}>
           <MusicServerControl state={musicServer} />
         </div>
@@ -751,6 +752,7 @@ function Campaign({
         ))}
 
         <div className="nav-spacer" />
+        <a href="/generator" style={{ color: 'inherit', padding: '10px 14px', textDecoration: 'none' }}>Adventure generator</a>
         <MusicSidebarButton state={musicServer} />
       </nav>
 

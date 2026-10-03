@@ -50,10 +50,29 @@ npx tsx scripts/render-procedural-dossier.ts outputs/hrafnfjord-10plus/draws.jso
 
 The older `dossier.md` is an interpreted authoring example and is not overwritten by this pipeline. It contains authored room keys, narratives, connections and symbolic weakness mechanics. Treat it as a different artifact.
 
-## Remaining work for equally detailed procedural adventures
+## Web generator and readable exports
+
+Open `/generator` in the ASH app. Choose a region, seed, minimum encounter level, record counts and required creature types. The Hrafnfjord preset requests five of each record type and all four creatures. Generation uses the installed oracles, tarot, names, bestiary and treasure procedures; it does not call a language model or modify campaign saves.
+
+The main output is a readable adventure brief: a story opening and expedition request, sites, combat blocks, NPC descriptions and listed treasure. HTML downloads are self-contained and print styled. PDF downloads include pagination and a source appendix. JSON is an optional audit export, not the adventure format. PDF downloads use the exact displayed snapshot, retained in memory for one hour; regenerate if that snapshot expires.
+
+`src/server/generators/dossier-story.ts` holds versioned authored scene, appearance, activity and story templates. Seeded selection and fixed substitution render these as GENERATED with the table reference. The wording was authored when the tables were implemented; the run does not interpret tarot into fresh story prose. `src/server/generators/dossier.ts` declares eligibility and round-robin site allocation as SELECTED, with explicit record IDs. The source toggle reveals those origins in the web report, and exports preserve them.
+
+The minimum level checks that each encounter contains a stock creature meeting that level. It does not assert party balance. The Seawolf is an explicit Nord crew / Sea Serpent proxy, and the demon lord uses Balor as an explicit proxy. Disabling proxies leaves these requirements UNRESOLVED. Site guardians retain their actual stock levels. Aquatic creatures prefer existing water-terrain rows where available. Missing magic-item attributes and symbolic weakness mechanics remain UNRESOLVED.
+
+For a local isolated preview and checked-in examples:
+
+```
+npm run build
+npx tsx scripts/preview-dossier.ts --serve
+```
+
+This serves `http://localhost:3107/generator` using an in-memory source database and writes `outputs/hrafnfjord-10plus/fieldbook.html`, `fieldbook.json`, and `output/pdf/hrafnfjord-fieldbook.pdf`. Omit `--serve` to create only the examples.
+
+## Remaining work for more detailed procedural adventures
 
 The installed site generator provides section counts, names, objectives, targets and guardian picks; it does not produce complete room keys, clue placement or connected adventure text. The NPC generator provides scores, class, local colour, demeanor, motive and retainer stats; it does not fill all named subjects or equipment. Symbolic vulnerabilities usually lack effects. The treasure runtime leaves some magic-item attributes as placeholders. There is no exact Seawolf or generic demon-lord stat entry in this runner's source selection.
 
 To generate those details without new model prose, implement curated, versioned tables or compositional rules for each field, and render the selected records with fixed templates. Include trigger/consequence/duration/discovery in a weakness record; spell/feature/personality in a magic-item record; precondition/action/fallback in a behaviour record; and explicit IDs for relationship and clue targets. Human review of those source tables is the approval of their creative content; generation then selects it reproducibly.
 
-Until such tables exist, missing fields must remain UNRESOLVED. A procedural packet can preserve the same twenty-record structure today; it cannot honestly claim the same degree of finished adventure detail.
+The web renderer now supplies curated scene descriptions, an expedition request, activities, appearance and explicit site connections. Full room keys, clue chains and missing mechanics still require additional source tables; those gaps remain UNRESOLVED.
