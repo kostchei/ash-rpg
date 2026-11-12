@@ -79,11 +79,9 @@ Record your ancestry traits, senses (Infravision / Low-Light), and your cultural
 ---
 
 ### Step 3: Choose Class
-Select one of the **8 Adventuring Classes**:
-* **[Core Classes](05_classes_core.md):** Fighter, Thief, Cleric, Magic-User.
-* **[Specialist Classes](06_classes_specialist.md):** Monk, Druid, Alchemist, Sage.
+Choose a class from the [class roster](class_roster.md). The four core classes are Fighter, Priest, Thief, and Wizard. The roster also identifies the requested additional classes and whether a playable entry exists yet.
 
-Record your class hit die, allowed armor & weapons, and starting class abilities.
+Record your class hit die, allowed armor & weapons, starting class abilities, and [saving throw tiers](class_roster.md#class-saving-throws).
 
 ---
 

@@ -43,7 +43,7 @@ flowchart TD
 
     ---
 
-    Character creation, 17 ancestries, 8 core & specialist classes, equipment slots, dungeon crawl turns, situational light procedures, and spell tiers.
+    Character creation, the four core classes, the wider class roster, equipment, exploration, combat, and magic.
 
     [:octicons-arrow-right-24: Open Player's Handbook](rules/01_system_overview.md)
 

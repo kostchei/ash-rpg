@@ -65,6 +65,26 @@ Modifiers are calculated as **floor((ability score - 10) / 2)**: subtract 10, di
 
 ---
 
+## Saving Throws
+
+A saving throw resists an immediate danger: for example, DEX against a fireball, CON against poison, or WIS against a charm. The effect names the ability. Roll **d20 + that ability modifier + the appropriate class save progression bonus**. Meet or beat **DC 15** unless the effect specifies another DC. An ability check to perform an action is not a saving throw and does not use these bonuses.
+
+Each class assigns two abilities to each tier: **strong**, **medium**, and **weak**. Consult the [class save assignments](class_roster.md#class-saving-throws). Each tier gains the same +1 at levels 4, 7, 10, 13, 16, and 19. Add the appropriate tier bonus and the actual ability modifier to the d20 roll.
+
+| Level | Weak | Medium | Strong |
+| --- | ---: | ---: | ---: |
+| 1–3 | +0 | +1 | +2 |
+| 4–6 | +1 | +2 | +3 |
+| 7–9 | +2 | +3 | +4 |
+| 10–12 | +3 | +4 | +5 |
+| 13–15 | +4 | +5 | +6 |
+| 16–18 | +5 | +6 | +7 |
+| 19–21 | +6 | +7 | +8 |
+
+For example, a level 19 character with a weak CON save and CON 10 (+0) rolls d20 + 6 against DC 15 and succeeds on 9 or higher. A level 19 character with a strong CON save and CON 18 (+4) rolls d20 + 12 and succeeds on 3 or higher. Use the character's actual ability modifier, even when it is negative. Existing effects that grant advantage or disadvantage still apply, and a specified DC overrides the standard DC. A death saving throw is a special DC 10 CON check and does not use the class save bonus; see [Death & Dying](09_combat_and_hazards.md#death-dying).
+
+---
+
 ## ⚖️ The 2d6 Table System
 
 ASH uses **2d6 rolls** for two crucial systems:
