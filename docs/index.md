@@ -1,5 +1,11 @@
 # Automata for Swords and Hexes (ASH RPG)
 
+## Find a rule
+
+Start with the [system overview](rules/01_system_overview.md), or jump directly to [character creation](rules/02_character_creation.md), [classes](rules/05_classes_core.md), [equipment](rules/07_equipment_and_services.md), [exploration](rules/08_exploration_and_crawling.md), [combat](rules/09_combat_and_hazards.md), or [magic](rules/10_spells_and_magic.md). Use search to find a specific term.
+
+The handbook reflects the rules in the ASH repository. Material marked **Playtest** is experimental. To propose a correction, use the edit icon on a page; the source files can also be opened as a vault in Obsidian.
+
 <div align="center">
   <p><em>A modern evolution of 1st Edition Advanced Dungeons & Dragons, combining Old-School Renaissance grit, modular procedural worldcraft, and an automated GM-less tabletop engine.</em></p>
 </div>

@@ -6,6 +6,8 @@
 
 ## 🔮 Casting Spells
 
+The core game uses the roll-to-retain check below. For a caster using one of the six playtest traditions, follow that tradition's casting and recovery rules. [Six ways to cast magic](casting_procedures_draft_2.md)
+
 * **Casting Check:** Roll **1d20 + Ability Modifier** (INT for Wizard/Sage, WIS for Priest/Druid).
 * **Target DC:** The DC to successfully cast a spell is **10 + Spell Tier**.
 * **Results:**

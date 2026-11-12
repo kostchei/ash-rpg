@@ -2,7 +2,7 @@
 
 > **"In the sunless chasms beneath the earth and the deep shadows of the desert sands, victory belongs to the cunning, the swift, and the prepared."**
 
-This section presents six specialized archetypes designed for infiltration, trap mastery, wilderness communion, salvage harvesting, and ancient lore.
+This section presents specialized archetypes designed for infiltration, trap mastery, wilderness communion, salvage harvesting, and ancient lore.
 
 ---
 
@@ -196,3 +196,35 @@ This section presents six specialized archetypes designed for infiltration, trap
     | **7–9** | **+2 to Dexterity or Wisdom stat.** |
     | **10–11** | **Stunning Palm:** 2/day, target hit must pass CON check vs DC 10 + half level or be stunned for 1 round. |
     | **12** | Choose any talent or gain +2 points to distribute among your stats. |
+
+=== "Focus Assassin"
+
+    ## 🎯 Focus Assassin (The Man of Sheer Will)
+
+    A relentless operative of terrifying focus, commitment, and sheer will. They do not rely on loud magic or brute mass; instead, they exploit sensory shadows, room geometry, and enemy panic to strike with absolute, surgical fatality, recovering their lethal edge after a mere breath of rest.
+
+    * **Weapons:** Blowgun, crossbow, garrote, throwing knives, silenced daggers, shortsword, custom hand-blades
+    * **Armor:** Leather armor, dark garments
+    * **Hit Points:** 1d6 per level
+    * **Rapid Focus Pool:** You have a pool of **Focus Points equal to your Level + DEX modifier (minimum 2)**.
+        * **Short-Rest Renewal:** Unlike daily spellcasters, your entire Focus Pool **fully replenishes on a Short Rest** (10–15 minutes of quiet breath and weapon checking).
+    * **Leverage & Predatory Advantage:** You gain automatic **Advantage on attack rolls** whenever striking from:
+        * **Stealth or Concealment** (shadows, elevated perches, smoke).
+        * **Flanking or Cross-Fire Geometry** (catching foes focused on allies).
+        * **Target Confusion or Disorientation** (blinded, surprised, or panicked enemies).
+    * **Expenditures of Sheer Will:** Spend Focus Points on your turn to execute superhuman tactical feats:
+        * **Surgical Execution (1 Focus):** Turn a successful hit into an automatic **Critical Hit** (dealing maximum weapon damage + level).
+        * **Slippery Ghost (1 Focus):** Disengage and vanish into shadows as a free action without provoking opportunity attacks.
+        * **Steel Will Reflex (2 Focus):** Negate one incoming attack or physical damage roll completely by ducking behind cover or parrying with impossible precision.
+        * **Panic Exploitation (1 Focus):** When you execute an enemy, all foes within Near range become Confused and Disoriented for 1 round.
+    * **Glass Cannon Limitation:** While unspotted or maneuvering, you are lethal; but if trapped in an open, brightly lit slugfest without focus, your fragile defenses offer no supernatural armor.
+
+    ### Focus Assassin Talents (2d6)
+    | 2d6 | Effect |
+    | :---: | :--- |
+    | **2** | **Baba Yaga's Resilience:** 1/day, when reduced to 0 HP, stand back up with 1 HP and immediately regain 2 Focus Points. |
+    | **3–6** | **+1 to attack and damage rolls** with daggers, shortswords, and ranged hand-weapons. |
+    | **7–9** | **+2 to Dexterity or Wisdom stat.** |
+    | **10–11** | **+2 Maximum Focus Points** in your pool. |
+    | **12** | Choose any talent or gain +2 points to distribute among your stats. |
+

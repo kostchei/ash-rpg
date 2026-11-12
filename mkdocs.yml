@@ -4,6 +4,7 @@ site_author: "kostchei"
 site_url: "https://kostchei.github.io/ash-rpg/"
 repo_url: "https://github.com/kostchei/ash-rpg"
 repo_name: "kostchei/ash-rpg"
+edit_uri: edit/main/docs/
 
 theme:
   name: material
@@ -39,6 +40,7 @@ theme:
     - search.share
     - content.code.copy
     - content.tabs.link
+    - content.action.edit
 
 extra_css:
   - stylesheets/extra.css
@@ -129,6 +131,8 @@ nav:
       - "Exploration & Crawling": rules/08_exploration_and_crawling.md
       - "Combat & Hazards": rules/09_combat_and_hazards.md
       - "Spells & Magic": rules/10_spells_and_magic.md
+      - "Six Ways to Cast Magic (Playtest)": rules/casting_procedures_draft_2.md
+      - "Magic Systems Mechanics": rules/11_magic_system_mechanics.md
   - "Campaign Record":
       - "Campaign Record Overview": campaign_record/index.md
       - "Party Roster & Graveyard": campaign_record/party_roster.md
