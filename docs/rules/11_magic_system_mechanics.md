@@ -536,6 +536,6 @@ When architecting a magic or supernatural system for a campaign, playbook, or su
 - **Martial Classes (Warp-Spasm Barbarian):** [Martial & Frontier Classes](06_classes_martial.md)
 - **Specialist Classes (Focus Assassin):** [Specialist & Infiltrator Classes](06_classes_specialist.md)
 - **Narrative Character Archetypes:** [Arcane Archetypes (The Crucible, The Apostate, The Hearth-Tether)](../../arcane_archetypes.md)
-- **Stonetop Vancian Implementation:** [The Wizard Playbook](../stonetop/playbooks/the_wizard.md)
+- **Stonetop Vancian Implementation:** [The Wizard Playbook](https://github.com/kostchei/ash-rpg/blob/stonetop-exploration/docs/stonetop/playbooks/the_wizard.md)
 - **Master Structured JSON Index:** [`data/magic_systems.json`](../../data/magic_systems.json)
 - **Standalone Interactive UI:** [Interactive HTML Explorer](magic_system_mechanics.html)

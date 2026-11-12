@@ -2,7 +2,7 @@
 
 The Table Companion is the local-first campaign application for running ASH without a dedicated Dungeon Master. One computer hosts the campaign, a shared display shows the party state, and players join from phones over the same network.
 
-The next release targets a complete in-person expedition with four core classes, individual phone activity choices, connected dungeon exploration, initiative, and treasure allocation. See the [Minimal Table Companion Specification](plans/minimal_table_companion_specification.md) for the core physical-table philosophy, information fog of war, and Shadowdark initiative rules. The [engineering plan](plans/table_companion_mvp.md) details historical implementation gates. The [Product Quality Engineering Plan](plans/product_quality_engineering_plan.md) sets the latency, frame, payload, and Apple HIG interface budgets that the delivery must meet.
+The next release targets a complete in-person expedition with four core classes, individual phone activity choices, connected dungeon exploration, initiative, and treasure allocation. See the [Minimal Table Companion Specification](https://github.com/kostchei/ash-rpg/blob/main/docs/plans/minimal_table_companion_specification.md) for the core physical-table philosophy, information fog of war, and Shadowdark initiative rules. The [engineering plan](https://github.com/kostchei/ash-rpg/blob/main/docs/plans/table_companion_mvp.md) details historical implementation gates. The [Product Quality Engineering Plan](https://github.com/kostchei/ash-rpg/blob/main/docs/plans/product_quality_engineering_plan.md) sets the latency, frame, payload, and Apple HIG interface budgets that the delivery must meet.
 
 ## Core Design Principles
 
@@ -30,7 +30,7 @@ The next release targets a complete in-person expedition with four core classes,
 
 ## Product direction and verification
 
-ASH is a solo/cooperative assistant for one to six people at a physical table. The full target includes two characters per player, chosen or secretly rolled adventure paths, a party-informed starting tavern, layered regional knowledge, clickable site maps, and three acts spanning levels 1–10. See the [current requirements, implementation assessment, and delivery plan](plans/table_assistant_campaign_requirements.md). The feature list above is an older foundation summary; it is not a full release certification.
+ASH is a solo/cooperative assistant for one to six people at a physical table. The full target includes two characters per player, chosen or secretly rolled adventure paths, a party-informed starting tavern, layered regional knowledge, clickable site maps, and three acts spanning levels 1–10. See the [current requirements, implementation assessment, and delivery plan](https://github.com/kostchei/ash-rpg/blob/main/docs/plans/table_assistant_campaign_requirements.md). The feature list above is an older foundation summary; it is not a full release certification.
 
 ## Run at the table
 

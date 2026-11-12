@@ -81,49 +81,10 @@ markdown_extensions:
 nav:
   - "Home": index.md
   - "Table Companion": table_companion.md
-  - "Minimal Table Companion Specification": plans/minimal_table_companion_specification.md
-  - "Campaign Requirements & Plan": plans/table_assistant_campaign_requirements.md
-  - "Path Sites, XP & Act Zones": plans/path_sites_xp_and_zones.md
-  - "Path Campaign Engineering": plans/path_campaign_engineering.md
-  - "Product Quality Engineering Plan": plans/product_quality_engineering_plan.md
-  - "Implementation Plan": plans/table_companion_mvp.md
   - "Player's Handbook":
       - "Overview & Core Mechanics": rules/01_system_overview.md
       - "Character Creation":
           - "Creation Guide (ASH d20)": rules/02_character_creation.md
-          - "Stonetop Compendium & Wiki":
-              - "Stonetop Almanac": stonetop/index.md
-              - "Welcome & Setting": stonetop/01_welcome_and_setting.md
-              - "Getting Started": stonetop/02_getting_started.md
-              - "Playing the Game": stonetop/03_playing_the_game.md
-              - "Character Playbooks":
-                  - "Playbooks Overview": stonetop/playbooks/index.md
-                  - "The Blessed": stonetop/playbooks/the_blessed.md
-                  - "The Fox": stonetop/playbooks/the_fox.md
-                  - "The Heavy": stonetop/playbooks/the_heavy.md
-                  - "The Judge": stonetop/playbooks/the_judge.md
-                  - "The Lightbearer": stonetop/playbooks/the_lightbearer.md
-                  - "The Marshal": stonetop/playbooks/the_marshal.md
-                  - "The Ranger": stonetop/playbooks/the_ranger.md
-                  - "The Seeker": stonetop/playbooks/the_seeker.md
-                  - "The Would-be Hero": stonetop/playbooks/the_would_be_hero.md
-                  - "The Wizard (1e AD&D)": stonetop/playbooks/the_wizard.md
-                  - "Playbook Inserts": stonetop/playbooks/inserts.md
-                  - "Steading Playbook": stonetop/playbooks/steading_playbook.md
-              - "Running the Game (GM Guide)": stonetop/04_running_the_game.md
-              - "Player Moves & Basic Moves": stonetop/05_player_moves.md
-              - "Harm, Wounds & Healing": stonetop/06_harm_and_healing.md
-              - "The First Adventure": stonetop/07_first_adventure.md
-              - "Threats & Fronts": stonetop/08_threats.md
-              - "Expeditions & Travel": stonetop/09_expeditions.md
-              - "Sites & Dungeons": stonetop/10_sites.md
-              - "Dangers, Hazards & Monsters": stonetop/11_dangers.md
-              - "Discoveries & Arcana": stonetop/12_discoveries.md
-              - "NPCs & Followers": stonetop/13_npcs_and_followers.md
-              - "Homefront & Seasons Change": stonetop/14_homefront.md
-              - "Writing Moves & Love Letters": stonetop/15_writing_moves.md
-              - "The Game Ongoing": stonetop/16_the_game_ongoing.md
-              - "Reference & Master Index": stonetop/17_reference_and_index.md
       - "World Seeding & Anchors": rules/03_player_first_worldbuilding.md
       - "Ancestries Catalog": rules/04_ancestries.md
       - "Core Classes": rules/05_classes_core.md
@@ -136,7 +97,6 @@ nav:
       - "Combat & Hazards": rules/09_combat_and_hazards.md
       - "Spells & Magic": rules/10_spells_and_magic.md
       - "Six Ways to Cast Magic (Playtest)": rules/casting_procedures_draft_2.md
-      - "Magic Systems Mechanics": rules/11_magic_system_mechanics.md
   - "Campaign Record":
       - "Campaign Record Overview": campaign_record/index.md
       - "Party Roster & Graveyard": campaign_record/party_roster.md
@@ -167,6 +127,21 @@ nav:
   - "Monsternomicon":
       - "Lore DCs & Harvesting Rules": bestiary/index.md
       - "Creature Compendium": bestiary/creatures.md
+
+exclude_docs: |
+  plans/**
+  rules/11_magic_system_mechanics.md
+  rules/casting_procedures_draft.md
+  oracles/14_site_input_generation.md
+  oracles/15_procedural_output_contract.md
+  bestiary/*audit.md
+  bestiary/*samples*.md
+  bestiary/*research*.md
+  bestiary/*agent_flow*.md
+  bestiary/*gaps.md
+  bestiary/site-naming.md
+  Monsternomicon*.pdf
+  Monster Manual 4e.pdf
 
 not_in_nav: |
   hex-map-art.md

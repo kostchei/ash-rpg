@@ -1,6 +1,6 @@
 # Six ways to cast magic
 
-*ASH playtest rules.* Give each caster one of the six procedures below. Use that procedure to cast and recover magic. **Tier** means ASH spell tier (1–5). Power-point lists have their own spell levels (1–20). A **rest** in these handouts means a completed ASH long rest. Starting quantities, advancement rates, DCs and breakpoints below are playtest choices. The first draft records the source games, including the priest's penance variant. The broader compendium compares 17 engines. [First draft and source notes](casting_procedures_draft.md) · [Magic systems compendium](11_magic_system_mechanics.md) · [ASH rest rules](08_exploration_and_crawling.md)
+*ASH playtest rules.* Give each caster one of the six procedures below. Use that procedure to cast and recover magic. **Tier** means ASH spell tier (1–5). Power-point lists have their own spell levels (1–20). A **rest** in these handouts means a completed ASH long rest. Starting quantities, advancement rates, DCs and breakpoints below are playtest choices. The first draft records the source games, including the priest's penance variant. The broader compendium compares 17 engines. [Magic systems design notes](https://github.com/kostchei/ash-rpg/blob/main/docs/rules/11_magic_system_mechanics.md) · [ASH rest rules](08_exploration_and_crawling.md)
 
 | Tradition | What to put on the sheet | When the player commits |
 | --- | --- | --- |

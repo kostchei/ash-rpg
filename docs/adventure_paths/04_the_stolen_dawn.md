@@ -157,7 +157,7 @@ At the first fulfilled success condition, mark the path won, record the method, 
 - **Victory with a heavy Toll:** daylight returns to ruined homes. Survival, recovery, and justice become the remaining work.
 - **Early victory:** preserve it. Remaining act content concerns reconstruction, salvage, endangered underground inhabitants, or securing the dawn's inheritance. Do not restore the same curse merely to force the remaining levels.
 
-The three acts supply content toward levels 1–10, not a requirement to remain under the curse until level 10. Audit each normal victory branch independently under the [XP and site plan](../plans/path_sites_xp_and_zones.md). An early high-risk success is valid at the party's actual level. Post-victory rewards must not be counted as preparation available for the already-won confrontation. Only secured rewards and actually completed objectives pay XP; alternate endings do not stack duplicate success awards.
+The three acts supply content toward levels 1–10, not a requirement to remain under the curse until level 10. Audit each normal victory branch independently under the [XP and site plan](https://github.com/kostchei/ash-rpg/blob/main/docs/plans/path_sites_xp_and_zones.md). An early high-risk success is valid at the party's actual level. Post-victory rewards must not be counted as preparation available for the already-won confrontation. Only secured rewards and actually completed objectives pay XP; alternate endings do not stack duplicate success awards.
 
 ## Generation and Review Contract
 

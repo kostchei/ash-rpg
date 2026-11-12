@@ -2,7 +2,7 @@
 
 Design specification. The starting procedural tavern currently has two Night Below leads and one regional lead. The nine outer-power encounter packs have authored clue chains. The replenishment and per-engine spawning procedures below are not yet wired into the runtime.
 
-**Procedural authoring:** Use the [264 objective templates grouped by path and act](12_procedural_objective_pools.md) and [campaign site, XP, loot, and replayability budget](../plans/procedural_campaign_budget.md). Named opening examples below illustrate mechanics; they are not compulsory starting quests. Bind eligible templates to the generated world instead.
+**Procedural authoring:** Use the [264 objective templates grouped by path and act](12_procedural_objective_pools.md) and [campaign site, XP, loot, and replayability budget](https://github.com/kostchei/ash-rpg/blob/main/docs/plans/procedural_campaign_budget.md). Named opening examples below illustrate mechanics; they are not compulsory starting quests. Bind eligible templates to the generated world instead.
 
 ## The available choices
 

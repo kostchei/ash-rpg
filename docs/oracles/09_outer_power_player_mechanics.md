@@ -10,7 +10,7 @@ Use with [Adventure Path Engines](07_adventure_path_engines.md) and [Population 
 
 Each incursion changes a recurring player decision by the third expedition. Each has at least two **independently sufficient** success conditions. The conditions are alternatives, not components of a mandatory final boss kill. Record an actual completion event: possessing a key or learning a rite enables an attempt but does not win by itself.
 
-Use the existing three-act, level 1–10 content envelope. Act transitions follow evidence and access. Earned early victory remains valid; later content concerns its inheritance. The normal branches must each have feasible routes, useful rewards, and enough authored material under the [XP and zone plan](../plans/path_sites_xp_and_zones.md). Do not count post-victory XP as preparation for an earlier confrontation.
+Use the existing three-act, level 1–10 content envelope. Act transitions follow evidence and access. Earned early victory remains valid; later content concerns its inheritance. The normal branches must each have feasible routes, useful rewards, and enough authored material under the [XP and zone plan](https://github.com/kostchei/ash-rpg/blob/main/docs/plans/path_sites_xp_and_zones.md). Do not count post-victory XP as preparation for an earlier confrontation.
 
 - **Facts before consequences:** commit dependencies, enemy assets, timing, costs, interruption rules, and success predicates before they affect a decision. Preserve history when an active capability is removed.
 - **Two clue routes:** every indispensable conclusion and remedy has independent evidence sources, including a class-independent means of access and execution. Ordinary clues name an actionable next step.

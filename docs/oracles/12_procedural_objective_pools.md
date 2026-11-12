@@ -2,7 +2,7 @@
 
 Authoring catalogue: **22 engines, 66 act pools, 264 objective templates**. These are parameterised objective intentions, not complete generated quests. Every `{slot}` must bind to a saved world entity or verified path condition. Never expose an unbound slot to players. Runtime integration remains outstanding.
 
-Act I discovers the local process; Act II gains access, tests remedies, and changes its operations; Act III executes and verifies sufficient remedies. This is weighting, not a prohibition on early solutions. Each pool has four starting templates; generation must combine these with world state and the binding contract in [Procedural campaign budget](../plans/procedural_campaign_budget.md).
+Act I discovers the local process; Act II gains access, tests remedies, and changes its operations; Act III executes and verifies sufficient remedies. This is weighting, not a prohibition on early solutions. Each pool has four starting templates; generation must combine these with world state and the binding contract in [Procedural campaign budget](https://github.com/kostchei/ash-rpg/blob/main/docs/plans/procedural_campaign_budget.md).
 
 Do not roll a finale until its remedy exists in the selected variant and its prerequisites are met. Entries proposing additional endings are candidate authoring work, not new canon or implemented victory predicates.
 
