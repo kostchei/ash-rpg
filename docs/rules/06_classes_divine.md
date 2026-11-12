@@ -38,9 +38,9 @@
     | :---: | :--- |
     | **2** | 1/day, summon a **Dire Wolf** or forest beast ally for 5 rounds. |
     | **3–6** | **+1 to weapon attack and damage rolls.** |
-    | **7–9** | **+2 to Strength, Wisdom, or Constitution stat.** |
+    | **7–9** | **Gain a prime-ability increase as described in [advancement](01_system_overview.md#ability-increases-from-class-talents).** |
     | **10–11** | Learn an **additional druid spell** of any tier you can cast. |
-    | **12** | Choose any talent or gain +2 points to distribute among your stats. |
+    | **12** | Choose another talent, or gain a flexible ability increase as described in [advancement](01_system_overview.md#ability-increases-from-class-talents). |
 
 === "Chaos Knight"
 
@@ -76,9 +76,9 @@
     | :---: | :--- |
     | **2** | 1/day, **wreath your weapon in hellfire** (+2d6 fire damage on hit for 3 rounds). |
     | **3–6** | **+1 to weapon attacks and damage.** |
-    | **7–9** | **+2 to Strength, Constitution, or Charisma stat.** |
+    | **7–9** | **Gain a prime-ability increase as described in [advancement](01_system_overview.md#ability-increases-from-class-talents).** |
     | **10–11** | Learn an **additional witch spell** of any tier you can cast. |
-    | **12** | Choose any talent or gain +2 points to distribute among your stats. |
+    | **12** | Choose another talent, or gain a flexible ability increase as described in [advancement](01_system_overview.md#ability-increases-from-class-talents). |
 
 === "Warrior Priest"
 
@@ -104,9 +104,9 @@
     | :---: | :--- |
     | **2** | **Righteous Vessel:** Your maximum Righteousness increases by 1. |
     | **3–6** | **Vanguard:** +1 to melee attack rolls. |
-    | **7–9** | **Blessed Vigor:** +2 to Strength, Constitution, or Wisdom. |
+    | **7–9** | **Blessed Vigor:** Gain a prime-ability increase as described in [advancement](01_system_overview.md#ability-increases-from-class-talents). |
     | **10–11** | **Unbreakable:** Permanent Advantage on Constitution checks to maintain Focus on a Prayer. |
-    | **12** | **Divine Champion:** Choose any option on this table, or distribute +2 points among your stats. |
+    | **12** | **Divine Champion:** Choose another talent, or gain a flexible ability increase as described in [advancement](01_system_overview.md#ability-increases-from-class-talents). |
 
 === "Paladin"
 
@@ -145,9 +145,9 @@
     | :---: | :--- |
     | **2** | Your Named Blade gains an **additional random magic weapon benefit**. |
     | **3–6** | **+1 to attack and damage rolls with your Named Blade.** |
-    | **7–9** | **+2 to Strength, Constitution, or Charisma stat.** |
+    | **7–9** | **Gain a prime-ability increase as described in [advancement](01_system_overview.md#ability-increases-from-class-talents).** |
     | **10–11** | Increase your **Inspiring Presence dying roll range by 1** (e.g. 17–20). |
-    | **12** | Choose any talent or gain +2 points to distribute among your stats. |
+    | **12** | Choose another talent, or gain a flexible ability increase as described in [advancement](01_system_overview.md#ability-increases-from-class-talents). |
 
 === "Seer"
 
@@ -192,9 +192,9 @@
     | :---: | :--- |
     | **2** | Learn an **additional seer spell** of any tier you can cast. |
     | **3–6** | Gain **+1 additional use of your Omen talent** per day. |
-    | **7–9** | **+2 to Wisdom or Charisma stat**, OR +1 to spellcasting checks. |
+    | **7–9** | **Gain a prime-ability increase as described in [advancement](01_system_overview.md#ability-increases-from-class-talents).**, OR +1 to spellcasting checks. |
     | **10–11** | Increase the die category of **Destined by one step** (1d6 $\rightarrow$ 1d8 $\rightarrow$ 1d10). |
-    | **12** | Choose any talent or gain +2 points to distribute among your stats. |
+    | **12** | Choose another talent, or gain a flexible ability increase as described in [advancement](01_system_overview.md#ability-increases-from-class-talents). |
 
 === "Monk of Yag-Kesh"
 
@@ -218,6 +218,6 @@
     | :---: | :--- |
     | **2** | 1/day, **Stunning Palm:** Target hit must pass a DC 12 CON check or be paralyzed for 1 round. |
     | **3–6** | **+1 to unarmed attack and damage rolls.** |
-    | **7–9** | **+2 to Dexterity or Wisdom stat.** |
+    | **7–9** | **Gain a prime-ability increase as described in [advancement](01_system_overview.md#ability-increases-from-class-talents).** |
     | **10–11** | **+1 use per day of Sun on the Water.** |
-    | **12** | Choose any talent or gain +2 points to distribute among your stats. |
+    | **12** | Choose another talent, or gain a flexible ability increase as described in [advancement](01_system_overview.md#ability-increases-from-class-talents). |

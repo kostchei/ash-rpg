@@ -27,9 +27,9 @@ This section details ten martial archetypes from the Western Reaches and frontie
     | :---: | :--- |
     | **2** | 1/day, **Go Berserk:** Become completely immune to damage for 3 rounds. |
     | **3–6** | Your weapon attacks deal **+1 damage**. |
-    | **7–9** | **+2 to Strength or Constitution stat**, OR +1 to attack rolls. |
+    | **7–9** | **Gain a prime-ability increase as described in [advancement](01_system_overview.md#ability-increases-from-class-talents).**, OR +1 to attack rolls. |
     | **10–11** | **Duality:** Choose **two different Old Gods blessings** each day instead of one. |
-    | **12** | Choose any talent or gain +2 points to distribute among your stats. |
+    | **12** | Choose another talent, or gain a flexible ability increase as described in [advancement](01_system_overview.md#ability-increases-from-class-talents). |
 === "Basilisk Warrior"
 
     ## 🦎 Basilisk Warrior
@@ -48,9 +48,9 @@ This section details ten martial archetypes from the Western Reaches and frontie
     | :---: | :--- |
     | **2** | You find a basilisk egg; a loyal hatchling emerges in 1d4 days. |
     | **3–6** | **+1 to weapon attacks and damage.** |
-    | **7–9** | **+2 to Strength, Dexterity, or Constitution stat.** |
+    | **7–9** | **Gain a prime-ability increase as described in [advancement](01_system_overview.md#ability-increases-from-class-talents).** |
     | **10–11** | **+1 use per day of Petrifying Gaze.** |
-    | **12** | Choose any talent or gain +2 points to distribute among your stats. |
+    | **12** | Choose another talent, or gain a flexible ability increase as described in [advancement](01_system_overview.md#ability-increases-from-class-talents). |
 
 === "Desert Rider"
 
@@ -73,9 +73,9 @@ This section details ten martial archetypes from the Western Reaches and frontie
     | :---: | :--- |
     | **2** | 1/day, your mount can move double its speed and make an attack. |
     | **3–6** | **+1 to melee and ranged attacks while mounted.** |
-    | **7–9** | **+2 to Strength, Dexterity, or Wisdom stat.** |
+    | **7–9** | **Gain a prime-ability increase as described in [advancement](01_system_overview.md#ability-increases-from-class-talents).** |
     | **10–11** | **+1 use per day of Charge.** |
-    | **12** | Choose any talent or gain +2 points to distribute among your stats. |
+    | **12** | Choose another talent, or gain a flexible ability increase as described in [advancement](01_system_overview.md#ability-increases-from-class-talents). |
 
 === "Duelist"
 
@@ -95,9 +95,9 @@ This section details ten martial archetypes from the Western Reaches and frontie
     | :---: | :--- |
     | **2** | 1/day, **all attacks that would hit you this round miss instead**. |
     | **3–6** | **+1 to melee attacks and damage** OR +1 Parry per day. |
-    | **7–9** | **+2 to Strength, Dexterity, or Charisma stat.** |
+    | **7–9** | **Gain a prime-ability increase as described in [advancement](01_system_overview.md#ability-increases-from-class-talents).** |
     | **10–11** | Deal **+1d6 extra damage** when you hit with a Taunt attack. |
-    | **12** | Choose any talent or gain +2 points to distribute among your stats. |
+    | **12** | Choose another talent, or gain a flexible ability increase as described in [advancement](01_system_overview.md#ability-increases-from-class-talents). |
 
 === "Kyzian Archer"
 
@@ -120,9 +120,9 @@ This section details ten martial archetypes from the Western Reaches and frontie
     | :---: | :--- |
     | **2** | 1/day, make a ranged attack against every enemy you can see within Far range. |
     | **3–6** | **+1 to attack and damage rolls with bows.** |
-    | **7–9** | **+2 to Dexterity or Wisdom stat.** |
+    | **7–9** | **Gain a prime-ability increase as described in [advancement](01_system_overview.md#ability-increases-from-class-talents).** |
     | **10–11** | **+1 use per day of Hawk Eye.** |
-    | **12** | Choose any talent or gain +2 points to distribute among your stats. |
+    | **12** | Choose another talent, or gain a flexible ability increase as described in [advancement](01_system_overview.md#ability-increases-from-class-talents). |
 
 === "Pit Fighter"
 
@@ -143,9 +143,9 @@ This section details ten martial archetypes from the Western Reaches and frontie
     | :---: | :--- |
     | **2** | 1/day, **completely ignore all damage and effects from one attack**. |
     | **3–6** | **+1 to melee attacks and damage.** |
-    | **7–9** | **+2 to Strength or Constitution stat**, OR +3 max HP. |
+    | **7–9** | **Gain a prime-ability increase as described in [advancement](01_system_overview.md#ability-increases-from-class-talents).**, OR +3 max HP. |
     | **10–11** | Increase the HP regained from **Flourish by +1d6**. |
-    | **12** | Choose any talent or gain +2 points to distribute among your stats. |
+    | **12** | Choose another talent, or gain a flexible ability increase as described in [advancement](01_system_overview.md#ability-increases-from-class-talents). |
 
 === "Ranger"
 
@@ -173,9 +173,9 @@ This section details ten martial archetypes from the Western Reaches and frontie
     | :---: | :--- |
     | **2** | You deal **1d12 weapon damage** with one weapon type of your choice. |
     | **3–6** | **+1 to melee or ranged attacks and damage.** |
-    | **7–9** | **+2 to Strength, Dexterity, or Intelligence stat.** |
+    | **7–9** | **Gain a prime-ability increase as described in [advancement](01_system_overview.md#ability-increases-from-class-talents).** |
     | **10–11** | Gain **Advantage on Herbalism checks** for a remedy of your choice. |
-    | **12** | Choose any talent or gain +2 points to distribute among your stats. |
+    | **12** | Choose another talent, or gain a flexible ability increase as described in [advancement](01_system_overview.md#ability-increases-from-class-talents). |
 
 === "Roustabout"
 
@@ -193,9 +193,9 @@ This section details ten martial archetypes from the Western Reaches and frontie
     ### Roustabout Talents (2d6)
     | 2d6 | Effect |
     | :---: | :--- |
-    | **2** | **+1 to any stat** and roll another talent immediately. |
+    | **2** | **Gain a flexible ability increase as described in [advancement](01_system_overview.md#ability-increases-from-class-talents)** and roll another talent immediately. |
     | **3–6** | Gain proficiency to wield a **new weapon or armor type**. |
-    | **7–9** | **+1 to any two different stats.** |
+    | **7–9** | **Gain a flexible ability increase as described in [advancement](01_system_overview.md#ability-increases-from-class-talents).** |
     | **10–11** | Roll an **extra Hit Die** for maximum HP this level. |
     | **12** | Learn **any spell** of a tier equal to half your level (min. 1), casting it with that class's casting stat. |
 
@@ -223,9 +223,9 @@ This section details ten martial archetypes from the Western Reaches and frontie
     | :---: | :--- |
     | **2** | **Lon Laíth (The Hero's Halo):** A jet of boiling black blood erupts from your scalp when transformed; ranged attacks against you suffer Disadvantage. |
     | **3–6** | **+1 to melee weapon damage** in both normal and transformed states. |
-    | **7–9** | **+2 to Strength or Constitution stat.** |
+    | **7–9** | **Gain a prime-ability increase as described in [advancement](01_system_overview.md#ability-increases-from-class-talents).** |
     | **10–11** | **Earth-Root Endurance:** Reduce the HP sacrifice required for additional Warp-Spasms from 1d6 to 1d4. |
-    | **12** | Choose any talent or gain +2 points to distribute among your stats. |
+    | **12** | Choose another talent, or gain a flexible ability increase as described in [advancement](01_system_overview.md#ability-increases-from-class-talents). |
 
 === "Dragon Rider"
 
@@ -251,7 +251,7 @@ This section details ten martial archetypes from the Western Reaches and frontie
     | :---: | :--- |
     | **2** | **Dragon-Horn Mastery:** You can summon your dragon from hibernation or across distant hexes in 1d4 rounds. |
     | **3–6** | **+1 to ranged attack rolls** and mounted melee attacks. |
-    | **7–9** | **+2 to Dexterity or Charisma stat.** |
+    | **7–9** | **Gain a prime-ability increase as described in [advancement](01_system_overview.md#ability-increases-from-class-talents).** |
     | **10–11** | **Draconic Scales:** Your dragon's natural Armor Class increases by +2, and you gain +1 Armor while mounted. |
-    | **12** | Choose any talent or gain +2 points to distribute among your stats. |
+    | **12** | Choose another talent, or gain a flexible ability increase as described in [advancement](01_system_overview.md#ability-increases-from-class-talents). |
 

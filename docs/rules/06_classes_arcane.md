@@ -25,9 +25,9 @@
     | :---: | :--- |
     | **2** | You have **Advantage on all Downtime checks** (excluding carousing). |
     | **3–6** | **+1 to melee and ranged attacks** OR +1 to Fascinate checks. |
-    | **7–9** | **+2 points to distribute among any stats.** |
+    | **7–9** | **Gain a flexible ability increase as described in [advancement](01_system_overview.md#ability-increases-from-class-talents).** |
     | **10–11** | Add **+2 to your group's Carousing event rolls**. |
-    | **12** | Choose any talent or gain +2 points to distribute among your stats. |
+    | **12** | Choose another talent, or gain a flexible ability increase as described in [advancement](01_system_overview.md#ability-increases-from-class-talents). |
 
 === "Necromancer"
 
@@ -63,9 +63,9 @@
     | :---: | :--- |
     | **2** | The next time you die, **return to life with full HP** in 1d4 rounds. |
     | **3–7** | **+1 to spellcasting checks** OR +1 to melee attack rolls. |
-    | **8–9** | **+2 to Strength, Constitution, or Charisma stat.** |
+    | **8–9** | **Gain a prime-ability increase as described in [advancement](01_system_overview.md#ability-increases-from-class-talents).** |
     | **10–11** | Gain **Advantage on casting one chosen necromancer spell**. |
-    | **12** | Choose any talent or gain +2 points to distribute among your stats. |
+    | **12** | Choose another talent, or gain a flexible ability increase as described in [advancement](01_system_overview.md#ability-increases-from-class-talents). |
 
 === "Warlock"
 
@@ -86,10 +86,10 @@
     | 2d6 | Effect |
     | :---: | :--- |
     | **2** | Roll a **Patron Boon from ANY patron** (an unexplained eldritch gift). |
-    | **3–6** | **+1 to any two different stats.** |
+    | **3–6** | **Gain a prime-ability increase as described in [advancement](01_system_overview.md#ability-increases-from-class-talents).** |
     | **7–9** | **+1 to melee or ranged attacks.** |
     | **10–11** | Roll two Patron Boons and **choose one to keep**. |
-    | **12** | Choose any talent or gain +2 points to distribute among your stats. |
+    | **12** | Choose another talent, or gain a flexible ability increase as described in [advancement](01_system_overview.md#ability-increases-from-class-talents). |
 
 === "Witch"
 
@@ -126,10 +126,10 @@
     | 2d6 | Effect (2 duplicate = +1 use per day) |
     | :---: | :--- |
     | **2** | 1/day, **teleport to your familiar's exact location** as a move action. |
-    | **3–7** | **+2 to Charisma stat** OR +1 to witch spellcasting checks. |
+    | **3–7** | **Gain a prime-ability increase as described in [advancement](01_system_overview.md#ability-increases-from-class-talents).** OR +1 to witch spellcasting checks. |
     | **8–9** | Gain **Advantage on casting one chosen witch spell**. |
     | **10–11** | Learn an **additional witch spell** of any tier you can cast. |
-    | **12** | Choose any talent or gain +2 points to distribute among your stats. |
+    | **12** | Choose another talent, or gain a flexible ability increase as described in [advancement](01_system_overview.md#ability-increases-from-class-talents). |
 
 === "Wyrdling"
 
@@ -164,10 +164,10 @@
     | 2d6 | Effect |
     | :---: | :--- |
     | **2** | Gain **two new Corruption talents** immediately. |
-    | **3–6** | **+2 to Strength, Dexterity, or Charisma stat.** |
+    | **3–6** | **Gain a prime-ability increase as described in [advancement](01_system_overview.md#ability-increases-from-class-talents).** |
     | **7–9** | Gain **one new Corruption talent**. |
     | **10–11** | **+1 to attack and damage rolls with your Pseudopod.** |
-    | **12** | Choose any talent or gain +2 points to distribute among your stats. |
+    | **12** | Choose another talent, or gain a flexible ability increase as described in [advancement](01_system_overview.md#ability-increases-from-class-talents). |
 
 === "Enchanter"
 
@@ -187,9 +187,9 @@
     | :---: | :--- |
     | **2** | 1/day, cast *Hold Person* or *Charm* without expending a spell slot. |
     | **3–7** | **+1 to glamour spellcasting checks.** |
-    | **8–9** | **+2 to Charisma or Intelligence stat.** |
+    | **8–9** | **Gain a prime-ability increase as described in [advancement](01_system_overview.md#ability-increases-from-class-talents).** |
     | **10–11** | Charmed targets roll saves against your magic with **Disadvantage**. |
-    | **12** | Choose any talent or gain +2 points to distribute among your stats. |
+    | **12** | Choose another talent, or gain a flexible ability increase as described in [advancement](01_system_overview.md#ability-increases-from-class-talents). |
 
 === "Fire-Mage"
 
@@ -209,9 +209,9 @@
     | :---: | :--- |
     | **2** | All fire spell damage dice **explode** (reroll maximum die values). |
     | **3–7** | **+1 to arcane fire spellcasting checks.** |
-    | **8–9** | **+2 to Intelligence or Constitution stat.** |
+    | **8–9** | **Gain a prime-ability increase as described in [advancement](01_system_overview.md#ability-increases-from-class-talents).** |
     | **10–11** | 1/day, erupt in a **Ring of Fire** dealing 3d6 damage to all adjacent foes. |
-    | **12** | Choose any talent or gain +2 points to distribute among your stats. |
+    | **12** | Choose another talent, or gain a flexible ability increase as described in [advancement](01_system_overview.md#ability-increases-from-class-talents). |
 
 === "Illusionist"
 
@@ -231,6 +231,6 @@
     | :---: | :--- |
     | **2** | 1/day, turn **invisible for 1d6 rounds** upon taking damage. |
     | **3–7** | **+1 to illusion spellcasting checks.** |
-    | **8–9** | **+2 to Intelligence or Dexterity stat.** |
+    | **8–9** | **Gain a prime-ability increase as described in [advancement](01_system_overview.md#ability-increases-from-class-talents).** |
     | **10–11** | Gain **+2 uses per day of Mirror Trick**. |
-    | **12** | Choose any talent or gain +2 points to distribute among your stats. |
+    | **12** | Choose another talent, or gain a flexible ability increase as described in [advancement](01_system_overview.md#ability-increases-from-class-talents). |

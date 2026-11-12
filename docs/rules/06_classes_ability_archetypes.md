@@ -2,7 +2,7 @@
 
 These six classes adapt the ability-focused archetypes to ASH. None requires technology: a Clever character may be a scholar or craftsperson, a Quick character a scout or rider, and a Charming character a caravan leader. Where a campaign has technology, tools and equipment appropriate to the setting can fill the same roles; these features do not grant free equipment or automatic success.
 
-Choose one archetype at character creation. Its named ability is its prime ability. Roll its hit die plus CON modifier for starting HP and when gaining a level, using the usual HP rules. Use its [saving throws](class_roster.md#class-saving-throws). At levels 1, 3, 5, 7, and 9, roll once on its talent table below. Each bonus stacks when rolled again; an ability increase follows the normal limits. Armor and weapon names refer to the [equipment rules](07_equipment_and_services.md).
+Choose one archetype at character creation. Its named ability is one of its two prime abilities; choose the second at creation. Roll its hit die plus CON modifier for starting HP and when gaining a level, using the usual HP rules. Use its [saving throws](class_roster.md#class-saving-throws). At every odd level, including 1st and 21st, roll once on its talent table below. Each bonus stacks when rolled again; an ability increase follows the normal limits. Armor and weapon names refer to the [equipment rules](07_equipment_and_services.md).
 
 ## Strong
 
@@ -53,7 +53,7 @@ Roll 2d6 at the class talent levels above. Use the entry for your archetype's pr
 | 2d6 | Talent |
 | --- | --- |
 | 2 | Gain +1 maximum HP per level, including levels already gained. |
-| 3–6 | Gain +1 to checks using your prime ability. This does not add to attacks, saves, or spellcasting checks. |
-| 7–9 | Increase your prime ability by 2. |
+| 3–6 | Gain +1 to checks using your named ability. This does not add to attacks, saves, or spellcasting checks. |
+| 7–9 | Increase your two prime abilities by a total of 2 points, distributed as you choose. |
 | 10–11 | Gain +1 to one of your strong saving throws of your choice. |
-| 12 | Choose one result above, or increase any two abilities by 1 each. |
+| 12 | Choose one result above, or distribute 2 points among any abilities. |

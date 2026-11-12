@@ -2,7 +2,7 @@
 
 > **The classic adventuring archetypes, refined through the streamlined Shadowdark d20 talent and resolution engine.**
 
-Every class uses the **2d6 Talent Roll** system upon gaining odd-numbered levels (1, 3, 5, 7, 9) and features specific core class mechanics.
+Every class uses the **2d6 Talent Roll** system upon gaining odd-numbered levels (1, 3, 5, and so on through 21) and features specific core class mechanics.
 
 ---
 
@@ -38,7 +38,7 @@ Every class uses the **2d6 Talent Roll** system upon gaining odd-numbered levels
     | :---: | :--- |
     | **2** | Gain Weapon Mastery with an additional weapon type. |
     | **3–6** | **+1 to melee and ranged attack rolls.** |
-    | **7–9** | **+2 to Strength, Dexterity, or Constitution stat.** |
+    | **7–9** | **+2 points among your two prime abilities.** |
     | **10–11** | **+1 to melee and ranged damage rolls.** |
     | **12** | Choose any talent or gain +2 points to distribute among your stats. |
 
@@ -68,7 +68,7 @@ Every class uses the **2d6 Talent Roll** system upon gaining odd-numbered levels
     | :---: | :--- |
     | **2** | Roll your Backstab damage with Advantage (roll dice pool twice and take higher total). |
     | **3–5** | **+1 to attack rolls with ranged or finesse weapons.** |
-    | **6–8** | **+2 to Dexterity or Charisma stat.** |
+    | **6–8** | **+2 points among your two prime abilities.** |
     | **9–11** | **+1 bonus on all Passive Trap Sense and Thievery checks.** |
     | **12** | Choose any talent or gain +2 points to distribute among your stats. |
 
@@ -106,9 +106,9 @@ Every class uses the **2d6 Talent Roll** system upon gaining odd-numbered levels
     | :---: | :--- |
     | **2** | Choose one priest spell you know; you can cast it with Advantage. |
     | **3–6** | **+1 to divine spellcasting checks.** |
-    | **7–9** | **+2 to Strength, Constitution, or Wisdom stat.** |
+    | **7–9** | **+1 to Wisdom.** |
     | **10–11** | **+1 to melee attack and damage rolls with bludgeoning weapons.** |
-    | **12** | Choose any talent or gain +2 points to distribute among your stats. |
+    | **12** | Choose any other talent, or gain +1 to your casting ability. |
 
 === "Wizard (Magic-User)"
 
@@ -144,6 +144,6 @@ Every class uses the **2d6 Talent Roll** system upon gaining odd-numbered levels
     | :---: | :--- |
     | **2** | Learn one additional wizard spell of any tier you can cast. |
     | **3–7** | **+1 to arcane spellcasting checks.** |
-    | **8–9** | **+2 to Intelligence or Dexterity stat.** |
+    | **8–9** | **+1 to Intelligence.** |
     | **10–11** | Modify one known spell to cast at Far range instead of Near/Close. |
-    | **12** | Choose any talent or gain +2 points to distribute among your stats. |
+    | **12** | Choose any other talent, or gain +1 to your casting ability. |

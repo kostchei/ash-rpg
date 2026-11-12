@@ -41,7 +41,7 @@ Whenever a character attempts an action with a significant chance of failure or 
 
 ## 📊 The Six Core Abilities
 
-Characters possess six classic ability scores ranging from **3 to 18** (or higher with level-up talents):
+Characters possess six classic ability scores ranging from **3 to 18**, with modifiers from **−4 to +4**. No ability score can be raised above 18 or reduced below 3:
 
 | Ability | Abbr | Primary Use in ASH |
 | :--- | :---: | :--- |
@@ -60,8 +60,8 @@ Modifiers are calculated as **floor((ability score - 10) / 2)**: subtract 10, di
 | **3** | -4 | **12–13** | +1 |
 | **4–5** | -3 | **14–15** | +2 |
 | **6–7** | -2 | **16–17** | +3 |
-| **8–9** | -1 | **18–19** | +4 |
-| **10–11** | +0 | **20–21** | +5 |
+| **8–9** | -1 | **18** | +4 |
+| **10–11** | +0 | — | — |
 
 ---
 
@@ -89,7 +89,21 @@ For example, a level 19 character with a weak CON save and CON 10 (+0) rolls d20
 
 ASH uses **2d6 rolls** for two crucial systems:
 1. **Monster Reactions & Morale:** Unbiased, procedural determination of whether creatures attack, negotiate, or flee.
-2. **Class Talents:** Rolled at odd levels (1, 3, 5, 7, 9) to advance class capabilities dynamically without decision paralysis.
+2. **Class Talents:** Roll on your class table at every odd level, including 1st (1, 3, 5, and so on through 21).
+
+### Advancement and downtime
+
+At every even level (2, 4, 6, and so on), gain one **automatic downtime success**. During a later downtime activity, spend it before rolling to succeed at one check that the activity requires. The activity must be possible and you must still meet its requirements, costs, and duration. One success does not complete extra steps or guarantee random rewards. Record unused successes; each can be spent once.
+
+### Ability increases from class talents
+
+Scores, including starting scores after ancestry adjustments, cannot go below 3 or above 18. Apply an increase only up to 18; excess points are lost unless the talent permits them to be assigned elsewhere. If a required decrease would go below 3, it stops at 3.
+
+For this playtest, a **caster** is a class whose starting features grant spellcasting or a spell list; use the class's casting ability. A class that only gains a spell from an optional talent remains a non-caster. Patron spellcasting counts; a Warlock chooses Intelligence or Charisma as their casting ability when choosing a patron. If a class lets you choose its casting ability, choose one at character creation. Each non-caster chooses two prime abilities at character creation; for an ability archetype, the named ability must be one of them. These are not minimum score requirements and do not change saving throw assignments.
+
+When a class talent increases ability scores, casters gain **+1 to their casting ability**. Non-casters gain **+2**, assigned as the class talent directs: a prime result goes to either or both prime abilities; a flexible result can go to any abilities. These rules replace conflicting ability-increase amounts or destinations in older class talent tables; other effects in a result remain unchanged. This is an initial playtest of a smaller caster increase, not a claim that every class has the same chance of rolling one.
+
+If a caster's casting ability is already 18, or both of a non-caster's prime abilities are already 18, a player who rolls an ability-increase result may instead choose any other result on their class talent table. A result that also has a separate non-stat option may use that option. Do not roll an extra talent unless the chosen result explicitly grants one.
 
 ---
 

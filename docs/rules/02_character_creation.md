@@ -81,7 +81,7 @@ Record your ancestry traits, senses (Infravision / Low-Light), and your cultural
 ### Step 3: Choose Class
 Choose a class from the [class roster](class_roster.md). The four core classes are Fighter, Priest, Thief, and Wizard. The roster also identifies the requested additional classes and whether a playable entry exists yet.
 
-Record your class hit die, allowed armor & weapons, starting class abilities, and [saving throw tiers](class_roster.md#class-saving-throws).
+Record your class hit die, allowed armor & weapons, starting class abilities, and [saving throw tiers](class_roster.md#class-saving-throws). A non-caster also chooses two prime abilities for class talents; a caster records their casting ability. See [advancement](01_system_overview.md#advancement-and-downtime).
 
 ---
 

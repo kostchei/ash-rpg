@@ -30,9 +30,9 @@ This section presents specialized archetypes designed for infiltration, trap mas
     | :---: | :--- |
     | **2** | 1/day, **automatically disarm a detected mechanical trap** or unlock a mundane lock without a check. |
     | **3–6** | **+1 to melee and ranged attack rolls** with light weapons. |
-    | **7–9** | **+2 to Dexterity, Constitution, or Intelligence stat.** |
+    | **7–9** | **Gain a prime-ability increase as described in [advancement](01_system_overview.md#ability-increases-from-class-talents).** |
     | **10–11** | Your **Scavenger ability succeeds on a 4, 5, or 6** on 1d6. |
-    | **12** | Choose any talent or gain +2 points to distribute among your stats. |
+    | **12** | Choose another talent, or gain a flexible ability increase as described in [advancement](01_system_overview.md#ability-increases-from-class-talents). |
 
 === "Ras-Godai"
 
@@ -69,9 +69,9 @@ This section presents specialized archetypes designed for infiltration, trap mas
     | :---: | :--- |
     | **2** | You are trained in the **harvesting and use of deadly poisons**. |
     | **3–6** | Roll an **additional talent on the Black Lotus Talents table**. |
-    | **7–9** | **+2 to Strength or Dexterity stat**, OR +1 to melee attack rolls. |
+    | **7–9** | **Gain a prime-ability increase as described in [advancement](01_system_overview.md#ability-increases-from-class-talents).**, OR +1 to melee attack rolls. |
     | **10–11** | Gain **+1 additional daily use of Smoke Step**. |
-    | **12** | Choose any talent or gain +2 points to distribute among your stats. |
+    | **12** | Choose another talent, or gain a flexible ability increase as described in [advancement](01_system_overview.md#ability-increases-from-class-talents). |
 
 === "Druid"
 
@@ -111,9 +111,9 @@ This section presents specialized archetypes designed for infiltration, trap mas
     | :---: | :--- |
     | **2** | Gain **+1 daily use of Wild Shape**, and transform into large apex predators. |
     | **3–6** | **+1 to primal spellcasting checks.** |
-    | **7–9** | **+2 to Wisdom, Constitution, or Dexterity stat.** |
+    | **7–9** | **Gain a prime-ability increase as described in [advancement](01_system_overview.md#ability-increases-from-class-talents).** |
     | **10–11** | Learn an **additional druid spell** of any tier you can cast. |
-    | **12** | Choose any talent or gain +2 points to distribute among your stats. |
+    | **12** | Choose another talent, or gain a flexible ability increase as described in [advancement](01_system_overview.md#ability-increases-from-class-talents). |
 
 === "Alchemist"
 
@@ -139,9 +139,9 @@ This section presents specialized archetypes designed for infiltration, trap mas
     | :---: | :--- |
     | **2** | Your bomb damage dice **explode** (roll again on maximum die result). |
     | **3–5** | **+1 to ranged attack rolls** with thrown bombs and slings. |
-    | **6–8** | **+2 to Intelligence or Dexterity stat.** |
+    | **6–8** | **Gain a prime-ability increase as described in [advancement](01_system_overview.md#ability-increases-from-class-talents).** |
     | **9–11** | Prepare **+2 additional Alchemical Flasks** per rest. |
-    | **12** | Choose any talent or gain +2 points to distribute among your stats. |
+    | **12** | Choose another talent, or gain a flexible ability increase as described in [advancement](01_system_overview.md#ability-increases-from-class-talents). |
 
 === "Sage"
 
@@ -165,9 +165,9 @@ This section presents specialized archetypes designed for infiltration, trap mas
     | :---: | :--- |
     | **2** | **Weakness Expose:** On a successful Lore check, your party deals **+1d6 damage** against that creature type for the combat. |
     | **3–6** | **+1 to Tactical Counsel bonus** (grants +1d4 extra damage to the advised ally). |
-    | **7–9** | **+2 to Intelligence or Wisdom stat.** |
+    | **7–9** | **Gain a prime-ability increase as described in [advancement](01_system_overview.md#ability-increases-from-class-talents).** |
     | **10–11** | Gain **+2 additional Gear Slots** reserved exclusively for books, scrolls, and ancient tomes. |
-    | **12** | Choose any talent or gain +2 points to distribute among your stats. |
+    | **12** | Choose another talent, or gain a flexible ability increase as described in [advancement](01_system_overview.md#ability-increases-from-class-talents). |
 
 === "Monk"
 
@@ -193,9 +193,9 @@ This section presents specialized archetypes designed for infiltration, trap mas
     | :---: | :--- |
     | **2** | **Ki Step:** 3/day, double movement speed and ignore difficult terrain for 1 round. |
     | **3–6** | **+1 to unarmed attack and damage rolls.** |
-    | **7–9** | **+2 to Dexterity or Wisdom stat.** |
+    | **7–9** | **Gain a prime-ability increase as described in [advancement](01_system_overview.md#ability-increases-from-class-talents).** |
     | **10–11** | **Stunning Palm:** 2/day, target hit must pass CON check vs DC 10 + half level or be stunned for 1 round. |
-    | **12** | Choose any talent or gain +2 points to distribute among your stats. |
+    | **12** | Choose another talent, or gain a flexible ability increase as described in [advancement](01_system_overview.md#ability-increases-from-class-talents). |
 
 === "Focus Assassin"
 
@@ -224,7 +224,7 @@ This section presents specialized archetypes designed for infiltration, trap mas
     | :---: | :--- |
     | **2** | **Baba Yaga's Resilience:** 1/day, when reduced to 0 HP, stand back up with 1 HP and immediately regain 2 Focus Points. |
     | **3–6** | **+1 to attack and damage rolls** with daggers, shortswords, and ranged hand-weapons. |
-    | **7–9** | **+2 to Dexterity or Wisdom stat.** |
+    | **7–9** | **Gain a prime-ability increase as described in [advancement](01_system_overview.md#ability-increases-from-class-talents).** |
     | **10–11** | **+2 Maximum Focus Points** in your pool. |
-    | **12** | Choose any talent or gain +2 points to distribute among your stats. |
+    | **12** | Choose another talent, or gain a flexible ability increase as described in [advancement](01_system_overview.md#ability-increases-from-class-talents). |
 
