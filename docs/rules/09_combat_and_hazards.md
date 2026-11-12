@@ -72,10 +72,10 @@ Monsters in ASH are living beings with self-preservation instincts. Roll **2d6**
 
 ## ☠️ Death & Dying
 
-When a character reaches **0 Hit Points**:
-* They fall **Unconscious & Bleeding Out**.
-* At the start of each of their turns, they make a **Death Saving Throw (DC 10 CON check)**:
-  * **Success:** Stable (unconscious, regains 1 HP after 1 hour rest).
-  * **Failure:** 1 Strike marked. At **3 Strikes**, the character is dead.
-  * **Natural 20:** Immediately awakens with 1 HP!
-  * **Natural 1:** Immediately marks 2 death strikes.
+When a character reaches **0 Hit Points**, they fall unconscious and begin dying.
+
+1. **Start the timer:** Roll **1d4 + 1**. This is the number of the character's turns remaining before death. Do not add the Constitution modifier to the timer.
+2. **On each of those turns:** Make a **DC 20 Constitution saving throw**, adding the character's Constitution modifier and class save bonus. On a success, the character regains 1 HP, wakes up, and stops dying. On a failure, reduce the timer by 1; if it reaches zero, the character dies. The character gets a save on the final turn before the timer expires.
+3. **Help:** An ally within Close can use an action to attempt a DC 15 Intelligence check to stabilize the dying character. On success, the timer stops; the character remains unconscious at 0 HP. A stabilized character is no longer dying. Healing that restores at least 1 HP also stops the timer and wakes the character.
+
+Roll a new timer each time a character is reduced to 0 HP and begins dying again. This uses the Shadowdark-style timer with ASH's fixed +1 and DC 20 Constitution save.

@@ -81,7 +81,7 @@ Each class assigns two abilities to each tier: **strong**, **medium**, and **wea
 | 16–18 | +5 | +6 | +7 |
 | 19–21 | +6 | +7 | +8 |
 
-For example, a level 19 character with a weak CON save and CON 10 (+0) rolls d20 + 6 against DC 15 and succeeds on 9 or higher. A level 19 character with a strong CON save and CON 18 (+4) rolls d20 + 12 and succeeds on 3 or higher. Use the character's actual ability modifier, even when it is negative. Existing effects that grant advantage or disadvantage still apply, and a specified DC overrides the standard DC. A death saving throw is a special DC 10 CON check and does not use the class save bonus; see [Death & Dying](09_combat_and_hazards.md#death-dying).
+For example, a level 19 character with a weak CON save and CON 10 (+0) rolls d20 + 6 against DC 15 and succeeds on 9 or higher. A level 19 character with a strong CON save and CON 18 (+4) rolls d20 + 12 and succeeds on 3 or higher. Use the character's actual ability modifier, even when it is negative. Existing effects that grant advantage or disadvantage still apply, and a specified DC overrides the standard DC. A dying character makes a DC 20 CON save using the normal class save bonus; see [Death & Dying](09_combat_and_hazards.md#death-dying).
 
 ---
 
